@@ -246,6 +246,12 @@ function handleSend() {
     box-shadow: 0 0 2px 4px var(--el-color-primary-light-7);
   }
   &-Input {
+    .generating & {
+      opacity: 0;
+
+      pointer-events: none;
+    }
+
     input {
       &:focus-visible {
         outline: none;
@@ -297,6 +303,14 @@ function handleSend() {
 }
 
 @keyframes animate {
+  0% {
+    filter: blur(10px) hue-rotate(0deg);
+  }
+
+  50% {
+    filter: blur(20px) hue-rotate(180deg);
+  }
+
   100% {
     filter: blur(10px) hue-rotate(360deg);
   }
