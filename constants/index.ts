@@ -2,5 +2,5 @@ export const appName = 'ThisAI - Quota'
 export const appDescription = 'THISAI'
 
 export const ENDS_URL = {
-  dev: 'http://121.43.50.174:7001',
+  dev: 'https://121.43.50.174:7001',
 }

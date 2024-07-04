@@ -8,9 +8,13 @@ export async function useChatCompletion(context: ChatCompletion, callback: (data
     }
   })
 
-  const res = await $fetch<ReadableStream>(`${ENDS_URL.dev}/api/aigc`, {
+  const res = await $fetch<ReadableStream>(`https://api.aiskt.com/v1/chat/completions`, {
     method: 'POST',
     responseType: 'stream',
+    headers: {
+      Accept: 'text/event-stream',
+      Authorization: 'Bearer sk-u1RFUsfnnyHAZyQQ56114c02606640Ab8b0a23Ab3dF516Eb',
+    },
     body: {
       messages: _messages,
       model: context.mask.modelConfig.model,
