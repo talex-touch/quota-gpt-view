@@ -96,7 +96,7 @@ function handleSend() {
     background-color: var(--el-color-danger);
   }
   &.expand {
-    transform: translateX(50%) translateX(4rem) scale(1);
+    transform: translateX(50%) translateX(5rem) scale(1);
   }
   &.expand.generating {
     left: 55%;
@@ -114,7 +114,7 @@ function handleSend() {
 
   bottom: 2.5%;
 
-  left: 85%;
+  left: 87%;
   width: 50px;
   height: 50px;
 
@@ -122,11 +122,22 @@ function handleSend() {
   box-sizing: border-box;
   border-radius: 16px;
   box-shadow: var(--el-box-shadow);
-  transform: translateX(50%) translateX(4rem) scale(0);
+  transform: translateX(50%) translateX(5rem) scale(0);
   transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
 }
 
 .ThInput {
+  span {
+    position: absolute;
+
+    top: 50%;
+    left: 50%;
+
+    width: max-content;
+
+    transform: translate(-50%, -50%);
+  }
+
   &.error &-Send {
     div {
       opacity: 0;
@@ -192,14 +203,17 @@ function handleSend() {
       }
       transform: scale(1);
 
+      top: 0;
       left: 0;
+
       width: 100%;
+      height: 100%;
+
       pointer-events: none;
       border-radius: 16px;
       background: transparent;
     }
     &:hover {
-      border-radius: 16px;
       background-color: var(--el-color-primary);
       box-shadow: 0 0 2px 4px var(--el-color-primary-light-5);
     }
@@ -214,11 +228,11 @@ function handleSend() {
     align-items: center;
     justify-content: center;
 
-    top: 0;
-    right: 0;
+    top: 7px;
+    right: 7px;
 
-    width: 50px;
-    height: 50px;
+    width: 36px;
+    height: 36px;
 
     cursor: pointer;
     transition:
@@ -227,7 +241,7 @@ function handleSend() {
       left 0.25s,
       width 0.25s;
     transform: scale(0);
-    border-radius: 50%;
+    border-radius: 16px;
     background-color: var(--el-color-primary-light-3);
     box-shadow: 0 0 2px 4px var(--el-color-primary-light-7);
   }
@@ -250,9 +264,9 @@ function handleSend() {
     }
   }
 
-  &.showSend {
-    border-radius: 12px 24px 24px 12px;
-  }
+  // &.showSend {
+  //   border-radius: 12px 24px 24px 12px;
+  // }
   &.shrink {
     width: calc(85% - 2em);
 
