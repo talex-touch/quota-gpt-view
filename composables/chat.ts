@@ -41,9 +41,10 @@ export async function useChatCompletion(context: ChatCompletion, callback: (data
       const arr = value.split('\n')
       for (let i = 0; i < arr.length; i++) {
         const item = arr[i]
+
         if (item.startsWith('data: ')) {
           const data = item.slice(6)
-          if (data === 'data: DONE') {
+          if (data === '[DONE]') {
             callback({
               done: true,
             })

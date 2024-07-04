@@ -44,7 +44,12 @@ function handleSend() {
 
 <template>
   <div
-    :class="{ shrink, showSend, generating: status === Status.GENERATING }"
+    :class="{
+      shrink,
+      showSend,
+      generating: status === Status.GENERATING,
+      error: status === Status.ERROR,
+    }"
     class="ThInput"
     @keydown.enter="handleSend"
   >
@@ -55,6 +60,7 @@ function handleSend() {
     <div class="ThInput-Send" @click="handleSend">
       <div i-carbon:send-alt />
       <span v-if="status === Status.GENERATING">生成中</span>
+      <span v-else-if="status === Status.ERROR">出现错误，请刷新页面。</span>
     </div>
   </div>
 
@@ -121,6 +127,20 @@ function handleSend() {
 }
 
 .ThInput {
+  &.error &-Send {
+    div {
+      opacity: 0;
+    }
+    transform: scale(1);
+
+    left: 0;
+    width: 100%;
+    pointer-events: none;
+    border-radius: 16px;
+    background: var(--el-color-danger);
+    box-shadow: 0 0 2px 4px var(--el-color-primary-light-5);
+  }
+
   &-Send {
     &::before {
       z-index: -1;
