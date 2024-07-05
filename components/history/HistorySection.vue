@@ -42,8 +42,8 @@ const menus = reactive([
 
     <div class="History-ContentHolder">
       <div
-        v-for="(item, index) in history.toReversed()"
-        :key="index"
+        v-for="item in history.toReversed()"
+        :key="item.id"
         :class="{ active: selectIndex === item.index }"
         class="History-Content-Item"
         @click="selectIndex = item.index"
@@ -197,6 +197,8 @@ const menus = reactive([
     }
     position: relative;
     padding: 0.5rem 0.5rem;
+
+    min-height: 32px;
 
     font-size: 14px;
     cursor: pointer;

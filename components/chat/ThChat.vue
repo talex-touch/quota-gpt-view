@@ -82,7 +82,7 @@ defineExpose({
   <div class="ThChat">
     <div :class="{ show: messages.messages?.length > 1 }" class="ThChat-Title">
       <p>
-        <el-input v-model="messages.topic" />
+        {{ messages.topic }}
       </p>
       <span class="model">{{ messages.mask.modelConfig.model }}</span>
     </div>
@@ -264,6 +264,7 @@ defineExpose({
     }
     z-index: 4;
     position: absolute;
+    padding: 0.5rem 0.25rem;
     display: flex;
 
     color: var(--el-text-color);
@@ -274,7 +275,7 @@ defineExpose({
     left: 0;
 
     width: 100%;
-    height: 30px;
+    height: 40px;
 
     backdrop-filter: blur(18px) saturate(180%);
   }

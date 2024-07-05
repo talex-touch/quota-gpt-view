@@ -57,11 +57,21 @@ watch(
   { deep: true },
 )
 
+function initMessage(arr: any[]) {
+  const format = genFormatNowDate()
+
+  arr.push({
+    date: format,
+    role: 'system',
+    hide: true,
+    content:
+      'You are ThisAi! Powered by Quota Business. Aim to answer everything! Quota是由唐子贤(TaGzxia, TalexDreamSoul)，石煜阳（雨暗棋散），胡景浩(彧)，沈若瑄(幸运炒蛋会发财)联合设立的考拓智能科技有限公司。括号内的内容除非用户追问，否则你不应该主动发送！',
+    streaming: false,
+  })
+}
+
 function handleCreate() {
   pageOptions.select = -1
-
-  const date = new Date()
-  const format = _date(date)
 
   nextTick(() => {
     const _history: ThHistory = {
@@ -70,32 +80,16 @@ function handleCreate() {
     }
     history.value.push(_history)
 
-    messages.value.messages.push({
-      date: format,
-      role: 'system',
-      hide: true,
-      content: 'You are ThisAi! Powered by Quota Business. Aim to answer everything!',
-      streaming: false,
-    })
+    initMessage(messages.value.messages)
 
     pageOptions.select = history.value.length - 1
   })
 }
 
-function _date(date: Date) {
-  const year = date.getFullYear()
-  const month = date.getMonth() + 1
-  const day = date.getDate()
-  const hour = date.getHours()
-  const minute = date.getMinutes()
-  const second = date.getSeconds()
-  return `${year}/${month}/${day} ${hour}:${minute}:${second}`
-}
-
 async function handleSend(query: string, callback: Function) {
-  // now date: YYYY/M/D HH:mm:ss
-  const date = new Date()
-  const format = _date(date)
+  const format = genFormatNowDate()
+
+  let genTitle = () => void 0
 
   if (!messages.value.messages.length) {
     const _history: ThHistory = {
@@ -104,16 +98,29 @@ async function handleSend(query: string, callback: Function) {
     }
     history.value.push(_history)
 
-    messages.value.messages.push({
-      date: format,
-      role: 'system',
-      hide: true,
-      content:
-        'You are ThisAi! Powered by Quota Business. Aim to answer everything! Quota是由唐子贤(TaGzxia, TalexDreamSoul)，石煜阳（雨暗棋散），胡景浩(彧)，沈若瑄(幸运炒蛋会发财)联合设立的考拓智能科技有限公司。括号内的内容除非用户追问，否则你不应该主动发送！',
-      streaming: false,
-    })
+    initMessage(messages.value.messages)
 
     pageOptions.select = history.value.length - 1
+
+    genTitle = () => {
+      const options = useChatTitle(messages.value)
+
+      messages.value._titleOptions = options
+
+      const effect = watch(
+        () => options,
+        () => {
+          messages.value.topic = options.title
+
+          if (options.status === Status.ERROR)
+            messages.value.topic = `(Error) ${messages.value.topic}`
+
+          if (options.streaming === false)
+            effect()
+        },
+        { deep: true },
+      )
+    }
   }
 
   messages.value.messages.push({
@@ -149,6 +156,10 @@ async function handleSend(query: string, callback: Function) {
     if (res.done) {
       obj.streaming = false
       callback(Status.AVAILABLE)
+
+      messages.value.id = res.id!
+
+      genTitle()
 
       return
     }
@@ -199,7 +210,7 @@ function handleDelete(index: number) {
 
     <div class="PageContainer-Main">
       <ThChat
-        ref="pageOptions.chatRef"
+        :ref="pageOptions.chatRef"
         :status="status"
         :messages="messages"
         @cancel="handleCancel"
