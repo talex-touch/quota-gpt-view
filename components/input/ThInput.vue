@@ -14,6 +14,8 @@ const emits = defineEmits<{
 const status = useVModel(props, 'status', emits)
 
 const input = ref('')
+const inputHistories = useLocalStorage<string[]>('inputHistories', [])
+const inputHistoryIndex = ref(inputHistories.value.length - 1)
 const showSend = computed(() => input.value.trim().length)
 
 function clear() {
@@ -25,6 +27,11 @@ function handleSend() {
     return
   if (status.value !== Status.AVAILABLE)
     return
+
+  inputHistories.value.push(input.value)
+  inputHistories.value = inputHistories.value.slice(-15)
+
+  inputHistoryIndex.value = inputHistories.value.length - 1
 
   status.value = Status.GENERATING
 
@@ -40,6 +47,38 @@ function handleSend() {
 
   input.value = ''
 }
+
+function handleInputKeydown(event: KeyboardEvent) {
+  if (inputHistories.value.length < 1)
+    return
+
+  const isLastOne = inputHistoryIndex.value === inputHistories.value.length - 1
+
+  const { key } = event
+  if (key === 'ArrowUp') {
+    if (inputHistoryIndex.value !== 0 && isLastOne)
+      input.value && inputHistories.value.push(input.value)
+
+    if (!isLastOne)
+      inputHistoryIndex.value -= 1
+    if (inputHistoryIndex.value < 0)
+      inputHistoryIndex.value = 0
+  }
+  else if (key === 'ArrowDown') {
+    if (isLastOne)
+      return (input.value = '')
+
+    inputHistoryIndex.value = inputHistoryIndex.value + 1
+
+    if (inputHistoryIndex.value > inputHistories.value.length - 1)
+      inputHistoryIndex.value = inputHistories.value.length - 1
+  }
+  else {
+    return
+  }
+
+  input.value = inputHistories.value[inputHistoryIndex.value]
+}
 </script>
 
 <template>
@@ -54,7 +93,13 @@ function handleSend() {
     @keydown.enter="handleSend"
   >
     <div class="ThInput-Input">
-      <input id="main-input" v-model="input" placeholder="问任何问题都可以...">
+      <input
+        id="main-input"
+        v-model="input"
+        autocomplete="off"
+        placeholder="问任何问题都可以..."
+        @keydown="handleInputKeydown"
+      >
     </div>
 
     <div class="ThInput-Send" @click="handleSend">
