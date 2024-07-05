@@ -20,7 +20,9 @@ export default defineConfig({
     presetIcons({
       scale: 1.2,
     }),
-    presetTypography(),
+    presetTypography({
+      selectorName: 'ProseMirror',
+    }),
     presetWebFonts({
       fonts: {
         sans: 'DM Sans',

@@ -11,6 +11,10 @@ import '@milkdown/theme-nord/style.css'
 import { replaceAll } from '@milkdown/utils'
 import { diagram } from '@milkdown/plugin-diagram'
 
+import './style.css'
+// import './style-light.css'
+// import './style-dark.css'
+
 import markdown from 'refractor/lang/markdown'
 import css from 'refractor/lang/css'
 import javascript from 'refractor/lang/javascript'
@@ -69,7 +73,7 @@ onMounted(async () => {
   <div class="RenderContent">
     <!-- <el-scrollbar>
       <div class="RenderContent-Wrapper"> -->
-    <div ref="inner" class="RenderContent-Inner" />
+    <div ref="inner" class="markdown-body RenderContent-Inner" />
     <!-- </div>
     </el-scrollbar> -->
   </div>
@@ -86,6 +90,17 @@ onMounted(async () => {
   //   height: 3px;
   //   left: 0;
   // }
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+  }
+
+  h3 {
+    font-size: 1.125rem;
+  }
 
   pre {
     margin: 0.5rem 0;
