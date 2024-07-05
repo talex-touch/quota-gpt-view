@@ -76,6 +76,8 @@ async function handleSend(query: string, callback: Function) {
 
   messages.value.messages.push(obj)
 
+  // abort
+
   // let ind = 0
   useChatCompletion(messages.value, (res) => {
     if (res.error) {
@@ -109,11 +111,17 @@ async function handleSend(query: string, callback: Function) {
 function handleClear() {
   messages.value.messages.length = 0
 }
+
+function handleCancel() {
+  status.value = Status.AVAILABLE
+
+  handleClear()
+}
 </script>
 
 <template>
   <div>
-    <ThChat :status="status" :messages="messages" />
+    <ThChat :status="status" :messages="messages" @cancel="handleCancel" />
     <ThInput
       v-model:status="status"
       :shrink="!!messages.messages.length"

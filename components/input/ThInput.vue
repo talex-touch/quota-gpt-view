@@ -283,7 +283,7 @@ function handleSend() {
 
     transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
   }
-
+  z-index: 3;
   position: absolute;
   padding: 0.25rem;
   display: flex;

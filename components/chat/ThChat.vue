@@ -8,6 +8,14 @@ const props = defineProps<{
   status: Status
 }>()
 
+const emits = defineEmits<{
+  (e: 'cancel'): void
+}>()
+
+function handleCancel() {
+  emits('cancel')
+}
+
 watch(
   () => props.messages.messages.length,
   () => {
@@ -96,7 +104,7 @@ function handleBackToBottom(animation: boolean = true) {
       <div class="ThChat-BackToBottom" @click="handleBackToBottom()">
         <div i-carbon-down-to-bottom />
       </div>
-      <div class="ThChat-StopGenerating" @click="handleBackToBottom()">
+      <div class="ThChat-StopGenerating" @click="handleCancel()">
         停止生成
       </div>
     </div>

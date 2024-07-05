@@ -98,6 +98,8 @@ const timeAgo = computed(() => dayjs(props.item.date, 'YYYY/M/D HH:mm:ss').fromN
     .ChatItem-Mention {
       opacity: 0.75;
     }
+
+    // background-color: var(--el-bg-color-page);
   }
 
   .ChatItem-Mention {
@@ -137,6 +139,8 @@ const timeAgo = computed(() => dayjs(props.item.date, 'YYYY/M/D HH:mm:ss').fromN
   }
   position: relative;
   padding: 0.5rem 1rem;
+
+  border-radius: 12px;
 }
 
 .ChatItem {
@@ -149,6 +153,7 @@ const timeAgo = computed(() => dayjs(props.item.date, 'YYYY/M/D HH:mm:ss').fromN
     }
     align-self: flex-end;
   }
+  z-index: 2;
   margin-bottom: 30px;
 
   width: max-content;
