@@ -150,6 +150,11 @@ function handleCancel() {
 
   handleClear()
 }
+
+// TODO 撤销删除
+function handleDelete(index: number) {
+  history.value.splice(index, 1)
+}
 </script>
 
 <template>
@@ -159,6 +164,7 @@ function handleCancel() {
       v-model:expand="pageOptions.expand"
       class="PageContainer-History"
       :history="history"
+      @delete="handleDelete"
     />
 
     <div class="PageContainer-Main">

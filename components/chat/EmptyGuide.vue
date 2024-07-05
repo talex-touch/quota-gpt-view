@@ -59,7 +59,8 @@ const sections = reactive([
     }
     padding: 0.75rem;
 
-    max-width: 300px;
+    min-width: 280px;
+    max-width: 380px;
 
     text-align: left;
     transition: 0.25s;
