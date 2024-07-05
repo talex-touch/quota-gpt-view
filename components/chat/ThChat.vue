@@ -75,6 +75,12 @@ const messageBubbles = computed(() =>
 
 defineExpose({
   handleBackToBottom,
+  generateScroll: () => {
+    handleScroll()
+
+    if (options.backToBottom)
+      handleBackToBottom()
+  },
 })
 </script>
 

@@ -36,13 +36,13 @@ const originObj = {
   },
 }
 
+const chatRef = ref()
 const messages = ref<ChatCompletion>(JSON.parse(JSON.stringify(originObj)))
 const history = useLocalStorage<ThHistory[]>('chat-history', [])
 const status = ref(Status.AVAILABLE)
 const pageOptions = reactive<any>({
   expand: true,
   select: -1,
-  chatRef: null,
 })
 
 watch(
@@ -52,7 +52,7 @@ watch(
       = ind === -1 ? JSON.parse(JSON.stringify(originObj)) : history.value[ind]
 
     setTimeout(() => {
-      pageOptions.chatRef?.handleBackToBottom()
+      chatRef.value?.handleBackToBottom()
     }, 200)
   },
   { deep: true },
@@ -163,6 +163,10 @@ async function handleSend(query: string, callback: Function) {
       obj.streaming = false
       callback(Status.AVAILABLE)
 
+      setTimeout(() => {
+        chatRef.value?.handleBackToBottom()
+      }, 200)
+
       return
     }
 
@@ -176,6 +180,7 @@ async function handleSend(query: string, callback: Function) {
       return
 
     obj.content += text!.content
+    chatRef.value?.generateScroll()
     // ind += 1
     // setTimeout(() => {
     // }, ind * 10)
@@ -202,8 +207,6 @@ function handleDelete(index: number) {
   history.value.splice(index, 1)
 }
 
-console.log('history', history)
-
 provide('updateConversationTopic', (index: number, topic: string) => {
   history.value[index].topic = topic
 })
@@ -222,7 +225,7 @@ provide('updateConversationTopic', (index: number, topic: string) => {
 
     <div class="PageContainer-Main">
       <ThChat
-        :ref="pageOptions.chatRef"
+        ref="chatRef"
         :status="status"
         :messages="messages"
         @cancel="handleCancel"

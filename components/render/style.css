@@ -526,18 +526,6 @@
   outline: none;
 }
 
-.markdown-body p,
-.markdown-body blockquote,
-.markdown-body ul,
-.markdown-body ol,
-.markdown-body dl,
-.markdown-body table,
-.markdown-body pre,
-.markdown-body details {
-  margin-top: 0;
-  margin-bottom: 16px;
-}
-
 .markdown-body blockquote>:first-child {
   margin-top: 0;
 }
