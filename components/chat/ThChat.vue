@@ -78,7 +78,7 @@ defineExpose({
   generateScroll: () => {
     handleScroll()
 
-    if (options.backToBottom)
+    if (!options.backToBottom)
       handleBackToBottom()
   },
 })
