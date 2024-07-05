@@ -30,10 +30,7 @@ const _history = useVModel(props, 'history', emits)
         class="History-Content-Item"
         @click="selectIndex = item.index"
       >
-        <HistoryItem
-          :model-value="item"
-          @delete="emits('delete', $event)"
-        />
+        <HistoryItem :model-value="item" @delete="emits('delete', $event)" />
       </div>
     </div>
   </div>

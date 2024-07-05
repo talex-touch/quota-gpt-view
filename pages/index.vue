@@ -10,6 +10,7 @@ const originObj = {
   id: 'IW3DiVM6Wl8rBdHM2_mHq',
   topic: '新的聊天',
   messages: [],
+  lastUpdate: Date.now(),
   mask: {
     id: 'Aadv3pqdc1D_i-SiYx5Wq',
     avatar: 'gpt-bot',
@@ -78,6 +79,7 @@ function handleCreate() {
       sync: false,
       ...messages.value,
     }
+    _history.lastUpdate = Date.now()
     history.value.push(_history)
 
     initMessage(messages.value.messages)
@@ -89,31 +91,35 @@ function handleCreate() {
 async function handleSend(query: string, callback: Function) {
   const format = genFormatNowDate()
 
-  let genTitle = () => void 0
+  let genTitle = (_index: number) => void 0
 
-  if (!messages.value.messages.length) {
-    const _history: ThHistory = {
-      sync: false,
-      ...messages.value,
+  if (messages.value.messages.length < 2) {
+    if (pageOptions.select === -1) {
+      const _history: ThHistory = {
+        sync: false,
+        ...messages.value,
+      }
+      history.value.push(_history)
+
+      initMessage(messages.value.messages)
+
+      pageOptions.select = history.value.length - 1
     }
-    history.value.push(_history)
 
-    initMessage(messages.value.messages)
+    genTitle = (index: number) => {
+      const conversation = history.value[index]
+      const options = useChatTitle(conversation)
 
-    pageOptions.select = history.value.length - 1
-
-    genTitle = () => {
-      const options = useChatTitle(messages.value)
-
-      messages.value._titleOptions = options
+      conversation._titleOptions = options
+      conversation.lastUpdate = Date.now()
 
       const effect = watch(
         () => options,
         () => {
-          messages.value.topic = options.title
+          conversation.topic = options.title
 
           if (options.status === Status.ERROR)
-            messages.value.topic = `(Error) ${messages.value.topic}`
+            conversation.topic = `(Error) ${conversation.topic}`
 
           if (options.streaming === false)
             effect()
@@ -122,8 +128,9 @@ async function handleSend(query: string, callback: Function) {
       )
     }
   }
+  const conversation = history.value[pageOptions.select]
 
-  messages.value.messages.push({
+  conversation.messages.push({
     date: format,
     role: 'user',
     content: query,
@@ -138,14 +145,13 @@ async function handleSend(query: string, callback: Function) {
     streaming: true,
   })
 
-  messages.value.messages.push(obj)
-
-  messages.value.lastUpdate = Date.now()
+  conversation.messages.push(obj)
+  conversation.lastUpdate = Date.now()
 
   // abort
 
   // let ind = 0
-  useChatCompletion(messages.value, (res) => {
+  await useChatCompletion(conversation, (res) => {
     if (res.error) {
       obj.streaming = false
       callback(Status.ERROR)
@@ -157,12 +163,10 @@ async function handleSend(query: string, callback: Function) {
       obj.streaming = false
       callback(Status.AVAILABLE)
 
-      messages.value.id = res.id!
-
-      genTitle()
-
       return
     }
+
+    conversation.id = res.id!
 
     if (!res.choices?.length)
       return (obj.generating = false)
@@ -176,6 +180,8 @@ async function handleSend(query: string, callback: Function) {
     // setTimeout(() => {
     // }, ind * 10)
   })
+
+  genTitle(pageOptions.select)
 }
 
 function handleClear() {
@@ -195,6 +201,8 @@ function handleDelete(index: number) {
 
   history.value.splice(index, 1)
 }
+
+console.log('history', history)
 
 provide('updateConversationTopic', (index: number, topic: string) => {
   history.value[index].topic = topic

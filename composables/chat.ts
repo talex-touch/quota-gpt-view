@@ -161,46 +161,50 @@ export async function useChatCompletion(context: ChatCompletion, callback: (data
     },
   })
 
-  const reader = res.pipeThrough(new TextDecoderStream()).getReader()
+  return new Promise(async (resolve) => {
+    const reader = res.pipeThrough(new TextDecoderStream()).getReader()
 
-  while (true) {
-    const { value, done } = await reader.read()
+    while (true) {
+      const { value, done } = await reader.read()
 
-    if (done)
-      break
+      if (done)
+        break
 
-    if (!value.length)
-      continue
+      if (!value.length)
+        continue
 
-    try {
-      const arr = value.split('\n')
-      for (let i = 0; i < arr.length; i++) {
-        const item = arr[i]
+      try {
+        const arr = value.split('\n')
+        for (let i = 0; i < arr.length; i++) {
+          const item = arr[i]
 
-        if (item.startsWith('data: ')) {
-          const data = item.slice(6)
-          if (data === '[DONE]') {
-            callback({
-              done: true,
-            })
-            break
-          }
-          else {
-            const json = JSON.parse(data)
+          if (item.startsWith('data: ')) {
+            const data = item.slice(6)
+            if (data === '[DONE]') {
+              callback({
+                done: true,
+              })
+              break
+            }
+            else {
+              const json = JSON.parse(data)
 
-            callback({
-              done: false,
-              ...json,
-            })
+              callback({
+                done: false,
+                ...json,
+              })
+            }
           }
         }
       }
+      catch (e) {
+        callback({
+          done: true,
+          error: true,
+        })
+      }
     }
-    catch (e) {
-      callback({
-        done: true,
-        error: true,
-      })
-    }
-  }
+
+    resolve(void 0)
+  })
 }
