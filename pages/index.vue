@@ -164,7 +164,7 @@ async function handleSend(query: string, callback: Function) {
       callback(Status.AVAILABLE)
 
       setTimeout(() => {
-        chatRef.value?.handleBackToBottom()
+        chatRef.value?.generateScroll()
       }, 200)
 
       return
