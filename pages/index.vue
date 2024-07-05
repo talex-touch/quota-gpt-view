@@ -52,7 +52,7 @@ watch(
       = ind === -1 ? JSON.parse(JSON.stringify(originObj)) : history.value[ind]
 
     setTimeout(() => {
-      chatRef.value?.handleBackToBottom()
+      chatRef.value?.handleBackToBottom(false)
     }, 200)
   },
   { deep: true },
