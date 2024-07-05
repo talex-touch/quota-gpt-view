@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { DisplayHistory } from './history'
+import HistoryItem from './HistoryItem.vue'
+import type { DisplayHistory, ThHistory } from './history'
 
 const props = defineProps<{
   title: string
@@ -14,26 +15,7 @@ const emits = defineEmits<{
 
 const { selectIndex } = useVModels(props, emits)
 
-const menus = reactive([
-  {
-    name: '编辑标题',
-    icon: 'i-carbon-edit',
-    trigger: (ind: number) => {},
-  },
-  {
-    name: '分享记录',
-    icon: 'i-carbon-share',
-    trigger: (ind: number) => {},
-  },
-  {
-    name: '删除记录',
-    icon: 'i-carbon-close',
-    danger: true,
-    trigger: (ind: number) => {
-      emits('delete', ind)
-    },
-  },
-])
+const _history = useVModel(props, 'history', emits)
 </script>
 
 <template>
@@ -42,41 +24,16 @@ const menus = reactive([
 
     <div class="History-ContentHolder">
       <div
-        v-for="item in history.toReversed()"
+        v-for="item in _history"
         :key="item.id"
         :class="{ active: selectIndex === item.index }"
         class="History-Content-Item"
         @click="selectIndex = item.index"
       >
-        {{ item.topic }}
-        <div class="History-Content-Fixed">
-          <el-popover
-            transition="th-zoom"
-            :show-arrow="false"
-            popper-class="History-Content-MenuWrapper"
-            placement="bottom-start"
-            :width="200"
-            trigger="hover"
-          >
-            <template #reference>
-              <div class="i-carbon:overflow-menu-horizontal" />
-            </template>
-            <div class="History-Content-MenuWrapper">
-              <div class="History-Content-Menu">
-                <div
-                  v-for="menu in menus"
-                  :key="menu.name"
-                  :class="{ danger: menu.danger }"
-                  class="History-Content-Menu-Item"
-                  @click.stop="menu.trigger(item.index)"
-                >
-                  <div :class="menu.icon" />
-                  <span v-html="menu.name" />
-                </div>
-              </div>
-            </div>
-          </el-popover>
-        </div>
+        <HistoryItem
+          :model-value="item"
+          @delete="emits('delete', $event)"
+        />
       </div>
     </div>
   </div>

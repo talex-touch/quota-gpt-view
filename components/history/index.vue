@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import dayjs from 'dayjs'
-import type { ThHistory } from './history'
+import type { DisplayHistory, ThHistory } from './history'
 
 const props = defineProps<{
   expand: boolean
@@ -35,7 +35,7 @@ const categories = [
   },
   {
     title: '以前',
-    filter: (time: number) => true,
+    filter: () => true,
   },
 ]
 

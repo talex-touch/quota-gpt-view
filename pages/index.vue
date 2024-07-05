@@ -2,7 +2,7 @@
 import ThChat from '~/components/chat/ThChat.vue'
 import ThInput from '~/components/input/ThInput.vue'
 import History from '~/components/history/index.vue'
-import type { ThHistory } from '~/components/history/history'
+import type { DisplayHistory, ThHistory } from '~/components/history/history'
 import type { ChatCompletion } from '~/composables/chat'
 import { useChatCompletion } from '~/composables/chat'
 
@@ -195,6 +195,10 @@ function handleDelete(index: number) {
 
   history.value.splice(index, 1)
 }
+
+provide('updateConversationTopic', (index: number, topic: string) => {
+  history.value[index].topic = topic
+})
 </script>
 
 <template>
