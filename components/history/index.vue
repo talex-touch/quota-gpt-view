@@ -82,7 +82,6 @@ const historyList = computed(() =>
     </div>
 
     <div class="History-Bottom">
-      {{ expand }}
       <DarkToggle />
       <CloseCheckbox v-model="expand" />
     </div>
@@ -92,7 +91,7 @@ const historyList = computed(() =>
 <style lang="scss">
 .History-Indicator {
   &.expand {
-    left: 260px;
+    left: 270px;
   }
   &:hover {
     opacity: 0.75;
@@ -101,13 +100,13 @@ const historyList = computed(() =>
     cursor: pointer;
     transform: translateX(2px) translateY(-50%);
   }
-  z-index: 10;
+  z-index: 3;
   position: absolute;
 
   top: 50%;
-  left: 5px;
+  left: 10px;
 
-  width: 5px;
+  width: 8px;
   height: 50px;
 
   opacity: 0.5;
@@ -160,12 +159,14 @@ const historyList = computed(() =>
       transform-origin: left top;
       box-shadow: var(--el-box-shadow);
       background-color: var(--el-bg-color);
+      backdrop-filter: blur(18px) saturate(180%);
       transition: 0.25s cubic-bezier(0.785, 0.135, 0.15, 0.86);
     }
 
     &:hover {
       background-color: #ffffff30;
     }
+    z-index: 20;
     position: absolute;
     display: flex;
 
