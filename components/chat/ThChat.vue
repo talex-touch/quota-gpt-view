@@ -80,7 +80,7 @@ defineExpose({
 
 <template>
   <div class="ThChat">
-    <div :class="{ show: messages.messages?.length }" class="ThChat-Title">
+    <div :class="{ show: messages.messages?.length > 1 }" class="ThChat-Title">
       <p>
         <el-input v-model="messages.topic" />
       </p>
@@ -101,7 +101,7 @@ defineExpose({
           />
         </div>
 
-        <EmptyGuide :show="!!messages.messages?.length" />
+        <EmptyGuide :show="messages.messages?.length > 1" />
 
         <br>
         <br>

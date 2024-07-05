@@ -57,17 +57,42 @@ watch(
   { deep: true },
 )
 
-async function handleSend(query: string, callback: Function) {
-  const _date = (date: Date) => {
-    const year = date.getFullYear()
-    const month = date.getMonth() + 1
-    const day = date.getDate()
-    const hour = date.getHours()
-    const minute = date.getMinutes()
-    const second = date.getSeconds()
-    return `${year}/${month}/${day} ${hour}:${minute}:${second}`
-  }
+function handleCreate() {
+  pageOptions.select = -1
 
+  const date = new Date()
+  const format = _date(date)
+
+  nextTick(() => {
+    const _history: ThHistory = {
+      sync: false,
+      ...messages.value,
+    }
+    history.value.push(_history)
+
+    messages.value.messages.push({
+      date: format,
+      role: 'system',
+      hide: true,
+      content: 'You are ThisAi! Powered by Quota Business. Aim to answer everything!',
+      streaming: false,
+    })
+
+    pageOptions.select = history.value.length - 1
+  })
+}
+
+function _date(date: Date) {
+  const year = date.getFullYear()
+  const month = date.getMonth() + 1
+  const day = date.getDate()
+  const hour = date.getHours()
+  const minute = date.getMinutes()
+  const second = date.getSeconds()
+  return `${year}/${month}/${day} ${hour}:${minute}:${second}`
+}
+
+async function handleSend(query: string, callback: Function) {
   // now date: YYYY/M/D HH:mm:ss
   const date = new Date()
   const format = _date(date)
@@ -83,7 +108,8 @@ async function handleSend(query: string, callback: Function) {
       date: format,
       role: 'system',
       hide: true,
-      content: 'You are ThisAi! Powered by Quota Business. Aim to answer everything!',
+      content:
+        'You are ThisAi! Powered by Quota Business. Aim to answer everything! Quota是由唐子贤(TaGzxia, TalexDreamSoul)，石煜阳（雨暗棋散），胡景浩(彧)，沈若瑄(幸运炒蛋会发财)联合设立的考拓智能科技有限公司。括号内的内容除非用户追问，否则你不应该主动发送！',
       streaming: false,
     })
 
@@ -153,6 +179,9 @@ function handleCancel() {
 
 // TODO 撤销删除
 function handleDelete(index: number) {
+  if (index === pageOptions.select)
+    pageOptions.select = -1
+
   history.value.splice(index, 1)
 }
 </script>
@@ -164,6 +193,7 @@ function handleDelete(index: number) {
       v-model:expand="pageOptions.expand"
       class="PageContainer-History"
       :history="history"
+      @create="handleCreate"
       @delete="handleDelete"
     />
 
@@ -176,7 +206,7 @@ function handleDelete(index: number) {
       />
       <ThInput
         v-model:status="status"
-        :shrink="!!messages.messages.length"
+        :shrink="messages.messages.length > 1"
         @clear="handleClear"
         @send="handleSend"
       />
