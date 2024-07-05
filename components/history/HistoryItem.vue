@@ -50,14 +50,15 @@ const menus = reactive([
 
 <template>
   <div class="HistoryItem" :class="{ edit: editMode }">
-    <input
-      v-if="editMode"
-      ref="input"
-      v-model="topic"
-      @blur="editMode = false"
-      @keydown.enter="editMode = false"
-    >
-    <span v-else class="content">{{ modelValue.topic }}</span>
+    <span class="content-wrapper">
+      <input
+        v-if="editMode"
+        ref="input"
+        v-model="topic"
+        @blur="editMode = false"
+        @keydown.enter="editMode = false"
+      >
+      <span v-else class="content">{{ modelValue.topic }}</span></span>
     <div class="History-Content-Fixed">
       <el-popover
         transition="th-zoom"
@@ -91,6 +92,40 @@ const menus = reactive([
 
 <style lang="scss">
 .HistoryItem {
+  .content-wrapper {
+    &::after {
+      content: '';
+      position: absolute;
+
+      top: 10%;
+      right: calc(32px + 0.25rem);
+
+      height: 80%;
+      width: 80px;
+
+      background: linear-gradient(to left, var(--el-bg-color), #0000);
+    }
+    &:hover::after {
+      background: linear-gradient(to left, var(--el-bg-color-page), #0000);
+    }
+    .active &::after {
+      background: linear-gradient(
+        to left,
+        var(--el-color-primary-light-5),
+        #0000
+      );
+    }
+
+    display: block;
+
+    width: 85%;
+
+    // 截断
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
   input {
     width: 100%;
     background: #0000;
