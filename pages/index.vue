@@ -1,22 +1,15 @@
 <script setup lang="ts">
 import ThChat from '~/components/chat/ThChat.vue'
 import ThInput from '~/components/input/ThInput.vue'
+import History from '~/components/history/index.vue'
+import type { ThHistory } from '~/components/history/history'
 import type { ChatCompletion } from '~/composables/chat'
 import { useChatCompletion } from '~/composables/chat'
 
-const messages = ref<ChatCompletion>({
+const originObj = {
   id: 'IW3DiVM6Wl8rBdHM2_mHq',
   topic: '新的聊天',
-  memoryPrompt:
-    '在本次对话中，我们讨论了在C语言中创建链表的操作。我们提供了多个示例代码，涵盖了使用`malloc`函数动态分配内存、使用静态分配方式创建链表节点以及尽量减少使用指针的方法。我们还讨论了如何使用`scanf`函数从用户输入中获取节点的数据，并通过遍历链表将数据打印出来。希望这些示例代码和讨论对您有所帮助。',
   messages: [],
-  stat: {
-    tokenCount: 0,
-    wordCount: 0,
-    charCount: 14744,
-  },
-  lastUpdate: 1705048066496,
-  lastSummarizeIndex: 38,
   mask: {
     id: 'Aadv3pqdc1D_i-SiYx5Wq',
     avatar: 'gpt-bot',
@@ -40,9 +33,29 @@ const messages = ref<ChatCompletion>({
     builtin: false,
     createdAt: 1705043191052,
   },
+}
+
+const messages = ref<ChatCompletion>(JSON.parse(JSON.stringify(originObj)))
+const history = useLocalStorage<ThHistory[]>('chat-history', [])
+const status = ref(Status.AVAILABLE)
+const pageOptions = reactive<any>({
+  expand: true,
+  select: -1,
+  chatRef: null,
 })
 
-const status = ref(Status.AVAILABLE)
+watch(
+  () => pageOptions.select,
+  (ind) => {
+    messages.value
+      = ind === -1 ? JSON.parse(JSON.stringify(originObj)) : history.value[ind]
+
+    setTimeout(() => {
+      pageOptions.chatRef?.handleBackToBottom()
+    }, 200)
+  },
+  { deep: true },
+)
 
 async function handleSend(query: string, callback: Function) {
   const _date = (date: Date) => {
@@ -58,6 +71,24 @@ async function handleSend(query: string, callback: Function) {
   // now date: YYYY/M/D HH:mm:ss
   const date = new Date()
   const format = _date(date)
+
+  if (!messages.value.messages.length) {
+    const _history: ThHistory = {
+      sync: false,
+      ...messages.value,
+    }
+    history.value.push(_history)
+
+    messages.value.messages.push({
+      date: format,
+      role: 'system',
+      hide: true,
+      content: 'You are ThisAi! Powered by Quota Business. Aim to answer everything!',
+      streaming: false,
+    })
+
+    pageOptions.select = history.value.length - 1
+  }
 
   messages.value.messages.push({
     date: format,
@@ -75,6 +106,8 @@ async function handleSend(query: string, callback: Function) {
   })
 
   messages.value.messages.push(obj)
+
+  messages.value.lastUpdate = Date.now()
 
   // abort
 
@@ -120,26 +153,61 @@ function handleCancel() {
 </script>
 
 <template>
-  <div>
-    <ThChat :status="status" :messages="messages" @cancel="handleCancel" />
-    <ThInput
-      v-model:status="status"
-      :shrink="!!messages.messages.length"
-      @clear="handleClear"
-      @send="handleSend"
+  <div :class="{ expand: pageOptions.expand }" class="PageContainer">
+    <History
+      v-model:selectIndex="pageOptions.select"
+      v-model:expand="pageOptions.expand"
+      class="PageContainer-History"
+      :history="history"
     />
-    <div class="a">
-      <DarkToggle />
-    </div>
 
-    <div class="copyright">
-      ThisAI. 可能会犯错，生成的内容仅供参考。
-      <span class="business">考拓智能科技有限公司</span>
+    <div class="PageContainer-Main">
+      <ThChat
+        ref="pageOptions.chatRef"
+        :status="status"
+        :messages="messages"
+        @cancel="handleCancel"
+      />
+      <ThInput
+        v-model:status="status"
+        :shrink="!!messages.messages.length"
+        @clear="handleClear"
+        @send="handleSend"
+      />
+
+      <div class="copyright">
+        ThisAI. 可能会犯错，生成的内容仅供参考。
+        <span class="business">考拓智能科技有限公司</span>
+      </div>
     </div>
   </div>
 </template>
 
-<style>
+<style lang="scss">
+.PageContainer {
+  &-Main {
+    z-index: 2;
+    position: relative;
+
+    flex: 1;
+    width: 100%;
+    height: 100%;
+  }
+  &-History {
+    z-index: 3;
+  }
+  position: absolute;
+  display: flex;
+
+  width: 100%;
+  height: 100%;
+
+  top: 0;
+  left: 0;
+
+  overflow: hidden;
+}
+
 .copyright {
   position: absolute;
 
@@ -150,12 +218,5 @@ function handleCancel() {
   opacity: 0.5;
   font-size: 14px;
   transform: translateX(-50%);
-}
-
-.a {
-  position: absolute;
-
-  top: 0;
-  left: 0;
 }
 </style>

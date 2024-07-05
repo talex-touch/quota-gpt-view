@@ -136,4 +136,5 @@ export interface ChatItem {
   content: string
   streaming?: boolean
   model?: string
+  hide?: boolean
 }

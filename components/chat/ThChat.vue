@@ -4,7 +4,7 @@ import EmptyGuide from './EmptyGuide.vue'
 import { Status } from '~/composables/chat'
 
 const props = defineProps<{
-  messages: any
+  messages: ChatCompletion
   status: Status
 }>()
 
@@ -68,13 +68,21 @@ function handleBackToBottom(animation: boolean = true) {
     behavior: animation ? 'smooth' : 'instant',
   })
 }
+
+const messageBubbles = computed(() =>
+  [...props.messages.messages].filter(message => !message.hide),
+)
+
+defineExpose({
+  handleBackToBottom,
+})
 </script>
 
 <template>
   <div class="ThChat">
     <div :class="{ show: messages.messages?.length }" class="ThChat-Title">
       <p>
-        {{ messages.topic }}
+        <el-input v-model="messages.topic" />
       </p>
       <span class="model">{{ messages.mask.modelConfig.model }}</span>
     </div>
@@ -85,7 +93,7 @@ function handleBackToBottom(animation: boolean = true) {
       <el-scrollbar ref="scrollbar" @scroll="handleScroll">
         <div class="ThChat-Container-Wrapper">
           <ChatItem
-            v-for="(message, ind) in messages.messages"
+            v-for="(message, ind) in messageBubbles"
             :key="message.id"
             :ind="ind"
             :total="messages.messages.length"
@@ -93,7 +101,7 @@ function handleBackToBottom(animation: boolean = true) {
           />
         </div>
 
-        <EmptyGuide :show="messages.messages?.length" />
+        <EmptyGuide :show="!!messages.messages?.length" />
 
         <br>
         <br>
@@ -118,7 +126,7 @@ function handleBackToBottom(animation: boolean = true) {
   }
   transform: scale(0.8) translateY(-100%);
 
-  transition: 0.25s;
+  transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
 }
 
 .ThChat-Container {
@@ -160,7 +168,7 @@ function handleBackToBottom(animation: boolean = true) {
   &:hover {
     color: var(--el-color-danger);
   }
-  z-index: 1;
+  z-index: 3;
   position: absolute;
   padding: 0.25rem 0.5rem;
 
@@ -168,7 +176,7 @@ function handleBackToBottom(animation: boolean = true) {
   bottom: 10%;
 
   cursor: pointer;
-  transition: 0.25s;
+  transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
   border-radius: 18px;
   transform: translate(-50%, -50%) translateX(100px) scale(0);
   backdrop-filter: blur(18px) saturate(180%);
@@ -190,7 +198,7 @@ function handleBackToBottom(animation: boolean = true) {
     border-radius: 18px;
     background-color: var(--el-text-color-placeholder);
   }
-  z-index: 1;
+  z-index: 3;
   position: absolute;
   display: flex;
   padding: 0.25rem 0.5rem;
@@ -203,7 +211,7 @@ function handleBackToBottom(animation: boolean = true) {
   align-items: center;
 
   cursor: pointer;
-  transition: 0.25s;
+  transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
   border-radius: 18px;
   transform: translate(-50%, -50%) translateX(-100px) scale(0);
   backdrop-filter: blur(18px) saturate(180%);
@@ -254,7 +262,7 @@ function handleBackToBottom(animation: boolean = true) {
       opacity: 0.75;
       font-size: 14px;
     }
-    z-index: 2;
+    z-index: 4;
     position: absolute;
     display: flex;
 
@@ -270,7 +278,7 @@ function handleBackToBottom(animation: boolean = true) {
 
     backdrop-filter: blur(18px) saturate(180%);
   }
-  position: absolute;
+  position: relative;
   padding: 1rem 1.25rem;
 
   top: 0%;
@@ -280,7 +288,6 @@ function handleBackToBottom(animation: boolean = true) {
   height: 100%;
   overflow: hidden;
 
-  border-radius: 0 0 16px 16px;
   box-sizing: border-box;
   background-color: var(--el-bg-color-page);
 }
