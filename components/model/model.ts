@@ -35,7 +35,7 @@ export const models = reactive([
     valuable: true,
     features: [
       '强化的主力模型(Pro)',
-      '适合处理部分复杂任务',
+      '适合处理所有复杂任务',
       '128+k上下文窗口的推理',
       '支持高级数据分析',
       '支持动态图表生成',
