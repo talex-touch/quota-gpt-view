@@ -12,3 +12,7 @@ export function genFormatDate(date: Date) {
 export function genFormatNowDate() {
   return genFormatDate(new Date())
 }
+
+export async function sleep(time: number) {
+  return new Promise(resolve => setTimeout(resolve, time))
+}
