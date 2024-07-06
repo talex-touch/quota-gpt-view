@@ -40,6 +40,9 @@ const timeAgo = computed(() => dayjs(props.item.date, 'YYYY/M/D HH:mm:ss').fromN
 
 <template>
   <div :class="{ user: item.role === 'user' }" class="ChatItem">
+    <div class="ChatItem-Avatar">
+      <img src="/logo.png">
+    </div>
     <div class="ChatItem-Wrapper">
       <div class="ChatItem-Content">
         <div v-if="item.generating" class="ChatItem-Generating">
@@ -58,8 +61,22 @@ const timeAgo = computed(() => dayjs(props.item.date, 'YYYY/M/D HH:mm:ss').fromN
         </span>
 
         <span class="toolbox">
-          <span v-for="(tool) in tools" :key="tool.name" class="toolbox-item" @click="tool.trigger">
-            <el-tooltip v-if="item.role === 'user' ? !tool.userIgnored : (tool.lastShow ? total === ind + 1 : true)" :content="tool.name">
+          <span
+            v-for="tool in tools"
+            :key="tool.name"
+            class="toolbox-item"
+            @click="tool.trigger"
+          >
+            <el-tooltip
+              v-if="
+                item.role === 'user'
+                  ? !tool.userIgnored
+                  : tool.lastShow
+                    ? total === ind + 1
+                    : true
+              "
+              :content="tool.name"
+            >
               <i :class="tool.icon" />
             </el-tooltip>
           </span>
@@ -137,10 +154,21 @@ const timeAgo = computed(() => dayjs(props.item.date, 'YYYY/M/D HH:mm:ss').fromN
     box-sizing: border-box;
     transition: 0.25s;
   }
+
+  .user & {
+    border-radius: 16px;
+  }
   position: relative;
   padding: 0.5rem 1rem;
 
-  border-radius: 12px;
+  // width: max-content;
+  // max-width: 70%;
+  min-width: 48px;
+  height: max-content;
+
+  border-radius: 8px 16px 16px 16px;
+  box-shadow: var(--el-box-shadow);
+  background-color: var(--el-bg-color);
 }
 
 .ChatItem {
@@ -151,19 +179,29 @@ const timeAgo = computed(() => dayjs(props.item.date, 'YYYY/M/D HH:mm:ss').fromN
       left: unset;
       right: 0 !important;
     }
+    .ChatItem-Avatar {
+      display: none;
+    }
     align-self: flex-end;
   }
+  .ChatItem-Avatar {
+    margin-top: -20px;
+
+    min-width: 48px;
+    width: 48px;
+  }
   z-index: 2;
+  display: flex;
+  margin-top: 0.5rem;
   margin-bottom: 30px;
 
   width: max-content;
   max-width: 70%;
-  min-width: 48px;
-  height: max-content;
+  // min-width: 48px;
+  // height: max-content;
 
-  border-radius: 12px;
+  gap: 0.5rem;
+
   animation: join 0.35s ease-in-out;
-  box-shadow: var(--el-box-shadow);
-  background-color: var(--el-bg-color);
 }
 </style>

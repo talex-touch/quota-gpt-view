@@ -26,6 +26,7 @@ const _history = useVModel(props, 'history', emits)
       <div
         v-for="item in _history"
         :key="item.id"
+        v-wave
         :class="{ active: selectIndex === item.index }"
         class="History-Content-Item"
         @click="selectIndex = item.index"
@@ -93,6 +94,7 @@ const _history = useVModel(props, 'history', emits)
     border-radius: 8px;
 
     cursor: pointer;
+    user-select: none;
   }
   position: absolute;
   padding: 0.5rem;

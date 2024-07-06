@@ -226,8 +226,8 @@ provide('updateConversationTopic', (index: number, topic: string) => {
     <div class="PageContainer-Main">
       <ThChat
         ref="chatRef"
+        v-model:messages="messages"
         :status="status"
-        :messages="messages"
         @cancel="handleCancel"
       />
       <ThInput

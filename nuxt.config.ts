@@ -10,7 +10,14 @@ export default defineNuxtConfig({
     '@nuxtjs/color-mode',
     '@vite-pwa/nuxt',
     '@nuxt/eslint',
+    'v-wave/nuxt',
   ],
+
+  vWave: {
+    color: 'currentColor',
+    initialOpacity: '0.5',
+    easing: 'cubic-bezier(0.785, 0.135, 0.15, 0.86)',
+  },
 
   elementPlus: {
 

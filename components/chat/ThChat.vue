@@ -2,6 +2,7 @@
 import ChatItem from './ChatItem.vue'
 import EmptyGuide from './EmptyGuide.vue'
 import { Status } from '~/composables/chat'
+import ModelSelector from '~/components/model/ModelSelector.vue'
 
 const props = defineProps<{
   messages: ChatCompletion
@@ -9,8 +10,11 @@ const props = defineProps<{
 }>()
 
 const emits = defineEmits<{
+  (e: 'update:messages', messages: ChatCompletion): void
   (e: 'cancel'): void
 }>()
+
+const messagesModel = useVModel(props, 'messages', emits)
 
 function handleCancel() {
   emits('cancel')
@@ -90,7 +94,8 @@ defineExpose({
       <p>
         {{ messages.topic }}
       </p>
-      <span class="model">{{ messages.mask.modelConfig.model }}</span>
+      <span class="model">
+        <ModelSelector v-model="messagesModel.mask.modelConfig.model" /></span>
     </div>
     <div
       class="ThChat-Container"
@@ -265,7 +270,6 @@ defineExpose({
 
       right: 1rem;
 
-      opacity: 0.75;
       font-size: 14px;
     }
     z-index: 4;

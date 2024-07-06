@@ -23,6 +23,20 @@ watch(
 )
 const menus = reactive([
   {
+    name: '复制标题',
+    icon: 'i-carbon-copy',
+    trigger: () => {
+      navigator.clipboard.writeText(props.modelValue.topic)
+
+      ElMessage({
+        message: '标题已成功复制到剪贴板！',
+        grouping: true,
+        type: 'success',
+        plain: true,
+      })
+    },
+  },
+  {
     name: '编辑标题',
     icon: 'i-carbon-edit',
     trigger: () => {
@@ -76,6 +90,7 @@ const menus = reactive([
             <div
               v-for="menu in menus"
               :key="menu.name"
+              v-wave
               :class="{ danger: menu.danger }"
               class="History-Content-Menu-Item"
               @click.stop="menu.trigger(modelValue.index)"
