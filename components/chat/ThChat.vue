@@ -137,6 +137,7 @@ defineExpose({
   }
   transform: scale(0.8) translateY(-100%);
 
+  border-bottom: 1px solid var(--el-border-color);
   transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
 }
 
