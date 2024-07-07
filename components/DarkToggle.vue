@@ -17,8 +17,6 @@ function viewTransition(e: { clientX: number, clientY: number }) {
 
   const transition = document.startViewTransition(() => {
     color.preference = color.value === 'dark' ? 'light' : 'dark'
-
-    document.body.classList.toggle('dark', color.value === 'dark')
   })
 
   transition.ready.then(() => {
