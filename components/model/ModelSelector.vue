@@ -142,12 +142,14 @@ const curSelect = computed(() => models.find(item => item.value === model.value)
     background-color: var(--el-bg-color);
   }
 
-  .ModelSelector-Selections {
-    &::before {
-      opacity: 0.5;
+  &::before {
+    opacity: 0.5;
 
-      transform: scale(1);
-    }
+    transform: scale(1);
+    transition: 0.25s;
+  }
+
+  .ModelSelector-Selections {
     padding: 2rem 1.5rem;
 
     width: 680px;
@@ -171,6 +173,23 @@ const curSelect = computed(() => models.find(item => item.value === model.value)
 }
 
 .ModelSelector {
+  &::before {
+    z-index: -1;
+    content: '';
+    position: absolute;
+
+    top: -100vh;
+    left: -100vw;
+
+    width: 200vw;
+    height: 200vh;
+
+    opacity: 0;
+
+    transition: 0.25s 0.5s;
+    transform: scale(0);
+    background-color: var(--el-overlay-color);
+  }
   .model-diff-link {
     position: absolute;
 
@@ -205,23 +224,6 @@ const curSelect = computed(() => models.find(item => item.value === model.value)
   }
 
   &-Selections {
-    &::before {
-      z-index: -1;
-      content: '';
-      position: absolute;
-
-      top: -100vh;
-      left: -100vw;
-
-      width: 200vw;
-      height: 200vh;
-
-      opacity: 0;
-      transition: 0.25s;
-      transform: scale(0);
-      background-color: var(--el-overlay-color);
-    }
-
     z-index: 1;
     position: absolute;
     padding: 0.5rem;
