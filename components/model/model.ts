@@ -34,7 +34,7 @@ export const models = reactive([
     value: 'gpt-4-turbo',
     valuable: true,
     features: [
-      '强化的主力模型(Pro)',
+      '完全的高级模型(Pro)',
       '适合处理所有复杂任务',
       '128+k上下文窗口的推理',
       '支持高级数据分析',
