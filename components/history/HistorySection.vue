@@ -88,7 +88,7 @@ const _history = useVModel(props, 'history', emits)
     padding: 0.25rem 0.5rem;
 
     gap: 0.5rem;
-    opacity: 0.75;
+    // opacity: 0.75;
     font-size: 14px;
     align-items: center;
     border-radius: 8px;
