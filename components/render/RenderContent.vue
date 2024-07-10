@@ -1,65 +1,69 @@
 <script setup lang="ts">
-import { Editor, defaultValueCtx, editorViewOptionsCtx, rootCtx } from '@milkdown/core'
-import { nord } from '@milkdown/theme-nord'
-import { commonmark } from '@milkdown/preset-commonmark'
-import { gfm } from '@milkdown/preset-gfm'
-import { prism, prismConfig } from '@milkdown/plugin-prism'
-import { math } from '@milkdown/plugin-math'
-import 'katex/dist/katex.min.css'
-import 'prism-themes/themes/prism-nord.css'
-import '@milkdown/theme-nord/style.css'
-import { replaceAll } from '@milkdown/utils'
-import { diagram } from '@milkdown/plugin-diagram'
-
-import './style.css'
-// import './style-light.css'
-// import './style-dark.css'
-
-import markdown from 'refractor/lang/markdown'
-import css from 'refractor/lang/css'
-import javascript from 'refractor/lang/javascript'
-import typescript from 'refractor/lang/typescript'
-import jsx from 'refractor/lang/jsx'
-import tsx from 'refractor/lang/tsx'
+import Vditor from 'vditor'
+import 'vditor/dist/index.css'
 
 const props = defineProps<{
   data: string
   readonly: boolean
 }>()
-
+const color = useColorMode()
 const inner = ref()
 onMounted(async () => {
-  const editor = await Editor.make()
-    .config((ctx) => {
-      ctx.set(rootCtx, inner.value)
-      ctx.set(defaultValueCtx, props.data)
-      ctx.update(editorViewOptionsCtx, prev => ({
-        ...prev,
-        editable: () => !props.readonly,
-      }))
-      ctx.set(prismConfig.key, {
-        configureRefractor: (refractor) => {
-          refractor.register(markdown)
-          refractor.register(css)
-          refractor.register(javascript)
-          refractor.register(typescript)
-          refractor.register(jsx)
-          refractor.register(tsx)
-        },
-      })
-    })
-    .config(nord)
-    .use(commonmark)
-    .use(gfm)
-    .use(math)
-    .use(prism)
-    .use(diagram)
-    .create()
+  // const vditor = new Vditor(inner.value, {
+  //   cache: {
+  //     enable: false,
+  //   },
+  //   mode: 'wysiwyg',
+  // })
+  // const vditor = new Vditor(inner.value, {
+  //   value: props.data,
+  //   preview: {
+  //     hljs: {
+  //       enable: true,
+  //       lineNumber: true,
+  //       defaultLang: 'bash',
+  //     },
+  //     theme: {
+  //       current: 'Ant Design',
+  //     },
+  //     math: {
+  //       inlineDigit: true,
+  //     },
+  //     render: {
+  //       media: {
+  //         enable: true,
+  //       },
+  //     },
+  //   },
+  //   cache: {
+  //     enable: false,
+  //   },
+  //   // mode: color.value !== 'dark' ? 'light' : 'dark',
+  // })
 
   watch(
     () => props.data,
     () => {
-      editor.action(replaceAll(props.data))
+      Vditor.preview(inner.value, props.data, {
+        hljs: {
+          enable: true,
+          lineNumber: true,
+          defaultLang: 'bash',
+        },
+        theme: {
+          current: 'Ant Design',
+        },
+        math: {
+          inlineDigit: true,
+        },
+        render: {
+          media: {
+            enable: true,
+          },
+        },
+        mode: color.value !== 'dark' ? 'light' : 'dark',
+      })
+      // vditor.setValue(props.data, true)
     },
     {
       immediate: true,
