@@ -183,6 +183,9 @@ async function handleExecutorResult(reader: ReadableStreamDefaultReader<string>,
     if (!value.length)
       continue
 
+    if (value.includes('event: error') && value.includes('data: 请求超时'))
+      continue
+
     console.log('v', value)
 
     const arr = value.split('\n')

@@ -102,10 +102,10 @@ async function handleSend(query: string, callback: Function) {
       }
       history.value.push(_history)
 
-      initMessage(messages.value.messages)
-
       pageOptions.select = history.value.length - 1
     }
+
+    initMessage(messages.value.messages)
 
     genTitle = (index: number) => {
       const conversation = history.value[index]
@@ -218,9 +218,18 @@ async function handleSend(query: string, callback: Function) {
       }
       else if (event === 'on_tool_start') {
         if (name === 'TavilySearchResults')
-          return obj.agent.actions[0] = `正在搜索 \`${res.data.input.input}\``
+          return obj.agent.actions[0] = `正在广泛搜索 \`${res.data.input.input}\``
         if (name === 'SerpAPI')
-          return obj.agent.actions[0] = `正在搜索 \`${res.data.input.input}\``
+          return obj.agent.actions[0] = `正在精确搜索 \`${res.data.input.input}\``
+        if (name === 'Calculator')
+          return obj.agent.actions[0] = `正在计算 \`${res.data.input.input}\``
+        if (name === 'WebBrowser') {
+          let input = res.data.input.input
+          if (input.indexOf(','))
+            input = input.split(',').at(-1)
+
+          return obj.agent.actions[0] = `正在浏览 \`${input}\``
+        }
 
         console.log('e', res)
 
@@ -268,6 +277,18 @@ async function handleSend(query: string, callback: Function) {
             data: obj,
           })
         }
+        else if (name === 'Calculator') {
+          obj.agent.actions.push({
+            type: 'display',
+            data: {
+              type: 'Calculator',
+              ...res.data,
+            },
+          })
+        }
+        else {
+          console.log('tool end', res)
+        }
 
         return
       }
@@ -284,9 +305,10 @@ function handleClear() {
 }
 
 function handleCancel() {
-  status.value = Status.AVAILABLE
+  // remove last one
+  messages.value.messages.splice(messages.value.messages.length - 1, 1)
 
-  handleClear()
+  status.value = Status.AVAILABLE
 }
 
 // TODO 撤销删除
