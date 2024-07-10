@@ -13,9 +13,36 @@ const emits = defineEmits<{
   (e: 'delete', index: number): void
 }>()
 
-const { selectIndex } = useVModels(props, emits)
+const route = useRoute()
+const router = useRouter()
 
+const { selectIndex } = useVModels(props, emits)
 const _history = useVModel(props, 'history', emits)
+
+watch(() => selectIndex.value, (ind) => {
+  if (ind === -1)
+    return router.push({ query: { index: '', id: '' } })
+
+  const res = [..._history.value].find(item => item.index === ind)
+
+  if (res)
+    router.push({ query: { index: res.index, id: res.id } })
+})
+
+watch(() => route, () => {
+  if (!route.query?.id)
+    return
+
+  const { id, index } = route.query
+  if (!index || +index < 0)
+    return
+
+  const res = [..._history.value].find(item => item.index === +index! && item.id === id)
+  if (!res)
+    return
+
+  selectIndex.value = +index!
+}, { immediate: true })
 </script>
 
 <template>

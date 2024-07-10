@@ -112,7 +112,7 @@ const timeAgo = computed(() => dayjs(props.item.date, 'YYYY/M/D HH:mm:ss').fromN
         </span>
       </div>
 
-      <TransitionGroup name="reference" tag="div" class="ChatItem-Reference">
+      <div tag="div" class="ChatItem-Reference">
         <ChatAttachment :agent="item.agent" />
 
         <template v-if="item.agent && !!item.content.length && !item.streaming">
@@ -136,23 +136,13 @@ const timeAgo = computed(() => dayjs(props.item.date, 'YYYY/M/D HH:mm:ss').fromN
             </span>
           </ChatQueryCollapse>
         </template>
-      </TransitionGroup>
+      </div>
       <!-- </div> -->
     </div>
   </div>
 </template>
 
 <style lang="scss">
-.reference-enter-active,
-.reference-leave-active {
-  transition: all 0.5s ease;
-}
-.reference-enter-from,
-.reference-leave-to {
-  opacity: 0;
-  transform: translateX(30px);
-}
-
 @keyframes reference-join {
   from {
     opacity: 0;

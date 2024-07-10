@@ -13,7 +13,7 @@ const typeMapper: Record<string, Component> = {
 }
 
 const agentActions = computed(() =>
-  props.agent.actions?.filter((item: any) => item?.type in typeMapper),
+  props.agent?.actions?.filter((item: any) => item?.type in typeMapper),
 )
 </script>
 
