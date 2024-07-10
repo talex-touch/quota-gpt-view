@@ -42,7 +42,7 @@ onMounted(async () => {
   // })
 
   watch(
-    () => props.data,
+    () => [props.data, color.value],
     () => {
       Vditor.preview(inner.value, props.data, {
         hljs: {
@@ -88,10 +88,17 @@ onMounted(async () => {
   color: var(--el-text-color-primary);
 }
 
-.language-echarts,
+// .language-echarts,
 .language-abc svg {
   border-radius: 16px;
   background: #ffffff;
+}
+
+.language-echarts {
+  // padding: 0.5rem 0;
+  border-radius: 4px;
+
+  // box-sizing: border-box;
 }
 
 .RenderContent {
