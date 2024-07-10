@@ -84,6 +84,16 @@ onMounted(async () => {
 </template>
 
 <style lang="scss">
+.vditor-reset {
+  color: var(--el-text-color-primary);
+}
+
+.language-echarts,
+.language-abc svg {
+  border-radius: 16px;
+  background: #ffffff;
+}
+
 .RenderContent {
   position: relative;
   // &-Wrapper {

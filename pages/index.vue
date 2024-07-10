@@ -274,7 +274,10 @@ async function handleSend(query: string, callback: Function) {
 
           obj.agent.actions.push({
             type: 'display',
-            data: obj,
+            data: {
+              ...obj,
+              _: res.data,
+            },
           })
         }
         else if (name === 'Calculator') {
@@ -286,9 +289,8 @@ async function handleSend(query: string, callback: Function) {
             },
           })
         }
-        else {
-          console.log('tool end', res)
-        }
+
+        console.log('tool end', res)
 
         return
       }

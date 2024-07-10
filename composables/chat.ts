@@ -166,6 +166,9 @@ async function handleExecutorItem(item: any, callback: (data: any) => void) {
   else {
     const json = JSON5.parse(item)
 
+    if (json?.type === 'heartbeat')
+      return
+
     callback({
       done: false,
       ...json,
