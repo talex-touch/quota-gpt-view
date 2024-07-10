@@ -1,3 +1,4 @@
+import JSON5 from 'json5'
 import { ENDS_URL } from '~/constants'
 
 export interface CompletionItem {
@@ -75,6 +76,20 @@ export interface ChatItem {
   hide?: boolean
 }
 
+export interface ChatMessage { role: 'system' | 'user' | 'assistant', content: string }
+
+export interface EventExecutor {
+  event: 'on_tool_end' | 'on_tool_start' | 'on_chain_end' | 'on_parser_end' | 'on_parser_start' | 'on_chat_model_end'
+  | 'on_chat_model_stream' | 'on_chat_model_start' | 'on_chain_start' | 'on_chain_stream' | 'on_chain_end' | 'on_prompt_start' | 'on_prompt_end'
+  data: any
+  name: 'ChatOpenAI' | 'ChatPromptTemplate' | 'Agent' | 'OpenAIFunctionsAgent' | 'RunnableAssign' | 'RunnableMap' | 'RunnableLambda'
+  tags: string[]
+  run_id: string
+  metadata: {
+    [key: string]: any
+  }
+}
+
 /**
  * Generate chat title in conversation
  */
@@ -135,6 +150,102 @@ export function useChatTitle(context: ChatCompletion) {
   return options
 }
 
+async function handleExecutorItem(item: any, callback: (data: any) => void) {
+  if (item === '[DONE]') {
+    callback({
+      done: true,
+    })
+  }
+  else {
+    const json = JSON5.parse(item)
+
+    callback({
+      done: false,
+      ...json,
+    })
+  }
+}
+
+async function handleExecutorResult(reader: ReadableStreamDefaultReader<string>, callback: (data: any) => void) {
+  while (true) {
+    const { value, done } = await reader.read()
+
+    if (done)
+      break
+
+    if (!value.length)
+      continue
+
+    console.log('v', value)
+
+    const arr = value.split('\n')
+    for (let i = 0; i < arr.length; i++) {
+      const item = arr[i]
+
+      if (item.startsWith('data: '))
+        handleExecutorItem(item.slice(6), callback)
+    }
+  }
+}
+
+export async function useChatExecutor(context: ChatCompletion, callback: (data: any) => void, simulate: boolean = false) {
+  const _messages = context.messages.map((item) => {
+    return {
+      role: item.role,
+      content: item.content,
+    }
+  })
+
+  _messages.pop()
+
+  // https://api.aiskt.com/v1/chat/completions
+  const res = simulate
+    ? null
+    : await $fetch<ReadableStream>(`http://localhost:7001/api/aigc/executor`, {
+      method: 'POST',
+      responseType: 'stream',
+      headers: {
+        Accept: 'text/event-stream',
+      },
+      body: {
+        messages: _messages,
+      },
+    })
+
+  const { promise, resolve } = Promise.withResolvers()
+
+  async function _func() {
+    try {
+      if (!res) {
+        console.log('[SIMULATING MODE]')
+
+        const res = await simulateExecutor()
+
+        for await (const chunk of res)
+          await handleExecutorItem(chunk, callback)
+      }
+      else {
+        const reader = res.pipeThrough(new TextDecoderStream()).getReader()
+        await handleExecutorResult(reader, callback)
+      }
+    }
+    catch (e) {
+      console.error(e)
+
+      callback({
+        done: true,
+        error: true,
+      })
+    }
+
+    resolve(void 0)
+  }
+
+  _func()
+
+  return promise
+}
+
 export async function useChatCompletion(context: ChatCompletion, callback: (data: CompletionItem) => void) {
   const _messages = context.messages.map((item) => {
     return {
@@ -142,6 +253,9 @@ export async function useChatCompletion(context: ChatCompletion, callback: (data
       content: item.content,
     }
   })
+
+  // remove last one
+  _messages.pop()
 
   const res = await $fetch<ReadableStream>(`https://api.aiskt.com/v1/chat/completions`, {
     method: 'POST',

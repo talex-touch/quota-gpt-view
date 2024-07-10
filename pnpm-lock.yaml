@@ -53,6 +53,9 @@ importers:
       element-plus:
         specifier: ^2.7.6
         version: 2.7.6(vue@3.4.27(typescript@5.4.5))
+      json5:
+        specifier: ^2.2.3
+        version: 2.2.3
       prism-themes:
         specifier: ^1.9.0
         version: 1.9.0
