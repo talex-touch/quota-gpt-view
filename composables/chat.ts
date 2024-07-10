@@ -112,6 +112,13 @@ export function useChatTitle(context: ChatCompletion) {
     streaming: false,
   })
 
+  _context.messages.push({
+    date: genFormatNowDate(),
+    role: 'user',
+    content: 'Give me a title above, should be between 2-6 words.(Use the language of the previous message)',
+    streaming: false,
+  })
+
   let ind = 0
   useChatCompletion(_context, (res) => {
     if (res.error) {

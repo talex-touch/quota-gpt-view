@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ChatSetting from '../setting/ChatSetting.vue'
 import ChatItem from './ChatItem.vue'
 import EmptyGuide from './EmptyGuide.vue'
 import { Status } from '~/composables/chat'
@@ -86,11 +87,20 @@ defineExpose({
       handleBackToBottom()
   },
 })
+
+const [chatSettingShow, toggleChatSettingShow] = useToggle()
 </script>
 
 <template>
   <div class="ThChat">
+    <ChatSetting v-model:data="messagesModel" v-model:show="chatSettingShow" />
+
     <div :class="{ show: messages.messages?.length > 1 }" class="ThChat-Title">
+      <div v-wave class="ThChat-Setting" @click="toggleChatSettingShow()">
+        <div i-carbon-settings />
+        <span>设置</span>
+      </div>
+
       <p>
         {{ messages.topic }}
       </p>
@@ -131,6 +141,53 @@ defineExpose({
 </template>
 
 <style lang="scss">
+.ThChat-Setting {
+  &:hover {
+    span {
+      opacity: 1;
+
+      transform: translateX(0);
+    }
+    width: 80px;
+
+    background-color: var(--el-text-color-placeholder);
+  }
+  &:active {
+    transform: translateY(-50%) scale(0.75);
+  }
+  div {
+    position: absolute;
+
+    top: 8px;
+    left: 8px;
+  }
+  span {
+    position: absolute;
+
+    top: 5px;
+    left: 30px;
+
+    width: 50px;
+
+    opacity: 0;
+    transition: 0.25s;
+    transform: translateX(-50%);
+  }
+  position: absolute;
+
+  top: 50%;
+  left: 0.5rem;
+
+  width: 32px;
+  height: 32px;
+
+  opacity: 0.75;
+  cursor: pointer;
+  transition: 0.25s;
+  border-radius: 12px;
+  transform: translateY(-50%);
+}
+
 .ThChat-Title {
   &.show {
     transform: scale(1) translateY(0);

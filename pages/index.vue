@@ -205,6 +205,7 @@ async function handleSend(query: string, callback: Function) {
       }
       else if (event === 'on_chain_end') {
         if (name === 'Agent') {
+          obj.agent.actions.shift()
           callback(Status.AVAILABLE)
 
           setTimeout(() => {
@@ -217,7 +218,11 @@ async function handleSend(query: string, callback: Function) {
       }
       else if (event === 'on_tool_start') {
         if (name === 'TavilySearchResults')
-          obj.agent.actions[0] = `正在搜索 \`${res.data.input.input}\``
+          return obj.agent.actions[0] = `正在搜索 \`${res.data.input.input}\``
+        if (name === 'SerpAPI')
+          return obj.agent.actions[0] = `正在搜索 \`${res.data.input.input}\``
+
+        console.log('e', res)
 
         return
       }
@@ -239,56 +244,9 @@ async function handleSend(query: string, callback: Function) {
       }
       else if (event === 'on_tool_end') {
         if (name === 'TavilySearchResults') {
-          obj.agent.actions.length = 0
-          // const output = res.data.output
+          const output = res.data.output
 
-          // const websites = JSON5.parse(output)
-
-          const websites = [
-            {
-              url:
-                'https://www.accuweather.com/en/cn/chengdu/106774/august-weather/106774',
-              title: 'August - Chengdu, Sichuan, China Monthly Weather | AccuWeather',
-              content:
-                'Get the monthly weather forecast for Chengdu, Sichuan, China, including ... 2024. 2023 2024 2025 · Daily. S. M. T. W. T. F. S. 28. 85°.',
-              score: 0.98674,
-              raw_content: null,
-            },
-            {
-              title: 'Weather in Chengdu',
-              url: 'https://www.weatherapi.com/',
-              content:
-                '{\'location\': {\'name\': \'Chengdu\', \'region\': \'Sichuan\', \'country\': \'China\', \'lat\': 30.67, \'lon\': 104.07, \'tz_id\': \'Asia/Shanghai\', \'localtime_epoch\': 1720452243, \'localtime\': \'2024-07-08 23:24\'}, \'current\': {\'last_updated_epoch\': 1720451700, \'last_updated\': \'2024-07-08 23:15\', \'temp_c\': 25.1, \'temp_f\': 77.2, \'is_day\': 0, \'condition\': {\'text\': \'Partly cloudy\', \'icon\': \'//cdn.weatherapi.com/weather/64x64/night/116.png\', \'code\': 1003}, \'wind_mph\': 6.9, \'wind_kph\': 11.2, \'wind_degree\': 360, \'wind_dir\': \'N\', \'pressure_mb\': 1003.0, \'pressure_in\': 29.62, \'precip_mm\': 0.5, \'precip_in\': 0.02, \'humidity\': 83, \'cloud\': 75, \'feelslike_c\': 28.4, \'feelslike_f\': 83.1, \'windchill_c\': 24.0, \'windchill_f\': 75.3, \'heatindex_c\': 26.7, \'heatindex_f\': 80.0, \'dewpoint_c\': 23.2, \'dewpoint_f\': 73.7, \'vis_km\': 10.0, \'vis_miles\': 6.0, \'uv\': 1.0, \'gust_mph\': 7.8, \'gust_kph\': 12.6}}',
-              score: 0.98281,
-              raw_content: null,
-            },
-            {
-              url:
-                'https://en.climate-data.org/asia/china/sichuan/chengdu-2239/t/august-8/',
-              title: 'Weather Chengdu in August 2024 - Climate-Data.org',
-              content:
-                'Chengdu weather in August ; Temperature August, 25.8°C | 78.4°F ; Temperature August max. 29.6°C | 85.2°F ; Temperature August min. 22.4°C | 72.4°F ; Precipitation ...',
-              score: 0.98277,
-              raw_content: null,
-            },
-            {
-              url:
-                'https://www.weather25.com/asia/china/sichuan/chengdu?page=month&month=August',
-              title: 'Chengdu weather in August 2024 - Weather25.com',
-              content:
-                'The weather in Chengdu in August is very hot. The average temperatures are between 73°F and 89°F, drinking water regularly is advisable.',
-              score: 0.98073,
-              raw_content: null,
-            },
-            {
-              url: 'https://www.weather2travel.com/china/chengdu/august/',
-              title: 'Chengdu weather in August 2024 | China: How hot?',
-              content:
-                'Expect 30°C daytime maximum temperatures in the shade with on average 6 hours of sunshine per day in Chengdu in August. Check more long-term weather averages ...',
-              score: 0.97294,
-              raw_content: null,
-            },
-          ]
+          const websites = JSON5.parse(output)
 
           for (let i = 0; i < websites.length; i++) {
             const website = websites[i]
@@ -300,16 +258,25 @@ async function handleSend(query: string, callback: Function) {
             })
           }
         }
+        else if (name === 'SerpAPI') {
+          const output = res.data.output
+
+          const obj = JSON5.parse(output)
+
+          obj.agent.actions.push({
+            type: 'display',
+            data: obj,
+          })
+        }
 
         return
       }
 
       console.log('process item', res)
     },
-    true,
   )
 
-  // genTitle(pageOptions.select)
+  genTitle(pageOptions.select)
 }
 
 function handleClear() {

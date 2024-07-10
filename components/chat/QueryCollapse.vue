@@ -34,7 +34,7 @@ const expand = ref(false)
     .QueryCollapse-Header {
       opacity: 0.75;
     }
-    max-height: 200px;
+    max-height: 500px;
   }
   position: relative;
 

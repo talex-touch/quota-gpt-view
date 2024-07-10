@@ -113,8 +113,10 @@ const timeAgo = computed(() => dayjs(props.item.date, 'YYYY/M/D HH:mm:ss').fromN
       </div>
 
       <TransitionGroup name="reference" tag="div" class="ChatItem-Reference">
+        <ChatAttachment :agent="item.agent" />
+
         <template v-if="item.agent && !!item.content.length && !item.streaming">
-          <ChatQueryCollapse>
+          <ChatQueryCollapse v-if="item?.agent?.actions?.length">
             <template #Header>
               <div i-carbon-link />
               参考
