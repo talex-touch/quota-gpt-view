@@ -177,6 +177,8 @@ async function handleExecutorItem(item: any, callback: (data: any) => void) {
 }
 
 async function handleExecutorResult(reader: ReadableStreamDefaultReader<string>, callback: (data: any) => void) {
+  let lastData = ''
+
   while (true) {
     const { value, done } = await reader.read()
 
@@ -189,9 +191,17 @@ async function handleExecutorResult(reader: ReadableStreamDefaultReader<string>,
     if (value.includes('event: error') && value.includes('data: 请求超时'))
       continue
 
-    console.log('v', value)
+    const _value = lastData + value
 
-    const arr = value.split('\n')
+    if (!_value.endsWith(' ') && !_value.endsWith('}') && !_value.endsWith('\n')) {
+      lastData = _value
+
+      continue
+    }
+
+    console.log('v', _value)
+
+    const arr = _value.split('\n')
     for (let i = 0; i < arr.length; i++) {
       const item = arr[i]
 

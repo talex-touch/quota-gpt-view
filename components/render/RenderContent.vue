@@ -44,25 +44,28 @@ onMounted(() => {
   watch(
     () => [props.data, color.value],
     () => {
-      Vditor.preview(inner.value, props.data, {
-        hljs: {
-          enable: true,
-          lineNumber: true,
-          defaultLang: 'bash',
-        },
-        theme: {
-          current: 'Ant Design',
-        },
-        math: {
-          inlineDigit: true,
-        },
-        render: {
-          media: {
+      nextTick(() => {
+        Vditor.preview(inner.value, props.data, {
+          hljs: {
             enable: true,
+            lineNumber: true,
+            defaultLang: 'bash',
           },
-        },
-        mode: color.value !== 'dark' ? 'light' : 'dark',
+          theme: {
+            current: 'Ant Design',
+          },
+          math: {
+            inlineDigit: true,
+          },
+          render: {
+            media: {
+              enable: true,
+            },
+          },
+          mode: color.value !== 'dark' ? 'light' : 'dark',
+        })
       })
+
       // vditor.setValue(props.data, true)
     },
     {
