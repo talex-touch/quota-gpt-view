@@ -10,7 +10,10 @@ const online = useOnline()
 
         <div class="Offline" :class="{ display: online }">
           <div v-for="i in 4" :key="i" :class="`item-${i}`" class="item" />
-          <!-- 你已经离线了！ -->
+
+          <div class="Mentions">
+            请连接互联网使用！
+          </div>
         </div>
       </main>
     </ClientOnly>
@@ -23,8 +26,41 @@ const online = useOnline()
 </template>
 
 <style lang="scss">
+ @keyframes shining {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
 .Offline {
+  .Mentions {
+    z-index: 100;
+    position: absolute;
+
+    top: 50%;
+    left: 50%;
+
+    width: max-content;
+    height: 100px;
+
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--el-color-danger);
+    transition: 0.25s;
+    transform: translate(-50%, -50%) scale(1);
+    animation: shining 1s infinite linear;
+  }
+
   &.display {
+    .Mentions {
+      transform: translate(-50%, -50%) scale(0);
+    }
+
     .item-1 {
       right: -100%;
       bottom: -100%;

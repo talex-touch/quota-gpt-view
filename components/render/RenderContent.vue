@@ -8,7 +8,7 @@ const props = defineProps<{
 }>()
 const color = useColorMode()
 const inner = ref()
-onMounted(async () => {
+onMounted(() => {
   // const vditor = new Vditor(inner.value, {
   //   cache: {
   //     enable: false,
