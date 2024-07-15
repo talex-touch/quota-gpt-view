@@ -247,6 +247,7 @@ watch(
     width: calc(100% - 40px);
     max-height: 330px;
     height: 22px;
+    min-height: 22px;
     overflow: visible;
 
     resize: none;
