@@ -142,6 +142,8 @@ const menus = reactive([
       width: 28px;
       height: 28px;
     }
+
+    cursor: pointer;
   }
   position: absolute;
 
