@@ -18,11 +18,17 @@ const inputHistories = useLocalStorage<string[]>('inputHistories', [])
 const inputHistoryIndex = ref(inputHistories.value.length - 1)
 const showSend = computed(() => input.value.trim().length)
 
-function handleSend() {
+function handleSend(event: Event) {
   if (!showSend.value)
     return
   if (status.value !== Status.AVAILABLE)
     return
+
+  event.preventDefault()
+
+  const el = document.getElementById('main-input')!
+
+  el!.style.height = ''
 
   inputHistories.value.push(input.value)
   inputHistories.value = inputHistories.value.slice(-15)
@@ -45,6 +51,16 @@ function handleSend() {
 }
 
 function handleInputKeydown(event: KeyboardEvent) {
+  if (event.shiftKey) {
+    event.stopPropagation()
+    event.preventDefault()
+
+    if (event.key === 'Enter')
+      input.value += '\n'
+
+    return
+  }
+
   if (inputHistories.value.length < 1)
     return
 
@@ -75,6 +91,21 @@ function handleInputKeydown(event: KeyboardEvent) {
 
   input.value = inputHistories.value[inputHistoryIndex.value]
 }
+
+function triggerUpdateInput() {
+  const el = document.getElementById('main-input')!
+
+  el!.style.height = ''
+  el!.style.height = `${el.scrollHeight}px`
+}
+
+watch(
+  () => input.value,
+  () => {
+    nextTick(triggerUpdateInput)
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
@@ -88,14 +119,20 @@ function handleInputKeydown(event: KeyboardEvent) {
     class="ThInput"
     @keydown.enter="handleSend"
   >
+    <div class="ThInput-At">
+      <div i-carbon-add-large />
+    </div>
+
     <div class="ThInput-Input">
-      <input
+      <textarea
         id="main-input"
         v-model="input"
+        maxlength="3000"
+        autofocus
         autocomplete="off"
         placeholder="问任何问题都可以..."
         @keydown="handleInputKeydown"
-      >
+      />
     </div>
 
     <div class="ThInput-Send" @click="handleSend">
@@ -118,8 +155,99 @@ function handleInputKeydown(event: KeyboardEvent) {
 
     transform: translate(-50%, -50%);
   }
+  z-index: 3;
+  position: absolute;
+  padding: 0.5rem;
+  display: flex;
 
-  &.error &-Send {
+  gap: 0.5rem;
+  align-items: flex-end;
+
+  left: 50%;
+  bottom: 2.5%;
+
+  width: 85%;
+  min-height: 50px;
+
+  &.shrink {
+    width: 85%;
+
+    transform: translateX(-50%);
+  }
+  &.generating {
+    width: 20%;
+    height: 50px;
+
+    transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+  }
+
+  box-sizing: border-box;
+  border-radius: 16px;
+  transform: translateX(-50%);
+  box-shadow: var(--el-box-shadow);
+  background-color: var(--el-bg-color);
+  transition: 0.75s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+}
+
+.ThInput-At {
+  &:hover {
+    cursor: pointer;
+    background: #ffffff20;
+  }
+  &:active {
+    transform: scale(0.75);
+  }
+  position: relative;
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 32px;
+  height: 32px;
+
+  bottom: 2px;
+
+  border-radius: 12px;
+  transition: 0.25s;
+  .generating & {
+    opacity: 0;
+  }
+}
+
+.ThInput-Input {
+  .generating & {
+    opacity: 0;
+
+    pointer-events: none;
+  }
+
+  textarea {
+    &:focus-visible {
+      outline: none;
+      border: none;
+    }
+    position: relative;
+
+    top: 0;
+
+    width: calc(100% - 40px);
+    max-height: 330px;
+    height: 22px;
+    overflow: visible;
+
+    resize: none;
+    box-sizing: border-box;
+    // transition: 0.25s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+    background-color: transparent;
+  }
+  flex: 1;
+
+  overflow: hidden;
+}
+
+.ThInput-Send {
+  &.error & {
     div {
       opacity: 0;
     }
@@ -133,165 +261,109 @@ function handleInputKeydown(event: KeyboardEvent) {
     box-shadow: 0 0 2px 4px var(--el-color-primary-light-5);
   }
 
-  &-Send {
+  &::before {
+    z-index: -1;
+    content: '';
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    opacity: 0;
+    border-radius: 16px;
+    animation: animate 1.5s linear infinite;
+    transition: 0.25s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+    background: linear-gradient(135deg, #14ffe9, #ffeb3b, #ff00e0);
+  }
+  &::after {
+    z-index: -2;
+    content: '';
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    opacity: 0;
+    border-radius: 16px;
+    transform: scale(1.025);
+    animation: animate 1.5s linear infinite;
+    transition: 0.25s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+    background: linear-gradient(135deg, #14ffe9, #ffeb3b, #ff00e0);
+  }
+  .showSend & {
+    transform: scale(1);
+  }
+  .generating & {
     &::before {
-      z-index: -1;
-      content: '';
-      position: absolute;
-
-      top: 0;
-      left: 0;
-
-      width: 100%;
-      height: 100%;
-
-      opacity: 0;
-      border-radius: 16px;
-      animation: animate 1.5s linear infinite;
-      transition: 0.25s cubic-bezier(0.785, 0.135, 0.15, 0.86);
-      background: linear-gradient(135deg, #14ffe9, #ffeb3b, #ff00e0);
+      opacity: 0.75;
     }
     &::after {
-      z-index: -2;
-      content: '';
-      position: absolute;
-
-      top: 0;
-      left: 0;
-
-      width: 100%;
-      height: 100%;
-
+      opacity: 0.5;
+    }
+    div {
       opacity: 0;
-      border-radius: 16px;
-      transform: scale(1.025);
-      animation: animate 1.5s linear infinite;
-      transition: 0.25s cubic-bezier(0.785, 0.135, 0.15, 0.86);
-      background: linear-gradient(135deg, #14ffe9, #ffeb3b, #ff00e0);
     }
-    .showSend & {
-      transform: scale(1);
-    }
-    .generating & {
-      &::before {
-        opacity: 1;
-      }
-      &::after {
-        opacity: 0.75;
-      }
-      div {
-        opacity: 0;
-      }
-      transform: scale(1);
+    transform: scale(1);
 
-      top: 0;
-      left: 0;
+    top: 0;
+    left: 0;
 
-      width: 100%;
-      height: 100%;
+    width: 100%;
+    height: 100%;
 
-      pointer-events: none;
-      border-radius: 16px;
-      background: transparent;
-    }
-    &:hover {
-      background-color: var(--el-color-primary);
-      box-shadow: 0 0 2px 4px var(--el-color-primary-light-5);
-    }
-    &:active {
-      transform: scale(0.95);
-    }
-    position: absolute;
-    display: flex;
-
-    color: #fff;
-    font-size: 1.25rem;
-    align-items: center;
-    justify-content: center;
-
-    top: 7px;
-    right: 7px;
-
-    width: 36px;
-    height: 36px;
-
-    cursor: pointer;
-    transition:
-      transform 0.5s,
-      border-radius 0.25s,
-      left 0.25s,
-      width 0.25s;
-    transform: scale(0);
+    pointer-events: none;
     border-radius: 16px;
-    background-color: var(--el-color-primary-light-3);
-    box-shadow: 0 0 2px 4px var(--el-color-primary-light-7);
+    background: transparent;
   }
-  &-Input {
-    .generating & {
-      opacity: 0;
-
-      pointer-events: none;
-    }
-
-    input {
-      &:focus-visible {
-        outline: none;
-        border: none;
-      }
-      position: absolute;
-      padding: 0 0.5rem;
-
-      top: 0;
-
-      width: 100%;
-      height: 100%;
-
-      box-sizing: border-box;
-      background-color: transparent;
-    }
+  &:hover {
+    background-color: var(--el-color-primary);
+    box-shadow: 0 0 2px 4px var(--el-color-primary-light-5);
   }
-  &.shrink {
-    width: 85%;
-
-    transform: translateX(-50%);
+  &:active {
+    transform: scale(0.95);
   }
-  &.generating {
-    width: 20%;
-
-    transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
-  }
-  z-index: 3;
   position: absolute;
-  padding: 0.25rem;
   display: flex;
 
-  bottom: 2.5%;
+  color: #fff;
+  font-size: 1.25rem;
+  align-items: center;
+  justify-content: center;
 
-  left: 50%;
-  width: 85%;
-  height: 50px;
+  bottom: 8px;
+  right: 8px;
 
-  box-sizing: border-box;
+  width: 36px;
+  height: 36px;
+
+  cursor: pointer;
+  transition:
+    transform 0.5s,
+    border-radius 0.25s,
+    left 0.25s,
+    width 0.25s;
+  transform: scale(0);
   border-radius: 16px;
-  transform: translateX(-50%);
-  box-shadow: var(--el-box-shadow);
-  background-color: var(--el-bg-color);
-  transition: 0.75s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+  background-color: var(--el-color-primary-light-3);
+  box-shadow: 0 0 2px 4px var(--el-color-primary-light-7);
 }
 
 @keyframes animate {
   0% {
-    opacity: 0.75;
     filter: blur(10px) hue-rotate(0deg);
   }
 
   50% {
-    opacity: 0.75;
     filter: blur(20px) hue-rotate(180deg);
   }
 
   100% {
-    opacity: 0.75;
     filter: blur(10px) hue-rotate(360deg);
   }
 }
