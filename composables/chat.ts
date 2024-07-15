@@ -220,9 +220,10 @@ export async function useChatExecutor(context: ChatCompletion, callback: (data: 
   _messages.pop()
 
   // https://api.aiskt.com/v1/chat/completions
+  // http://localhost:7001/api/aigc/executor
   const res = simulate
     ? null
-    : await $fetch<ReadableStream>(`http://localhost:7001/api/aigc/executor`, {
+    : await $fetch<ReadableStream>(`https://quota.api.tagzxia.com/api/aigc/executor`, {
       method: 'POST',
       responseType: 'stream',
       headers: {
