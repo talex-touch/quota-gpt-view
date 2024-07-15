@@ -2,6 +2,8 @@
 import CalculatorResult from './attachments/CalculatorResult.vue'
 import WeatherResult from './attachments/WeatherResult.vue'
 import QuotaSearchResult from './attachments/QuotaSearchResult.vue'
+import QuotaSearchImagesResult from './attachments/QuotaSearchImagesResult.vue'
+import QuotaSearchVideosResult from './attachments/QuotaSearchVideosResult.vue'
 
 const props = defineProps<{
   agent: {
@@ -14,6 +16,8 @@ const typeMapper: Record<string, Component> = {
   weather_result: WeatherResult,
   Calculator: CalculatorResult,
   quota_search: QuotaSearchResult,
+  quota_search_images: QuotaSearchImagesResult,
+  quota_search_videos: QuotaSearchVideosResult,
 }
 
 const agentActions = computed(() =>

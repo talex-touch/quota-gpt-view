@@ -213,7 +213,7 @@ async function handleSend(query: string, callback: Function) {
 
           return obj.agent.actions[0] = `正在浏览 \`${input}\``
         }
-        else if (name === 'QuotaSearchAPI') {
+        else if (name === 'QuotaSearchAPI' || name === 'QuotaSearchImagesAPI' || name === 'QuotaSearchVideosAPI') {
           return obj.agent.actions[0] = `Quota正在搜索 \`${res.data.input.input}\``
         }
 
@@ -275,6 +275,34 @@ async function handleSend(query: string, callback: Function) {
             type: 'display',
             data: {
               type: 'quota_search',
+              ..._obj,
+              _: res.data,
+            },
+          })
+        }
+        else if (name === 'QuotaSearchImagesAPI') {
+          const output = res.data.output
+
+          const _obj = JSON5.parse(output)
+
+          obj.agent.actions.push({
+            type: 'display',
+            data: {
+              type: 'quota_search_images',
+              ..._obj,
+              _: res.data,
+            },
+          })
+        }
+        else if (name === 'QuotaSearchVideosAPI') {
+          const output = res.data.output
+
+          const _obj = JSON5.parse(output)
+
+          obj.agent.actions.push({
+            type: 'display',
+            data: {
+              type: 'quota_search_videos',
               ..._obj,
               _: res.data,
             },
