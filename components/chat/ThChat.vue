@@ -5,6 +5,7 @@ import EmptyGuide from './EmptyGuide.vue'
 import TrChatTitle from './TrChatTitle.vue'
 import { Status } from '~/composables/chat'
 import ModelSelector from '~/components/model/ModelSelector.vue'
+import AccountAvatar from '~/components/personal/AccountAvatar.vue'
 
 const props = defineProps<{
   messages: ChatCompletion
@@ -106,7 +107,8 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
       <TrChatTitle :title="messages.topic" />
 
       <span class="model">
-        <ModelSelector v-model="messagesModel.mask.modelConfig.model" /></span>
+        <ModelSelector v-model="messagesModel.model" /></span>
+      <AccountAvatar />
     </div>
     <div
       class="ThChat-Container"
@@ -219,11 +221,11 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
   transform: translateY(-50%);
 }
 
-.ThChat-Title {
-  &.show {
+.TrChatTitle {
+  .ThChat-Title.show & {
     transform: scale(1) translateY(0);
   }
-  transform: scale(0.8) translateY(-120%);
+  transform: scale(0.8) translateY(-200%);
 
   // border-bottom: 1px solid var(--el-border-color);
   transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);

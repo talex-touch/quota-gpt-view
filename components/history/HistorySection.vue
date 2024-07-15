@@ -67,11 +67,21 @@ watch(() => route, () => {
 <style lang="scss">
 .HistorySection {
   p {
+    z-index: 1;
+    position: sticky;
+
+    top: 70px;
+
     margin: 0.75rem 0 0.5rem;
-    padding: 0 0.5rem;
+    padding: 0.5rem;
 
     font-weight: 600;
-    color: var(--el-text-color-secondary);
+    color: var(--el-text-color-primary);
+
+    // background: var(--el-bg-color);
+    background-size: 4px 4px;
+    background-image: radial-gradient(transparent 1px, var(--el-bg-color) 1px);
+    backdrop-filter: saturate(50%) blur(4px);
   }
 }
 

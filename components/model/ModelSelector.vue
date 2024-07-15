@@ -34,7 +34,7 @@ watch(
       return
 
     if (!expand.value) {
-      el.style.right = '0'
+      el.style.right = ''
       el.style.top = '20px'
 
       return
@@ -244,6 +244,8 @@ const curSelect = computed(() => models.find(item => item.value === model.value)
     transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
   }
   position: relative;
+
+  right: 36px;
 
   user-select: none;
 }

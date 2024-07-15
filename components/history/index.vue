@@ -177,7 +177,7 @@ div.History {
 
 .History {
   &-Title {
-    z-index: 1;
+    z-index: 2;
     position: absolute;
     padding: 1rem 0;
     font-size: 24px;
