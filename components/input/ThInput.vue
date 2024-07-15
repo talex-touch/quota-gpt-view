@@ -4,6 +4,7 @@ import { Status } from '~/composables/chat'
 const props = defineProps<{
   status: Status
   shrink: boolean
+  roundLimit: boolean
 }>()
 const emits = defineEmits<{
   (name: 'send', data: any, callback: (status: Status, data: any) => void): void
@@ -111,6 +112,7 @@ watch(
 <template>
   <div
     :class="{
+      disabled: roundLimit,
       shrink,
       showSend,
       generating: status === Status.GENERATING,
@@ -145,6 +147,17 @@ watch(
 
 <style lang="scss" scoped>
 .ThInput {
+  &.disabled {
+    .ThInput-Input,
+    .ThInput-Send,
+    .ThInput-At {
+      display: none;
+    }
+    width: 0 !important;
+
+    opacity: 0;
+    pointer-events: none;
+  }
   span {
     position: absolute;
 
@@ -166,11 +179,11 @@ watch(
   left: 50%;
   bottom: 2.5%;
 
-  width: 85%;
+  width: 80%;
   min-height: 50px;
 
   &.shrink {
-    width: 85%;
+    width: 80%;
 
     transform: translateX(-50%);
   }

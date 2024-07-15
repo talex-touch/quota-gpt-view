@@ -2,12 +2,14 @@
 import ChatSetting from '../setting/ChatSetting.vue'
 import ChatItem from './ChatItem.vue'
 import EmptyGuide from './EmptyGuide.vue'
+import TrChatTitle from './TrChatTitle.vue'
 import { Status } from '~/composables/chat'
 import ModelSelector from '~/components/model/ModelSelector.vue'
 
 const props = defineProps<{
   messages: ChatCompletion
   status: Status
+  roundLimit: boolean
 }>()
 
 const emits = defineEmits<{
@@ -101,9 +103,8 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
         <span>设置</span>
       </div>
 
-      <p>
-        {{ messages.topic }}
-      </p>
+      <TrChatTitle :title="messages.topic" />
+
       <span class="model">
         <ModelSelector v-model="messagesModel.mask.modelConfig.model" /></span>
     </div>
@@ -120,6 +121,10 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
             :total="messages.messages.length"
             :item="message"
           />
+
+          <div v-if="roundLimit" class="TrChat-RateLimit">
+            为了避免恶意使用，你需要登录来解锁聊天限制！
+          </div>
         </div>
 
         <EmptyGuide :show="messages.messages?.length > 1" />
@@ -141,6 +146,32 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
 </template>
 
 <style lang="scss">
+.TrChat-RateLimit {
+  &::before {
+    content: '';
+    position: absolute;
+
+    left: -10%;
+    width: 120%;
+
+    height: 50px;
+
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      var(--el-bg-color-page)
+    );
+  }
+  z-index: 3;
+  position: sticky;
+  margin: 1rem 0 2rem;
+
+  bottom: 20px;
+
+  text-align: center;
+  color: var(--el-color-danger);
+}
+
 .ThChat-Setting {
   &:hover {
     span {
@@ -192,9 +223,9 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
   &.show {
     transform: scale(1) translateY(0);
   }
-  transform: scale(0.8) translateY(-100%);
+  transform: scale(0.8) translateY(-120%);
 
-  border-bottom: 1px solid var(--el-border-color);
+  // border-bottom: 1px solid var(--el-border-color);
   transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
 }
 
@@ -289,7 +320,7 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
 .ThChat-Container {
   &-Wrapper {
     position: relative;
-    padding: 1rem 1.25rem;
+    padding: 1rem 10%;
     padding-top: 40px;
 
     display: flex;
@@ -309,20 +340,6 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
 
 .ThChat {
   &-Title {
-    &::before {
-      z-index: -1;
-      content: '';
-      position: absolute;
-
-      top: 0;
-      left: 0;
-
-      width: 100%;
-      height: 100%;
-
-      opacity: 0.25;
-      background-color: var(--el-text-color-placeholder);
-    }
     & .model {
       position: absolute;
 
@@ -339,13 +356,13 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
     align-items: center;
     justify-content: center;
 
-    top: 0;
+    top: 0.5rem;
     left: 0;
 
     width: 100%;
     height: 40px;
 
-    backdrop-filter: blur(18px) saturate(180%);
+    // backdrop-filter: blur(18px) saturate(180%);
   }
   position: relative;
   padding: 1rem 1.25rem;

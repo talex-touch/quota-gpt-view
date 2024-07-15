@@ -46,6 +46,8 @@ const pageOptions = reactive<any>({
   select: -1,
 })
 
+const roundLimit = computed(() => messages.value.messages.length / 2 >= 10)
+
 watch(
   () => pageOptions.select,
   (ind) => {
@@ -366,17 +368,19 @@ provide('updateConversationTopic', (index: number, topic: string) => {
         ref="chatRef"
         v-model:messages="messages"
         :status="status"
+        :round-limit="roundLimit"
         @cancel="handleCancel"
       />
       <ThInput
         v-model:status="status"
         :shrink="messages.messages.length > 1"
+        :round-limit="roundLimit"
         @send="handleSend"
       />
 
       <div class="copyright">
-        ThisAI. 可能会犯错，生成的内容仅供参考。
-        <span class="business">考拓智能科技有限公司</span>
+        ThisAI. 可能会犯错，生成的内容仅供参考。v24.07.15
+        <span class="business">四川科塔锐行智能科技有限公司</span>
       </div>
     </div>
   </div>
