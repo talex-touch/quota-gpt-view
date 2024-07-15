@@ -115,7 +115,7 @@ const timeAgo = computed(() => dayjs(props.item.date, 'YYYY/M/D HH:mm:ss').fromN
       <div tag="div" class="ChatItem-Reference">
         <ChatAttachment :agent="item.agent" />
 
-        <template v-if="item.agent && !!item.content.length && !item.streaming">
+        <!-- <template v-if="item.agent && !!item.content.length && !item.streaming">
           <ChatQueryCollapse v-if="item?.agent?.actions?.length">
             <template #Header>
               <div i-carbon-link />
@@ -135,7 +135,7 @@ const timeAgo = computed(() => dayjs(props.item.date, 'YYYY/M/D HH:mm:ss').fromN
               }}</a>
             </span>
           </ChatQueryCollapse>
-        </template>
+        </template> -->
       </div>
       <!-- </div> -->
     </div>

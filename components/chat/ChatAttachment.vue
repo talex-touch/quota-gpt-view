@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import CalculatorResult from './attachments/CalculatorResult.vue'
 import WeatherResult from './attachments/WeatherResult.vue'
+import QuotaSearchResult from './attachments/QuotaSearchResult.vue'
 
 const props = defineProps<{
   agent: {
@@ -12,6 +13,7 @@ const props = defineProps<{
 const typeMapper: Record<string, Component> = {
   weather_result: WeatherResult,
   Calculator: CalculatorResult,
+  quota_search: QuotaSearchResult,
 }
 
 const agentActions = computed(() =>

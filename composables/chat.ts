@@ -103,8 +103,6 @@ export function useChatTitle(context: ChatCompletion) {
 
   const _context: ChatCompletion = JSON.parse(JSON.stringify(context))
 
-  _context.messages.splice(0, 1)
-
   _context.messages.push({
     date: genFormatNowDate(),
     role: 'user',
@@ -177,7 +175,7 @@ async function handleExecutorItem(item: any, callback: (data: any) => void) {
 }
 
 async function handleExecutorResult(reader: ReadableStreamDefaultReader<string>, callback: (data: any) => void) {
-  let lastData = ''
+  // const lastData = ''
 
   while (true) {
     const { value, done } = await reader.read()
@@ -188,18 +186,18 @@ async function handleExecutorResult(reader: ReadableStreamDefaultReader<string>,
     if (!value.length)
       continue
 
-    if (value.includes('event: error') && value.includes('data: 请求超时'))
+    if (value.includes('data: 请求超时'))
       continue
 
-    const _value = lastData + value
+    const _value = /* lastData + */ value
 
-    if (!_value.endsWith(' ') && !_value.endsWith('}') && !_value.endsWith('\n')) {
-      lastData = _value
+    // if (!_value.endsWith(' ') && !_value.endsWith('}') && !_value.endsWith('\n')) {
+    //   lastData = _value
 
-      continue
-    }
+    //   continue
+    // }
 
-    console.log('v', _value)
+    // console.log('v', _value)
 
     const arr = _value.split('\n')
     for (let i = 0; i < arr.length; i++) {
