@@ -302,10 +302,6 @@ async function handleSend(query: string, callback: Function) {
   genTitle(pageOptions.select)
 }
 
-function handleClear() {
-  messages.value.messages.length = 0
-}
-
 function handleCancel() {
   // remove last one
   messages.value.messages.splice(messages.value.messages.length - 1, 1)
@@ -347,7 +343,6 @@ provide('updateConversationTopic', (index: number, topic: string) => {
       <ThInput
         v-model:status="status"
         :shrink="messages.messages.length > 1"
-        @clear="handleClear"
         @send="handleSend"
       />
 

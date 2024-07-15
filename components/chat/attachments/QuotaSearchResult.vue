@@ -12,6 +12,9 @@ const props = defineProps<{
       <template #Header>
         <div i-carbon-link />
         参考
+        <span class="text-query">
+          {{ data._.input.input }}
+        </span>
         <span class="text-primary">({{
           data.results.length
         }})</span>
@@ -31,6 +34,40 @@ const props = defineProps<{
 </template>
 
 <style lang="scss">
+.text-query {
+  opacity: 0.75;
+}
+
+@keyframes reference-join {
+  from {
+    opacity: 0;
+    transform: translateY(10%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ChatItem-ReferenceList {
+  display: flex;
+  flex-direction: column;
+
+  gap: 0.25rem;
+  a {
+    &:hover {
+      opacity: 0.75;
+    }
+    opacity: 0.5;
+
+    cursor: pointer;
+  }
+
+  opacity: 0;
+  animation: 0.25s var(--i) cubic-bezier(0.075, 0.82, 0.165, 1) reference-join
+    forwards;
+}
+
 .QuotaSearchResult {
   &:hover {
     opacity: 0.5;

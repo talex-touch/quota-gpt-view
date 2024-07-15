@@ -143,36 +143,6 @@ const timeAgo = computed(() => dayjs(props.item.date, 'YYYY/M/D HH:mm:ss').fromN
 </template>
 
 <style lang="scss">
-@keyframes reference-join {
-  from {
-    opacity: 0;
-    transform: translateY(10%);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.ChatItem-ReferenceList {
-  display: flex;
-  flex-direction: column;
-
-  gap: 0.25rem;
-  a {
-    &:hover {
-      opacity: 0.75;
-    }
-    opacity: 0.5;
-
-    cursor: pointer;
-  }
-
-  opacity: 0;
-  animation: 0.25s var(--i) cubic-bezier(0.075, 0.82, 0.165, 1) reference-join
-    forwards;
-}
-
 .ChatItem-Wrapper {
   &.agent {
     .ChatItem-Content-Inner {

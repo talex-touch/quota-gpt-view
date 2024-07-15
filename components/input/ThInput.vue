@@ -18,10 +18,6 @@ const inputHistories = useLocalStorage<string[]>('inputHistories', [])
 const inputHistoryIndex = ref(inputHistories.value.length - 1)
 const showSend = computed(() => input.value.trim().length)
 
-function clear() {
-  emits('clear')
-}
-
 function handleSend() {
   if (!showSend.value)
     return
@@ -108,69 +104,9 @@ function handleInputKeydown(event: KeyboardEvent) {
       <span v-else-if="status === Status.ERROR">出现错误，请刷新页面。</span>
     </div>
   </div>
-
-  <div
-    :class="{ expand: shrink, generating: status === Status.GENERATING }"
-    class="ThInput-Clear"
-    @click="clear"
-  >
-    <div i-carbon-misuse-outline />
-  </div>
 </template>
 
 <style lang="scss" scoped>
-.ThInput-Clear {
-  &:hover {
-    &::before {
-      opacity: 1;
-    }
-  }
-
-  &::before {
-    content: '';
-    position: absolute;
-
-    top: 0;
-    left: 0;
-
-    width: 100%;
-    height: 100%;
-
-    opacity: 0.75;
-    border-radius: 16px;
-    background-color: var(--el-color-danger);
-  }
-  &.expand {
-    transform: translateX(50%) translateX(5rem) scale(1);
-  }
-  &.expand.generating {
-    left: 55%;
-
-    transition: 0.75s cubic-bezier(0.785, 0.135, 0.15, 0.86);
-  }
-  position: absolute;
-  padding: 0.25rem;
-  display: flex;
-
-  color: #fff;
-  font-size: 1.5rem;
-  align-items: center;
-  justify-content: center;
-
-  bottom: 2.5%;
-
-  left: 87%;
-  width: 50px;
-  height: 50px;
-
-  cursor: pointer;
-  box-sizing: border-box;
-  border-radius: 16px;
-  box-shadow: var(--el-box-shadow);
-  transform: translateX(50%) translateX(5rem) scale(0);
-  transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
-}
-
 .ThInput {
   span {
     position: absolute;
@@ -314,14 +250,10 @@ function handleInputKeydown(event: KeyboardEvent) {
       background-color: transparent;
     }
   }
-
-  // &.showSend {
-  //   border-radius: 12px 24px 24px 12px;
-  // }
   &.shrink {
-    width: calc(85% - 2em);
+    width: 85%;
 
-    transform: translateX(-50%) translateX(-2rem);
+    transform: translateX(-50%);
   }
   &.generating {
     width: 20%;
@@ -349,14 +281,17 @@ function handleInputKeydown(event: KeyboardEvent) {
 
 @keyframes animate {
   0% {
+    opacity: 0.75;
     filter: blur(10px) hue-rotate(0deg);
   }
 
   50% {
+    opacity: 0.75;
     filter: blur(20px) hue-rotate(180deg);
   }
 
   100% {
+    opacity: 0.75;
     filter: blur(10px) hue-rotate(360deg);
   }
 }
