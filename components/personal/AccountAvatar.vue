@@ -74,10 +74,8 @@ const menus = reactive([
     background: var(--el-border-color) !important;
   }
 
-  .dark {
-    &:hover {
-      background: #ffffff10;
-    }
+  .dark &:hover {
+    background: #ffffff10;
   }
 
   &:hover {
