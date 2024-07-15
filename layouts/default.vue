@@ -26,7 +26,7 @@ const online = useOnline()
 </template>
 
 <style lang="scss">
- @keyframes shining {
+ @keyframes q_shining {
   0%,
   100% {
     opacity: 0.5;
@@ -53,7 +53,7 @@ const online = useOnline()
     color: var(--el-color-danger);
     transition: 0.25s;
     transform: translate(-50%, -50%) scale(1);
-    animation: shining 1s infinite linear;
+    animation: q_shining 1s infinite linear;
   }
 
   &.display {
