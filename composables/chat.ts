@@ -96,7 +96,6 @@ export interface EventExecutor {
  * Generate chat title in conversation
  */
 export function useChatTitle(context: ChatCompletion) {
-  return
   const options = reactive({
     status: Status.GENERATING,
     streaming: true,
@@ -106,25 +105,9 @@ export function useChatTitle(context: ChatCompletion) {
 
   const _context: ChatCompletion = JSON.parse(JSON.stringify(context))
 
-  _context.messages.push({
-    date: genFormatNowDate(),
-    role: 'user',
-    content: 'Give me a title above, should be between 2-6 words.(Use the language of the previous message)',
-    streaming: false,
-  })
-
-  _context.messages.push({
-    date: genFormatNowDate(),
-    role: 'user',
-    content: 'Give me a title above, should be between 2-6 words.(Use the language of the previous message)',
-    streaming: false,
-  })
-
-  let ind = 0
-  useChatCompletion(_context, (res) => {
+  let i = 0
+  useChatExecutor(_context, (res) => {
     if (res.error) {
-      console.error(res)
-
       options.streaming = false
       options.status = Status.ERROR
 
@@ -135,25 +118,32 @@ export function useChatTitle(context: ChatCompletion) {
       setTimeout(() => {
         options.streaming = false
         options.status = Status.AVAILABLE
-      }, (ind + 2) * 100)
+      }, (i + 2) * 100)
 
       return
     }
 
-    if (!res.choices?.length)
-      return (options.generating = false)
-
-    const text = res!.choices![0]!.delta
-    if (!text.content)
+    const { event, name } = res
+    if (event !== 'on_chain_end' || name !== 'RunnableWithMessageHistory')
       return
 
-    ind += 1
-    setTimeout(() => {
-      options.title += text!.content
+    if (!res.data?.output?.length)
+      return (options.generating = false)
 
-      options.title.replace('"', '')
-    }, ind * 100)
-  })
+    const text: string = res.data?.output
+    if (!text)
+      return
+
+    for (; i < text.length; ++i) {
+      const code = text[i]
+
+      setTimeout(() => {
+        options.title += code
+
+        options.title = options.title.replaceAll('**', '')
+      }, i * 20)
+    }
+  }, true)
 
   return options
 }
@@ -223,7 +213,7 @@ async function handleExecutorResult(reader: ReadableStreamDefaultReader<string>,
   }
 }
 
-export async function useChatExecutor(context: ChatCompletion, callback: (data: any) => void) {
+export async function useChatExecutor(context: ChatCompletion, callback: (data: any) => void, generateTitle: boolean = false) {
   const _messages = context.messages.map((item) => {
     return {
       role: item.role,
@@ -237,15 +227,15 @@ export async function useChatExecutor(context: ChatCompletion, callback: (data: 
 
   async function _func() {
     try {
-      // https://api.aiskt.com/v1/chat/completions
-      // http://localhost:7001/api/aigc/executor
-      const res = await $fetch<ReadableStream>(`https://quota.api.tagzxia.com/api/aigc/executor`, {
+      // eslint-disable-next-line node/prefer-global/process
+      const res = await $fetch<ReadableStream>(window?.process?.dev ? `http://localhost:7001/api/aigc/executor` : `https://quota.api.tagzxia.com/api/aigc/executor`, {
         method: 'POST',
         responseType: 'stream',
         headers: {
           Accept: 'text/event-stream',
         },
         body: {
+          generateTitle,
           messages: _messages,
         },
       })
@@ -270,79 +260,10 @@ export async function useChatExecutor(context: ChatCompletion, callback: (data: 
   return promise
 }
 
-export async function useChatCompletion(context: ChatCompletion, callback: (data: CompletionItem) => void) {
-  const _messages = context.messages.map((item) => {
-    return {
-      role: item.role,
-      content: item.content,
-    }
-  })
-
-  // remove last one
-  _messages.pop()
-
-  return new Promise(async (resolve) => {
-    try {
-      const res = await $fetch<ReadableStream>(`https://quota.api.tagzxia.com/api/aigc`, {
-        method: 'POST',
-        responseType: 'stream',
-        headers: {
-          Accept: 'text/event-stream',
-        },
-        body: {
-          messages: _messages,
-        },
-      })
-
-      const reader = res.pipeThrough(new TextDecoderStream()).getReader()
-
-      while (true) {
-        const { value, done } = await reader.read()
-
-        if (done)
-          break
-
-        if (!value.length)
-          continue
-
-        const arr = value.split('\n')
-        for (let i = 0; i < arr.length; i++) {
-          const item = arr[i]
-
-          if (item.startsWith('data: ')) {
-            const data = item.slice(6)
-            if (data === '[DONE]') {
-              callback({
-                done: true,
-              })
-              break
-            }
-            else {
-              const json = JSON.parse(data)
-
-              callback({
-                done: false,
-                ...json,
-              })
-            }
-          }
-        }
-      }
-    }
-    catch (e) {
-      callback({
-        done: true,
-        error: true,
-      })
-    }
-
-    resolve(void 0)
-  })
-}
-
 export interface IMessageHandler {
   onTriggerStatus: (status: Status) => void
   onTriggerUpdate: () => void
+  onReqCompleted?: () => void
 }
 
 export class ChatManager {
@@ -450,6 +371,8 @@ export class ChatManager {
 
             setTimeout(() => {
               callback.onTriggerUpdate()
+
+              callback?.onReqCompleted?.()
             }, 200)
             return
           }

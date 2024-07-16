@@ -85,16 +85,17 @@ async function handleSend(query: string, callback: Function) {
   conversation.messages.push(obj)
   conversation.lastUpdate = Date.now()
 
-  chatManager.sendMessage(obj, conversation, {
+  await chatManager.sendMessage(obj, conversation, {
     onTriggerUpdate: () => {
       chatRef.value?.handleBackToBottom(false)
     },
     onTriggerStatus(status) {
       callback(status)
     },
+    onReqCompleted() {
+      genTitle(pageOptions.select)
+    },
   })
-
-  genTitle(pageOptions.select)
 }
 
 provide('updateConversationTopic', (index: number, topic: string) => {
@@ -129,8 +130,8 @@ provide('updateConversationTopic', (index: number, topic: string) => {
       />
 
       <div class="copyright">
-        ThisAI. 可能会犯错，生成的内容仅供参考。v24.07.16
-        <span class="business">四川科塔锐行智能科技有限公司</span>
+        ThisAI. 可能会犯错，生成的内容仅供参考。v24.07.17
+        <span class="business">四川科塔锐行科技有限公司</span>
       </div>
     </div>
   </div>
