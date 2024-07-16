@@ -10,10 +10,60 @@ const emits = defineEmits<{
   (e: 'modelValue:show'): void
 }>()
 
+function formatter(value: string) {
+  // 移除所有非数字字符
+  const cleaned = value.replace(/\D/g, '')
+
+  // 判断手机号长度
+  if (cleaned.length >= 8) {
+    const part1 = cleaned.slice(0, 3)
+    const part2 = cleaned.slice(3, 7)
+    const part3 = cleaned.slice(7, 11)
+    return `${part1} ${part2} ${part3}`
+  }
+  else if (cleaned.length >= 4 && cleaned.length < 8) {
+    const part1 = cleaned.slice(0, 3)
+    const part2 = cleaned.slice(3)
+    return `${part1} ${part2}`
+  }
+  else if (cleaned.length < 4) {
+    return cleaned
+  }
+  else {
+    // 如果长度不符合手机号码规则，返回原始值
+    return value
+  }
+}
+
+function parser(input: string) {
+  // 去除前后空格并保留原始格式
+  let trimmedInput = input.trim()
+
+  // 确保输入只包含数字和空格
+  if (!/^\d+( \d+)*$/.test(trimmedInput))
+    return input // 返回原始输入
+
+  // 去除多余的空格
+  trimmedInput = trimmedInput.replace(/\s+/g, ' ').trim()
+
+  // 处理不同情况
+  const match = trimmedInput.match(/^(1\d{0,10})$/)
+  if (match) {
+    if (match[1].length <= 3)
+      return match[1]
+    else if (match[1].length <= 7)
+      return `${match[1].slice(0, 3)} ${match[1].slice(3)}`
+    else
+      return `${match[1].slice(0, 3)} ${match[1].slice(3, 7)} ${match[1].slice(7)}`
+  }
+
+  return input // 返回原始输入
+}
+
 const show = useVModel(props, 'show', emits)
 const data = reactive({
   account: '',
-  passwd: '',
+  code: '',
   agreement: false,
 })
 </script>
@@ -35,12 +85,18 @@ const data = reactive({
           <p>手机登录</p>
 
           <el-form>
-            <el-input size="large">
+            <el-input
+              v-model="data.account"
+              maxlength="12"
+              :parser="parser"
+              :formatter="formatter"
+              size="large"
+            >
               <template #prepend>
                 +86
               </template>
             </el-input>
-            <el-input size="large">
+            <el-input v-model="data.code" size="large">
               <template #append>
                 <el-button>发送验证码</el-button>
               </template>
