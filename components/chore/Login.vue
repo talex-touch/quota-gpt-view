@@ -87,7 +87,7 @@ const data = reactive({
           <el-form>
             <el-input
               v-model="data.account"
-              maxlength="12"
+              maxlength="13"
               :parser="parser"
               :formatter="formatter"
               size="large"
@@ -98,7 +98,9 @@ const data = reactive({
             </el-input>
             <el-input v-model="data.code" size="large">
               <template #append>
-                <el-button>发送验证码</el-button>
+                <el-button v-wave>
+                  发送验证码
+                </el-button>
               </template>
             </el-input>
             <el-button v-wave size="large" type="primary">

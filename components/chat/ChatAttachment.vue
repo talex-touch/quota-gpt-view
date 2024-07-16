@@ -23,8 +23,6 @@ const typeMapper: Record<string, Component> = {
 const agentActions = computed(() =>
   props.agent?.actions?.filter((item: any) => item.type === 'display' && item?.data?.type in typeMapper),
 )
-
-console.log('a', props)
 </script>
 
 <template>

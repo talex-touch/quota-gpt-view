@@ -13,6 +13,12 @@ const pageOptions = reactive<any>({
 
 const roundLimit = computed(() => chatManager.messages.value.messages.length / 2 >= 10)
 
+function handleDelete(index: number) {
+  chatManager.deleteMessage(index)
+
+  pageOptions.select = chatManager.history.value.length - 1
+}
+
 watch(
   () => pageOptions.select,
   (ind) => {
@@ -35,13 +41,9 @@ watch(
 )
 
 function handleCreate() {
-  pageOptions.select = -1
+  chatManager.createMessage()
 
-  nextTick(() => {
-    chatManager.createMessage()
-
-    pageOptions.select = chatManager.history.value.length - 1
-  })
+  pageOptions.select = chatManager.history.value.length - 1
 }
 
 async function handleSend(query: string, callback: Function) {
@@ -108,7 +110,7 @@ provide('updateConversationTopic', (index: number, topic: string) => {
       class="PageContainer-History"
       :history="chatManager.history.value"
       @create="handleCreate"
-      @delete="chatManager.deleteMessage"
+      @delete="handleDelete"
     />
 
     <div class="PageContainer-Main">
@@ -117,7 +119,7 @@ provide('updateConversationTopic', (index: number, topic: string) => {
         v-model:messages="chatManager.messages.value"
         :status="chatManager.status.value"
         :round-limit="roundLimit"
-        @cancel="chatManager.cancelCurrentReq"
+        @cancel="chatManager.cancelCurrentReq()"
       />
       <ThInput
         v-model:status="chatManager.status.value"

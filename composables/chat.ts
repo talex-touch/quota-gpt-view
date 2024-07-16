@@ -96,6 +96,7 @@ export interface EventExecutor {
  * Generate chat title in conversation
  */
 export function useChatTitle(context: ChatCompletion) {
+  return
   const options = reactive({
     status: Status.GENERATING,
     streaming: true,
@@ -164,15 +165,26 @@ async function handleExecutorItem(item: any, callback: (data: any) => void) {
     })
   }
   else {
-    const json = JSON5.parse(item)
+    try {
+      const json = JSON5.parse(item)
 
-    if (json?.type === 'heartbeat')
-      return
+      if (json?.type === 'heartbeat')
+        return
 
-    callback({
-      done: false,
-      ...json,
-    })
+      callback({
+        done: false,
+        ...json,
+      })
+    }
+    catch (e) {
+      console.log('error', item)
+      console.error(e)
+
+      callback({
+        done: true,
+        error: true,
+      })
+    }
   }
 }
 
@@ -211,7 +223,7 @@ async function handleExecutorResult(reader: ReadableStreamDefaultReader<string>,
   }
 }
 
-export async function useChatExecutor(context: ChatCompletion, callback: (data: any) => void, simulate: boolean = false) {
+export async function useChatExecutor(context: ChatCompletion, callback: (data: any) => void) {
   const _messages = context.messages.map((item) => {
     return {
       role: item.role,
@@ -221,37 +233,25 @@ export async function useChatExecutor(context: ChatCompletion, callback: (data: 
 
   _messages.pop()
 
-  // https://api.aiskt.com/v1/chat/completions
-  // http://localhost:7001/api/aigc/executor
-  const res = simulate
-    ? null
-    : await $fetch<ReadableStream>(`https://quota.api.tagzxia.com/api/aigc/executor`, {
-      method: 'POST',
-      responseType: 'stream',
-      headers: {
-        Accept: 'text/event-stream',
-      },
-      body: {
-        messages: _messages,
-      },
-    })
-
   const { promise, resolve } = Promise.withResolvers()
 
   async function _func() {
     try {
-      if (!res) {
-        console.log('[SIMULATING MODE]')
+      // https://api.aiskt.com/v1/chat/completions
+      // http://localhost:7001/api/aigc/executor
+      const res = await $fetch<ReadableStream>(`https://quota.api.tagzxia.com/api/aigc/executor`, {
+        method: 'POST',
+        responseType: 'stream',
+        headers: {
+          Accept: 'text/event-stream',
+        },
+        body: {
+          messages: _messages,
+        },
+      })
 
-        const res = await simulateExecutor()
-
-        for await (const chunk of res)
-          await handleExecutorItem(chunk, callback)
-      }
-      else {
-        const reader = res.pipeThrough(new TextDecoderStream()).getReader()
-        await handleExecutorResult(reader, callback)
-      }
+      const reader = res.pipeThrough(new TextDecoderStream()).getReader()
+      await handleExecutorResult(reader, callback)
     }
     catch (e) {
       console.error(e)
@@ -281,37 +281,30 @@ export async function useChatCompletion(context: ChatCompletion, callback: (data
   // remove last one
   _messages.pop()
 
-  const res = await $fetch<ReadableStream>(`https://api.aiskt.com/v1/chat/completions`, {
-    method: 'POST',
-    responseType: 'stream',
-    headers: {
-      Accept: 'text/event-stream',
-      Authorization: 'Bearer sk-u1RFUsfnnyHAZyQQ56114c02606640Ab8b0a23Ab3dF516Eb',
-    },
-    body: {
-      messages: _messages,
-      model: context.mask.modelConfig.model,
-      temperature: context.mask.modelConfig.temperature,
-      presence_penalty: 0,
-      frequency_penalty: 0,
-      top_p: 1,
-      stream: true,
-    },
-  })
-
   return new Promise(async (resolve) => {
-    const reader = res.pipeThrough(new TextDecoderStream()).getReader()
+    try {
+      const res = await $fetch<ReadableStream>(`https://quota.api.tagzxia.com/api/aigc`, {
+        method: 'POST',
+        responseType: 'stream',
+        headers: {
+          Accept: 'text/event-stream',
+        },
+        body: {
+          messages: _messages,
+        },
+      })
 
-    while (true) {
-      const { value, done } = await reader.read()
+      const reader = res.pipeThrough(new TextDecoderStream()).getReader()
 
-      if (done)
-        break
+      while (true) {
+        const { value, done } = await reader.read()
 
-      if (!value.length)
-        continue
+        if (done)
+          break
 
-      try {
+        if (!value.length)
+          continue
+
         const arr = value.split('\n')
         for (let i = 0; i < arr.length; i++) {
           const item = arr[i]
@@ -335,12 +328,12 @@ export async function useChatCompletion(context: ChatCompletion, callback: (data
           }
         }
       }
-      catch (e) {
-        callback({
-          done: true,
-          error: true,
-        })
-      }
+    }
+    catch (e) {
+      callback({
+        done: true,
+        error: true,
+      })
     }
 
     resolve(void 0)
@@ -368,7 +361,7 @@ export class ChatManager {
   createMessage() {
     const _history: ThHistory = {
       sync: false,
-      ...this.messages.value,
+      ...JSON.parse(JSON.stringify(this.originObj)),
     }
     _history.lastUpdate = Date.now()
     this.history.value.push(_history)
@@ -595,7 +588,8 @@ export class ChatManager {
   cancelCurrentReq() {
     const msg = this.messages.value.messages.at(-2)
 
-    this.messages.value.messages.splice(this.messages.value.messages.length - 1, 2)
+    this.messages.value.messages.splice(this.messages.value.messages.length - 1, 1)
+    this.messages.value.messages.splice(this.messages.value.messages.length - 1, 1)
 
     this.status.value = Status.AVAILABLE
 
