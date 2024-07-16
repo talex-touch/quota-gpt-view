@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import JSON5 from 'json5'
 import ThChat from '~/components/chat/ThChat.vue'
 import ThInput from '~/components/input/ThInput.vue'
 import History from '~/components/history/index.vue'
 import type { ThHistory } from '~/components/history/history'
-import { chatManager, useChatExecutor } from '~/composables/chat'
+import { chatManager } from '~/composables/chat'
 
 const chatRef = ref()
 const pageOptions = reactive<any>({

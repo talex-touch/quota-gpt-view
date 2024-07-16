@@ -1,0 +1,27 @@
+<script setup lang="ts">
+
+</script>
+
+<template>
+  <div class="LogoContainer">
+    Q
+  </div>
+</template>
+
+<style lang="scss">
+.LogoContainer {
+  margin: 0 10px;
+  display: flex;
+
+  font-weight: 600;
+  align-items: center;
+  justify-content: center;
+
+  width: 32px;
+  height: 32px;
+
+  border-radius: 12px;
+  box-shadow: 0 0 2px 1px #3ab8fd;
+  background-color: #3ab8fd;
+}
+</style>

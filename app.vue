@@ -1,10 +1,19 @@
 <script setup lang="ts">
+import Login from '~/components/chore/Login.vue'
 import { appName } from '~/constants'
 import 'element-plus/theme-chalk/dark/css-vars.css'
 
 useHead({
   title: appName,
 })
+
+const pageOptions = reactive({
+  model: {
+    login: false,
+  },
+})
+
+provide('pageOptions', pageOptions)
 </script>
 
 <template>
@@ -12,6 +21,8 @@ useHead({
   <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>
+
+  <Login v-model:show="pageOptions.model.login" />
 </template>
 
 <style>
