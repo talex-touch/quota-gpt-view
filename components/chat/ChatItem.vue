@@ -86,7 +86,7 @@ const timeAgo = computed(() => dayjs(props.item.date, 'YYYY/M/D HH:mm:ss').fromN
           &nbsp;
           <span v-if="item.content.length > 30" class="length">{{ item.content.length }} long</span>
           &nbsp;
-          <span class="costs">{{ item.content.length * 5.25 }} tokens</span>
+          <span class="costs">{{ item.content.length * 2.25 }} tokens</span>
         </span>
 
         <span class="toolbox">
@@ -114,30 +114,7 @@ const timeAgo = computed(() => dayjs(props.item.date, 'YYYY/M/D HH:mm:ss').fromN
 
       <div tag="div" class="ChatItem-Reference">
         <ChatAttachment :agent="item.agent" />
-
-        <!-- <template v-if="item.agent && !!item.content.length && !item.streaming">
-          <ChatQueryCollapse v-if="item?.agent?.actions?.length">
-            <template #Header>
-              <div i-carbon-link />
-              参考
-              <span class="text-primary">({{
-                item.agent.actions.filter((action: any) => action?.type === "url").length
-              }})</span>
-            </template>
-            <span
-              v-for="(action, index) in item.agent.actions"
-              :key="action"
-              :style="`--i: ${(index + 1) * 0.125}s`"
-              class="ChatItem-ReferenceList"
-            >
-              <a v-if="action?.type === 'url'" target="_blank" :href="action.data.url">{{
-                action.title
-              }}</a>
-            </span>
-          </ChatQueryCollapse>
-        </template> -->
       </div>
-      <!-- </div> -->
     </div>
   </div>
 </template>
@@ -157,8 +134,13 @@ const timeAgo = computed(() => dayjs(props.item.date, 'YYYY/M/D HH:mm:ss').fromN
       margin-top: 30px;
     }
 
+    .ChatItem-AgentList {
+      margin-bottom: 10px;
+    }
+
     .ChatItem-Agent {
       margin-top: 0px;
+      margin-bottom: -10px;
       top: 10px;
 
       opacity: 1;

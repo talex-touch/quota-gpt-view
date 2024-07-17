@@ -6,22 +6,26 @@ const props = defineProps<{
 const dom = ref()
 const _text = ref('')
 
-watch(() => props.text, (text) => {
-  nextTick(async () => {
-    if (!_text.value)
-      return _text.value = text
+watch(
+  () => props.text,
+  (text) => {
+    nextTick(async () => {
+      if (!_text.value)
+        return (_text.value = text)
 
-    dom.value.style.filter = 'blur(5px)'
-    dom.value.style.opacity = '0.75'
+      dom.value.style.filter = 'blur(5px)'
+      dom.value.style.opacity = '0.75'
 
-    await sleep(500)
+      await sleep(500)
 
-    _text.value = text
+      _text.value = text
 
-    dom.value.style.filter = 'blur(0)'
-    dom.value.style.opacity = '1'
-  })
-}, { immediate: true })
+      dom.value.style.filter = 'blur(0)'
+      dom.value.style.opacity = '1'
+    })
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
@@ -50,16 +54,14 @@ watch(() => props.text, (text) => {
 .TextShaving span.display {
   position: relative;
 
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 1) 90%
-  );
+  background: linear-gradient(90deg, #0000 0%, var(--el-bg-color) 90%);
+
   background-size: 200% 100%;
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 
+  filter: invert(1);
   animation: TextShaving 2s linear infinite;
 }
 
