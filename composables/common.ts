@@ -16,3 +16,6 @@ export function genFormatNowDate() {
 export async function sleep(time: number) {
   return new Promise(resolve => setTimeout(resolve, time))
 }
+
+export const EndUrl = window?.process?.dev ? `http://localhost:7001/api` : `https://quota.api.tagzxia.com/api`
+export const EndNormalUrl = window?.process?.dev ? `http://localhost:7001` : `https://quota.api.tagzxia.com/`

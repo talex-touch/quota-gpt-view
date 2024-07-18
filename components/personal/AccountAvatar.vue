@@ -5,7 +5,9 @@ const menus = reactive([
   {
     icon: 'i-carbon-user',
     label: '个人资料',
-    click: () => void 0,
+    click: () => {
+      router.push('/profile')
+    },
   },
   {
     icon: 'i-carbon-book',
@@ -31,58 +33,38 @@ const menus = reactive([
   },
 ])
 
-const pageOptions: any = inject('pageOptions')!
-const login = false
+const appOptions: any = inject('appOptions')!
+const avatarUrl = computed(() => `${EndNormalUrl}${userStore.value.avatar}`)
 </script>
 
 <template>
   <div class="AccountAvatar">
-    <div
-      v-if="!login"
-      class="AccountAvatar-Wrapper"
-      @click="pageOptions.model.login = !pageOptions.model.login"
-    >
+    <div v-if="!userStore.token?.length" class="AccountAvatar-Wrapper"
+      @click="appOptions.model.login = !appOptions.model.login">
       <el-avatar>
         <span style="transform: scale(.75)">登录</span>
       </el-avatar>
     </div>
 
-    <el-popover
-      v-else
-      :width="300"
-      :show-arrow="false"
-      popper-class="AccountAvatar-Float"
-      popper-style="box-shadow: rgb(14 18 22 / 35%) 0px 10px 38px -10px, rgb(14 18 22 / 20%) 0px 10px 20px -15px; padding: 20px;"
-    >
+    <el-popover v-else :width="300" :show-arrow="false" popper-class="AccountAvatar-Float"
+      popper-style="box-shadow: rgb(14 18 22 / 35%) 0px 10px 38px -10px, rgb(14 18 22 / 20%) 0px 10px 20px -15px; padding: 20px;">
       <template #reference>
-        <div
-          class="AccountAvatar-Wrapper"
-          @click="pageOptions.model.login = !pageOptions.model.login"
-        >
-          <el-avatar src="http://q1.qlogo.cn/g?b=qq&nk=3397743231&s=100" />
+        <div class="AccountAvatar-Wrapper">
+          <el-avatar :src="avatarUrl" />
         </div>
       </template>
       <template #default>
         <div class="AccountAvatar-Head">
-          <el-avatar size="large" src="http://q1.qlogo.cn/g?b=qq&nk=3397743231&s=100" />
+          <el-avatar :src="avatarUrl" />
 
           <p>
-            <span class="name">Talex DS <span class="privilege">普通会员</span></span>
+            <span class="name">{{ userStore.phone }} <span class="privilege">普通会员</span></span>
             <span class="dummy">99, 999 $</span>
           </p>
         </div>
-        <div
-          class="AccountAvatar-Selections"
-          style="display: flex; gap: 16px; flex-direction: column"
-        >
-          <div
-            v-for="item in menus"
-            :key="item.label"
-            v-wave
-            :class="{ danger: item.danger, divider: item.divider }"
-            class="AccountAvatar-MenuItem"
-            @click="item?.click"
-          >
+        <div class="AccountAvatar-Selections" style="display: flex; gap: 16px; flex-direction: column">
+          <div v-for="item in menus" :key="item.label" v-wave :class="{ danger: item.danger, divider: item.divider }"
+            class="AccountAvatar-MenuItem" @click="item?.click">
             <div v-if="item.icon" :class="item.icon" />
             {{ item.label }}
           </div>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import LoginCore from './login/LoginCore.vue'
+import { sendSMSCode, useSMSLogin } from '~/composables/api/auth'
 import ThCheckBox from '~/components/checkbox/ThCheckBox.vue'
 
 const props = defineProps<{
@@ -62,9 +63,109 @@ function parser(input: string) {
 
 const show = useVModel(props, 'show', emits)
 const data = reactive({
+  mode: 'code',
   account: '',
   code: '',
   agreement: false,
+})
+
+function handleSendCode() {
+  data.mode = 'code'
+  if (!data.agreement) {
+    ElMessage.info('请先同意协议！')
+    return
+  }
+
+  const phone = data.account.replaceAll(' ', '')
+  if (phone.length !== 11) {
+    ElMessage.error('请输入正确的手机号！')
+    return
+  }
+
+  const button = document.getElementById('captcha-button')
+  button?.click()
+}
+
+function handleLogin() {
+  data.mode = 'login'
+  if (!data.agreement) {
+    ElMessage.info('请先同意协议！')
+    return
+  }
+
+  const phone = data.account.replaceAll(' ', '')
+  if (phone.length !== 11) {
+    ElMessage.error('请输入正确的手机号！')
+    return
+  }
+
+  if (+data.code < 100000 || +data.code > 999999) {
+    ElMessage.error('请输入正确的验证码！')
+    return
+  }
+
+  const button = document.getElementById('captcha-button')
+  button?.click()
+}
+
+onMounted(() => {
+  newCaptcha(CaptchaSceneId.Auth, '#captcha-element', '#captcha-button', {
+    captchaVerifyCallback: async (param: string) => {
+      const _res = {
+        captchaResult: false, // 验证码验证是否通过，boolean类型，必选 result.captchaVerifyResult
+        bizResult: false, // 业务验证是否通过，boolean类型，可选；若为无业务验证结果的场景，bizResult可以为空
+      }
+
+      if (data.mode === 'code') {
+        try {
+          const res = await sendSMSCode(data.account.replaceAll(' ', ''), param)
+          const result = await res.json()
+          if (result.code !== 1002)
+            _res.captchaResult = true
+
+          if (result.message === 'sms-sent-err')
+            ElMessage.error('无法向目标手机号发送消息！')
+
+          console.log('a', result)
+        }
+        catch (e) {
+          console.error(e)
+
+          ElMessage.error('发送失败！')
+        }
+      }
+      else {
+        try {
+          const res = await useSMSLogin(data.account.replaceAll(' ', ''), data.code, param)
+          const result = await res.json()
+          if (result.code !== 1002)
+            _res.captchaResult = true
+
+          if (result.code === 1003)
+            ElMessage.error('短信验证码有误')
+          else
+            _res.bizResult = true
+
+          if (result.code === 200) {
+            userStore.value.token = (result.data.token)
+
+            ElMessage.info('登录成功！')
+
+            show.value = false
+          }
+          else { throw new Error(result) }
+        }
+        catch (e) {
+          console.error(e)
+
+          ElMessage.error('发送失败！')
+        }
+      }
+
+      return _res
+    },
+    onBizResultCallback: () => void 0,
+  })
 })
 </script>
 
@@ -84,26 +185,23 @@ const data = reactive({
         <div class="Login-Main-Major">
           <p>手机登录</p>
 
+          <div id="captcha-element" absolute />
+          <button id="captcha-button" absolute />
+
           <el-form>
-            <el-input
-              v-model="data.account"
-              maxlength="13"
-              :parser="parser"
-              :formatter="formatter"
-              size="large"
-            >
+            <el-input v-model="data.account" maxlength="13" :parser="parser" :formatter="formatter" size="large">
               <template #prepend>
                 +86
               </template>
             </el-input>
-            <el-input v-model="data.code" size="large">
+            <el-input v-model="data.code" maxlength="6" size="large">
               <template #append>
-                <el-button v-wave>
+                <el-button v-wave :disabled="data.account.length !== 13" @click="handleSendCode">
                   发送验证码
                 </el-button>
               </template>
             </el-input>
-            <el-button v-wave size="large" type="primary">
+            <el-button v-wave size="large" type="primary" :disabled="data.code.length !== 6" @click="handleLogin">
               登 录
             </el-button>
           </el-form>
@@ -131,6 +229,7 @@ const data = reactive({
 
     gap: 1.5rem;
   }
+
   width: 60%;
 }
 
@@ -149,6 +248,7 @@ const data = reactive({
     font-size: 16px;
     font-weight: 600;
   }
+
   z-index: 5;
   position: relative;
   display: flex;
@@ -203,8 +303,10 @@ const data = reactive({
         var(--el-color-primary)
       );
     }
+
     position: relative;
   }
+
   position: relative;
   padding: 1.5rem;
 
@@ -220,6 +322,7 @@ const data = reactive({
     opacity: 1;
     transform: translate(-50%, -50%) scale(1);
   }
+
   position: absolute;
   // padding: 1rem;
 
@@ -245,6 +348,7 @@ const data = reactive({
     opacity: 1;
     pointer-events: all;
   }
+
   z-index: 2000;
   position: absolute;
 

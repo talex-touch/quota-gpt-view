@@ -26,7 +26,7 @@ const online = useOnline()
 </template>
 
 <style lang="scss">
- @keyframes q_shining {
+@keyframes q_shining {
   0%,
   100% {
     opacity: 0.5;
@@ -84,6 +84,7 @@ const online = useOnline()
     pointer-events: none;
     backdrop-filter: blur(0);
   }
+
   .item-1 {
     right: 0;
     bottom: 0;
@@ -114,6 +115,7 @@ const online = useOnline()
     background-color: var(--el-bg-color-overlay);
     transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
   }
+
   z-index: 1000;
   position: absolute;
 

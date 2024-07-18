@@ -1,34 +1,45 @@
-import { acceptHMRUpdate, defineStore } from 'pinia'
+export interface AccountDetail {
+  token: string
+  createdAt: string
+  updatedAt: string
+  username: string
+  nickname: string
+  avatar: string
+  qq: string
+  email: string
+  phone: string
+  remark: string
+  status: number
+  roles: string[]
+}
 
-export const useUserStore = defineStore('user', () => {
-  /**
-   * Current named of the user.
-   */
-  const savedName = ref('')
-  const previousNames = ref(new Set<string>())
+export const userStore = useLocalStorage<Partial<AccountDetail>>('user', {})
 
-  const usedNames = computed(() => Array.from(previousNames.value))
-  const otherNames = computed(() => usedNames.value.filter(name => name !== savedName.value))
+watch(() => userStore.value.token, async (state) => {
+  state && getAccountDetail(state).then(async (res) => {
+    const json = await res.json()
 
-  /**
-   * Changes the current name of the user and saves the one that was used
-   * before.
-   *
-   * @param name - new name to set
-   */
-  function setNewName(name: string) {
-    if (savedName.value)
-      previousNames.value.add(savedName.value)
+    Object.assign(userStore.value, json.data)
+  })
+}, { deep: true, immediate: true })
 
-    savedName.value = name
-  }
+export function getAccountDetail(token?: string) {
+  return fetch(`${EndUrl}/account/profile`, {
+    headers: {
+      Authorization: `Bearer ${token ?? userStore.value.token}`,
+    },
+  })
+}
 
-  return {
-    setNewName,
-    otherNames,
-    savedName,
-  }
-})
-
-if (import.meta.hot)
-  import.meta.hot.accept(acceptHMRUpdate(useUserStore, import.meta.hot))
+export function updateAccountDetail(obj: { nickname: string, avatar: string }) {
+  return fetch(`${EndUrl}/account/update`, {
+    method: 'PUT',
+    headers: {
+      'Accept': '*/*',
+      'Connection': 'keep-alive',
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${userStore.value.token}`,
+    },
+    body: JSON.stringify(obj),
+  })
+}
