@@ -44,8 +44,12 @@ watch(() => share.selected, (val) => {
 
   .Share-Select,
   .Share-Mention {
-    flex: 1;
-    width: 120px;
+    // flex: 1;
+    width: 140px;
+  }
+
+  .Share-Mention {
+    text-align: right;
   }
 
   z-index: 3;
