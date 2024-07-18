@@ -25,7 +25,7 @@ watch(() => share.selected, (val) => {
       生成图片
     </div>
     <div class="Share-Mention">
-      已选择 0 条消息
+      已选择 {{ share.selected.length }} 条消息
     </div>
   </div>
 </template>
