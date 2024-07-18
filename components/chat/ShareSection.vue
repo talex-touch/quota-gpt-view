@@ -44,6 +44,7 @@ watch(() => share.selected, (val) => {
 
   .Share-Select,
   .Share-Mention {
+    flex: 1;
     width: 120px;
   }
 

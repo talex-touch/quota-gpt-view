@@ -328,6 +328,8 @@ watch(() => props.select, (val) => {
   display: flex;
   margin: 1rem 0;
 
+  left: 0;
+
   width: 100%;
   height: max-content;
 
