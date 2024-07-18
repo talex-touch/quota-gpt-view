@@ -21,7 +21,7 @@
   height: 32px;
 
   border-radius: 12px;
-  box-shadow: 0 0 2px 1px #3ab8fd;
+  box-shadow: 0 0 11px 2px #3ab8fd;
   background-color: #3ab8fd;
 }
 </style>
