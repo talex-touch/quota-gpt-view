@@ -50,6 +50,7 @@
     "axios": "^1.7.2",
     "dayjs": "^1.11.11",
     "element-plus": "^2.7.6",
+    "html2canvas": "^1.4.1",
     "json5": "^2.2.3",
     "prism-themes": "^1.9.0",
     "v-wave": "^2.0.0",

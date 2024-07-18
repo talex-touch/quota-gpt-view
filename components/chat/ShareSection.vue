@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import ShareToolbox from './share/ShareToolbox.vue'
+
 const props = defineProps<{
   show: boolean
   length: number
@@ -12,17 +14,18 @@ function toggleAllSelect() {
 }
 
 watch(() => share.selected, (val) => {
-  check.value = val.length === props.length
+  nextTick(() => (check.value = val.length === props.length))
 }, { deep: true, immediate: true })
 </script>
 
 <template>
-  <div :class="{ show }" class="ShareSection">
+  <div :class="{ show, expand: share.selected.length > 0 }" class="ShareSection">
     <div class="Share-Select" flex cursor-pointer select-none items-center gap-2 @click="toggleAllSelect">
-      <el-checkbox v-model="check" :indeterminate="share.selected.length > 0 && share.selected.length < props.length" :checked="share.selected.length === props.length" @change="toggleAllSelect" />全选
+      <el-checkbox v-model="check" :indeterminate="share.selected.length > 0 && share.selected.length < props.length" :checked="share.selected.length === props.length" @change="toggleAllSelect" />
+      全选所有消息
     </div>
     <div class="Share-Funcs">
-      生成图片
+      <ShareToolbox :show="share.selected.length > 0" />
     </div>
     <div class="Share-Mention">
       已选择 {{ share.selected.length }} 条消息
@@ -32,13 +35,21 @@ watch(() => share.selected, (val) => {
 
 <style lang="scss">
 .ShareSection {
+  &.expand {
+    height: 80px;
+  }
   &.show {
     transform: translate(-50%, 0);
   }
 
+  .Share-Select,
+  .Share-Mention {
+    width: 120px;
+  }
+
   z-index: 3;
   position: absolute;
-  padding: 0.5rem;
+  padding: 0.5rem 2rem;
   display: flex;
 
   gap: 0.5rem;
@@ -49,13 +60,13 @@ watch(() => share.selected, (val) => {
   bottom: 2.5%;
 
   width: 40%;
-  min-height: 50px;
+  height: 50px;
 
   border-radius: 16px;
   box-sizing: border-box;
   box-shadow: var(--el-box-shadow);
   background-color: var(--el-bg-color);
   transform: translate(-50%, 200%);
-  transition: 0.75s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+  transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
 }
 </style>

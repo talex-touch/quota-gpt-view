@@ -13,6 +13,9 @@ const pageOptions = reactive<any>({
   share: {
     enable: false,
     selected: new Array<number>(),
+    getMessages() {
+      return [chatManager.messages.value.messages.filter((_, index) => pageOptions.share.selected.includes(index)), chatManager.messages.value.topic]
+    },
   },
 })
 
@@ -39,6 +42,7 @@ watch(
     //   = ind === -1 ? JSON.parse(JSON.stringify(chatManager.originObj)) :
 
     setTimeout(() => {
+      pageOptions.share.enable = false
       chatRef.value?.handleBackToBottom(false)
     }, 200)
   },

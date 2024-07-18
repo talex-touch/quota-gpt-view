@@ -200,11 +200,11 @@ watch(
   transform: translateX(-50%);
   box-shadow: var(--el-box-shadow);
   background-color: var(--el-bg-color);
-  // transition: 0.75s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+  transition: 0.75s cubic-bezier(0.785, 0.135, 0.15, 0.86);
 
-  transition:
-    opacity 0.25s,
-    width 0.75s;
+  // transition:
+  //   opacity 0.25s,
+  //   width 0.75s;
 }
 
 .ThInput-At {
