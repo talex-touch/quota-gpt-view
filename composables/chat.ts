@@ -396,6 +396,9 @@ export class ChatManager {
           else if (name === 'QuotaSearchAPI' || name === 'QuotaSearchImagesAPI' || name === 'QuotaSearchVideosAPI') {
             return obj.agent.actions[0] = `Quota正在搜索 \`${res.data.input.input}\``
           }
+          else if (name === 'QuotaDateAPI') {
+            return obj.agent.actions[0] = `Quota正在分析日期`
+          }
 
           console.log('e', res)
 

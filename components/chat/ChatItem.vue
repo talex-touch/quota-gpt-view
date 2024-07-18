@@ -31,8 +31,8 @@ const tools = reactive([
       }, 1200)
     },
   },
-  { name: '翻译', icon: 'i-carbon-translate' },
-  { name: '朗读', icon: 'i-carbon-user-speaker' },
+  // { name: '翻译', icon: 'i-carbon-translate' },
+  // { name: '朗读', icon: 'i-carbon-user-speaker' },
   { name: '重新生成', userIgnored: true, lastShow: true, icon: 'i-carbon-restart' },
 ])
 
@@ -81,14 +81,6 @@ const timeAgo = computed(() => dayjs(props.item.date, 'YYYY/M/D HH:mm:ss').fromN
         "
         class="ChatItem-Mention"
       >
-        <span>
-          <span class="date">{{ timeAgo }}</span>
-          &nbsp;
-          <span v-if="item.content.length > 30" class="length">{{ item.content.length }} long</span>
-          &nbsp;
-          <span class="costs">{{ item.content.length * 2.25 }} tokens</span>
-        </span>
-
         <span class="toolbox">
           <span
             v-for="tool in tools"
@@ -110,6 +102,14 @@ const timeAgo = computed(() => dayjs(props.item.date, 'YYYY/M/D HH:mm:ss').fromN
             </el-tooltip>
           </span>
         </span>
+
+        <span>
+          <span class="date">{{ timeAgo }}</span>
+          &nbsp;
+          <span v-if="item.content.length > 30" class="length">{{ item.content.length }} long</span>
+          <!-- &nbsp;
+          <span class="costs">{{ item.content.length * 2.25 }} tokens</span> -->
+        </span>
       </div>
 
       <div tag="div" class="ChatItem-Reference">
@@ -120,6 +120,36 @@ const timeAgo = computed(() => dayjs(props.item.date, 'YYYY/M/D HH:mm:ss').fromN
 </template>
 
 <style lang="scss">
+.ChatItem-Generating {
+  .ChatItem-GeneratingWrapper {
+    position: absolute;
+
+    height: 100%;
+
+    opacity: 0.25;
+    background-color: rgba(255, 255, 255, 0.5);
+  }
+  height: 28px;
+
+  position: relative;
+  top: 20px;
+  left: 10px;
+}
+
+@keyframes join {
+  from {
+    transform: translateY(20%) scale(0.75);
+  }
+
+  to {
+    transform: translateY(0) scale(1);
+  }
+}
+
+.ChatItem-Reference {
+  padding-left: 0.5rem;
+}
+
 .ChatItem-Wrapper {
   &.agent {
     .ChatItem-Content-Inner {
@@ -168,50 +198,21 @@ const timeAgo = computed(() => dayjs(props.item.date, 'YYYY/M/D HH:mm:ss').fromN
 
     top: 0;
 
-    // width: max-content;
-    // max-width: 70%;
+    width: max-content;
     min-width: 48px;
-    height: max-content;
+    height: fit-content;
 
     border-radius: 8px 16px 16px 16px;
     box-shadow: var(--el-box-shadow);
     background-color: var(--el-bg-color);
     transition: 0.5s;
   }
-}
 
-.ChatItem-Generating {
-  .ChatItem-GeneratingWrapper {
-    position: absolute;
-
-    height: 100%;
-
-    opacity: 0.25;
-    background-color: rgba(255, 255, 255, 0.5);
-  }
-  height: 28px;
-
-  position: relative;
-}
-
-@keyframes join {
-  from {
-    transform: translateY(20%) scale(0.75);
-  }
-
-  to {
-    transform: translateY(0) scale(1);
-  }
-}
-
-.ChatItem-Wrapper {
   &:hover {
     .ChatItem-Mention {
       margin-bottom: 0px;
       opacity: 0.75;
     }
-
-    // background-color: var(--el-bg-color-page);
   }
 
   .ChatItem-Mention {
@@ -237,11 +238,9 @@ const timeAgo = computed(() => dayjs(props.item.date, 'YYYY/M/D HH:mm:ss').fromN
 
     gap: 0.5rem;
     align-items: center;
-    justify-content: space-between;
-    flex-direction: row-reverse;
+    justify-content: flex-start;
 
     width: 100%;
-    min-width: 280px;
 
     left: 0;
 
@@ -252,50 +251,30 @@ const timeAgo = computed(() => dayjs(props.item.date, 'YYYY/M/D HH:mm:ss').fromN
   }
 
   position: relative;
-  // padding: 0.5rem 1rem;
 
-  // width: max-content;
-  // max-width: 70%;
-  // min-width: 48px;
-  // height: max-content;
-
-  // border-radius: 8px 16px 16px 16px;
-  // box-shadow: var(--el-box-shadow);
-  // background-color: var(--el-bg-color);
-}
-
-.ChatItem-Reference {
-  padding-left: 0.5rem;
+  width: max-content;
+  max-width: 70%;
+  min-width: 48px;
+  height: max-content;
 }
 
 .ChatItem {
   &.user {
-    .ChatItem-Mention {
-      flex-direction: row;
-
-      left: unset;
-      right: 0 !important;
-    }
     .ChatItem-Avatar {
       display: none;
     }
-    align-self: flex-end;
+    justify-content: flex-end;
   }
-  .ChatItem-Avatar {
-    // margin-top: -10px;
 
-    min-width: 48px;
+  .ChatItem-Avatar {
     width: 48px;
   }
   z-index: 2;
   display: flex;
-  margin-top: 0.5rem;
-  margin-bottom: 30px;
+  margin: 1rem 0;
 
-  width: max-content;
-  max-width: 70%;
-  // min-width: 48px;
-  // height: max-content;
+  width: 100%;
+  height: max-content;
 
   gap: 0.5rem;
 
