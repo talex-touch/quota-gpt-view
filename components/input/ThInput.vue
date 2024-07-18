@@ -4,7 +4,7 @@ import { Status } from '~/composables/chat'
 const props = defineProps<{
   status: Status
   shrink: boolean
-  roundLimit: boolean
+  hide: boolean
 }>()
 const emits = defineEmits<{
   (name: 'send', data: any, callback: (status: Status, data: any) => void): void
@@ -112,14 +112,12 @@ watch(
 <template>
   <div
     :class="{
-      disabled: roundLimit,
+      disabled: hide,
       shrink,
       showSend,
       generating: status === Status.GENERATING,
       error: status === Status.ERROR,
-    }"
-    class="ThInput"
-    @keydown.enter="handleSend"
+    }" class="ThInput" @keydown.enter="handleSend"
   >
     <div class="ThInput-At">
       <div i-carbon-add-large />
@@ -127,12 +125,7 @@ watch(
 
     <div class="ThInput-Input">
       <textarea
-        id="main-input"
-        v-model="input"
-        maxlength="3000"
-        autofocus
-        autocomplete="off"
-        placeholder="问任何问题都可以..."
+        id="main-input" v-model="input" maxlength="3000" autofocus autocomplete="off" placeholder="问任何问题都可以..."
         @keydown="handleInputKeydown"
       />
     </div>
@@ -151,13 +144,19 @@ watch(
     .ThInput-Input,
     .ThInput-Send,
     .ThInput-At {
-      display: none;
+      opacity: 0;
     }
+
     width: 0 !important;
 
     opacity: 0;
     pointer-events: none;
+
+    transition:
+      opacity 0.125s 0.375s,
+      width 0.5s;
   }
+
   span {
     position: absolute;
 
@@ -168,6 +167,7 @@ watch(
 
     transform: translate(-50%, -50%);
   }
+
   z-index: 3;
   position: absolute;
   padding: 0.5rem;
@@ -187,6 +187,7 @@ watch(
 
     transform: translateX(-50%);
   }
+
   &.generating {
     width: 20%;
     height: 50px;
@@ -199,7 +200,11 @@ watch(
   transform: translateX(-50%);
   box-shadow: var(--el-box-shadow);
   background-color: var(--el-bg-color);
-  transition: 0.75s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+  // transition: 0.75s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+
+  transition:
+    opacity 0.25s,
+    width 0.75s;
 }
 
 .ThInput-At {
@@ -207,9 +212,11 @@ watch(
     cursor: pointer;
     background: #ffffff20;
   }
+
   &:active {
     transform: scale(0.75);
   }
+
   position: relative;
   display: flex;
 
@@ -223,6 +230,7 @@ watch(
 
   border-radius: 12px;
   transition: 0.25s;
+
   .generating & {
     opacity: 0;
   }
@@ -240,6 +248,7 @@ watch(
       outline: none;
       border: none;
     }
+
     position: relative;
 
     top: 0;
@@ -255,6 +264,7 @@ watch(
     // transition: 0.25s cubic-bezier(0.785, 0.135, 0.15, 0.86);
     background-color: transparent;
   }
+
   flex: 1;
 
   overflow: hidden;
@@ -265,6 +275,7 @@ watch(
     div {
       opacity: 0;
     }
+
     transform: scale(1);
 
     left: 0;
@@ -292,6 +303,7 @@ watch(
     transition: 0.25s cubic-bezier(0.785, 0.135, 0.15, 0.86);
     background: linear-gradient(135deg, #14ffe9, #ffeb3b, #ff00e0);
   }
+
   &::after {
     z-index: -2;
     content: '';
@@ -310,19 +322,24 @@ watch(
     transition: 0.25s cubic-bezier(0.785, 0.135, 0.15, 0.86);
     background: linear-gradient(135deg, #14ffe9, #ffeb3b, #ff00e0);
   }
+
   .showSend & {
     transform: scale(1);
   }
+
   .generating & {
     &::before {
       opacity: 0.75;
     }
+
     &::after {
       opacity: 0.5;
     }
+
     div {
       opacity: 0;
     }
+
     transform: scale(1);
 
     top: 0;
@@ -335,13 +352,16 @@ watch(
     border-radius: 16px;
     background: transparent;
   }
+
   &:hover {
     background-color: var(--el-color-primary);
     box-shadow: 0 0 2px 4px var(--el-color-primary-light-5);
   }
+
   &:active {
     transform: scale(0.95);
   }
+
   position: absolute;
   display: flex;
 

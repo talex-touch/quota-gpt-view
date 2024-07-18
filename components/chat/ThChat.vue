@@ -6,6 +6,7 @@ import TrChatTitle from './TrChatTitle.vue'
 import { Status } from '~/composables/chat'
 import ModelSelector from '~/components/model/ModelSelector.vue'
 import AccountAvatar from '~/components/personal/AccountAvatar.vue'
+import IconButton from '~/components/button/IconButton.vue'
 
 const props = defineProps<{
   messages: ChatCompletion
@@ -34,10 +35,24 @@ watch(
 )
 const scrollbar = ref()
 
+const share: any = (inject('pageOptions')! as any).share
 const options = reactive({
   backToBottom: false,
   stopGenerating: false,
+  share,
 })
+
+function handleShare() {
+  options.share.selected.length = 0
+  options.share.enable = !options.share.enable
+}
+
+function handleSelectShareItem(index: number, check: boolean) {
+  if (!check)
+    options.share.selected = options.share.selected.filter(_index => _index !== index)
+  else
+    options.share.selected = [...new Set([...options.share.selected, index])]
+}
 
 watch(
   () => props.status,
@@ -104,7 +119,12 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
         <span>设置</span>
       </div>
 
-      <TrChatTitle :title="messages.topic" />
+      <div class="ThChat-HeadBar" flex items-center gap-4>
+        <TrChatTitle :title="messages.topic" />
+        <IconButton :shining="options.share.enable" :stay="true" @click="handleShare">
+          <div i-carbon-share />
+        </IconButton>
+      </div>
 
       <span class="model">
         <ModelSelector v-model="messagesModel.model" /></span>
@@ -122,9 +142,12 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
             :ind="ind"
             :total="messages.messages.length"
             :item="message"
+            :share="options.share.enable"
+            :select="options.share.selected"
+            @select="handleSelectShareItem"
           />
 
-          <div v-if="roundLimit" class="TrChat-RateLimit">
+          <div v-if="!options.share.enable && roundLimit" class="TrChat-RateLimit">
             为了避免恶意使用，你需要登录来解锁聊天限制！
           </div>
         </div>
@@ -221,7 +244,7 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
   transform: translateY(-50%);
 }
 
-.TrChatTitle {
+.ThChat-HeadBar {
   .ThChat-Title.show & {
     transform: scale(1) translateY(0);
   }

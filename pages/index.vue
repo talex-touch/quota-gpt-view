@@ -4,11 +4,16 @@ import ThInput from '~/components/input/ThInput.vue'
 import History from '~/components/history/index.vue'
 import type { ThHistory } from '~/components/history/history'
 import { chatManager } from '~/composables/chat'
+import ShareSection from '~/components/chat/ShareSection.vue'
 
 const chatRef = ref()
 const pageOptions = reactive<any>({
   expand: true,
   select: -1,
+  share: {
+    enable: false,
+    selected: new Array<number>(),
+  },
 })
 
 const roundLimit = computed(() => chatManager.messages.value.messages.length / 2 >= 10)
@@ -62,7 +67,8 @@ async function handleSend(query: string, callback: Function) {
       pageOptions.select = chatManager.history.value.length - 1
     }
 
-    genTitle = (index: number) => (chatManager.genConversationTitle(chatManager.history.value[index]))
+    genTitle = (index: number) =>
+      chatManager.genConversationTitle(chatManager.history.value[index])
   }
 
   const conversation = chatManager.history.value[pageOptions.select]
@@ -101,6 +107,7 @@ async function handleSend(query: string, callback: Function) {
 provide('updateConversationTopic', (index: number, topic: string) => {
   chatManager.history.value[index].topic = topic
 })
+provide('pageOptions', pageOptions)
 </script>
 
 <template>
@@ -125,12 +132,14 @@ provide('updateConversationTopic', (index: number, topic: string) => {
       <ThInput
         v-model:status="chatManager.status.value"
         :shrink="chatManager.messages.value.messages.length > 1"
-        :round-limit="roundLimit"
+        :hide="pageOptions.share.enable || roundLimit"
         @send="handleSend"
       />
 
+      <ShareSection :length="chatManager.messages.value.messages.length" :show="pageOptions.share.enable" :selected="pageOptions.share.selected" />
+
       <div class="copyright">
-        ThisAI. 可能会犯错，生成的内容仅供参考。v24.07.17
+        ThisAI. 可能会犯错，生成的内容仅供参考。v24.07.18
         <span class="business">四川科塔锐行科技有限公司</span>
       </div>
     </div>
@@ -163,14 +172,18 @@ provide('updateConversationTopic', (index: number, topic: string) => {
 }
 
 .copyright {
+  z-index: 3;
   position: absolute;
 
   left: 50%;
 
   bottom: 0;
+  width: 100%;
 
-  opacity: 0.5;
+  color: var(--el-text-color-secondary);
   font-size: 14px;
+  text-align: center;
   transform: translateX(-50%);
+  background: var(--el-bg-color-page);
 }
 </style>

@@ -4,11 +4,18 @@ import zhLocale from 'dayjs/locale/zh-cn'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import RoundLoading from '../loaders/RoundLoading.vue'
 import TextShaving from '../other/TextShaving.vue'
+import ThCheckBox from '../checkbox/ThCheckBox.vue'
 
 const props = defineProps<{
   item: any
   ind: number
   total: number
+  share: boolean
+  select: number[]
+}>()
+
+const emits = defineEmits<{
+  (e: 'select', index: number, checked: boolean): void
 }>()
 
 dayjs.locale(zhLocale)
@@ -36,11 +43,24 @@ const tools = reactive([
   { name: '重新生成', userIgnored: true, lastShow: true, icon: 'i-carbon-restart' },
 ])
 
+const check = ref(false)
 const timeAgo = computed(() => dayjs(props.item.date, 'YYYY/M/D HH:mm:ss').fromNow())
+
+watch(() => check.value, (val) => {
+  emits('select', props.ind, val)
+})
+
+watch(() => props.select, (val) => {
+  check.value = val.includes(props.ind)
+})
 </script>
 
 <template>
-  <div :class="{ user: item.role === 'user' }" class="ChatItem">
+  <div :class="{ check, share, user: item.role === 'user' }" class="ChatItem">
+    <div class="ChatItem-Select">
+      <el-checkbox v-model="check" />
+    </div>
+
     <div class="ChatItem-Avatar">
       <img src="/logo.png">
     </div>
@@ -120,6 +140,39 @@ const timeAgo = computed(() => dayjs(props.item.date, 'YYYY/M/D HH:mm:ss').fromN
 </template>
 
 <style lang="scss">
+.ChatItem.share {
+  div.ChatItem-Mention {
+    margin-bottom: -20px;
+    opacity: 0;
+  }
+
+  .ChatItem-Select {
+    opacity: 1;
+  }
+
+  margin-left: 1rem;
+
+  left: 25%;
+  width: 50%;
+
+  &.check {
+    padding: 0.5rem;
+
+    background: var(--el-bg-color);
+    border-radius: 16px;
+  }
+}
+
+.ChatItem-Select {
+  position: absolute;
+
+  top: 0.5rem;
+  left: -1.5rem;
+
+  opacity: 0;
+  transition: 0.25s;
+}
+
 .ChatItem-Generating {
   .ChatItem-GeneratingWrapper {
     position: absolute;
@@ -199,6 +252,7 @@ const timeAgo = computed(() => dayjs(props.item.date, 'YYYY/M/D HH:mm:ss').fromN
     top: 0;
 
     width: max-content;
+    max-width: 100%;
     min-width: 48px;
     height: fit-content;
 
@@ -270,6 +324,7 @@ const timeAgo = computed(() => dayjs(props.item.date, 'YYYY/M/D HH:mm:ss').fromN
     width: 48px;
   }
   z-index: 2;
+  position: relative;
   display: flex;
   margin: 1rem 0;
 
@@ -278,6 +333,8 @@ const timeAgo = computed(() => dayjs(props.item.date, 'YYYY/M/D HH:mm:ss').fromN
 
   gap: 0.5rem;
 
+  transition: 0.25s;
+  box-sizing: border-box;
   animation: join 0.35s ease-in-out;
 }
 </style>
