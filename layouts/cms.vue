@@ -149,6 +149,7 @@ onBeforeMount(async () => {
 
   overflow: hidden;
   box-sizing: border-box;
+  // background-color: var(--el-bg-color-page);
 }
 
 .CmsTemplate {

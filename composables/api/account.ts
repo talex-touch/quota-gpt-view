@@ -19,3 +19,7 @@ export function getDepartmentList() {
 export function getUsers() {
   return endHttp.get('system/users')
 }
+
+export function getRoleList() {
+  return endHttp.get('system/roles')
+}
