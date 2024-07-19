@@ -65,7 +65,7 @@ onMounted(() => {
         height: 36px;
       }
     }
-
+    z-index: 1;
     padding: 0 1rem;
     display: flex;
 
@@ -74,6 +74,7 @@ onMounted(() => {
 
     width: 100%;
 
+    background: var(--el-bg-color);
     border-bottom: 1px solid var(--el-border-color);
   }
 

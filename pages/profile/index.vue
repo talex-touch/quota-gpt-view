@@ -93,53 +93,98 @@ const headers = {
 </script>
 
 <template>
-  <div class="Profile">
-    <el-tabs v-model="activeName" v-loading="loading" class="demo-tabs" tab-position="left">
-      <el-tab-pane label="账号信息" name="account">
-        <el-form
-          ref="ruleFormRef" style="max-width: 600px" :model="ruleForm" :rules="rules" label-width="auto"
-          :size="formSize" status-icon
-        >
-          <el-form-item label="头像" prop="avatar">
-            <el-upload
-              class="avatar-uploader" :action="`${EndNormalUrl}/api/tools/upload`" :show-file-list="false"
-              :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload" :headers="headers"
-            >
-              <img v-if="ruleForm.avatar" :src="avatarUrl" class="avatar">
-              <el-icon v-else class="avatar-uploader-icon">
-                <Plus />
-              </el-icon>
-            </el-upload>
-          </el-form-item>
+  <div class="Profile-Wrapper">
+    <el-card class="Profile">
+      <el-tabs v-model="activeName" v-loading="loading" tab-position="top">
+        <el-tab-pane label="账号信息" name="account">
+          <el-form
+            ref="ruleFormRef" style="max-width: 600px" :model="ruleForm" :rules="rules" label-width="auto"
+            :size="formSize" status-icon
+          >
+            <el-form-item label="头像" prop="avatar">
+              <el-upload
+                class="avatar-uploader" :action="`${EndNormalUrl}/api/tools/upload`" :show-file-list="false"
+                :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload" :headers="headers"
+              >
+                <img v-if="ruleForm.avatar" :src="avatarUrl" class="avatar">
+                <el-icon v-else class="avatar-uploader-icon">
+                  <Plus />
+                </el-icon>
+              </el-upload>
+            </el-form-item>
 
-          <el-form-item label="昵称" prop="nickname">
-            <el-input v-model="ruleForm.nickname" />
-          </el-form-item>
-          <el-form-item>
-            <el-button type="primary" @click="submitForm(ruleFormRef)">
-              更新
-            </el-button>
-            <el-button @click="resetForm(ruleFormRef)">
-              重置
-            </el-button>
-          </el-form-item>
-        </el-form>
-      </el-tab-pane>
-      <el-tab-pane label="会员计划" name="plan">
-        会员计划
-      </el-tab-pane>
-      <el-tab-pane label="推广拉新" name="invitation">
-        推广拉新
-      </el-tab-pane>
-      <el-tab-pane label="开发者设置" name="developer">
-        开发者设置
-      </el-tab-pane>
-    </el-tabs>
+            <el-form-item label="昵称" prop="nickname">
+              <el-input v-model="ruleForm.nickname" />
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" @click="submitForm(ruleFormRef)">
+                更新
+              </el-button>
+              <el-button @click="resetForm(ruleFormRef)">
+                重置
+              </el-button>
+            </el-form-item>
+          </el-form>
+        </el-tab-pane>
+        <el-tab-pane label="会员计划" name="plan">
+          会员计划
+        </el-tab-pane>
+        <el-tab-pane label="推广拉新" name="invitation">
+          推广拉新
+        </el-tab-pane>
+        <el-tab-pane label="我的内测" name="test">
+          我的内测
+        </el-tab-pane>
+        <el-tab-pane label="开发者设置" name="developer">
+          开发者设置
+        </el-tab-pane>
+      </el-tabs>
+    </el-card>
   </div>
 </template>
 
 <style lang="scss">
+.Profile-Wrapper {
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+  --color: var(--el-text-color-placeholder);
+  background-color: var(--el-bg-color);
+  background-image: linear-gradient(
+      0deg,
+      transparent 24%,
+      var(--color) 25%,
+      var(--color) 26%,
+      transparent 27%,
+      transparent 74%,
+      var(--color) 75%,
+      var(--color) 76%,
+      transparent 77%,
+      transparent
+    ),
+    linear-gradient(
+      90deg,
+      transparent 24%,
+      var(--color) 25%,
+      var(--color) 26%,
+      transparent 27%,
+      transparent 74%,
+      var(--color) 75%,
+      var(--color) 76%,
+      transparent 77%,
+      transparent
+    );
+  background-size: 55px 55px;
+}
+
 .Profile {
+  .el-card__body {
+    width: 100%;
+  }
   position: absolute;
   margin: 1rem 0;
   display: flex;
@@ -149,6 +194,11 @@ const headers = {
 
   width: 50%;
   height: calc(100% - 61px - 2rem);
+
+  border: none;
+  border-radius: 18px;
+  background: none;
+  backdrop-filter: blur(8px) saturate(180%);
 }
 
 .avatar-uploader .el-upload {
