@@ -81,7 +81,7 @@ async function handleFlip() {
   }
 
   position: relative;
-  margin: 0.25rem 0px;
+  // margin: 0.25rem 0px;
 
   font-size: 14px;
   overflow: hidden;
