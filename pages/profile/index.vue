@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { ComponentSize, FormInstance, FormRules, UploadProps } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
+import { getAccountDetail } from '~/composables/api/account'
+import { EndNormalUrl } from '~/constants'
 
 definePageMeta({
   layout: 'personal',
@@ -72,7 +74,7 @@ const avatarUrl = computed(() => `${EndNormalUrl}${ruleForm.avatar}`)
 
 const handleAvatarSuccess: UploadProps['onSuccess'] = (
   response,
-  uploadFile,
+  _uploadFile,
 ) => {
   ruleForm.avatar = ruleForm.avatar = response.data.filename
 }
@@ -100,7 +102,7 @@ const headers = {
         >
           <el-form-item label="头像" prop="avatar">
             <el-upload
-              class="avatar-uploader" :action="`${EndUrl}/tools/upload`" :show-file-list="false"
+              class="avatar-uploader" :action="`${EndNormalUrl}/api/tools/upload`" :show-file-list="false"
               :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload" :headers="headers"
             >
               <img v-if="ruleForm.avatar" :src="avatarUrl" class="avatar">

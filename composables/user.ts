@@ -1,3 +1,6 @@
+import { getAccountDetail, getPermissionList } from './api/account'
+import { EndNormalUrl } from '~/constants'
+
 export interface AccountDetail {
   token: string
   createdAt: string
@@ -11,28 +14,28 @@ export interface AccountDetail {
   remark: string
   status: number
   roles: string[]
+  permissions: string[]
+  isAdmin: boolean
 }
 
 export const userStore = useLocalStorage<Partial<AccountDetail>>('user', {})
 
-watch(() => userStore.value.token, async (state) => {
-  state && getAccountDetail(state).then(async (res) => {
-    const json = await res.json()
+Object.defineProperty(userStore.value, 'isAdmin', {
+  get() {
+    return !!userStore.value.roles?.find((item: any) => item.id === 1)
+  },
+})
 
-    Object.assign(userStore.value, json.data)
-  })
+watch(() => userStore.value.token, async () => {
+  const res = await getAccountDetail()
+  Object.assign(userStore.value, res.data)
+
+  const permissions = await getPermissionList()
+  userStore.value.permissions = permissions.data
 }, { deep: true, immediate: true })
 
-export function getAccountDetail(token?: string) {
-  return fetch(`${EndUrl}/account/profile`, {
-    headers: {
-      Authorization: `Bearer ${token ?? userStore.value.token}`,
-    },
-  })
-}
-
 export function updateAccountDetail(obj: { nickname: string, avatar: string }) {
-  return fetch(`${EndUrl}/account/update`, {
+  return fetch(`${EndNormalUrl}/api/account/update`, {
     method: 'PUT',
     headers: {
       'Accept': '*/*',
@@ -42,4 +45,8 @@ export function updateAccountDetail(obj: { nickname: string, avatar: string }) {
     },
     body: JSON.stringify(obj),
   })
+}
+
+export function userHavePermission(permission: string) {
+  return userStore.value.permissions?.includes(permission)
 }

@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import { EndNormalUrl } from '~/constants'
+
 const router = useRouter()
 
 const menus = reactive([
   {
     icon: 'i-carbon-user',
     label: '个人资料',
+    show: true,
     click: () => {
       router.push('/profile')
     },
@@ -12,6 +15,7 @@ const menus = reactive([
   {
     icon: 'i-carbon-book',
     label: '使用指南',
+    show: true,
     click: () => {
       router.push('/guide')
     },
@@ -19,17 +23,24 @@ const menus = reactive([
   {
     icon: 'i-carbon-settings-adjust',
     label: '系统设置',
-    click: () => void 0,
+    show: computed(() => userStore.value.isAdmin),
+    click: () => {
+      router.push('/cms')
+    },
   },
   {
     label: '',
     divider: true,
+    show: true,
   },
   {
     danger: true,
     icon: 'i-carbon-close-large',
     label: '退出登录',
-    click: () => void 0,
+    show: true,
+    click: () => {
+      userStore.value.token = ''
+    },
   },
 ])
 
@@ -39,17 +50,21 @@ const avatarUrl = computed(() => `${EndNormalUrl}${userStore.value.avatar}`)
 
 <template>
   <div class="AccountAvatar">
-    <div v-if="!userStore.token?.length" class="AccountAvatar-Wrapper"
-      @click="appOptions.model.login = !appOptions.model.login">
+    <div
+      v-if="!userStore.token?.length" class="AccountAvatar-Wrapper"
+      @click="appOptions.model.login = !appOptions.model.login"
+    >
       <el-avatar>
         <span style="transform: scale(.75)">登录</span>
       </el-avatar>
     </div>
 
-    <el-popover v-else :width="300" :show-arrow="false" popper-class="AccountAvatar-Float"
-      popper-style="box-shadow: rgb(14 18 22 / 35%) 0px 10px 38px -10px, rgb(14 18 22 / 20%) 0px 10px 20px -15px; padding: 20px;">
+    <el-popover
+      v-else :width="300" :show-arrow="false" popper-class="AccountAvatar-Float"
+      popper-style="box-shadow: rgb(14 18 22 / 35%) 0px 10px 38px -10px, rgb(14 18 22 / 20%) 0px 10px 20px -15px; padding: 20px;"
+    >
       <template #reference>
-        <div class="AccountAvatar-Wrapper">
+        <div class="AccountAvatar-Wrapper" @click="router.push('/profile')">
           <el-avatar :src="avatarUrl" />
         </div>
       </template>
@@ -63,8 +78,11 @@ const avatarUrl = computed(() => `${EndNormalUrl}${userStore.value.avatar}`)
           </p>
         </div>
         <div class="AccountAvatar-Selections" style="display: flex; gap: 16px; flex-direction: column">
-          <div v-for="item in menus" :key="item.label" v-wave :class="{ danger: item.danger, divider: item.divider }"
-            class="AccountAvatar-MenuItem" @click="item?.click">
+          <div
+            v-for="item in menus" :key="item.label" v-wave :class="{ danger: item.danger, divider: item.divider }"
+            :style="`${item.show ? '' : 'display: none'}`"
+            class="AccountAvatar-MenuItem" @click="item?.click"
+          >
             <div v-if="item.icon" :class="item.icon" />
             {{ item.label }}
           </div>

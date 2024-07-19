@@ -1,15 +1,17 @@
 <script setup lang="ts">
-
 </script>
 
 <template>
   <div class="LogoContainer">
-    Q
+    <img src="/logo.svg">
   </div>
 </template>
 
 <style lang="scss">
 .LogoContainer {
+  img {
+    transform: scale(2.5);
+  }
   margin: 0 10px;
   display: flex;
 
@@ -22,6 +24,6 @@
 
   border-radius: 12px;
   box-shadow: 0 0 11px 2px #3ab8fd;
-  background-color: #3ab8fd;
+  // background-color: #3ab8fd;
 }
 </style>

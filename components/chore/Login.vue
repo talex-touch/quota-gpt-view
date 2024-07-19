@@ -153,7 +153,8 @@ onMounted(() => {
 
             show.value = false
           }
-          else { throw new Error(result) }
+
+          console.error(result)
         }
         catch (e) {
           console.error(e)
