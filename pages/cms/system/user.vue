@@ -222,6 +222,8 @@ function handleDeleteUser(id: number, data: UserForm) {
         return
       }
 
+      fetchData()
+
       ElNotification({
         title: 'Info',
         message: `你永久删除了用户 ${data.username}(${data.nickname}) #${id} 及其相关数据！`,

@@ -1,52 +1,49 @@
 <script setup lang="ts">
-const props = defineProps<{
-  selectIndex: number
-}>()
+import CmsMenu from '../cms/CmsMenu.vue'
+import CmsMenuItem from '../cms/CmsMenuItem.vue'
+// import TestDemo from './docs/test.md?raw'
 
-const emits = defineEmits<{
-  (e: 'select', index: number): void
-}>()
-
-const { selectIndex } = useVModels(props, emits)
-
-const categories = [
-  {
-    title: '今天',
-  },
-  {
-    title: '近7天',
-  },
-  {
-    title: '这个月',
-  },
-  {
-    title: '以前',
-  },
-]
+// const categories = [
+//   {
+//     title: '测试',
+//     content: [
+//       TestDemo,
+//     ],
+//   },
+// ]
 </script>
 
 <template>
-  <div class="History">
-    <div class="History-Title">
+  <div class="GuideAside">
+    <div class="GuideAside-Title">
       <h1>This!AI.</h1>
     </div>
 
-    <div class="History-Wrapper">
+    <div class="GuideAside-Wrapper">
       <el-scrollbar>
-        <div class="History-Content">
-          <!-- <HistorySection
-            v-for="(section, index) in historyList"
+        <CmsMenu>
+          <template #header>
+            <div i-carbon-document />
+            ceshi
+          </template>
+          <CmsMenuItem path="1">
+            2
+          </CmsMenuItem>
+        </CmsMenu>
+        <div class="GuideAside-Content">
+          <!-- <GuideAsideSection
+            v-for="(section, index) in GuideAsideList"
             :key="index"
             v-model:selectIndex="selectIndex"
             :title="section.title"
-            :history="section.children"
+            :GuideAside="section.children"
             @delete="handleDelete"
           /> -->
         </div>
       </el-scrollbar>
     </div>
 
-    <div class="History-Bottom">
+    <div class="GuideAside-Bottom">
       <DarkToggle />
       <!-- <CloseCheckbox v-model="expand" /> -->
     </div>
@@ -54,13 +51,13 @@ const categories = [
 </template>
 
 <style lang="scss">
-div.History {
+div.GuideAside {
   .el-scrollbar__bar.is-vertical {
     width: 3px;
   }
 }
 
-.History-Wrapper {
+.GuideAside-Wrapper {
   &::before {
     z-index: 1;
     content: '';
@@ -75,6 +72,7 @@ div.History {
     background: linear-gradient(to top, var(--el-bg-color-page) 0%, #0000 100%);
   }
   position: relative;
+  padding-top: 80px;
 
   width: 100%;
   height: calc(100% - 50px);
@@ -82,7 +80,7 @@ div.History {
   box-sizing: border-box;
 }
 
-.History-Indicator {
+.GuideAside-Indicator {
   &.expand {
     left: 270px;
   }
@@ -109,7 +107,7 @@ div.History {
   transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
 }
 
-.History-Content {
+.GuideAside-Content {
   position: relative;
   display: flex;
   padding-left: 0.5rem;
@@ -121,7 +119,7 @@ div.History {
   gap: 0.5rem;
 }
 
-.History {
+.GuideAside {
   &-Title {
     z-index: 2;
     position: absolute;

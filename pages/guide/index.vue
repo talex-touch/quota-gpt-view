@@ -7,7 +7,7 @@ definePageMeta({
 </script>
 
 <template>
-  <div class="Guide">
+  <div class="Guide expand">
     <el-aside class="GuideAside" width="200px">
       <GuideAside />
     </el-aside>
