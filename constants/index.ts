@@ -6,5 +6,4 @@ export const ENDS_URL = {
   prod: 'https://quota.api.tagzxia.com/',
 }
 
-// eslint-disable-next-line node/prefer-global/process
-export const EndNormalUrl = window?.process?.dev ? ENDS_URL.dev : ENDS_URL.prod
+export const EndNormalUrl = (import.meta.env.DEV) ? ENDS_URL.dev : ENDS_URL.prod
