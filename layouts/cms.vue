@@ -94,11 +94,7 @@ onBeforeMount(async () => {
         </el-menu>
       </el-aside>
       <el-main class="CmsMain">
-        <el-main h-full overflow-y-hidden>
-          <keep-alive>
-            <slot />
-          </keep-alive>
-        </el-main>
+        <slot />
       </el-main>
     </el-container>
   </el-container>
