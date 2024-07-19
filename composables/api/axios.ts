@@ -28,8 +28,14 @@ export function genAxios(options: CreateAxiosDefaults) {
 
       const method = String(reqConfig?.method).toUpperCase()
 
-      if (method === 'GET' && !reqConfig.params)
-        reqConfig.params = reqConfig.data || {}
+      if (method === 'GET') {
+        // reqConfig.params = {
+        //   ...reqConfig.data,
+        //   ...reqConfig.params,
+        // }
+
+        console.log('r', reqConfig)
+      }
 
       if (method === 'POST') {
         if (!reqConfig.data)
@@ -81,9 +87,12 @@ export function genAxios(options: CreateAxiosDefaults) {
       if (res.code === 'ERR_NETWORK' && (res.message.includes('timeout') || res.message === 'Network Error'))
         return ElMessage.error('无法连接至远程服务器!')
 
+      if (res.response.data.code === 429)
+        return ElMessage.error(res.response.data.message)
+
       console.error('@ERROR', res)
 
-      return res.data
+      return res.response.data.data
     },
   )
 
@@ -103,11 +112,10 @@ export function genAxios(options: CreateAxiosDefaults) {
     })
   }
 
-  function get(url: string, data = {}, params = {}) {
+  function get(url: string, params = {}) {
     return $http({
       method: 'GET',
       url,
-      data,
       params,
     })
   }

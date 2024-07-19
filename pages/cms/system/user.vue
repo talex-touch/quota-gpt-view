@@ -20,14 +20,17 @@ const defaultProps = {
 const treeFilterQuery = ref()
 const depts = ref()
 
-const users = ref()
-
-onMounted(async () => {
-  depts.value = (await getDepartmentList()).data
-
-  users.value = (await getUsers()).data
-
-  console.log('2', users.value)
+const formLoading = ref(false)
+const users = ref({
+  items: [],
+  meta: {
+    currentPage: 0,
+    perPage: 0,
+    total: 0,
+    totalPages: 0,
+    itemsPerPage: 0,
+    totalItems: 0,
+  },
 })
 
 const formInline = reactive({
@@ -37,8 +40,46 @@ const formInline = reactive({
   remark: '',
 })
 
-function onSubmit() {
-  console.log('submit!')
+function handleReset() {
+  formInline.user = ''
+  formInline.email = ''
+  formInline.phone = ''
+  formInline.remark = ''
+}
+
+onMounted(fetchData)
+
+async function fetchData() {
+  formLoading.value = true
+
+  const query: Record<string, any> = {
+    page: users.value.meta.currentPage,
+    pageSize: users.value.meta.itemsPerPage,
+    username: formInline.user,
+    email: formInline.email,
+    phone: formInline.phone,
+    remark: formInline.remark,
+  }
+
+  // 过滤掉为空的值
+  Object.entries(query).forEach(([key, value]) => {
+    if (!value)
+      delete query[key]
+  })
+
+  const res: any = (await getUsers(query))
+  if (!res) {
+    ElMessage.warning('参数错误，查询失败！')
+  }
+  else {
+    if (res.code === 200) {
+      depts.value = (await getDepartmentList()).data
+
+      users.value = res.data
+    }
+  }
+
+  formLoading.value = false
 }
 
 function formatDate(date: string) {
@@ -60,9 +101,9 @@ function formatDate(date: string) {
     </el-aside>
 
     <el-main>
-      <el-form :inline="true" :model="formInline">
+      <el-form :disabled="formLoading" :inline="true" :model="formInline">
         <el-form-item label="用户名">
-          <el-input v-model="formInline.user" placeholder="搜索用户名" clearable />
+          <el-input v-model="formInline.user" minlength="4" placeholder="搜索用户名" clearable />
         </el-form-item>
         <el-form-item label="邮箱">
           <el-input v-model="formInline.email" placeholder="搜索邮箱" clearable />
@@ -75,10 +116,10 @@ function formatDate(date: string) {
         </el-form-item>
 
         <el-form-item>
-          <el-button @click="onSubmit">
+          <el-button @click="handleReset">
             重置
           </el-button>
-          <el-button type="primary" @click="onSubmit">
+          <el-button :loading="formLoading" type="primary" @click="fetchData">
             查询
           </el-button>
         </el-form-item>
@@ -149,15 +190,9 @@ function formatDate(date: string) {
         </el-table>
 
         <el-pagination
-
-          v-if="users?.meta"
-          v-model:current-page="users.meta.currentPage"
-          v-model:page-size="users.meta.totalPages"
-          float-right my-4
-          :page-sizes="[100, 200, 300, 400]"
-          :size="users.meta.itemsPerPage"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="users.meta.totalItems"
+          v-if="users?.meta" v-model:current-page="users.meta.currentPage"
+          v-model:page-size="users.meta.itemsPerPage" float-right my-4 :page-sizes="[100, 200, 300, 400]"
+          layout="total, sizes, prev, pager, next, jumper" :total="users.meta.totalItems"
         />
       </ClientOnly>
     </el-main>
