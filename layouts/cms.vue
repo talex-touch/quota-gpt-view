@@ -2,6 +2,7 @@
 import type { TabPaneName } from 'element-plus'
 import Logo from '../components/chore/Logo.vue'
 import AccountAvatar from '../components/personal/AccountAvatar.vue'
+import CmsMenu from '~/components/cms/CmsMenu.vue'
 
 import { getMenuList } from '~/composables/api/account'
 
@@ -68,8 +69,18 @@ onBeforeMount(async () => {
       </div>
     </el-header>
     <el-container>
-      <el-aside class="CmsAside" width="200px">
-        <el-menu :default-openeds="['/document', '/tool', '/system', 'netdisk']" router>
+      <el-aside class="CmsAside" width="240px">
+        <CmsMenu v-for="item in menus" :key="item.id">
+          <template #header>
+            <div i-carbon-document />
+            {{ item.name }}
+          </template>
+          <CmsMenuItem v-for="subMenu in item.children" :key="subMenu.id" :path="`/cms${subMenu.path}`">
+            {{ subMenu.name }}
+          </CmsMenuItem>
+        </CmsMenu>
+
+        <el-menu v-if="false" :default-openeds="['/document', '/tool', '/system', 'netdisk']" router>
           <template v-for="item in menus" :key="item.id">
             <el-sub-menu v-if="item.children" :index="item.path">
               <template v-if="item.children" #title>
@@ -139,6 +150,7 @@ onBeforeMount(async () => {
   height: 100%;
 
   align-self: flex-start;
+  border: 1px solid var(--el-border-color);
 }
 
 .CmsMain {
