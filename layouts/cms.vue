@@ -46,7 +46,15 @@ onBeforeMount(async () => {
           <Logo />
           <span font-bold>ThisAI</span>
         </span>
-        管理中心
+
+        <el-breadcrumb>
+          <el-breadcrumb-item :to="{ path: '/cms/' }">
+            管理中心
+          </el-breadcrumb-item>
+          <el-breadcrumb-item v-if="cur">
+            {{ cur }}
+          </el-breadcrumb-item>
+        </el-breadcrumb>
       </span>
 
       <div class="head-end">
@@ -86,15 +94,6 @@ onBeforeMount(async () => {
         </el-menu>
       </el-aside>
       <el-main class="CmsMain">
-        <el-breadcrumb mb-4>
-          <el-breadcrumb-item :to="{ path: '/cms/' }">
-            管理中心
-          </el-breadcrumb-item>
-          <el-breadcrumb-item v-if="cur">
-            {{ cur }}
-          </el-breadcrumb-item>
-        </el-breadcrumb>
-
         <el-main h-full overflow-y-hidden>
           <keep-alive>
             <slot />
