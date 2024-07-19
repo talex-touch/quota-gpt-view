@@ -60,7 +60,10 @@ watch(() => share.enable, (val) => {
 })
 
 function getCanvas() {
-  return html2canvas(imageHolder.value)
+  return html2canvas(imageHolder.value, {
+    allowTaint: true,
+    useCORS: true,
+  })
 }
 
 async function downloadImage() {
