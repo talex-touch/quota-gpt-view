@@ -77,7 +77,6 @@ async function handleFlip() {
   &.expand {
     .CmsMenu-Header {
       color: var(--el-color-primary);
-      background-color: var(--el-border-color-extra-light);
     }
   }
 
