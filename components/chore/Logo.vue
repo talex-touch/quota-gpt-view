@@ -10,7 +10,7 @@
 <style lang="scss">
 .LogoContainer {
   img {
-    transform: scale(2.5);
+    transform: scale(1.25);
   }
   margin: 0 10px;
   display: flex;
