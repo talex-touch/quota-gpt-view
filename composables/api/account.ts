@@ -36,3 +36,25 @@ export function getUsers(data?: Partial<UserQuery>) {
 export function getRoleList() {
   return endHttp.get('system/roles')
 }
+
+export interface UserQuery {
+  id: string
+  username: string
+  nickname: string
+  avatar: string
+  qq: string
+  email: string
+  phone: string
+  remark: string
+  status: number
+  roleIds: number[]
+  dept: string
+}
+
+export function updateUser(id: string, query: UserQuery) {
+  return endHttp.put(`system/users/${id}`, query)
+}
+
+export function deleteUser(id: string) {
+  return endHttp.del(`system/users/${id}`)
+}

@@ -1,8 +1,10 @@
 <script lang="ts" setup>
 import dayjs from 'dayjs'
-import { getDepartmentList, getUsers } from '~/composables/api/account'
+import type { ComponentSize, FormInstance, FormRules } from 'element-plus'
+import { type UserQuery, deleteUser, getDepartmentList, getRoleList, getUsers, updateUser } from '~/composables/api/account'
 import UserAvatar from '~/components/personal/UserAvatar.vue'
 import { EndNormalUrl } from '~/constants'
+import UserUploadAvatar from '~/components/personal/UserUploadAvatar.vue'
 
 definePageMeta({
   name: '用户管理',
@@ -47,6 +49,8 @@ function handleReset() {
   formInline.remark = ''
 }
 
+const roles = ref()
+
 onMounted(fetchData)
 
 async function fetchData() {
@@ -74,6 +78,7 @@ async function fetchData() {
   else {
     if (res.code === 200) {
       depts.value = (await getDepartmentList()).data
+      roles.value = (await getRoleList()).data
 
       users.value = res.data
     }
@@ -84,6 +89,116 @@ async function fetchData() {
 
 function formatDate(date: string) {
   return dayjs(date).format('YYYY-MM-DD HH:mm:ss')
+}
+
+interface UserForm extends UserQuery {
+
+}
+
+const dialogOptions = reactive<{
+  visible: boolean
+  mode: 'edit' | 'read'
+  data: Partial<UserForm>
+  loading: boolean
+}>({
+  visible: false,
+  mode: 'edit',
+  data: {},
+  loading: false,
+})
+
+function handleDialog(data: any, mode: 'edit' | 'read') {
+  dialogOptions.mode = mode
+  dialogOptions.visible = true
+  dialogOptions.data = { ...data }
+
+  dialogOptions.data.roleIds = data.roles.map((item: any) => item.id)
+}
+
+const ruleFormRef = ref<FormInstance>()
+
+const rules = reactive<FormRules<UserForm>>({
+  username: [
+    { required: true, message: '请输入用户名称', trigger: 'blur' },
+    { min: 5, max: 24, message: '用户名需要在 5-24 位之间', trigger: 'blur' },
+  ],
+  nickname: [
+    { required: true, message: '请输入用户昵称', trigger: 'blur' },
+    { min: 5, max: 24, message: '用户名需要在 5-24 位之间', trigger: 'blur' },
+  ],
+  avatar: [
+    { required: true, message: '请上传头像', trigger: 'blur' },
+  ],
+  qq: [
+    { required: true, message: '请输入QQ号', trigger: 'blur' },
+  ],
+  phone: [
+    { required: true, message: '请输入手机号', trigger: 'blur' },
+  ],
+  status: [
+    { required: true, message: '请选择状态', trigger: 'blur' },
+  ],
+})
+
+async function submitForm(formEl: FormInstance | undefined) {
+  if (!formEl)
+    return
+  await formEl.validate(async (valid) => {
+    if (!valid)
+      return
+
+    dialogOptions.loading = true
+
+    const res: any = await updateUser(dialogOptions.data.id!, dialogOptions.data as UserForm)
+
+    if (res.code === 200) {
+      ElMessage.success('修改成功！')
+      dialogOptions.visible = false
+      fetchData()
+    }
+    else {
+      ElMessage.error('修改失败！')
+    }
+
+    dialogOptions.loading = false
+  })
+}
+
+function resetForm(formEl: FormInstance | undefined) {
+  if (!formEl)
+    return
+  formEl.resetFields()
+}
+
+function handleDeleteUser(id: number, data: UserForm) {
+  ElMessageBox.confirm(
+    `你确定要删除用户 ${data.username}(${data.nickname}) #${id} 吗？删除后这个账户永久无法找回。`,
+    '确认删除',
+    {
+      confirmButtonText: '取消',
+      cancelButtonText: '确定删除',
+      type: 'error',
+    },
+  )
+    .then(() => {
+      ElMessage({
+        type: 'success',
+        message: '已取消删除用户！',
+      })
+    })
+    .catch(async () => {
+      const res: any = await deleteUser(`${id}`)
+      if (res.code !== 200) {
+        ElMessage.error('删除失败！')
+        return
+      }
+
+      ElNotification({
+        title: 'Info',
+        message: `你永久删除了用户 ${data.username}(${data.nickname}) #${id} 及其相关数据！`,
+        type: 'info',
+      })
+    })
 }
 </script>
 
@@ -176,13 +291,13 @@ function formatDate(date: string) {
           </el-table-column>
           <el-table-column fixed="right" label="操作" width="200">
             <template #default="{ row }">
-              <el-button plain text size="small">
+              <el-button plain text size="small" @click="handleDialog(row, 'read')">
                 详情
               </el-button>
-              <el-button plain text size="small" type="warning">
+              <el-button plain text size="small" type="warning" @click="handleDialog(row, 'edit')">
                 编辑
               </el-button>
-              <el-button plain text size="small" type="danger">
+              <el-button plain text size="small" type="danger" @click="handleDeleteUser(row.id, row)">
                 删除
               </el-button>
             </template>
@@ -196,6 +311,74 @@ function formatDate(date: string) {
         />
       </ClientOnly>
     </el-main>
+
+    <el-drawer v-model="dialogOptions.visible" :close-on-click-modal="false" :close-on-press-escape="false">
+      <template #header>
+        <h4>编辑用户信息<span v-if="dialogOptions.data" mx-4 op-50>#{{ dialogOptions.data.id }}</span></h4>
+      </template>
+      <template #default>
+        <el-form
+          ref="ruleFormRef"
+          :disabled="dialogOptions.loading || dialogOptions.mode === 'read'" style="max-width: 600px" :model="dialogOptions.data" :rules="rules"
+          label-width="auto" class="demo-ruleForm" status-icon
+        >
+          <el-form-item label="用户头像" prop="avatar">
+            <UserUploadAvatar v-model="dialogOptions.data.avatar" />
+          </el-form-item>
+          <el-form-item label="用户名称" prop="username">
+            <el-input v-model="dialogOptions.data.username" disabled />
+          </el-form-item>
+          <el-form-item label="用户昵称" prop="nickname">
+            <el-input v-model="dialogOptions.data.nickname" />
+          </el-form-item>
+          <el-form-item label="用户邮箱" prop="email">
+            <el-input v-model="dialogOptions.data.email" />
+          </el-form-item>
+          <el-form-item label="用户手机号" prop="phone">
+            <el-input v-model="dialogOptions.data.phone" />
+          </el-form-item>
+          <el-form-item label="用户部门" prop="dept">
+            <el-select v-model="dialogOptions.data.dept" disabled placeholder="请选择部门">
+              <!-- <el-option v-for="item in depts" :key="item.id" :label="item.name" :value="item.id" /> -->
+            </el-select>
+          </el-form-item>
+          <el-form-item label="用户角色" prop="roles">
+            <el-select v-model="dialogOptions.data.roleIds" multiple placeholder="请选择角色">
+              <el-option v-for="item in roles.items" :key="item.id" :label="item.name" :value="item.id" />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="用户状态" prop="status">
+            <el-select v-model="dialogOptions.data.status" placeholder="请选择状态">
+              <el-option label="启用" value="1" />
+              <el-option label="禁用" value="0" />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="用户备注" prop="remark">
+            <el-input v-model="dialogOptions.data.remark" type="textarea" />
+          </el-form-item>
+        </el-form>
+      </template>
+      <template #footer>
+        <div style="flex: auto">
+          <template v-if="dialogOptions.mode === 'read'">
+            <el-button @click="dialogOptions.visible = false">
+              关闭
+            </el-button>
+          </template>
+          <template v-else>
+            <el-button @click="dialogOptions.visible = false">
+              取消
+            </el-button>
+            <el-button @click="resetForm(ruleFormRef)">
+              重置
+            </el-button>
+            <el-button :loading="dialogOptions.loading" type="primary" @click="submitForm(ruleFormRef)">
+              修改
+            </el-button>
+          </template>
+        </div>
+      </template>
+    </el-drawer>
   </el-container>
 </template>
 
