@@ -39,7 +39,7 @@ const headers = {
 
 <template>
   <el-upload
-    class="avatar-uploader" :action="`${EndNormalUrl}/api/tools/upload`" :show-file-list="false"
+    class="avatar-uploader" :action="`${EndNormalUrl}api/tools/upload`" :show-file-list="false"
     :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload" :headers="headers"
   >
     <img v-if="avatarForm" :src="avatarUrl" class="avatar">

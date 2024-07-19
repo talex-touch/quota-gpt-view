@@ -92,7 +92,7 @@ export function genAxios(options: CreateAxiosDefaults) {
 
       console.error('@ERROR', res)
 
-      return res.response.data.data
+      return res.response.data
     },
   )
 

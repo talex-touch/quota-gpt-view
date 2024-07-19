@@ -49,6 +49,11 @@ export interface UserQuery {
   status: number
   roleIds: number[]
   dept: string
+  password: string
+}
+
+export function addUser(query: UserQuery) {
+  return endHttp.post('system/users', query)
 }
 
 export function updateUser(id: string, query: UserQuery) {

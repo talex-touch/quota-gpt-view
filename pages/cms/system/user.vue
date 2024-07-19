@@ -1,9 +1,8 @@
 <script lang="ts" setup>
 import dayjs from 'dayjs'
 import type { ComponentSize, FormInstance, FormRules } from 'element-plus'
-import { type UserQuery, deleteUser, getDepartmentList, getRoleList, getUsers, updateUser } from '~/composables/api/account'
+import { type UserQuery, addUser, deleteUser, getDepartmentList, getRoleList, getUsers, updateUser } from '~/composables/api/account'
 import UserAvatar from '~/components/personal/UserAvatar.vue'
-import { EndNormalUrl } from '~/constants'
 import UserUploadAvatar from '~/components/personal/UserUploadAvatar.vue'
 
 definePageMeta({
@@ -97,7 +96,7 @@ interface UserForm extends UserQuery {
 
 const dialogOptions = reactive<{
   visible: boolean
-  mode: 'edit' | 'read'
+  mode: 'edit' | 'read' | 'new'
   data: Partial<UserForm>
   loading: boolean
 }>({
@@ -107,12 +106,23 @@ const dialogOptions = reactive<{
   loading: false,
 })
 
-function handleDialog(data: any, mode: 'edit' | 'read') {
+function handleDialog(data: any, mode: 'edit' | 'read' | 'new') {
   dialogOptions.mode = mode
   dialogOptions.visible = true
-  dialogOptions.data = { ...data }
+  dialogOptions.data = mode === 'new'
+    ? {
+        username: '',
+        nickname: '',
+        avatar: '',
+        qq: '',
+        phone: '',
+        status: 1,
+        remark: '',
+        roles: [],
+      }
+    : { ...data }
 
-  dialogOptions.data.roleIds = data.roles.map((item: any) => item.id)
+  dialogOptions.data.roleIds = dialogOptions.data.roles.map((item: any) => item.id)
 }
 
 const ruleFormRef = ref<FormInstance>()
@@ -125,6 +135,11 @@ const rules = reactive<FormRules<UserForm>>({
   nickname: [
     { required: true, message: '请输入用户昵称', trigger: 'blur' },
     { min: 5, max: 24, message: '用户名需要在 5-24 位之间', trigger: 'blur' },
+  ],
+  password: [
+    { required: true, message: '请输入用户密码', trigger: 'blur' },
+    { min: 6, max: 16, message: '用户密码需要在 6-16 位之间', trigger: 'blur' },
+    { pattern: /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{6,16}$/, message: '用户密码必须包含数字和字母', trigger: 'blur' },
   ],
   avatar: [
     { required: true, message: '请上传头像', trigger: 'blur' },
@@ -149,15 +164,29 @@ async function submitForm(formEl: FormInstance | undefined) {
 
     dialogOptions.loading = true
 
-    const res: any = await updateUser(dialogOptions.data.id!, dialogOptions.data as UserForm)
+    if (dialogOptions.mode !== 'new') {
+      const res: any = await updateUser(dialogOptions.data.id!, dialogOptions.data as UserForm)
 
-    if (res.code === 200) {
-      ElMessage.success('修改成功！')
-      dialogOptions.visible = false
-      fetchData()
+      if (res.code === 200) {
+        ElMessage.success('修改成功！')
+        dialogOptions.visible = false
+        fetchData()
+      }
+      else {
+        ElMessage.error(res.message ?? '修改失败！')
+      }
     }
     else {
-      ElMessage.error('修改失败！')
+      const res: any = await addUser(dialogOptions.data as UserForm)
+
+      if (res.code === 200) {
+        ElMessage.success('添加成功！')
+        dialogOptions.visible = false
+        fetchData()
+      }
+      else {
+        ElMessage.error(res.message ?? '添加失败！')
+      }
     }
 
     dialogOptions.loading = false
@@ -230,12 +259,15 @@ function handleDeleteUser(id: number, data: UserForm) {
           <el-input v-model="formInline.remark" placeholder="搜索备注" clearable />
         </el-form-item>
 
-        <el-form-item>
+        <el-form-item float-right>
           <el-button @click="handleReset">
             重置
           </el-button>
           <el-button :loading="formLoading" type="primary" @click="fetchData">
             查询
+          </el-button>
+          <el-button type="success" @click="handleDialog({}, 'new')">
+            新建用户
           </el-button>
         </el-form-item>
       </el-form>
@@ -248,7 +280,7 @@ function handleDeleteUser(id: number, data: UserForm) {
               <UserAvatar :avatar="scope.row.avatar" />
             </template>
           </el-table-column>
-          <el-table-column prop="username" label="用户名(昵称)" width="180">
+          <el-table-column prop="username" label="用户名(昵称)" width="240">
             <template #default="{ row }">
               {{ row.username }}<span op-50>({{ row.nickname }})</span>
             </template>
@@ -318,21 +350,27 @@ function handleDeleteUser(id: number, data: UserForm) {
       </template>
       <template #default>
         <el-form
-          ref="ruleFormRef"
-          :disabled="dialogOptions.loading || dialogOptions.mode === 'read'" style="max-width: 600px" :model="dialogOptions.data" :rules="rules"
-          label-width="auto" class="demo-ruleForm" status-icon
+          ref="ruleFormRef" :disabled="dialogOptions.loading || dialogOptions.mode === 'read'"
+          style="max-width: 600px" :model="dialogOptions.data" :rules="rules" label-width="auto" class="demo-ruleForm"
+          status-icon
         >
           <el-form-item label="用户头像" prop="avatar">
             <UserUploadAvatar v-model="dialogOptions.data.avatar" />
           </el-form-item>
           <el-form-item label="用户名称" prop="username">
-            <el-input v-model="dialogOptions.data.username" disabled />
+            <el-input v-model="dialogOptions.data.username" :disabled="dialogOptions.mode !== 'new'" />
           </el-form-item>
           <el-form-item label="用户昵称" prop="nickname">
             <el-input v-model="dialogOptions.data.nickname" />
           </el-form-item>
+          <el-form-item label="用户密码" prop="nickname">
+            <el-input v-model="dialogOptions.data.password" :disabled="dialogOptions.mode !== 'new'" type="password" />
+          </el-form-item>
           <el-form-item label="用户邮箱" prop="email">
             <el-input v-model="dialogOptions.data.email" />
+          </el-form-item>
+          <el-form-item label="QQ" prop="qq">
+            <el-input v-model="dialogOptions.data.qq" />
           </el-form-item>
           <el-form-item label="用户手机号" prop="phone">
             <el-input v-model="dialogOptions.data.phone" />
@@ -373,7 +411,7 @@ function handleDeleteUser(id: number, data: UserForm) {
               重置
             </el-button>
             <el-button :loading="dialogOptions.loading" type="primary" @click="submitForm(ruleFormRef)">
-              修改
+              {{ dialogOptions.mode !== 'new' ? "修改" : "新增" }}
             </el-button>
           </template>
         </div>
