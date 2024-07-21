@@ -91,7 +91,7 @@ function formatDate(date: string) {
 }
 
 interface UserForm extends UserQuery {
-
+  roles?: any[]
 }
 
 const dialogOptions = reactive<{
@@ -106,7 +106,7 @@ const dialogOptions = reactive<{
   loading: false,
 })
 
-function handleDialog(data: any, mode: 'edit' | 'read' | 'new') {
+function handleDialog(data: Partial<UserForm>, mode: 'edit' | 'read' | 'new') {
   dialogOptions.mode = mode
   dialogOptions.visible = true
   dialogOptions.data = mode === 'new'

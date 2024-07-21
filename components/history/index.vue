@@ -108,7 +108,7 @@ onMounted(() => {
           />
         </div>
 
-        <div ref="loadMore" :class="{ show: chatManager.loadingHistory.value }" class="loadMore">
+        <div v-if="!chatManager.historyCompleted.value" ref="loadMore" :class="{ show: chatManager.loadingHistory.value }" class="loadMore">
           <LoadersEagleRoundLoading />
         </div>
       </el-scrollbar>

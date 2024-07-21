@@ -137,7 +137,7 @@ export function useChatTitle(context: ChatCompletion) {
       return
 
     for (; i < text.length; ++i) {
-      if (i >= 12)
+      if (i >= 28)
         break
       const code = text[i]
 
@@ -289,6 +289,7 @@ export class ChatManager {
   messages = ref<ThHistory>(JSON.parse(JSON.stringify(this.originObj)))
   history: any
   loadingHistory = ref(false)
+  historyCompleted = ref(false)
 
   currentLoadPage: number = 0
 
@@ -330,6 +331,12 @@ export class ChatManager {
 
     if (res.code !== 200)
       return ElMessage.error('获取历史记录失败!所有操作不会被保存!')
+
+    const totalPages = res.data.meta.totalPages
+    if (totalPages <= this.currentLoadPage) {
+      this.historyCompleted.value = true
+      return this.currentLoadPage -= 1
+    }
 
     this.history.value.push(...(res.data.items).map((item: any) => {
       const option = {

@@ -157,10 +157,10 @@ onMounted(() => {
           if (result.code !== 1002)
             _res.captchaResult = true
 
-          if (result.message === 'sms-sent-err')
-            ElMessage.error('无法向目标手机号发送消息！')
-
-          if (result.code === 200) {
+          if (result.message === 'sms-sent-err') {
+            ElMessage.error('无法向目标手机号发送消息，请稍后重试！')
+          }
+          else if (result.code === 200) {
             smsOptions.lastSent = Date.now()
 
             refreshSmsTitle()
