@@ -1,5 +1,6 @@
 import JSON5 from 'json5'
 import { getConversations, postHistory } from './api/chat'
+import { endHttp } from './api/axios'
 import { ENDS_URL, EndNormalUrl } from '~/constants'
 
 import type { ThHistory } from '~/components/history/history'
@@ -328,7 +329,7 @@ export class ChatManager {
     this.currentLoadPage += 1
 
     const res: any = await getConversations({
-      pageSize: 20,
+      pageSize: 25,
       page: this.currentLoadPage,
     })
 
@@ -340,7 +341,7 @@ export class ChatManager {
     const totalPages = res.data.meta.totalPages
     if (totalPages <= this.currentLoadPage) {
       this.historyCompleted.value = true
-      return this.currentLoadPage -= 1
+      this.currentLoadPage -= 1
     }
 
     this.history.value.push(...(res.data.items).map((item: any) => {
@@ -666,7 +667,14 @@ export class ChatManager {
   }
 
   // TODO 撤销删除
-  deleteMessage(index: number) {
+  async deleteMessage(index: number) {
+    if (userStore.value.token) {
+      const conversation: ThHistory = this.history.value[index]
+      const res: any = await endHttp.del(`aigc/conversations/${conversation.id}`)
+      if (res.code !== 200)
+        return ElMessage.error(`删除失败(${res.message})`)
+    }
+
     this.history.value.splice(index, 1)
   }
 }

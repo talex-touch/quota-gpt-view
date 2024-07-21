@@ -128,7 +128,10 @@ async function handleSend(query: string, callback: Function) {
 }
 
 provide('updateConversationTopic', (index: number, topic: string) => {
-  chatManager.history.value[index].topic = topic
+  const conversation: ThHistory = chatManager.history.value[index]
+
+  conversation.topic = topic
+  conversation.sync = false
 })
 provide('pageOptions', pageOptions)
 </script>
