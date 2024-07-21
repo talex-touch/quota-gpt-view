@@ -1,7 +1,7 @@
 export const models = reactive([
   {
     name: 'QuotaGPT 标准模型',
-    value: 'gpt-3.5-turbo',
+    value: 'this-normal',
     features: [
       '标准的主力模型(Lite)',
       '适合处理部分复杂任务',
@@ -14,7 +14,7 @@ export const models = reactive([
   },
   {
     name: 'QuotaGPT 强化模型',
-    value: 'gpt-3o-turbo',
+    value: 'this-normal-turbo',
     valuable: true,
     features: [
       '强化的主力模型(Pro)',
@@ -31,7 +31,7 @@ export const models = reactive([
   },
   {
     name: 'QuotaGPT 高级模型',
-    value: 'gpt-4-turbo',
+    value: 'this-normal-ultra',
     valuable: true,
     features: [
       '完全的高级模型(Pro)',

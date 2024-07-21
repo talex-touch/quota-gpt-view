@@ -81,6 +81,11 @@ onMounted(() => {
     threshold: 0,
   })
   observer.observe(el)
+
+  watch(() => chatManager.historyCompleted.value, (val) => {
+    if (val)
+      observer.unobserve(el)
+  }, { immediate: true })
 })
 </script>
 

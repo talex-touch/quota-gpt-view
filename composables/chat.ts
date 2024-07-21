@@ -6,8 +6,23 @@ import { ENDS_URL, EndNormalUrl } from '~/constants'
 import type { ThHistory } from '~/components/history/history'
 
 export enum QuotaModel {
-  QUOTA_THIS_NORMAL = 'this_normal',
+  // 普通版本，纯问答（类豆包，普通联网）
+  QUOTA_THIS_NORMAL = 'this-normal',
 
+  // 普通版本+，联网+工具能力（类GPT，高级联网+工具）
+  QUOTA_THIS_NORMAL_PLUS = 'this-normal-plus',
+
+  // 中级模型，中级会员可用 （上下文更强，普通联网）
+  QUOTA_THIS_NORMAL_TURBO = 'this-normal-turbo',
+
+  // 中级模型，中级会员可用 （上下文更强，类GPT，高级联网+工具）
+  QUOTA_THIS_NORMAL_TURBO_PLUS = 'this-normal-turbo-plus',
+
+  // 高级模型，高级会员可用 （全功能，上下文更强，类GPT，高级联网+工具）
+  QUOTA_THIS_NORMAL_ULTRA = 'this-normal-ultra',
+
+  // 极速模型，高级会员可用 （全功能，上下文更强，类GPT，高级联网+工具）
+  QUOTA_THIS_NORMAL_ULTRA_PLUS = 'this-normal-ultra-plus',
 }
 
 export interface CompletionItem {
@@ -287,7 +302,7 @@ export class ChatManager {
     topic: '新的聊天',
     messages: [],
     lastUpdate: -1,
-    model: 'gpt-3.5-turbo',
+    model: QuotaModel.QUOTA_THIS_NORMAL,
     sync: false,
     syncing: false,
   }

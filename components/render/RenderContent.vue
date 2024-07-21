@@ -41,11 +41,24 @@ onMounted(() => {
   //   // mode: color.value !== 'dark' ? 'light' : 'dark',
   // })
 
+  const regex = /\[([^[\]]+)\]/g
+
   watch(
     () => [props.data, color.value],
     () => {
       nextTick(() => {
-        Vditor.preview(inner.value, props.data, {
+        const data = props.data/* .replaceAll(regex, (content) => {
+          let _content = content
+          const regex1 = /`([^`]+)`/g
+          if (regex1.test(content))
+            _content = _content.replaceAll(regex1, '$1')
+
+          _content = _content.replaceAll(regex, '$$$$$1$$$$').replaceAll('\$', '$')
+
+          return _content
+        }) */
+
+        Vditor.preview(inner.value, data, {
           hljs: {
             enable: true,
             lineNumber: true,
@@ -126,23 +139,24 @@ onMounted(() => {
     font-size: 1.125rem;
   }
 
-  pre {
-    margin: 0.5rem 0;
-    padding: 0.5rem 0.25rem;
+  // pre {
+  //   margin: 0.5rem 0;
+  //   padding: 0.5rem 0.25rem;
 
-    max-width: 100%;
+  //   max-width: 100%;
 
-    overflow-x: scroll;
-    border-radius: 12px;
-    background-color: var(--el-bg-color-page);
-  }
+  //   overflow-x: scroll;
+  //   border-radius: 12px;
+  //   background-color: var(--el-bg-color-page);
+  // }
 
-  code {
-    margin: 0 0.25rem;
-    padding: 0.25rem 0.5rem;
+  pre code {
+    // margin: 0 0.25rem;
+    // padding: 0.25rem 0.5rem;
 
-    border-radius: 12px;
-    background-color: var(--el-bg-color-page);
+    // border-radius: 12px;
+    color: var(--el-text-color-primary);
+    // background-color: var(--el-bg-color-page);
   }
 }
 </style>

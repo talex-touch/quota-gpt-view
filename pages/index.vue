@@ -134,6 +134,12 @@ provide('updateConversationTopic', (index: number, topic: string) => {
   conversation.sync = false
 })
 provide('pageOptions', pageOptions)
+
+function cancelCurrentRequest() {
+  chatManager.cancelCurrentReq()
+
+  pageOptions.status = Status.AVAILABLE
+}
 </script>
 
 <template>
@@ -153,7 +159,7 @@ provide('pageOptions', pageOptions)
         v-model:messages="chatManager.messages.value"
         :status="pageOptions.status"
         :round-limit="roundLimit"
-        @cancel="chatManager.cancelCurrentReq()"
+        @cancel="cancelCurrentRequest"
       />
       <ThInput
         v-model:status="pageOptions.status"

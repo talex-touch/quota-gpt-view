@@ -70,7 +70,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="RenderContent">
+  <div class="RenderContent milkdown-render">
     <!-- <el-scrollbar>
       <div class="RenderContent-Wrapper"> -->
     <div ref="inner" class="markdown-body RenderContent-Inner" />
@@ -79,7 +79,7 @@ onMounted(async () => {
   </div>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .RenderContent {
   position: relative;
   // &-Wrapper {
