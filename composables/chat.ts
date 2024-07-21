@@ -137,6 +137,8 @@ export function useChatTitle(context: ChatCompletion) {
       return
 
     for (; i < text.length; ++i) {
+      if (i >= 12)
+        break
       const code = text[i]
 
       setTimeout(() => {
@@ -286,6 +288,7 @@ export class ChatManager {
 
   messages = ref<ThHistory>(JSON.parse(JSON.stringify(this.originObj)))
   history: any
+  loadingHistory = ref(false)
 
   currentLoadPage: number = 0
 
@@ -303,21 +306,24 @@ export class ChatManager {
 
           console.warn('left histories', localHistory.value.length, this.history.value.length)
 
-          this.loadHistories()
+          // this.loadHistories()
         })
       }
-      else { this.loadHistories() }
     }
     else { this.history = localHistory }
   }
 
   async loadHistories() {
+    this.loadingHistory.value = true
+
     this.currentLoadPage += 1
 
     const res: any = await getConversations({
-      pageSize: 10,
+      pageSize: 20,
       page: this.currentLoadPage,
     })
+
+    this.loadingHistory.value = false
 
     if (res.code !== 200)
       return ElMessage.error('获取历史记录失败!所有操作不会被保存!')
@@ -452,7 +458,7 @@ export class ChatManager {
     })
   }
 
-  async sendMessage(obj: any, conversation: any, callback: IMessageHandler) {
+  async sendMessage(obj: any, conversation: ThHistory, callback: IMessageHandler) {
     // TODO: abort
     await useChatExecutor(
       conversation,
@@ -475,7 +481,8 @@ export class ChatManager {
           return
         }
 
-        conversation.id = res.id || res.run_id!
+        if (!conversation.id)
+          conversation.id = res.id || res.run_id!
 
         const { event, name } = res
         if (event === 'on_chain_start') {

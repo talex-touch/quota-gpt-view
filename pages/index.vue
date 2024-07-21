@@ -80,7 +80,7 @@ async function handleSend(query: string, callback: Function) {
       await chatManager.genConversationTitle(chatManager.history.value[index])
   }
 
-  const conversation = chatManager.history.value[pageOptions.select]
+  const conversation: ThHistory = chatManager.history.value[pageOptions.select]
 
   conversation.messages.push({
     date: format,
@@ -98,6 +98,7 @@ async function handleSend(query: string, callback: Function) {
   })
 
   conversation.messages.push(obj)
+  conversation.sync = false
   conversation.lastUpdate = Date.now()
 
   await chatManager.sendMessage(obj, conversation, {

@@ -39,6 +39,7 @@ const categories = [
   },
 ]
 
+const loadMore = ref()
 const processedHistory = computed(() =>
   [...props.history].map((item, index) => ({
     index,
@@ -68,6 +69,19 @@ const historyList = computed(() => {
     }))
     .filter(category => category.children.length)
 })
+
+onMounted(() => {
+  const el = loadMore.value
+
+  // observer
+  const observer = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting)
+      chatManager.loadHistories()
+  }, {
+    threshold: 0,
+  })
+  observer.observe(el)
+})
 </script>
 
 <template>
@@ -89,13 +103,13 @@ const historyList = computed(() => {
           <br>
 
           <HistorySection
-            v-for="(section, index) in historyList"
-            :key="index"
-            v-model:selectIndex="selectIndex"
-            :title="section.title"
-            :history="section.children"
-            @delete="handleDelete"
+            v-for="(section, index) in historyList" :key="index" v-model:selectIndex="selectIndex"
+            :title="section.title" :history="section.children" @delete="handleDelete"
           />
+        </div>
+
+        <div ref="loadMore" :class="{ show: chatManager.loadingHistory.value }" class="loadMore">
+          <LoadersEagleRoundLoading />
         </div>
       </el-scrollbar>
     </div>
@@ -111,6 +125,24 @@ const historyList = computed(() => {
 div.History {
   .el-scrollbar__bar.is-vertical {
     width: 3px;
+  }
+
+  .loadMore {
+    &.show {
+      opacity: 1;
+    }
+    position: relative;
+    display: flex;
+
+    margin: 0 auto;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 100px;
+    height: 100px;
+
+    opacity: 0;
   }
 }
 
