@@ -4,6 +4,11 @@ import { ENDS_URL, EndNormalUrl } from '~/constants'
 
 import type { ThHistory } from '~/components/history/history'
 
+export enum QuotaModel {
+  QUOTA_THIS_NORMAL = 'this_normal',
+
+}
+
 export interface CompletionItem {
   done: boolean
   error?: boolean
@@ -399,6 +404,9 @@ export class ChatManager {
 
     const upload = async (_data: any) => {
       const res = await this.postTargetHistory(_data)
+
+      if (res.code === 200)
+        return
 
       histories.push(_data)
 
