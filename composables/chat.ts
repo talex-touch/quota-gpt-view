@@ -1,4 +1,5 @@
 import JSON5 from 'json5'
+import { getConversations, postHistory } from './api/chat'
 import { ENDS_URL } from '~/constants'
 
 import type { ThHistory } from '~/components/history/history'
@@ -76,6 +77,7 @@ export interface ChatItem {
   streaming?: boolean
   model?: string
   hide?: boolean
+  status?: Status
 }
 
 export interface ChatMessage { role: 'system' | 'user' | 'assistant', content: string }
@@ -115,6 +117,8 @@ export function useChatTitle(context: ChatCompletion) {
     }
 
     if (res.done) {
+      console.log('done')
+
       setTimeout(() => {
         options.streaming = false
         options.status = Status.AVAILABLE
@@ -184,8 +188,13 @@ async function handleExecutorResult(reader: ReadableStreamDefaultReader<string>,
   while (true) {
     const { value, done } = await reader.read()
 
-    if (done)
+    if (done) {
+      callback({
+        done: true,
+      })
+
       break
+    }
 
     if (!value.length)
       continue
@@ -276,37 +285,167 @@ export class ChatManager {
   }
 
   messages = ref<ChatCompletion>(JSON.parse(JSON.stringify(this.originObj)))
-  history = useLocalStorage<ThHistory[]>('chat-history', [])
-  status = ref(Status.AVAILABLE)
+  history: any
+
+  currentLoadPage: number = 0
+
+  constructor() {
+    const localHistory = useLocalStorage<ThHistory[]>('chat-history', [])
+
+    if (userStore.value.token) {
+      this.history = ref([])
+      if (localHistory.value) {
+        this.postLocalHistory(localHistory.value).then((leftHistory) => {
+          this.history.value.push(...leftHistory)
+
+          // 移除localHistory中所有sync true
+          this.history.value = this.history.value.filter((item: any) => !item.sync)
+
+          console.warn('left histories', localHistory.value.length, this.history.value.length)
+
+          this.loadHistories()
+        })
+      }
+      else { this.loadHistories() }
+    }
+    else { this.history = localHistory }
+  }
+
+  async loadHistories() {
+    this.currentLoadPage += 1
+
+    const res: any = await getConversations({
+      pageSize: 10,
+      page: this.currentLoadPage,
+    })
+
+    if (res.code !== 200)
+      return ElMessage.error('获取历史记录失败!所有操作不会被保存!')
+
+    this.history.value.push(...(res.data.items).map((item: any) => {
+      const option = {
+        ...item,
+        id: item.uid,
+        meta: JSON.parse(item.meta),
+        messages: JSON.parse(decodeURIComponent(atob(item.value))),
+      }
+
+      return {
+        ...option,
+        ...option.meta,
+      }
+    }))
+  }
+
+  async postTargetHistory(data: ThHistory): Promise<any> {
+    const meta: Record<string, any> = {
+      sync: data.sync,
+      stat: data.stat,
+      lastUpdate: data.lastUpdate,
+      mask: data.mask,
+      model: data.model,
+    }
+
+    Object.entries(meta).forEach(([key, value]) => {
+      if (!value)
+        delete meta[key]
+    })
+
+    const res: any = await postHistory({
+      uid: data.id || (`${Date.now()}DJLASKFJOEJ-INTERNAL_TEST`),
+      topic: data.topic,
+      value: `${btoa(encodeURIComponent(JSON.stringify(data.messages)))}`,
+      meta: JSON.stringify(meta),
+    })
+
+    if (res.code !== 200) {
+      console.error('Upload err', res)
+
+      if (res.code === 429) {
+        await sleep(3000)
+
+        return await this.postTargetHistory(data)
+      }
+    }
+    else {
+      data.sync = true
+    }
+
+    return res
+  }
+
+  async postLocalHistory(data: ThHistory[]) {
+    const histories: Array<ThHistory> = []
+
+    const upload = async (_data: any) => {
+      const res = await this.postTargetHistory(_data)
+
+      histories.push(_data)
+
+      ElMessage({
+        message: `上传历史记录失败，请重试(${res.message})`,
+        type: 'error',
+      })
+
+      await sleep(3000)
+    }
+
+    for (const _data of data) {
+      // TODO
+      if (_data.sync)
+        continue
+
+      await upload(_data)
+    }
+
+    return histories
+  }
 
   createMessage() {
+    if (!userStore.value.token) {
+      if (this.history.value.length >= 5) {
+        ElMessageBox.alert('受限于浏览器限制，未登录最多可记录5段历史对话，登录后可享受数据云端穿梭能力。', '你需要登录来继续', {
+          confirmButtonText: '了解',
+        })
+
+        return false
+      }
+    }
+
     const _history: ThHistory = {
       sync: false,
       ...JSON.parse(JSON.stringify(this.originObj)),
     }
     _history.lastUpdate = Date.now()
     this.history.value.push(_history)
+
+    return true
   }
 
   genConversationTitle(conversation: ChatCompletion) {
-    const options = useChatTitle(conversation)
+    return new Promise((resolve) => {
+      const options = useChatTitle(conversation)
 
-    conversation._titleOptions = options
-    conversation.lastUpdate = Date.now()
+      conversation._titleOptions = options
+      conversation.lastUpdate = Date.now()
 
-    const effect = watch(
-      () => options,
-      () => {
-        conversation.topic = options.title
+      const effect = watch(
+        () => options,
+        () => {
+          conversation.topic = options.title
 
-        if (options.status === Status.ERROR)
-          conversation.topic = `(Error) ${conversation.topic}`
+          if (options.status === Status.ERROR)
+            conversation.topic = `(Error) ${conversation.topic}`
 
-        if (options.streaming === false)
-          effect()
-      },
-      { deep: true },
-    )
+          if (options.streaming === false) {
+            effect()
+
+            resolve(void 0)
+          }
+        },
+        { deep: true },
+      )
+    })
   }
 
   async sendMessage(obj: any, conversation: any, callback: IMessageHandler) {
@@ -343,14 +482,6 @@ export class ChatManager {
               actions: ['正在分析信息...'],
             }))
           }
-          else if (
-            name === 'OpenAIFunctionsAgent'
-            || name === 'RunnableAssign'
-            || name === 'RunnableMap'
-            || name === 'RunnableLambda'
-          ) {
-            return
-          }
         }
         else if (
           event === 'on_chain_stream'
@@ -359,10 +490,6 @@ export class ChatManager {
           || event === 'on_chat_model_start'
         ) {
           obj.streaming = false
-          return
-        }
-        else if (event === 'on_chat_model_end') {
-          return
         }
         else if (event === 'on_chain_end') {
           if (name === 'Agent') {
@@ -374,10 +501,7 @@ export class ChatManager {
 
               callback?.onReqCompleted?.()
             }, 200)
-            return
           }
-
-          return
         }
         else if (event === 'on_tool_start') {
           if (name === 'TavilySearchResults')
@@ -400,9 +524,7 @@ export class ChatManager {
             return obj.agent.actions[0] = `Quota正在分析日期`
           }
 
-          console.log('e', res)
-
-          return
+          console.error('e', res)
         }
         else if (event === 'on_chat_model_stream') {
           if (name === 'ChatOpenAI' || name === 'ChatVolc') {
@@ -415,10 +537,8 @@ export class ChatManager {
             callback.onTriggerUpdate()
           }
           else {
-            console.log('model stream', res)
+            console.error('model stream', res)
           }
-
-          return
         }
         else if (event === 'on_tool_end') {
           if (name === 'TavilySearchResults') {
@@ -502,11 +622,7 @@ export class ChatManager {
           }
 
           console.log('tool end', res)
-
-          return
         }
-
-        console.log('process item', res)
       },
     )
   }
@@ -516,8 +632,6 @@ export class ChatManager {
 
     this.messages.value.messages.splice(this.messages.value.messages.length - 1, 1)
     this.messages.value.messages.splice(this.messages.value.messages.length - 1, 1)
-
-    this.status.value = Status.AVAILABLE
 
     return msg
   }

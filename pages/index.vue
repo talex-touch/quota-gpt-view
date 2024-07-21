@@ -17,6 +17,7 @@ const pageOptions = reactive<any>({
       return [chatManager.messages.value.messages.filter((_, index) => pageOptions.share.selected.includes(index)), chatManager.messages.value.topic]
     },
   },
+  status: Status.AVAILABLE,
 })
 
 const roundLimit = computed(() => chatManager.messages.value.messages.length / 2 >= 10)
@@ -38,8 +39,9 @@ watch(
       conversation.model = 'gpt-3.5-turbo'
 
     chatManager.messages.value = conversation
-    // chatManager.messages.value
-    //   = ind === -1 ? JSON.parse(JSON.stringify(chatManager.originObj)) :
+
+    const tail = conversation.messages.at(-1)
+    pageOptions.status = tail?.status
 
     setTimeout(() => {
       pageOptions.share.enable = false
@@ -50,29 +52,32 @@ watch(
 )
 
 function handleCreate() {
-  chatManager.createMessage()
+  const res = chatManager.createMessage()
+  if (!res)
+    return false
 
   pageOptions.select = chatManager.history.value.length - 1
+
+  return true
 }
 
 async function handleSend(query: string, callback: Function) {
   const format = genFormatNowDate()
 
-  let genTitle: any = (_index: number) => void 0
+  let genTitle: any = async (_index: number) => void 0
 
   if (chatManager.messages.value.messages.length < 2) {
     if (pageOptions.select === -1) {
-      const _history: ThHistory = {
-        sync: false,
-        ...chatManager.messages.value,
-      }
-      chatManager.history.value.push(_history)
+      const res = handleCreate()
 
-      pageOptions.select = chatManager.history.value.length - 1
+      if (!res) {
+        callback(Status.AVAILABLE)
+        return
+      }
     }
 
-    genTitle = (index: number) =>
-      chatManager.genConversationTitle(chatManager.history.value[index])
+    genTitle = async (index: number) =>
+      await chatManager.genConversationTitle(chatManager.history.value[index])
   }
 
   const conversation = chatManager.history.value[pageOptions.select]
@@ -102,8 +107,10 @@ async function handleSend(query: string, callback: Function) {
     onTriggerStatus(status) {
       callback(status)
     },
-    onReqCompleted() {
-      genTitle(pageOptions.select)
+    async onReqCompleted() {
+      await genTitle(pageOptions.select)
+
+      chatManager.postTargetHistory(conversation)
     },
   })
 }
@@ -129,12 +136,12 @@ provide('pageOptions', pageOptions)
       <ThChat
         ref="chatRef"
         v-model:messages="chatManager.messages.value"
-        :status="chatManager.status.value"
+        :status="pageOptions.status"
         :round-limit="roundLimit"
         @cancel="chatManager.cancelCurrentReq()"
       />
       <ThInput
-        v-model:status="chatManager.status.value"
+        v-model:status="pageOptions.status"
         :shrink="chatManager.messages.value.messages.length > 1"
         :hide="pageOptions.share.enable || roundLimit"
         @send="handleSend"

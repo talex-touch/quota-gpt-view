@@ -73,7 +73,7 @@ const avatarUrl = computed(() => `${EndNormalUrl}${userStore.value.avatar}`)
           <el-avatar :src="avatarUrl" />
 
           <p>
-            <span class="name">{{ userStore.phone }} <span class="privilege">普通会员</span></span>
+            <span class="name">{{ userStore.phone }} <span class="privilege">测试会员</span></span>
             <span class="dummy">99, 999 $</span>
           </p>
         </div>
@@ -142,7 +142,8 @@ const avatarUrl = computed(() => `${EndNormalUrl}${userStore.value.avatar}`)
 
       font-size: 12px;
       border-radius: 8px;
-      background: #ffca1a50;
+      // background: #ffca1a50;
+      background: #fc487050;
     }
 
     .name {

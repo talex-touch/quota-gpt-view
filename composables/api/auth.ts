@@ -1,5 +1,7 @@
+import { EndNormalUrl } from '~/constants'
+
 export async function sendSMSCode(phone: string, param: string) {
-  return fetch(`${EndUrl}/auth/sms_code`, {
+  return fetch(`${EndNormalUrl}api/auth/sms_code`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -12,7 +14,7 @@ export async function sendSMSCode(phone: string, param: string) {
 }
 
 export async function useSMSLogin(phone: string, code: string, param: string) {
-  return fetch(`${EndUrl}/auth/sms_login`, {
+  return fetch(`${EndNormalUrl}api/auth/sms_login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

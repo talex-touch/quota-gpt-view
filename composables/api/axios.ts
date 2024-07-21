@@ -28,15 +28,6 @@ export function genAxios(options: CreateAxiosDefaults) {
 
       const method = String(reqConfig?.method).toUpperCase()
 
-      if (method === 'GET') {
-        // reqConfig.params = {
-        //   ...reqConfig.data,
-        //   ...reqConfig.params,
-        // }
-
-        console.log('r', reqConfig)
-      }
-
       if (method === 'POST') {
         if (!reqConfig.data)
           reqConfig.data = reqConfig.params || {}
