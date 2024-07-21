@@ -159,6 +159,9 @@ watch(
       opacity 0.125s 0.375s,
       width 0.5s;
   }
+  &.error {
+    padding: 0;
+  }
 
   span {
     position: absolute;
@@ -240,6 +243,7 @@ watch(
 }
 
 .ThInput-Input {
+  .error &,
   .generating & {
     opacity: 0;
 
@@ -274,19 +278,24 @@ watch(
 }
 
 .ThInput-Send {
-  &.error & {
+  .error & {
     div {
       opacity: 0;
     }
 
     transform: scale(1);
 
+    top: 0;
     left: 0;
+
     width: 100%;
+    height: 100%;
+
     pointer-events: none;
     border-radius: 16px;
     background: var(--el-color-danger);
-    box-shadow: 0 0 2px 4px var(--el-color-primary-light-5);
+    box-shadow: none;
+    box-shadow: 0 0 8px 2px var(--el-color-danger);
   }
 
   &::before {

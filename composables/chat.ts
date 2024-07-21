@@ -1,7 +1,7 @@
 import JSON5 from 'json5'
 import { getConversations, postHistory } from './api/chat'
 import { endHttp } from './api/axios'
-import { ENDS_URL, EndNormalUrl } from '~/constants'
+import { EndNormalUrl } from '~/constants'
 
 import type { ThHistory } from '~/components/history/history'
 
@@ -64,6 +64,7 @@ export interface ChatCompletion {
     streaming: boolean
     generating: boolean
   }
+  status: Status
 }
 
 export interface Mask {
@@ -98,7 +99,6 @@ export interface ChatItem {
   streaming?: boolean
   model?: string
   hide?: boolean
-  status?: Status
 }
 
 export interface ChatMessage { role: 'system' | 'user' | 'assistant', content: string }
@@ -173,10 +173,19 @@ export function useChatTitle(context: ChatCompletion) {
   return options
 }
 
-async function handleExecutorItem(item: any, callback: (data: any) => void) {
+async function handleExecutorItem(item: string, callback: (data: any) => void) {
   if (item === '[DONE]') {
     callback({
       done: true,
+    })
+  }
+  else if (item.startsWith('请求频率过快')) {
+    ElMessage.error(`${item}`)
+
+    callback({
+      done: true,
+      error: true,
+      frequentLimit: true,
     })
   }
   else {
@@ -192,7 +201,7 @@ async function handleExecutorItem(item: any, callback: (data: any) => void) {
       })
     }
     catch (e) {
-      console.log('error', item)
+      console.error('error', item)
       console.error(e)
 
       callback({
@@ -255,6 +264,22 @@ export async function useChatExecutor(context: ChatCompletion, callback: (data: 
 
   const { promise, resolve } = Promise.withResolvers()
 
+  function _callback() {
+    let doComplete = false
+
+    return (data: any) => {
+      if (doComplete)
+        return
+
+      if (data?.done)
+        doComplete = true
+
+      callback(data)
+    }
+  }
+
+  const wrappedCallback = _callback()
+
   async function _func() {
     try {
       const res = await $fetch<ReadableStream>(`${EndNormalUrl}api/aigc/executor${userStore.value.token ? `/authorized?uid=${userStore.value.id}` : ''}`, {
@@ -271,12 +296,12 @@ export async function useChatExecutor(context: ChatCompletion, callback: (data: 
       })
 
       const reader = res.pipeThrough(new TextDecoderStream()).getReader()
-      await handleExecutorResult(reader, callback)
+      await handleExecutorResult(reader, wrappedCallback)
     }
     catch (e) {
       console.error(e)
 
-      callback({
+      wrappedCallback({
         done: true,
         error: true,
       })
@@ -294,6 +319,7 @@ export interface IMessageHandler {
   onTriggerStatus: (status: Status) => void
   onTriggerUpdate: () => void
   onReqCompleted?: () => void
+  onFrequentLimit?: () => void
 }
 
 export class ChatManager {
@@ -305,6 +331,7 @@ export class ChatManager {
     model: QuotaModel.QUOTA_THIS_NORMAL,
     sync: false,
     syncing: false,
+    status: Status.AVAILABLE,
   }
 
   messages = ref<ThHistory>(JSON.parse(JSON.stringify(this.originObj)))
@@ -383,6 +410,7 @@ export class ChatManager {
       lastUpdate: data.lastUpdate,
       mask: data.mask,
       model: data.model,
+      status: data.status,
     }
 
     Object.entries(meta).forEach(([key, value]) => {
@@ -500,6 +528,9 @@ export class ChatManager {
         if (res.error) {
           obj.streaming = false
           callback.onTriggerStatus(Status.ERROR)
+
+          if (res.frequentLimit)
+            callback?.onFrequentLimit?.()
 
           return
         }
@@ -678,6 +709,8 @@ export class ChatManager {
     this.messages.value.messages.splice(this.messages.value.messages.length - 1, 1)
     this.messages.value.messages.splice(this.messages.value.messages.length - 1, 1)
 
+    this.messages.value.status = Status.AVAILABLE
+
     return msg
   }
 
@@ -695,3 +728,5 @@ export class ChatManager {
 }
 
 export const chatManager = new ChatManager()
+
+globalThis.$chat = chatManager

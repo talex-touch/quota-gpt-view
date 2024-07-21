@@ -17,7 +17,6 @@ const pageOptions = reactive<any>({
       return [chatManager.messages.value.messages.filter((_, index) => pageOptions.share.selected.includes(index)), chatManager.messages.value.topic]
     },
   },
-  status: Status.AVAILABLE,
 })
 
 const roundLimit = computed(() => chatManager.messages.value.messages.length / 2 >= 10)
@@ -39,9 +38,8 @@ watch(
       conversation.model = 'gpt-3.5-turbo'
 
     chatManager.messages.value = conversation
-
-    const tail = conversation.messages.at(-1)
-    pageOptions.status = tail?.status || Status.AVAILABLE
+    if (!chatManager.messages.value.status)
+      chatManager.messages.value.status = Status.AVAILABLE
 
     setTimeout(() => {
       pageOptions.share.enable = false
@@ -124,6 +122,9 @@ async function handleSend(query: string, callback: Function) {
 
       chatManager.postTargetHistory(conversation)
     },
+    onFrequentLimit() {
+      chatManager.cancelCurrentReq()
+    },
   })
 }
 
@@ -134,12 +135,6 @@ provide('updateConversationTopic', (index: number, topic: string) => {
   conversation.sync = false
 })
 provide('pageOptions', pageOptions)
-
-function cancelCurrentRequest() {
-  chatManager.cancelCurrentReq()
-
-  pageOptions.status = Status.AVAILABLE
-}
 </script>
 
 <template>
@@ -157,12 +152,12 @@ function cancelCurrentRequest() {
       <ThChat
         ref="chatRef"
         v-model:messages="chatManager.messages.value"
-        :status="pageOptions.status"
+        :status="chatManager.messages.value.status"
         :round-limit="roundLimit"
-        @cancel="cancelCurrentRequest"
+        @cancel="chatManager.cancelCurrentReq()"
       />
       <ThInput
-        v-model:status="pageOptions.status"
+        v-model:status="chatManager.messages.value.status"
         :shrink="chatManager.messages.value.messages.length > 1"
         :hide="pageOptions.share.enable || roundLimit"
         @send="handleSend"

@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import type { ThHistory } from '../history/history'
+
 const props = defineProps<{
   show: boolean
-  data: any
+  data: ThHistory
 }>()
 
 const emits = defineEmits<{
@@ -14,7 +16,6 @@ const data = useVModel(props, 'data', emits)
 
 function analyze(item: any) {
   item.agent = JSON.parse(item._agent || '{}')
-  console.log('a', item)
 }
 </script>
 
@@ -38,11 +39,7 @@ function analyze(item: any) {
             </el-form-item>
             <el-form-item label="Messages">
               <div class="ChatSettings-Messages">
-                <div
-                  v-for="(item, index) in data.messages"
-                  :key="index"
-                  class="ChatSettings-Messages-Item"
-                >
+                <div v-for="(item, index) in data.messages" :key="index" class="ChatSettings-Messages-Item">
                   <el-input v-model="item.content" :disabled="true" />
 
                   <div class="chat-agent-settings">

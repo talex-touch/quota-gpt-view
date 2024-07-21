@@ -41,5 +41,10 @@
     "json",
     "jsonc",
     "yaml"
+  ],
+  "cSpell.words": [
+    "kwargs",
+    "Tavily",
+    "Volc"
   ]
 }
