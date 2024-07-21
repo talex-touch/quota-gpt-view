@@ -69,7 +69,7 @@ export function genAxios(options: CreateAxiosDefaults) {
 
   $http.interceptors.response.use(
     async (res: any) => {
-      if (res.data?.code === 1101)
+      if (res.data?.code === 1101 || res.data?.code === 401)
         return timeoutLogout()
 
       return res.data

@@ -2,6 +2,7 @@ import { getAccountDetail, getPermissionList } from './api/account'
 import { EndNormalUrl } from '~/constants'
 
 export interface AccountDetail {
+  id: number
   token: string
   createdAt: string
   updatedAt: string

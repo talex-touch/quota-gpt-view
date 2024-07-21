@@ -52,13 +52,15 @@ function handleSend(event: Event) {
 }
 
 function handleInputKeydown(event: KeyboardEvent) {
-  if (event.shiftKey) {
-    if (event.key === 'Enter') {
+  if (event.key === 'Enter') {
+    event.preventDefault()
+
+    if (event.shiftKey) {
       event.stopPropagation()
-      event.preventDefault()
 
       input.value += '\n'
     }
+    else { handleSend(event) }
 
     return
   }

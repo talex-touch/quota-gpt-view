@@ -117,8 +117,6 @@ export function useChatTitle(context: ChatCompletion) {
     }
 
     if (res.done) {
-      console.log('done')
-
       setTimeout(() => {
         options.streaming = false
         options.status = Status.AVAILABLE
@@ -236,11 +234,12 @@ export async function useChatExecutor(context: ChatCompletion, callback: (data: 
 
   async function _func() {
     try {
-      const res = await $fetch<ReadableStream>(`${EndNormalUrl}api/aigc/executor${userStore.value.token ? '/authorized' : ''}`, {
+      const res = await $fetch<ReadableStream>(`${EndNormalUrl}api/aigc/executor${userStore.value.token ? `/authorized?uid=${userStore.value.id}` : ''}`, {
         method: 'POST',
         responseType: 'stream',
         headers: {
           Accept: 'text/event-stream',
+          Authorization: userStore.value.token ? `Bearer ${userStore.value.token}` : '',
         },
         body: {
           generateTitle,
@@ -275,15 +274,17 @@ export interface IMessageHandler {
 }
 
 export class ChatManager {
-  originObj: ChatCompletion = {
+  originObj: ThHistory = {
     id: '',
     topic: '新的聊天',
     messages: [],
     lastUpdate: -1,
     model: 'gpt-3.5-turbo',
+    sync: false,
+    syncing: false,
   }
 
-  messages = ref<ChatCompletion>(JSON.parse(JSON.stringify(this.originObj)))
+  messages = ref<ThHistory>(JSON.parse(JSON.stringify(this.originObj)))
   history: any
 
   currentLoadPage: number = 0
@@ -337,8 +338,10 @@ export class ChatManager {
   }
 
   async postTargetHistory(data: ThHistory): Promise<any> {
+    data.syncing = true
+
     const meta: Record<string, any> = {
-      sync: data.sync,
+      sync: true,
       stat: data.stat,
       lastUpdate: data.lastUpdate,
       mask: data.mask,
@@ -356,6 +359,8 @@ export class ChatManager {
       value: `${btoa(encodeURIComponent(JSON.stringify(data.messages)))}`,
       meta: JSON.stringify(meta),
     })
+
+    data.syncing = false
 
     if (res.code !== 200) {
       console.error('Upload err', res)

@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import ChatSetting from '../setting/ChatSetting.vue'
+import type { ThHistory } from '../history/history'
 import ChatItem from './ChatItem.vue'
 import EmptyGuide from './EmptyGuide.vue'
-import TrChatTitle from './TrChatTitle.vue'
+import TrChatTitle from './head/TrChatTitle.vue'
+import TrSyncStatus from './head/TrSyncStatus.vue'
 import { Status } from '~/composables/chat'
 import ModelSelector from '~/components/model/ModelSelector.vue'
 import AccountAvatar from '~/components/personal/AccountAvatar.vue'
 import IconButton from '~/components/button/IconButton.vue'
 
 const props = defineProps<{
-  messages: ChatCompletion
+  messages: ThHistory
   status: Status
   roundLimit: boolean
 }>()
@@ -49,7 +51,7 @@ function handleShare() {
 
 function handleSelectShareItem(index: number, check: boolean) {
   if (!check)
-    options.share.selected = options.share.selected.filter(_index => _index !== index)
+    options.share.selected = options.share.selected.filter((_index: any) => _index !== index)
   else
     options.share.selected = [...new Set([...options.share.selected, index])]
 }
@@ -73,7 +75,7 @@ function handleScroll() {
   const scrollbarEl = scrollbar.value?.wrapRef
   if (!scrollbarEl)
     return
-  A
+
   const { scrollTop, scrollHeight, clientHeight } = scrollbarEl
   // const rect = scrollbarEl.getBoundingClientRect()
   // console.log(clientHeight, scrollTop, '|', scrollHeight, 'a', rect, scrollbarEl.parentElement.parentElement.clientHeight)
@@ -123,6 +125,7 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
       </div>
 
       <div class="ThChat-HeadBar" flex items-center gap-4>
+        <TrSyncStatus :syncing="messages.syncing" :sync="messages.sync" />
         <TrChatTitle :title="messages.topic" />
         <IconButton :shining="options.share.enable" :stay="true" @click="handleShare">
           <div i-carbon-share />

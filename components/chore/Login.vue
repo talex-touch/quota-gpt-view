@@ -108,6 +108,26 @@ function handleLogin() {
   button?.click()
 }
 
+const smsOptions = reactive({
+  lastSent: -1,
+  loading: false,
+  title: '发送验证码',
+  disabled: false,
+})
+
+function refreshSmsTitle() {
+  const diff = Date.now() - smsOptions.lastSent
+  if (diff > 60000) {
+    smsOptions.title = '发送验证码'
+    smsOptions.disabled = false
+  }
+  else {
+    smsOptions.disabled = true
+    smsOptions.title = `${(60 - Math.floor(diff / 1000)).toString().padStart(2, '0')}s后重发`
+    setTimeout(refreshSmsTitle, 1000)
+  }
+}
+
 onMounted(() => {
   newCaptcha(CaptchaSceneId.Auth, '#captcha-element', '#captcha-button', {
     captchaVerifyCallback: async (param: string) => {
@@ -117,6 +137,13 @@ onMounted(() => {
       }
 
       if (data.mode === 'code') {
+        if (smsOptions.disabled) {
+          _res.captchaResult = true
+
+          return _res
+        }
+        smsOptions.loading = true
+
         try {
           const res = await sendSMSCode(data.account.replaceAll(' ', ''), param)
           const result = await res.json()
@@ -126,14 +153,21 @@ onMounted(() => {
           if (result.message === 'sms-sent-err')
             ElMessage.error('无法向目标手机号发送消息！')
 
-          if (result.code === 200)
+          if (result.code === 200) {
+            smsOptions.lastSent = Date.now()
+
+            refreshSmsTitle()
+
             ElMessage.success('发送成功！')
+          }
         }
         catch (e) {
           console.error(e)
 
           ElMessage.error('发送失败！')
         }
+
+        smsOptions.loading = false
       }
       else {
         try {
@@ -204,8 +238,8 @@ onMounted(() => {
             </el-input>
             <el-input v-model="data.code" maxlength="6" size="large">
               <template #append>
-                <el-button v-wave :disabled="data.account.length !== 13" @click="handleSendCode">
-                  发送验证码
+                <el-button v-wave :loading="smsOptions.loading" :disabled="smsOptions.disabled || data.account.length !== 13" @click="handleSendCode">
+                  {{ smsOptions.title }}
                 </el-button>
               </template>
             </el-input>

@@ -41,7 +41,7 @@ watch(
     chatManager.messages.value = conversation
 
     const tail = conversation.messages.at(-1)
-    pageOptions.status = tail?.status
+    pageOptions.status = tail?.status || Status.AVAILABLE
 
     setTimeout(() => {
       pageOptions.share.enable = false
