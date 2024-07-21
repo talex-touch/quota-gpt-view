@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import LoginCore from './login/LoginCore.vue'
-import { sendSMSCode, useSMSLogin } from '~/composables/api/auth'
+import { doAccountExist, sendSMSCode, useSMSLogin } from '~/composables/api/auth'
 import ThCheckBox from '~/components/checkbox/ThCheckBox.vue'
 
 const props = defineProps<{
@@ -86,7 +86,7 @@ function handleSendCode() {
   button?.click()
 }
 
-function handleLogin() {
+async function handleLogin() {
   data.mode = 'login'
   if (!data.agreement) {
     ElMessage.info('请先同意协议！')
@@ -101,6 +101,13 @@ function handleLogin() {
 
   if (+data.code < 100000 || +data.code > 999999) {
     ElMessage.error('请输入正确的验证码！')
+    return
+  }
+
+  // Internal Test
+  const res = await doAccountExist(phone)
+  if (!res.data) {
+    ElMessage.error('请先通过内测资格后再登录使用！')
     return
   }
 

@@ -1,3 +1,4 @@
+import { endHttp } from './axios'
 import { EndNormalUrl } from '~/constants'
 
 export async function sendSMSCode(phone: string, param: string) {
@@ -25,4 +26,8 @@ export async function useSMSLogin(phone: string, code: string, param: string) {
       param,
     }),
   })
+}
+
+export function doAccountExist(account?: string) {
+  return endHttp.get(`auth/account_exist?account=${account}`)
 }

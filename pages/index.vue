@@ -62,6 +62,17 @@ function handleCreate() {
 }
 
 async function handleSend(query: string, callback: Function) {
+  if (!userStore.value.token) {
+    callback(Status.AVAILABLE)
+
+    ElMessage.error({
+      message: '内测模式下必须登录后使用！',
+      grouping: true,
+    })
+
+    return
+  }
+
   const format = genFormatNowDate()
 
   let genTitle: any = async (_index: number) => void 0

@@ -314,6 +314,9 @@ export class ChatManager {
   }
 
   async loadHistories() {
+    if (!userStore.value.token)
+      return
+
     this.loadingHistory.value = true
 
     this.currentLoadPage += 1
