@@ -126,7 +126,8 @@ onMounted(() => {
           if (result.message === 'sms-sent-err')
             ElMessage.error('无法向目标手机号发送消息！')
 
-          console.log('a', result)
+          if (result.code === 200)
+            ElMessage.success('发送成功！')
         }
         catch (e) {
           console.error(e)
@@ -147,11 +148,17 @@ onMounted(() => {
             _res.bizResult = true
 
           if (result.code === 200) {
-            userStore.value.token = (result.data.token)
+            setTimeout(() => {
+              userStore.value.token = (result.data.token)
 
-            ElMessage.info('登录成功！')
+              ElMessage.info('登录成功！')
 
-            show.value = false
+              show.value = false
+
+              setTimeout(() => {
+                location.reload()
+              }, 200)
+            }, 200)
           }
 
           console.error(result)

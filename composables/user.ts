@@ -27,6 +27,9 @@ Object.defineProperty(userStore.value, 'isAdmin', {
 })
 
 watch(() => userStore.value.token, async () => {
+  if (!userStore.value.token)
+    return
+
   const res = await getAccountDetail()
   Object.assign(userStore.value, res.data)
 

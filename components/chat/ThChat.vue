@@ -70,7 +70,10 @@ onMounted(() => {
 })
 
 function handleScroll() {
-  const scrollbarEl = scrollbar.value.wrapRef
+  const scrollbarEl = scrollbar.value?.wrapRef
+  if (!scrollbarEl)
+    return
+  A
   const { scrollTop, scrollHeight, clientHeight } = scrollbarEl
   // const rect = scrollbarEl.getBoundingClientRect()
   // console.log(clientHeight, scrollTop, '|', scrollHeight, 'a', rect, scrollbarEl.parentElement.parentElement.clientHeight)

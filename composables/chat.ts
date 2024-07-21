@@ -1,6 +1,6 @@
 import JSON5 from 'json5'
 import { getConversations, postHistory } from './api/chat'
-import { ENDS_URL } from '~/constants'
+import { ENDS_URL, EndNormalUrl } from '~/constants'
 
 import type { ThHistory } from '~/components/history/history'
 
@@ -236,8 +236,7 @@ export async function useChatExecutor(context: ChatCompletion, callback: (data: 
 
   async function _func() {
     try {
-      // eslint-disable-next-line node/prefer-global/process
-      const res = await $fetch<ReadableStream>(window?.process?.dev ? `http://localhost:7001/api/aigc/executor` : `https://quota.api.tagzxia.com/api/aigc/executor`, {
+      const res = await $fetch<ReadableStream>(`${EndNormalUrl}api/aigc/executor${userStore.value.token ? '/authorized' : ''}`, {
         method: 'POST',
         responseType: 'stream',
         headers: {
