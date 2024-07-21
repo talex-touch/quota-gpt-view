@@ -122,7 +122,7 @@ function handleDialog(data: Partial<UserForm>, mode: 'edit' | 'read' | 'new') {
       }
     : { ...data }
 
-  dialogOptions.data.roleIds = dialogOptions.data.roles.map((item: any) => item.id)
+  dialogOptions.data.roleIds = dialogOptions.data.roles!.map((item: any) => item.id)
 }
 
 const ruleFormRef = ref<FormInstance>()
