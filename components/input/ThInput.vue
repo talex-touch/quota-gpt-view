@@ -128,7 +128,7 @@ watch(
 
     <div class="ThInput-Input">
       <textarea
-        id="main-input" v-model="input" maxlength="3000" autofocus autocomplete="off" placeholder="问任何问题都可以..."
+        id="main-input" v-model="input" maxlength="3000" autofocus autocomplete="off" placeholder="问任何问题都可以 (Shift + Enter以换行)..."
         @keydown="handleInputKeydown"
       />
     </div>
