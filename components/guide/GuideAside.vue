@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import CmsMenu from '../cms/CmsMenu.vue'
 import CmsMenuItem from '../cms/CmsMenuItem.vue'
+
+defineProps(['data'])
+
 // import TestDemo from './docs/test.md?raw'
 
 // const categories = [
@@ -21,13 +24,14 @@ import CmsMenuItem from '../cms/CmsMenuItem.vue'
 
     <div class="GuideAside-Wrapper">
       <el-scrollbar>
-        <CmsMenu>
+        <CmsMenu expandable>
           <template #header>
             <div i-carbon-document />
-            ceshi
+            所有文档
           </template>
-          <CmsMenuItem path="1">
-            2
+
+          <CmsMenuItem v-for="doc in data" :key="doc.id" path="1">
+            {{ doc.title }}
           </CmsMenuItem>
         </CmsMenu>
         <div class="GuideAside-Content">

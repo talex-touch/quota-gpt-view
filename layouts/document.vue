@@ -9,7 +9,7 @@ import AccountAvatar from '../components/personal/AccountAvatar.vue'
       <span flex items-center>
         <span class="head-start">
           <Logo />
-          <span font-bold>ThisAI</span>
+          <span font-bold>QuotaWish</span>
         </span>
         文档中心
       </span>

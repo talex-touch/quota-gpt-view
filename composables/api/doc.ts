@@ -8,13 +8,13 @@ export interface IDocGetQuery {
   status?: number
 }
 
-export function getDocList(_query: IDocGetQuery) {
+export function getDocList(_query?: IDocGetQuery) {
   const query = _query
 
-  if (query.title)
+  if (query?.title)
     query.title = encodeURIComponent(query.title)
 
-  return endHttp.get('/doc', { query })
+  return endHttp.get('/doc', query)
 }
 
 export interface IDocDataQuery extends IDocGetQuery {
