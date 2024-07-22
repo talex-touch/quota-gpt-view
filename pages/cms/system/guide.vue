@@ -254,7 +254,7 @@ function handleDeleteUser(id: number, data: DocForm) {
 
       <ClientOnly>
         <el-table v-if="docs?.items" table-layout="auto" fit :data="docs.items" style="width: 100%">
-          <el-table-column type="index" label="序号" />
+          <el-table-column type="index" label="序号" width="80" />
           <el-table-column label="文档名">
             <template #default="{ row }">
               {{ row.title }}
@@ -396,6 +396,9 @@ function handleDeleteUser(id: number, data: DocForm) {
 
 <style lang="scss">
 .CmsDoc {
+  .el-table__cell .cell {
+    text-align: center;
+  }
 }
 
 .GuideEditor {
