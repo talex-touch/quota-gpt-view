@@ -369,14 +369,14 @@ function handleDeleteUser(id: number, data: DocForm) {
               :model="dialogOptions.data" :rules="rules" label-width="auto" class="demo-ruleForm" status-icon inline
             >
               <el-form-item label="文档名称" prop="title">
-                <el-input v-model="dialogOptions.data.title" :disabled="dialogOptions.mode !== 'read'" />
+                <el-input v-model="dialogOptions.data.title" :disabled="dialogOptions.mode === 'read'" />
               </el-form-item>
               <el-form-item label="文档权限" prop="permission">
-                <el-input v-model="dialogOptions.data.permission" :disabled="dialogOptions.mode !== 'read'" />
+                <el-input v-model="dialogOptions.data.permission" :disabled="dialogOptions.mode === 'read'" />
               </el-form-item>
               <el-form-item v-if="dialogOptions.data.metaOptions" label="文档密码" prop="password">
                 <el-input
-                  v-model="dialogOptions.data.metaOptions!.password" :disabled="dialogOptions.mode !== 'read'"
+                  v-model="dialogOptions.data.metaOptions!.password" :disabled="dialogOptions.mode === 'read'"
                   type="password"
                 />
               </el-form-item>
