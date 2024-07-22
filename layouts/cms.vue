@@ -70,39 +70,17 @@ onBeforeMount(async () => {
     </el-header>
     <el-container class="CmsContainer">
       <el-aside class="CmsAside" width="240px">
-        <CmsMenu v-for="item in menus" :key="item.id">
+        <CmsMenu v-for="item in menus" :key="item.id" :expandable="item.children?.length">
           <template #header>
             <div i-carbon-document />
             {{ item.name }}
           </template>
           <CmsMenuItem v-for="subMenu in item.children" :key="subMenu.id" :path="`/cms${subMenu.path}`">
-            {{ subMenu.name }}
+            <div flex items-center gap-2>
+              <div :class="subMenu.meta.icon" />{{ subMenu.name }}
+            </div>
           </CmsMenuItem>
         </CmsMenu>
-
-        <el-menu v-if="false" :default-openeds="['/document', '/tool', '/system', 'netdisk']" router>
-          <template v-for="item in menus" :key="item.id">
-            <el-sub-menu v-if="item.children" :index="item.path">
-              <template v-if="item.children" #title>
-                <el-icon>
-                  <location />
-                </el-icon>
-                <span>{{ item.name }}</span>
-              </template>
-
-              <el-menu-item v-for="subMenu in item.children" :key="subMenu.id" :index="`/cms${subMenu.path}`">
-                <div :class="subMenu.icon" />
-                <span>{{ subMenu.name }}</span>
-              </el-menu-item>
-            </el-sub-menu>
-            <template v-else>
-              <el-menu-item>
-                <div :class="item.icon" />
-                <span>{{ item.name }}</span>
-              </el-menu-item>
-            </template>
-          </template>
-        </el-menu>
       </el-aside>
       <el-main class="CmsMain">
         <slot />

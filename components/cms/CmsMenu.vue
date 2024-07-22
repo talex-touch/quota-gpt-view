@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import ThArrowCheckBox from '../checkbox/ThArrowCheckBox.vue'
 
+const props = defineProps<{ expandable: boolean }>()
+
 const main = ref()
 const expand = ref(true)
 
@@ -19,7 +21,7 @@ async function handleFlip() {
     el.style.height = '0px'
     el.getBoundingClientRect()
     el.style.height = `${height}px`
-    el.style.transition = 'height 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86)'
+    el.style.transition = 'height 0.25s'
   }
   else {
     el.style.height = '0px'
@@ -34,7 +36,7 @@ async function handleFlip() {
         Header
       </slot>
 
-      <div class="CmsMenu-Header-Icon">
+      <div v-if="expandable" class="CmsMenu-Header-Icon">
         <ThArrowCheckBox v-model="expand" />
       </div>
     </div>
@@ -59,6 +61,8 @@ async function handleFlip() {
 
       width: 40px;
       height: 40px;
+
+      pointer-events: none;
     }
 
     &:hover {
