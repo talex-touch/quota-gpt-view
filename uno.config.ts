@@ -8,6 +8,7 @@ import {
   transformerDirectives,
   transformerVariantGroup,
 } from 'unocss'
+import FontCarbon from './constants/carbon.json'
 
 export default defineConfig({
   shortcuts: [
@@ -35,4 +36,5 @@ export default defineConfig({
     transformerDirectives(),
     transformerVariantGroup(),
   ],
+  safelist: FontCarbon,
 })

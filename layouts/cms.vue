@@ -4,7 +4,7 @@ import Logo from '../components/chore/Logo.vue'
 import AccountAvatar from '../components/personal/AccountAvatar.vue'
 import CmsMenu from '~/components/cms/CmsMenu.vue'
 
-import { getMenuList } from '~/composables/api/account'
+import { getAccountMenuList, getMenuList } from '~/composables/api/account'
 
 const route = useRoute()
 
@@ -23,7 +23,7 @@ watch(() => route.fullPath, () => {
 const menus = ref()
 const menuOpened = ref<any[]>([])
 onBeforeMount(async () => {
-  const res = await getMenuList()
+  const res = await getAccountMenuList()
 
   // 将menu的每一项都排序 (orderNo)
   function _sort(arr: any[]) {
@@ -68,7 +68,7 @@ onBeforeMount(async () => {
         <AccountAvatar />
       </div>
     </el-header>
-    <el-container>
+    <el-container class="CmsContainer">
       <el-aside class="CmsAside" width="240px">
         <CmsMenu v-for="item in menus" :key="item.id">
           <template #header>
@@ -162,6 +162,15 @@ onBeforeMount(async () => {
   overflow: hidden;
   box-sizing: border-box;
   // background-color: var(--el-bg-color-page);
+}
+
+.CmsContainer {
+  position: relative;
+
+  width: 100%;
+  height: 100%;
+
+  overflow: hidden;
 }
 
 .CmsTemplate {

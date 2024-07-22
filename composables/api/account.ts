@@ -8,15 +8,15 @@ export function getPermissionList() {
   return endHttp.get('account/permissions')
 }
 
-export function getMenuList() {
-  return endHttp.get('system/menus')
+export function getAccountMenuList() {
+  return endHttp.get('account/menus')
 }
 
 export function getDepartmentList() {
   return endHttp.get('system/depts')
 }
 
-export interface UserQuery {
+export interface UserGetQuery {
   page: number
   pageSize: number
   username: string
@@ -29,7 +29,7 @@ export interface UserQuery {
   status: number
 }
 
-export function getUsers(data?: Partial<UserQuery>) {
+export function getUsers(data?: Partial<UserGetQuery>) {
   return endHttp.get('system/users', data)
 }
 
@@ -62,4 +62,53 @@ export function updateUser(id: string, query: UserQuery) {
 
 export function deleteUser(id: string) {
   return endHttp.del(`system/users/${id}`)
+}
+
+export interface MenuGetQuery {
+  /**
+   * 菜单路由路径或外链
+   */
+  component?: string
+  /**
+   * 外链打开方式
+   */
+  extOpenMode?: number
+  /**
+   * 是否外链
+   */
+  isExt?: boolean
+  /**
+   * 是否开启页面缓存
+   */
+  keepAlive?: number
+  /**
+   * 菜单或权限名称
+   */
+  name?: string
+  /**
+   * 前端路由地址
+   */
+  path?: string
+  /**
+   * 状态
+   */
+  status?: number
+  /**
+   * 菜单类型
+   */
+  type?: number
+}
+
+export function getMenuList(query: MenuGetQuery) {
+  return endHttp.get('system/menus', {
+    query,
+  })
+}
+
+export function updateMenu(id: number, query: MenuGetQuery) {
+  return endHttp.put(`system/menus/${id}`, query)
+}
+
+export function addMenu(query: MenuGetQuery) {
+  return endHttp.post('system/menus', query)
 }

@@ -6,6 +6,9 @@ const props = defineProps<{
 }>()
 
 const _avatar = computed(() => {
+  if (!props.avatar)
+    return ''
+
   if (props.avatar.startsWith('http'))
     return props.avatar
 

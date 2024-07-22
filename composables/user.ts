@@ -31,12 +31,19 @@ watch(() => userStore.value.token, async () => {
   if (!userStore.value.token)
     return
 
+  await refreshCurrentUserRPM()
+}, { deep: true, immediate: true })
+
+/**
+ * RPM: Role Permission Menu
+ */
+export async function refreshCurrentUserRPM() {
   const res = await getAccountDetail()
   Object.assign(userStore.value, res.data)
 
   const permissions = await getPermissionList()
   userStore.value.permissions = permissions.data
-}, { deep: true, immediate: true })
+}
 
 export function updateAccountDetail(obj: { nickname: string, avatar: string }) {
   return fetch(`${EndNormalUrl}/api/account/update`, {
