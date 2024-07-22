@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Vditor from 'vditor'
 import 'vditor/dist/index.css'
+import { EndNormalUrl } from '~/constants'
 
 const props = defineProps<{
   modelValue: string
@@ -16,6 +17,19 @@ onMounted(() => {
   const vditor = new Vditor(inner.value, {
     after() {
       vditor.setValue(value.value)
+
+      watch(
+        () => [color.value],
+        () => {
+          nextTick(() => {
+            vditor.setTheme(color.value !== 'dark' ? 'classic' : 'dark')
+          })
+        },
+        {
+          immediate: true,
+          deep: true,
+        },
+      )
     },
     input(content: string) {
       value.value = content
@@ -53,20 +67,41 @@ onMounted(() => {
       enable: true,
       position: 'right',
     },
-  })
+    upload: {
+      url: `${EndNormalUrl}api/tools/upload`,
+      linkToImgCallback(responseText) {
+        console.log('response text', responseText)
+      },
+      linkToImgFormat(responseText) {
+        console.log('format response text', responseText)
+      },
+      format(files, responseText) {
+        const result: any = {
+          msg: '',
+          code: 0,
+          data: {
+            errFiles: [],
+            succMap: {
+            },
+          },
+        }
 
-  watch(
-    () => [color.value],
-    () => {
-      nextTick(() => {
-        vditor.setTheme(color.value !== 'dark' ? 'classic' : 'dark')
-      })
+        const res = JSON.parse(responseText)
+        if (res.code !== 200)
+          result.data.errFiles[0] = files[0].name
+
+        else
+          result.data.succMap[files[0].name] = `${EndNormalUrl}${res.data.filename}`
+
+        return JSON.stringify(result)
+      },
+      headers: {
+        Authorization: `Bearer ${userStore.value.token}`,
+      },
+      multiple: false,
+      // withCredentials: true
     },
-    {
-      immediate: true,
-      deep: true,
-    },
-  )
+  })
 })
 </script>
 
