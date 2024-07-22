@@ -1,11 +1,9 @@
 <script lang="ts" setup>
 import dayjs from 'dayjs'
 import type { FormInstance, FormRules } from 'element-plus'
-import { addUser, deleteUser, getRoleList, updateUser } from '~/composables/api/account'
-import type { IDocDataQuery, IDocGetQuery } from '~/composables/api/doc'
+import { getRoleList } from '~/composables/api/account'
+import type { IDocDataQuery } from '~/composables/api/doc'
 import { addDoc, getDocList, updateDoc } from '~/composables/api/doc'
-import UserAvatar from '~/components/personal/UserAvatar.vue'
-import UserUploadAvatar from '~/components/personal/UserUploadAvatar.vue'
 
 definePageMeta({
   name: '文档管理',
