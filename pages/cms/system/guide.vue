@@ -355,8 +355,10 @@ function handleDeleteUser(id: number, data: DocForm) {
           </div>
 
           <div v-if="dialogOptions.data.value !== null && dialogOptions.data.value !== undefined" class="GuideContent">
-            <RenderEditor v-if="dialogOptions.mode !== 'read'" v-model="dialogOptions.data.value" />
-            <RenderContent v-else readonly style="background: var(--el-bg-color)" :data="dialogOptions.data.value" />
+            <RenderEditor v-model="dialogOptions.data.value" :readonly="dialogOptions.mode === 'read'" />
+            <!-- <el-scrollbar v-else>
+              <RenderContent readonly style="background: var(--el-bg-color)" :data="dialogOptions.data.value" />
+            </el-scrollbar> -->
           </div>
 
           <div class="GuideEditor-Footer">

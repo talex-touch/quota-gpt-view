@@ -5,6 +5,7 @@ import { EndNormalUrl } from '~/constants'
 
 const props = defineProps<{
   modelValue: string
+  readonly?: boolean
 }>()
 
 const emits = defineEmits(['update:modelValue'])
@@ -30,6 +31,10 @@ onMounted(() => {
           deep: true,
         },
       )
+
+      watch(() => props.readonly, (readonly) => {
+        readonly ? vditor.disabled() : vditor.enable()
+      }, { immediate: true })
     },
     input(content: string) {
       value.value = content
@@ -106,7 +111,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="RenderEditor">
+  <div class="RenderEditor" :class="{ readonly }">
     <!-- <el-scrollbar>
       <div class="RenderEditor-Wrapper"> -->
     <div ref="inner" class="markdown-body RenderEditor-Inner" />
@@ -134,6 +139,9 @@ onMounted(() => {
 }
 
 .RenderEditor {
+  // &.readonly .vditor-content {
+  //   pointer-events: stroke;
+  // }
   position: relative;
   // &-Wrapper {
   //   padding-bottom: 1rem;
