@@ -30,7 +30,7 @@ defineProps(['data'])
             所有文档
           </template>
 
-          <CmsMenuItem v-for="doc in data" :key="doc.id" path="1">
+          <CmsMenuItem v-for="doc in data" :key="doc.id" :query="doc.title">
             {{ doc.title }}
           </CmsMenuItem>
         </CmsMenu>

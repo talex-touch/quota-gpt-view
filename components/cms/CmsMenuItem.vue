@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const props = defineProps<{
-  path: string
+  path?: string
+  query?: string
 }>()
 
 const select = ref(false)
@@ -9,11 +10,19 @@ const router = useRouter()
 const route = useRoute()
 
 watch(() => route.fullPath, () => {
-  select.value = route.fullPath === props.path
+  if (props.path)
+    select.value = route.fullPath === props.path
+
+  if (props.query)
+    select.value = route.query.data === props.query
 }, { immediate: true })
 
 function handleClick() {
-  router.push(props.path)
+  if (props.path)
+    router.push(props.path)
+
+  if (props.query)
+    router.push({ params: { data: props.query } })
 }
 </script>
 
