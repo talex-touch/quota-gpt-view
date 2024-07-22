@@ -261,7 +261,7 @@ function handleDeleteUser(id: number, data: UserForm) {
           <el-input v-model="formInline.remark" placeholder="搜索备注" clearable />
         </el-form-item>
 
-        <el-form-item float-right>
+        <el-form-item style="margin-right: 0" float-right>
           <el-button @click="handleReset">
             重置
           </el-button>
@@ -351,7 +351,8 @@ function handleDeleteUser(id: number, data: UserForm) {
         <h4>
           <span v-if="dialogOptions.mode === 'new'">新建</span>
           <span v-else-if="dialogOptions.mode === 'edit'">编辑</span>
-          <span v-else-if="dialogOptions.mode === 'read'">查看</span>用户信息<span v-if="dialogOptions.data" mx-4 op-50>#{{ dialogOptions.data.id }}</span>
+          <span v-else-if="dialogOptions.mode === 'read'">查看</span>用户信息<span v-if="dialogOptions.data" mx-4 op-50>#{{
+            dialogOptions.data.id }}</span>
         </h4>
       </template>
       <template #default>

@@ -274,7 +274,7 @@ const menuWithRoot = computed(() => ([{ id: -1, name: '根目录', children: [..
           <el-input v-model="formInline.remark" placeholder="搜索备注" clearable />
         </el-form-item>
 
-        <el-form-item float-right>
+        <el-form-item float-right style="margin-right: 0">
           <el-button @click="handleReset">
             重置
           </el-button>

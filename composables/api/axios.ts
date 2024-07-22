@@ -64,7 +64,10 @@ export function genAxios(options: CreateAxiosDefaults) {
     const { origin } = window.location
     window.location.href = origin
 
-    ElMessage.info('登录超时，请重新登录!')
+    ElMessage.info({
+      message: '登录超时，请重新登录!',
+      grouping: true,
+    })
   }
 
   $http.interceptors.response.use(
@@ -84,7 +87,8 @@ export function genAxios(options: CreateAxiosDefaults) {
       if (res.response.data.code === 429)
         return ElMessage.error(res.response.data.message)
 
-      console.error('@ERROR', res)
+      if (res.response.status === 401)
+        return timeoutLogout()
 
       return res.response.data
     },

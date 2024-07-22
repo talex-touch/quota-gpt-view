@@ -59,7 +59,7 @@ function formatDate(date: string) {
           <el-input v-model="formInline.remark" placeholder="搜索备注" clearable />
         </el-form-item>
 
-        <el-form-item>
+        <el-form-item style="margin-right: 0" float-right>
           <el-button @click="onSubmit">
             重置
           </el-button>
