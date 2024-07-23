@@ -34,7 +34,7 @@ function handleGeneratingDotUpdate(rootEl: HTMLElement, cursor: HTMLElement) {
   timer = setTimeout(() => {
     cursor.style.opacity = '0'
     completed.value = true
-  }, 2000)
+  }, 500)
 
   const textNode = getLastTextNode(rootEl)
 

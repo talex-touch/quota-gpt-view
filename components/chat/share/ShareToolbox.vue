@@ -139,7 +139,7 @@ async function duplicatingShearsClick() {
             <p class="title">
               {{ msg.role === 'assistant' ? 'ThisAI' : '我' }}
             </p>
-            <RenderContent readonly :data="msg.content" />
+            <RenderContent :render="{ enable: true, media: false }" readonly :data="msg.content" />
           </div>
         </div>
         <div class="Share-Image-Copyright">
@@ -310,6 +310,9 @@ async function duplicatingShearsClick() {
 
     .markdown-body p {
       min-height: 28px;
+      height: auto;
+
+      line-height: 1.5rem;
     }
 
     padding: 1rem;

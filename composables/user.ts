@@ -23,6 +23,9 @@ export const userStore = useLocalStorage<Partial<AccountDetail>>('user', {})
 
 Object.defineProperty(userStore.value, 'isAdmin', {
   get() {
+    if (!userStore.value.token)
+      return false
+
     return !!userStore.value.roles?.find((item: any) => item.id === 1)
   },
 })

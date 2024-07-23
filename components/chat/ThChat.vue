@@ -116,7 +116,7 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
     <ChatSetting v-if="messagesModel" v-model:data="messagesModel!" v-model:show="chatSettingShow" />
 
     <div v-if="messages" :class="{ show: messages.messages?.length > 1 }" class="ThChat-Title">
-      <div v-wave class="ThChat-Setting" @click="toggleChatSettingShow()">
+      <div v-if="userStore?.isAdmin" v-wave class="ThChat-Setting" @click="toggleChatSettingShow()">
         <div i-carbon-settings />
         <span>设置</span>
       </div>
@@ -158,6 +158,8 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
 
         <EmptyGuide :show="!messages || messages.messages?.length > 1" />
 
+        <br>
+        <br>
         <br>
         <br>
         <br>
