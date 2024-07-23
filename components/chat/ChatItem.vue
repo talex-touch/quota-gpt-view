@@ -17,6 +17,59 @@ const props = defineProps<{
 const emits = defineEmits<{
   (e: 'select', index: number, checked: boolean): void
 }>()
+
+const dom = ref()
+
+let timer: any
+
+const completed = ref(true)
+
+function handleGeneratingDotUpdate(rootEl: HTMLElement, cursor: HTMLElement) {
+  if (props.ind !== props.total - 1)
+    return
+
+  completed.value = false
+  cursor.style.opacity = '1'
+  timer && clearTimeout(timer)
+  timer = setTimeout(() => {
+    cursor.style.opacity = '0'
+    completed.value = true
+  }, 2000)
+
+  const textNode = getLastTextNode(rootEl)
+
+  const tempNode = document.createTextNode('|')
+  if (textNode)
+    textNode.after(tempNode)
+  else
+    rootEl.appendChild(tempNode)
+
+  const range = document.createRange()
+  range.setStart(tempNode, 0)
+  range.setEnd(tempNode, 1)
+  const rect = range.getBoundingClientRect()
+  const textRect = dom.value!.getBoundingClientRect()
+
+  const top = textRect.top - rect.top
+  const left = textRect.left - rect.left
+
+  Object.assign(cursor!.style, {
+    top: `${-top}px`,
+    left: `${-left}px`,
+  })
+
+  tempNode.remove()
+  // setTimeout(() => handleGeneratingDotUpdate(rootEl, cursor), 20)
+}
+
+watch(() => props.item?.content, () => {
+  const rootEl = dom.value?.querySelector('.RenderContent-Inner')
+  const cursor: HTMLElement = dom.value.querySelector('.Generating-Dot')!
+
+  if (rootEl && cursor)
+    setTimeout(() => handleGeneratingDotUpdate(rootEl, cursor), 0)
+})
+
 const settingMode = reactive({
   visible: false,
   render: {
@@ -91,8 +144,10 @@ watch(() => props.select, (val) => {
             <RoundLoading />
           </div>
         </div>
-        <div v-else :class="{ display: !!item.content.length }" class="ChatItem-Content-Inner">
+        <div v-else ref="dom" :class="{ completed, display: !!item.content.length }" class="ChatItem-Content-Inner">
           <RenderContent :render="settingMode.render" readonly :data="item.content" />
+          <!-- v-if="generating && !!item.content.length" -->
+          <div v-if="props.ind === props.total - 1" class="Generating-Dot" />
         </div>
 
         <div class="ChatItem-Setting">
@@ -149,6 +204,21 @@ watch(() => props.select, (val) => {
 </template>
 
 <style lang="scss">
+.Generating-Dot {
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 20px;
+  height: 20px;
+
+  opacity: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  background-color: var(--el-text-color-primary);
+}
+
 .ChatItem.share {
   div.ChatItem-Mention {
     margin-bottom: -20px;
@@ -174,7 +244,7 @@ watch(() => props.select, (val) => {
 
 .ChatItem-Setting {
   .settingVisible & {
-    transform: translateY(-100%) scale(1);
+    transform: translateY(100%) scale(1);
   }
   z-index: 10;
   position: absolute;
@@ -240,6 +310,10 @@ watch(() => props.select, (val) => {
   &.agent {
     .ChatItem-Content-Inner {
       &.display {
+        padding-bottom: 24px;
+      }
+      &.display.completed {
+        padding-bottom: 0.5rem;
         box-shadow: var(--el-box-shadow);
         background-color: var(--el-bg-color);
       }

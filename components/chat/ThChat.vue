@@ -11,8 +11,7 @@ import AccountAvatar from '~/components/personal/AccountAvatar.vue'
 import IconButton from '~/components/button/IconButton.vue'
 
 const props = defineProps<{
-  messages: ThHistory
-  status: Status
+  messages: ThHistory | null
   roundLimit: boolean
 }>()
 
@@ -21,20 +20,6 @@ const emits = defineEmits<{
   (e: 'cancel'): void
 }>()
 
-const messagesModel = useVModel(props, 'messages', emits)
-
-function handleCancel() {
-  emits('cancel')
-}
-
-watch(
-  () => props.messages.messages.length,
-  () => {
-    setTimeout(() => {
-      handleBackToBottom()
-    }, 10)
-  },
-)
 const scrollbar = ref()
 
 const share: any = (inject('pageOptions')! as any).share
@@ -43,6 +28,25 @@ const options = reactive({
   stopGenerating: false,
   share,
 })
+
+watchEffect(() => {
+  options.stopGenerating = props.messages?.status === Status.GENERATING
+})
+
+const messagesModel = useVModel(props, 'messages', emits)
+
+function handleCancel() {
+  emits('cancel')
+}
+
+watch(
+  () => props.messages?.messages.length,
+  () => {
+    setTimeout(() => {
+      handleBackToBottom()
+    }, 10)
+  },
+)
 
 function handleShare() {
   options.share.selected.length = 0
@@ -55,13 +59,6 @@ function handleSelectShareItem(index: number, check: boolean) {
   else
     options.share.selected = [...new Set([...options.share.selected, index])]
 }
-
-watch(
-  () => props.status,
-  (status) => {
-    options.stopGenerating = status === Status.GENERATING
-  },
-)
 
 onMounted(() => {
   handleBackToBottom(false)
@@ -98,7 +95,7 @@ function handleBackToBottom(animation: boolean = true) {
 }
 
 const messageBubbles = computed(() =>
-  [...props.messages.messages].filter(message => !message.hide),
+  [...(props.messages?.messages ?? [])].filter(message => !message.hide),
 )
 
 defineExpose({
@@ -116,9 +113,9 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
 
 <template>
   <div class="ThChat">
-    <ChatSetting v-model:data="messagesModel" v-model:show="chatSettingShow" />
+    <ChatSetting v-if="messagesModel" v-model:data="messagesModel!" v-model:show="chatSettingShow" />
 
-    <div :class="{ show: messages.messages?.length > 1 }" class="ThChat-Title">
+    <div v-if="messages" :class="{ show: messages.messages?.length > 1 }" class="ThChat-Title">
       <div v-wave class="ThChat-Setting" @click="toggleChatSettingShow()">
         <div i-carbon-settings />
         <span>设置</span>
@@ -133,15 +130,16 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
       </div>
 
       <span class="model">
-        <ModelSelector v-model="messagesModel.model" /></span>
+        <ModelSelector v-model="messagesModel!.model" /></span>
       <AccountAvatar />
     </div>
+
     <div
       class="ThChat-Container"
       :class="{ stop: options.stopGenerating, backToBottom: options.backToBottom }"
     >
       <el-scrollbar ref="scrollbar" @scroll="handleScroll">
-        <div class="ThChat-Container-Wrapper">
+        <div v-if="messages" class="ThChat-Container-Wrapper">
           <ChatItem
             v-for="(message, ind) in messageBubbles"
             :key="message.id"
@@ -158,7 +156,7 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
           </div>
         </div>
 
-        <EmptyGuide :show="messages.messages?.length > 1" />
+        <EmptyGuide :show="!messages || messages.messages?.length > 1" />
 
         <br>
         <br>

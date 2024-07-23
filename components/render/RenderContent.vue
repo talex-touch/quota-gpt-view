@@ -5,9 +5,13 @@ import 'vditor/dist/index.css'
 const props = defineProps<{
   data: string
   readonly: boolean
+  render: {
+    enable: boolean
+    media: boolean
+  }
 }>()
 const color = useColorMode()
-const inner = ref()
+const inner = ref<HTMLDivElement>()
 onMounted(() => {
   // const vditor = new Vditor(inner.value, {
   //   cache: {
@@ -44,7 +48,7 @@ onMounted(() => {
   const regex = /\[([^[\]]+)\]/g
 
   watch(
-    () => [props.data, color.value],
+    () => [props.data, color.value, props.render],
     () => {
       nextTick(() => {
         const data = props.data/* .replaceAll(regex, (content) => {
@@ -58,7 +62,12 @@ onMounted(() => {
           return _content
         }) */
 
-        Vditor.preview(inner.value, data, {
+        if (!(props.render.enable ?? true)) {
+          inner.value!.textContent = data
+          return ``
+        }
+
+        Vditor.preview(inner.value!, data, {
           hljs: {
             enable: true,
             lineNumber: true,
@@ -68,11 +77,11 @@ onMounted(() => {
             current: 'Ant Design',
           },
           math: {
-            inlineDigit: true,
+            inlineDigit: props.render.umlS ?? true,
           },
           render: {
             media: {
-              enable: true,
+              enable: props.render.media ?? true,
             },
           },
           mode: color.value !== 'dark' ? 'light' : 'dark',

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { ComponentSize, FormInstance, FormRules, UploadProps } from 'element-plus'
+import { Plus } from '@element-plus/icons-vue'
+import type { UploadProps } from 'element-plus'
 import { EndNormalUrl } from '~/constants'
 
 const props = defineProps<{

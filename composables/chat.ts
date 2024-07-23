@@ -349,7 +349,7 @@ export class ChatManager {
     status: Status.AVAILABLE,
   }
 
-  messages = ref<ThHistory>(JSON.parse(JSON.stringify(this.originObj)))
+  messages = ref<ThHistory | null>(JSON.parse(JSON.stringify(this.originObj)))
   history: any
   loadingHistory = ref(false)
   historyCompleted = ref(false)
@@ -719,6 +719,9 @@ export class ChatManager {
   }
 
   cancelCurrentReq() {
+    if (!this.messages.value)
+      return
+
     const msg = this.messages.value.messages.at(-2)
 
     this.messages.value.messages.splice(this.messages.value.messages.length - 1, 1)
@@ -740,8 +743,13 @@ export class ChatManager {
 
     this.history.value.splice(index, 1)
   }
+
+  setStatus(status: Status) {
+    if (!this.messages.value)
+      return
+
+    this.messages.value.status = status
+  }
 }
 
 export const chatManager = new ChatManager()
-
-globalThis.$chat = chatManager

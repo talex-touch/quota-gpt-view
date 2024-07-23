@@ -7,12 +7,9 @@ const props = defineProps<{
   hide: boolean
 }>()
 const emits = defineEmits<{
-  (name: 'send', data: any, callback: (status: Status, data: any) => void): void
-  (name: 'changeStatus', data: Status): void
+  (name: 'send', data: any): void
   (name: 'clear'): void
 }>()
-
-const status = useVModel(props, 'status', emits)
 
 const input = ref('')
 const inputHistories = useLocalStorage<string[]>('inputHistories', [])
@@ -22,7 +19,7 @@ const showSend = computed(() => input.value.trim().length)
 function handleSend(event: Event) {
   if (!showSend.value)
     return
-  if (status.value !== Status.AVAILABLE)
+  if (props.status !== Status.AVAILABLE)
     return
 
   event.preventDefault()
@@ -36,17 +33,7 @@ function handleSend(event: Event) {
 
   inputHistoryIndex.value = inputHistories.value.length - 1
 
-  status.value = Status.GENERATING
-
-  emits('send', input.value, (_status: Status) => {
-    status.value = _status
-
-    const el = document.getElementById('main-input')
-
-    setTimeout(() => {
-      el?.focus()
-    })
-  })
+  emits('send', input.value)
 
   input.value = ''
 }
@@ -110,6 +97,14 @@ watch(
   },
   { immediate: true },
 )
+
+onMounted(() => {
+  const el = document.getElementById('main-input')
+
+  setTimeout(() => {
+    el?.focus()
+  })
+})
 </script>
 
 <template>
