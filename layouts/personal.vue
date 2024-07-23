@@ -73,7 +73,7 @@ onMounted(() => {
             <CmsMenuItem path="/profile/history">
               <div i-carbon-data-table />登录历史
             </CmsMenuItem>
-            <CmsMenuItem path="/profile/history">
+            <CmsMenuItem path="/profile/mf2a">
               <div i-carbon-tablet />MF2A
             </CmsMenuItem>
             <CmsMenuItem danger path="/profile/developer">
@@ -82,7 +82,9 @@ onMounted(() => {
           </div>
         </div>
         <div class="PersonalWrapper-Main">
-          <slot />
+          <el-scrollbar>
+            <slot />
+          </el-scrollbar>
         </div>
       </div>
     </el-container>
@@ -91,6 +93,14 @@ onMounted(() => {
 
 <style lang="scss">
 .PersonalWrapper {
+  .el-scrollbar__view {
+    display: flex;
+  }
+
+  .el-scrollbar__bar.is-vertical {
+    width: 3px;
+  }
+
   .el-input {
     --el-input-border-radius: 12px;
   }
@@ -218,6 +228,7 @@ onMounted(() => {
 
   transform: translate(-50%, -50%);
 
+  overflow: hidden;
   border-radius: 18px;
   box-shadow: var(--el-box-shadow);
   background-color: var(--el-bg-color);

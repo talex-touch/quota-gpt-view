@@ -112,3 +112,7 @@ export function updateMenu(id: number, query: MenuGetQuery) {
 export function addMenu(query: MenuGetQuery) {
   return endHttp.post('system/menus', query)
 }
+
+export function getHistoryList() {
+  return endHttp.get('account/login_histories')
+}
