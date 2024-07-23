@@ -111,6 +111,10 @@ const lastEditTime = computed(() => dayjs(userStore.value.updatedAt).format('DD 
     </div>
 
     <div class="ProfileWrapper-Footer">
+      <div class="ProfileWrapper-Start">
+        更新个人信息可能会有延迟
+      </div>
+
       <el-button size="large" @click="resetForm(ruleFormRef)">
         重置
       </el-button>
@@ -123,6 +127,17 @@ const lastEditTime = computed(() => dayjs(userStore.value.updatedAt).format('DD 
 </template>
 
 <style lang="scss">
+.ProfileWrapper-Start {
+  position: absolute;
+
+  left: 2rem;
+
+  align-items: center;
+  font-size: 14px;
+  color: var(--el-text-color-secondary);
+  margin-right: 20px;
+}
+
 .avatar-uploader .el-upload {
   border: 1px dashed var(--el-border-color);
   border-radius: 6px;

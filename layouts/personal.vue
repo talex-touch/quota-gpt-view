@@ -123,6 +123,7 @@ onMounted(() => {
       justify-content: flex-end;
 
       height: 80px;
+      width: 100%;
 
       font-weight: 600;
       border-top: 1px solid var(--el-border-color);
