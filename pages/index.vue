@@ -120,7 +120,9 @@ async function handleSend(query: string, callback: Function) {
     async onReqCompleted() {
       await genTitle(pageOptions.select)
 
-      chatManager.postTargetHistory(conversation)
+      setTimeout(() => {
+        chatManager.postTargetHistory(conversation)
+      }, 500)
     },
     onFrequentLimit() {
       chatManager.cancelCurrentReq()

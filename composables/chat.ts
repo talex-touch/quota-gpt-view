@@ -210,7 +210,7 @@ async function handleExecutorItem(item: string, callback: (data: any) => void) {
     }
     catch (e: any) {
       if (e.message.includes('invalid end of input')) {
-        console.error('Item Not Completed, continuing receiving ...', item)
+        console.warn('Item Not Completed, continuing receiving ...', item)
 
         lastSent = data
         return
