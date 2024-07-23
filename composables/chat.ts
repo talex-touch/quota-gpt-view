@@ -216,7 +216,7 @@ async function handleExecutorItem(item: string, callback: (data: any) => void) {
         return
       }
 
-      console.error('error', item)
+      console.error('@error', item)
       console.error(e)
 
       callback({
