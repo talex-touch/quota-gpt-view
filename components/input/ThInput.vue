@@ -1,4 +1,6 @@
 <script name="ThInput" setup lang="ts">
+import type { InputPlusProperty } from './input'
+import ThInputPlus from './ThInputPlus.vue'
 import { Status } from '~/composables/chat'
 
 const props = defineProps<{
@@ -12,6 +14,10 @@ const emits = defineEmits<{
 }>()
 
 const input = ref('')
+const nonPlusMode = computed(() => input.value.startsWith('/') || input.value.startsWith('@'))
+const inputProperty = reactive<InputPlusProperty>({
+  internet: true,
+})
 const inputHistories = useLocalStorage<string[]>('inputHistories', [])
 const inputHistoryIndex = ref(inputHistories.value.length - 1)
 const showSend = computed(() => input.value.trim().length)
@@ -112,14 +118,13 @@ onMounted(() => {
     :class="{
       disabled: hide,
       shrink,
+      collapse: nonPlusMode,
       showSend,
       generating: status === Status.GENERATING,
       error: status === Status.ERROR,
     }" class="ThInput" @keydown.enter="handleSend"
   >
-    <div class="ThInput-At">
-      <div i-carbon-add-large />
-    </div>
+    <ThInputPlus v-model="inputProperty" />
 
     <div class="ThInput-Input">
       <textarea
@@ -138,10 +143,16 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .ThInput {
+  &.collapse {
+    .ThInput-Plus {
+      display: none;
+    }
+  }
+
   &.disabled {
     .ThInput-Input,
     .ThInput-Send,
-    .ThInput-At {
+    .ThInput-Plus {
       opacity: 0;
     }
 
@@ -171,7 +182,7 @@ onMounted(() => {
 
   z-index: 3;
   position: absolute;
-  padding: 0.5rem;
+  padding: 0.5rem 0.75rem;
   display: flex;
 
   gap: 0.5rem;
@@ -208,35 +219,6 @@ onMounted(() => {
   //   width 0.75s;
 }
 
-.ThInput-At {
-  &:hover {
-    cursor: pointer;
-    background: #ffffff20;
-  }
-
-  &:active {
-    transform: scale(0.75);
-  }
-
-  position: relative;
-  display: flex;
-
-  align-items: center;
-  justify-content: center;
-
-  width: 32px;
-  height: 32px;
-
-  bottom: 2px;
-
-  border-radius: 12px;
-  transition: 0.25s;
-
-  .generating & {
-    opacity: 0;
-  }
-}
-
 .ThInput-Input {
   .error &,
   .generating & {
@@ -255,7 +237,7 @@ onMounted(() => {
 
     top: 0;
 
-    width: calc(100% - 40px);
+    width: calc(100% - 20px - 1.5rem);
     max-height: 330px;
     height: 22px;
     min-height: 22px;
@@ -378,7 +360,7 @@ onMounted(() => {
   justify-content: center;
 
   bottom: 8px;
-  right: 8px;
+  right: 0.75rem;
 
   width: 36px;
   height: 36px;

@@ -46,8 +46,8 @@ onMounted(() => {
             <CmsMenuItem path="/profile/base">
               <div i-carbon-user />账号资料
             </CmsMenuItem>
-            <CmsMenuItem path="/profile/email">
-              <div i-carbon-email />邮箱设置
+            <CmsMenuItem path="/profile/test">
+              <div i-carbon-software-resource-cluster />我的内测
             </CmsMenuItem>
             <CmsMenuItem path="/profile/notification">
               <div i-carbon-notification />通知设置

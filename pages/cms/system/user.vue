@@ -144,9 +144,9 @@ const rules = reactive<FormRules<UserForm>>({
   avatar: [
     { required: true, message: '请上传头像', trigger: 'blur' },
   ],
-  qq: [
-    { required: true, message: '请输入QQ号', trigger: 'blur' },
-  ],
+  // qq: [
+  //   { required: true, message: '请输入QQ号', trigger: 'blur' },
+  // ],
   phone: [
     { required: true, message: '请输入手机号', trigger: 'blur' },
   ],
@@ -362,7 +362,7 @@ function handleDeleteUser(id: number, data: UserForm) {
           status-icon
         >
           <el-form-item label="用户头像" prop="avatar">
-            <UserUploadAvatar v-model="dialogOptions.data.avatar" />
+            <UserUploadAvatar v-model="dialogOptions.data.avatar" :disabled="dialogOptions.loading || dialogOptions.mode === 'read'" />
           </el-form-item>
           <el-form-item label="用户名称" prop="username">
             <el-input v-model="dialogOptions.data.username" :disabled="dialogOptions.mode !== 'new'" />
@@ -393,10 +393,14 @@ function handleDeleteUser(id: number, data: UserForm) {
             </el-select>
           </el-form-item>
           <el-form-item label="用户状态" prop="status">
-            <el-select v-model="dialogOptions.data.status" placeholder="请选择状态">
-              <el-option label="启用" value="1" />
-              <el-option label="禁用" value="0" />
-            </el-select>
+            <el-radio-group v-model="dialogOptions.data.status">
+              <el-radio-button :value="0">
+                已禁用
+              </el-radio-button>
+              <el-radio-button :value="1">
+                未禁用
+              </el-radio-button>
+            </el-radio-group>
           </el-form-item>
           <el-form-item label="用户备注" prop="remark">
             <el-input v-model="dialogOptions.data.remark" type="textarea" />

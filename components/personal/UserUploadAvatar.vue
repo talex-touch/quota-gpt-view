@@ -5,6 +5,7 @@ import { EndNormalUrl } from '~/constants'
 
 const props = defineProps<{
   modelValue: string
+  disabled?: boolean
 }>()
 
 const emits = defineEmits(['update:modelValue'])
@@ -26,6 +27,9 @@ const handleAvatarSuccess: UploadProps['onSuccess'] = (
 }
 
 const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
+  if (props.disabled)
+    return false
+
   if (rawFile.size / 1024 / 1024 > 10) {
     ElMessage.error('头像不得大于 10MB!')
     return false
@@ -40,6 +44,7 @@ const headers = {
 
 <template>
   <el-upload
+    :class="{ disabled }"
     class="UserUploadAvatar" :action="`${EndNormalUrl}api/tools/upload`" :show-file-list="false"
     :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload" :headers="headers"
   >
@@ -49,7 +54,7 @@ const headers = {
         <div i-carbon-edit />
       </div>
 
-      <div class="delete-float" @click.stop="avatarForm = ''">
+      <div v-if="!disabled" class="delete-float" @click.stop="avatarForm = ''">
         <div i-carbon-trash-can />
       </div>
     </template>
@@ -63,6 +68,12 @@ const headers = {
 
 <style lang="scss">
 .UserUploadAvatar {
+  &.disabled {
+    opacity: 0.75;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
   .upload-empty {
     &:hover {
       color: #fff;
