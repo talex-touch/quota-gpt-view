@@ -2,6 +2,7 @@
 const props = defineProps<{
   path?: string
   query?: string
+  danger?: boolean
 }>()
 
 const select = ref(false)
@@ -27,7 +28,7 @@ function handleClick() {
 </script>
 
 <template>
-  <div v-wave :class="{ select }" class="CmsMenuItem" @click="handleClick">
+  <div v-wave :class="{ select, danger }" class="CmsMenuItem" @click="handleClick">
     <slot />
   </div>
 </template>
@@ -40,6 +41,7 @@ function handleClick() {
 
     background-color: var(--el-border-color-extra-light);
   }
+
   position: relative;
   display: flex;
 
@@ -47,5 +49,14 @@ function handleClick() {
 
   cursor: pointer;
   transition: max-height 0.2s ease-in-out;
+}
+
+.CmsMenuItem.danger {
+  &:hover,
+  &.select {
+    color: var(--el-color-danger);
+
+    background-color: var(--el-border-color-extra-light);
+  }
 }
 </style>

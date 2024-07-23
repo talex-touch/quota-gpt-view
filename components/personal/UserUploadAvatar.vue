@@ -40,14 +40,109 @@ const headers = {
 
 <template>
   <el-upload
-    class="avatar-uploader" :action="`${EndNormalUrl}api/tools/upload`" :show-file-list="false"
+    class="UserUploadAvatar" :action="`${EndNormalUrl}api/tools/upload`" :show-file-list="false"
     :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload" :headers="headers"
   >
-    <img v-if="avatarForm" :src="avatarUrl" class="avatar">
-    <el-icon v-else class="avatar-uploader-icon">
-      <Plus />
-    </el-icon>
+    <template v-if="avatarForm">
+      <img :src="avatarUrl" class="avatar">
+      <div class="edit-mask">
+        <div i-carbon-edit />
+      </div>
+
+      <div class="delete-float" @click.stop="avatarForm = ''">
+        <div i-carbon-trash-can />
+      </div>
+    </template>
+    <template v-else>
+      <div class="upload-empty">
+        <div i-carbon-add />
+      </div>
+    </template>
   </el-upload>
 </template>
 
-<style lang="scss"></style>
+<style lang="scss">
+.UserUploadAvatar {
+  .upload-empty {
+    &:hover {
+      color: #fff;
+
+      background-color: var(--el-text-color-disabled);
+    }
+
+    display: flex;
+
+    width: 64px;
+    height: 64px;
+
+    font-size: 24px;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+    border: 1px dashed var(--el-border-color);
+  }
+
+  .delete-float {
+    position: absolute;
+    display: flex;
+
+    right: 0;
+    bottom: 0;
+
+    width: 24px;
+    height: 24px;
+
+    color: var(--el-color-danger);
+    font-weight: 600;
+    font-size: 14px;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+    box-shadow: var(--el-box-shadow);
+    background-color: var(--el-bg-color);
+  }
+
+  .edit-mask {
+    position: absolute;
+    display: flex;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    color: #fff;
+    font-weight: 600;
+    font-size: 18px;
+    align-items: center;
+    justify-content: center;
+
+    opacity: 0;
+    transition: 0.25s;
+    pointer-events: none;
+    border-radius: 50%;
+    background-color: var(--el-overlay-color-lighter);
+  }
+
+  &:hover {
+    .edit-mask {
+      opacity: 1;
+
+      pointer-events: unset;
+    }
+  }
+
+  img {
+    border-radius: 50%;
+  }
+
+  width: 64px;
+  height: 64px;
+
+  position: relative;
+}
+</style>

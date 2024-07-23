@@ -1,4 +1,5 @@
 import { getAccountDetail, getPermissionList } from './api/account'
+import { endHttp } from './api/axios'
 import { EndNormalUrl } from '~/constants'
 
 export interface AccountDetail {
@@ -49,16 +50,7 @@ export async function refreshCurrentUserRPM() {
 }
 
 export function updateAccountDetail(obj: { nickname: string, avatar: string }) {
-  return fetch(`${EndNormalUrl}/api/account/update`, {
-    method: 'PUT',
-    headers: {
-      'Accept': '*/*',
-      'Connection': 'keep-alive',
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${userStore.value.token}`,
-    },
-    body: JSON.stringify(obj),
-  })
+  return endHttp.put(`account/update`, obj)
 }
 
 export function userHavePermission(permission: string) {
