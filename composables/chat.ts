@@ -173,6 +173,8 @@ export function useChatTitle(context: ChatCompletion) {
   return options
 }
 
+let lastSent = ''
+
 async function handleExecutorItem(item: string, callback: (data: any) => void) {
   if (item === '[DONE]') {
     callback({
@@ -189,6 +191,12 @@ async function handleExecutorItem(item: string, callback: (data: any) => void) {
     })
   }
   else {
+    let data = item
+    if (lastSent) {
+      data = lastSent + item
+      lastSent = ''
+    }
+
     try {
       const json = JSON5.parse(item)
 
@@ -200,7 +208,14 @@ async function handleExecutorItem(item: string, callback: (data: any) => void) {
         ...json,
       })
     }
-    catch (e) {
+    catch (e: any) {
+      if (e.message.includes('invalid end of input')) {
+        console.error('Item Not Completed, continuing receiving ...', item)
+
+        lastSent = data
+        return
+      }
+
       console.error('error', item)
       console.error(e)
 
