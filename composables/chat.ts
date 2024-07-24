@@ -349,7 +349,7 @@ export class ChatManager {
     status: Status.AVAILABLE,
   }
 
-  messages = ref<ThHistory | null>(JSON.parse(JSON.stringify(this.originObj)))
+  messages = ref<ThHistory>(JSON.parse(JSON.stringify(this.originObj)))
   history: any
   loadingHistory = ref(false)
   historyCompleted = ref(false)

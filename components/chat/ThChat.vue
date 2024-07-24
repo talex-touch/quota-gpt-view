@@ -11,7 +11,7 @@ import AccountAvatar from '~/components/personal/AccountAvatar.vue'
 import IconButton from '~/components/button/IconButton.vue'
 
 const props = defineProps<{
-  messages: ThHistory | null
+  messages: ThHistory
   roundLimit: boolean
 }>()
 
@@ -94,9 +94,18 @@ function handleBackToBottom(animation: boolean = true) {
   })
 }
 
-const messageBubbles = computed(() =>
-  [...(props.messages?.messages ?? [])].filter(message => !message.hide),
-)
+const messageBubbles = ref()
+// const messageBubbles = computed(() =>
+//   [...(props.messages?.messages ?? [])].filter(message => !message.hide),
+// )
+
+watch(() => props.messages, async () => {
+  messageBubbles.value = null
+
+  await sleep(10)
+
+  messageBubbles.value = [...(props.messages?.messages ?? [])].filter(message => !message.hide)
+})
 
 defineExpose({
   handleBackToBottom,
@@ -116,7 +125,7 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
     <ChatSetting v-if="messagesModel" v-model:data="messagesModel!" v-model:show="chatSettingShow" />
 
     <div v-if="messages" :class="{ show: messages.messages?.length > 1 }" class="ThChat-Title">
-      <div v-if="userStore?.isAdmin" v-wave class="ThChat-Setting" @click="toggleChatSettingShow()">
+      <div v-if="userStore?.isAdmin && messageBubbles" v-wave class="ThChat-Setting" @click="toggleChatSettingShow()">
         <div i-carbon-settings />
         <span>设置</span>
       </div>
@@ -129,7 +138,7 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
         </IconButton>
       </div>
 
-      <span class="model">
+      <span v-if="messageBubbles" class="model">
         <ModelSelector v-model="messagesModel!.model" /></span>
       <AccountAvatar />
     </div>

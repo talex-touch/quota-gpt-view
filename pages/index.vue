@@ -35,8 +35,6 @@ watch(
 
     const conversation = chatManager.history.value[ind]
 
-    chatManager.messages.value = null
-
     setTimeout(() => {
       chatManager.messages.value = conversation
       if (!chatManager.messages.value!.status)
@@ -155,8 +153,8 @@ provide('pageOptions', pageOptions)
       />
       <ThInput
         :status="chatManager.messages.value?.status ?? Status.AVAILABLE"
-        :shrink="(!!chatManager.messages.value) && (chatManager.messages.value.messages.length > 1)"
-        :hide="pageOptions.share.enable || roundLimit" @send="handleSend"
+        :shrink="chatManager.messages.value?.messages?.length > 1" :hide="pageOptions.share.enable || roundLimit"
+        @send="handleSend"
       />
 
       <ShareSection
@@ -182,9 +180,11 @@ provide('pageOptions', pageOptions)
     width: 100%;
     height: 100%;
   }
+
   &-History {
     z-index: 3;
   }
+
   position: absolute;
   display: flex;
 
