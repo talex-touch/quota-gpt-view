@@ -584,7 +584,11 @@ export class ChatManager {
         }
         else if (event === 'on_chain_end') {
           if (name === 'Agent') {
-            obj.agent.actions.shift()
+            // obj.agent.actions.shift()
+
+            // 将 actions 中所有文本全部删除
+            obj.agent.actions = obj.agent.actions.filter((item: string) => typeof item !== 'string')
+
             callback.onTriggerStatus(Status.AVAILABLE)
 
             setTimeout(() => {
