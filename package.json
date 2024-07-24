@@ -54,7 +54,6 @@
     "json5": "^2.2.3",
     "prism-themes": "^1.9.0",
     "v-wave": "^2.0.0",
-    "vditor": "^3.10.4",
-    "vue-virtual-scroller": "2.0.0-beta.8"
+    "vditor": "^3.10.4"
   }
 }
