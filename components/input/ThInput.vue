@@ -124,6 +124,10 @@ onMounted(() => {
       error: status === Status.ERROR,
     }" class="ThInput" @keydown.enter="handleSend"
   >
+    <div v-if="false" class="ThInput-Float">
+      <el-tag>QuotaGPT-Smart</el-tag>
+    </div>
+
     <ThInputPlus v-model="inputProperty" />
 
     <div class="ThInput-Input">
@@ -142,6 +146,24 @@ onMounted(() => {
 </template>
 
 <style lang="scss" scoped>
+.ThInput-Float {
+  z-index: -1;
+  position: absolute;
+  display: flex;
+
+  justify-content: flex-start;
+
+  top: -50px;
+  left: 0;
+
+  width: 100%;
+  height: 40px;
+
+  border-radius: 14px;
+  box-shadow: var(--el-box-shadow);
+  background: var(--el-bg-color-page);
+}
+
 .ThInput {
   &.collapse {
     .ThInput-Plus {
