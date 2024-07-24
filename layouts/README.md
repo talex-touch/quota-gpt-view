@@ -1,8 +1,8 @@
 ## Layouts
 
-Vue components in this dir are used as layouts.
+该目录中的 Vue 组件用作布局.
 
-By default, `default.vue` will be used unless an alternative is specified in the route meta.
+默认情况下，除非在路由元中指定了替代方案，否则将使用“default.vue”.
 
 ```vue
 <script setup lang="ts">
