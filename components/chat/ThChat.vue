@@ -94,18 +94,9 @@ function handleBackToBottom(animation: boolean = true) {
   })
 }
 
-const messageBubbles = ref()
-// const messageBubbles = computed(() =>
-//   [...(props.messages?.messages ?? [])].filter(message => !message.hide),
-// )
-
-watch(() => props.messages, async () => {
-  messageBubbles.value = null
-
-  await sleep(10)
-
-  messageBubbles.value = [...(props.messages?.messages ?? [])].filter(message => !message.hide)
-})
+const messageBubbles = computed(() =>
+  [...(props.messages?.messages ?? [])].filter(message => !message.hide),
+)
 
 defineExpose({
   handleBackToBottom,
@@ -122,7 +113,7 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
 
 <template>
   <div class="ThChat">
-    <ChatSetting v-if="messagesModel" v-model:data="messagesModel!" v-model:show="chatSettingShow" />
+    <ChatSetting v-if="messagesModel" v-model:data="messagesModel" v-model:show="chatSettingShow" />
 
     <div v-if="messages" :class="{ show: messages.messages?.length > 1 }" class="ThChat-Title">
       <div v-if="userStore?.isAdmin && messageBubbles" v-wave class="ThChat-Setting" @click="toggleChatSettingShow()">
@@ -139,25 +130,18 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
       </div>
 
       <span v-if="messageBubbles" class="model">
-        <ModelSelector v-model="messagesModel!.model" /></span>
+        <ModelSelector v-model="messagesModel.model" />
+      </span>
       <AccountAvatar />
     </div>
 
-    <div
-      class="ThChat-Container"
-      :class="{ stop: options.stopGenerating, backToBottom: options.backToBottom }"
-    >
+    <div class="ThChat-Container" :class="{ stop: options.stopGenerating, backToBottom: options.backToBottom }">
       <el-scrollbar ref="scrollbar" @scroll="handleScroll">
         <div v-if="messages" class="ThChat-Container-Wrapper">
           <ChatItem
-            v-for="(message, ind) in messageBubbles"
-            :key="message.id"
-            :ind="ind"
-            :total="messages.messages.length"
-            :item="message"
-            :share="options.share.enable"
-            :select="options.share.selected"
-            @select="handleSelectShareItem"
+            v-for="(message, ind) in messageBubbles" :key="message.id" :ind="ind"
+            :total="messages.messages.length" :item="message" :share="options.share.enable"
+            :select="options.share.selected" @select="handleSelectShareItem"
           />
 
           <div v-if="!options.share.enable && roundLimit" class="TrChat-RateLimit">
@@ -165,7 +149,7 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
           </div>
         </div>
 
-        <EmptyGuide :show="!messages || messages.messages?.length > 1" />
+        <EmptyGuide :show="messages.messages?.length > 1" />
 
         <br>
         <br>
@@ -202,6 +186,7 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
       var(--el-bg-color-page)
     );
   }
+
   z-index: 3;
   position: sticky;
   margin: 1rem 0 2rem;
@@ -219,19 +204,23 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
 
       transform: translateX(0);
     }
+
     width: 80px;
 
     background-color: var(--el-text-color-placeholder);
   }
+
   &:active {
     transform: translateY(-50%) scale(0.75);
   }
+
   div {
     position: absolute;
 
     top: 8px;
     left: 8px;
   }
+
   span {
     position: absolute;
 
@@ -244,6 +233,7 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
     transition: 0.25s;
     transform: translateX(-50%);
   }
+
   position: absolute;
 
   top: 50%;
@@ -263,6 +253,7 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
   .ThChat-Title.show & {
     transform: scale(1) translateY(0);
   }
+
   transform: scale(0.8) translateY(-200%);
 
   // border-bottom: 1px solid var(--el-border-color);
@@ -305,9 +296,11 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
     border-radius: 18px;
     background-color: var(--el-text-color-placeholder);
   }
+
   &:hover {
     color: var(--el-color-danger);
   }
+
   z-index: 3;
   position: absolute;
   padding: 0.25rem 0.5rem;
@@ -338,6 +331,7 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
     border-radius: 18px;
     background-color: var(--el-text-color-placeholder);
   }
+
   z-index: 3;
   position: absolute;
   display: flex;
@@ -369,6 +363,7 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
     gap: 0.25rem;
     box-sizing: border-box;
   }
+
   position: absolute;
 
   top: 0;
@@ -387,6 +382,7 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
 
       font-size: 14px;
     }
+
     z-index: 4;
     position: absolute;
     padding: 0.5rem 0.25rem;
@@ -404,6 +400,7 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
 
     // backdrop-filter: blur(18px) saturate(180%);
   }
+
   position: relative;
   padding: 1rem 1.25rem;
 

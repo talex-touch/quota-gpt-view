@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller'
-import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
-
 import FontCarbon from '~/constants/carbon.json'
 
 const props = defineProps<{

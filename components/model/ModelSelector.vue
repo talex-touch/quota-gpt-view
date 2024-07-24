@@ -9,12 +9,12 @@ const emits = defineEmits<{
   (e: 'update:modelValue', value: string): void
 }>()
 
+const route = useRoute()
 const expand = ref(false)
 const selectionRef = ref()
 const model = useVModel(props, 'modelValue', emits)
 
-if (model.value === 'gpt-3.5-turbo')
-  model.value = 'this-normal'
+watch(() => route.query, () => expand.value = false)
 
 watch(
   () => useWindowSize(),
