@@ -3,6 +3,8 @@ import LoginCore from './login/LoginCore.vue'
 import { doAccountExist, sendSMSCode, useSMSLogin } from '~/composables/api/auth'
 import ThCheckBox from '~/components/checkbox/ThCheckBox.vue'
 
+
+
 const props = defineProps<{
   show: boolean
 }>()
@@ -106,10 +108,10 @@ async function handleLogin() {
 
   // Internal Test
   const res = await doAccountExist(phone)
-  if (!res.data) {
-    ElMessage.error('请先通过内测资格后再登录使用！')
-    return
-  }
+  // if (!res.data) {
+  //   ElMessage.error('请先通过内测资格后再登录使用！')
+  //   return
+  // }
 
   const button = document.getElementById('captcha-button')
   button?.click()
