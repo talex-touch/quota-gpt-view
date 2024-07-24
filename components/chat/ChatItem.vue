@@ -4,7 +4,7 @@ import zhLocale from 'dayjs/locale/zh-cn'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import RoundLoading from '../loaders/RoundLoading.vue'
 import TextShaving from '../other/TextShaving.vue'
-import ThCheckBox from '../checkbox/ThCheckBox.vue'
+import ThWickCheckBox from '../checkbox/ThWickCheckBox.vue'
 
 const props = defineProps<{
   item: any
@@ -18,6 +18,65 @@ const emits = defineEmits<{
   (e: 'select', index: number, checked: boolean): void
 }>()
 
+const dom = ref()
+
+let timer: any
+
+const completed = ref(true)
+
+function handleGeneratingDotUpdate(rootEl: HTMLElement, cursor: HTMLElement) {
+  if (props.ind !== props.total - 1)
+    return
+
+  completed.value = false
+  cursor.style.opacity = '1'
+  timer && clearTimeout(timer)
+  timer = setTimeout(() => {
+    cursor.style.opacity = '0'
+    completed.value = true
+  }, 500)
+
+  const textNode = getLastTextNode(rootEl)
+
+  const tempNode = document.createTextNode('|')
+  if (textNode)
+    textNode.after(tempNode)
+  else
+    rootEl.appendChild(tempNode)
+
+  const range = document.createRange()
+  range.setStart(tempNode, 0)
+  range.setEnd(tempNode, 1)
+  const rect = range.getBoundingClientRect()
+  const textRect = dom.value!.getBoundingClientRect()
+
+  const top = textRect.top - rect.top
+  const left = textRect.left - rect.left
+
+  Object.assign(cursor!.style, {
+    top: `${-top}px`,
+    left: `${-left}px`,
+  })
+
+  tempNode.remove()
+  // setTimeout(() => handleGeneratingDotUpdate(rootEl, cursor), 20)
+}
+
+watch(() => props.item?.content, () => {
+  const rootEl = dom.value?.querySelector('.RenderContent-Inner')
+  const cursor: HTMLElement = dom.value.querySelector('.Generating-Dot')!
+
+  if (rootEl && cursor)
+    setTimeout(() => handleGeneratingDotUpdate(rootEl, cursor), 0)
+})
+
+const settingMode = reactive({
+  visible: false,
+  render: {
+    enable: true,
+    media: true,
+  },
+})
 dayjs.locale(zhLocale)
 dayjs.extend(relativeTime)
 
@@ -38,7 +97,13 @@ const tools = reactive([
       }, 1200)
     },
   },
-  // { name: '翻译', icon: 'i-carbon-translate' },
+  {
+    name: '属性',
+    icon: 'i-carbon-settings-adjust',
+    trigger: () => {
+      settingMode.visible = !settingMode.visible
+    },
+  },
   // { name: '朗读', icon: 'i-carbon-user-speaker' },
   { name: '重新生成', userIgnored: true, lastShow: true, icon: 'i-carbon-restart' },
 ])
@@ -64,14 +129,10 @@ watch(() => props.select, (val) => {
     <div class="ChatItem-Avatar">
       <img src="/logo.png">
     </div>
-    <div :class="{ agent: item.agent }" class="ChatItem-Wrapper">
+    <div :class="{ agent: item.agent, settingVisible: settingMode.visible }" class="ChatItem-Wrapper">
       <div class="ChatItem-Agent">
         <template v-if="item.agent">
-          <span
-            v-for="action in item.agent.actions"
-            :key="action"
-            class="ChatItem-AgentList"
-          >
+          <span v-for="action in item.agent.actions" :key="action" class="ChatItem-AgentList">
             <TextShaving v-if="typeof action === 'string'" :text="action" />
           </span>
         </template>
@@ -83,12 +144,22 @@ watch(() => props.select, (val) => {
             <RoundLoading />
           </div>
         </div>
-        <div
-          v-else
-          :class="{ display: !!item.content.length }"
-          class="ChatItem-Content-Inner"
-        >
-          <RenderContent readonly :data="item.content" />
+        <div v-else ref="dom" :class="{ completed, display: !!item.content.length }" class="ChatItem-Content-Inner">
+          <RenderContent :render="settingMode.render" readonly :data="item.content" />
+          <!-- v-if="generating && !!item.content.length" -->
+          <div v-if="props.ind === props.total - 1" class="Generating-Dot" />
+        </div>
+
+        <div class="ChatItem-Setting">
+          <ThWickCheckBox v-model="settingMode.render.enable">
+            启用渲染
+          </ThWickCheckBox>
+
+          <template v-if="settingMode.render.enable">
+            <ThWickCheckBox v-model="settingMode.render.media">
+              渲染视频
+            </ThWickCheckBox>
+          </template>
         </div>
       </div>
 
@@ -98,16 +169,10 @@ watch(() => props.select, (val) => {
             && item.role !== 'user'
             && !!item.content.length
             && !item.streaming
-        "
-        class="ChatItem-Mention"
+        " class="ChatItem-Mention"
       >
         <span class="toolbox">
-          <span
-            v-for="tool in tools"
-            :key="tool.name"
-            class="toolbox-item"
-            @click="tool.trigger"
-          >
+          <span v-for="tool in tools" :key="tool.name" class="toolbox-item" @click="tool.trigger">
             <el-tooltip
               v-if="
                 item.role === 'user'
@@ -115,8 +180,7 @@ watch(() => props.select, (val) => {
                   : tool.lastShow
                     ? total === ind + 1
                     : true
-              "
-              :content="tool.name"
+              " :content="tool.name"
             >
               <i :class="tool.icon" />
             </el-tooltip>
@@ -126,7 +190,7 @@ watch(() => props.select, (val) => {
         <span>
           <span class="date">{{ timeAgo }}</span>
           &nbsp;
-          <span v-if="item.content.length > 30" class="length">{{ item.content.length }} long</span>
+          <span v-if="item.content.length > 30" class="length">{{ item.content.length }} 字</span>
           <!-- &nbsp;
           <span class="costs">{{ item.content.length * 2.25 }} tokens</span> -->
         </span>
@@ -140,6 +204,21 @@ watch(() => props.select, (val) => {
 </template>
 
 <style lang="scss">
+.Generating-Dot {
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 20px;
+  height: 20px;
+
+  opacity: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  background-color: var(--el-text-color-primary);
+}
+
 .ChatItem.share {
   div.ChatItem-Mention {
     margin-bottom: -20px;
@@ -163,6 +242,29 @@ watch(() => props.select, (val) => {
   }
 }
 
+.ChatItem-Setting {
+  .settingVisible & {
+    transform: translateY(100%) scale(1);
+  }
+  z-index: 10;
+  position: absolute;
+  padding: 0.5rem 1rem;
+
+  left: 0;
+  bottom: 0;
+
+  width: 125px;
+  height: 70px;
+  // display: flex;
+
+  transition: 0.25s;
+  border-radius: 18px;
+  transform-origin: left top;
+  box-shadow: var(--el-box-shadow);
+  transform: translateY(100%) scale(0);
+  background-color: var(--el-bg-color);
+}
+
 .ChatItem-Select {
   position: absolute;
 
@@ -182,6 +284,7 @@ watch(() => props.select, (val) => {
     opacity: 0.25;
     background-color: rgba(255, 255, 255, 0.5);
   }
+
   height: 28px;
 
   position: relative;
@@ -207,6 +310,10 @@ watch(() => props.select, (val) => {
   &.agent {
     .ChatItem-Content-Inner {
       &.display {
+        padding-bottom: 24px;
+      }
+      &.display.completed {
+        padding-bottom: 0.5rem;
         box-shadow: var(--el-box-shadow);
         background-color: var(--el-bg-color);
       }
@@ -245,6 +352,7 @@ watch(() => props.select, (val) => {
     .user & {
       border-radius: 16px;
     }
+
     position: relative;
     margin-top: 20px;
     padding: 0.5rem 1rem;
@@ -262,7 +370,8 @@ watch(() => props.select, (val) => {
     transition: 0.5s;
   }
 
-  &:hover {
+  &:hover,
+  &.settingVisible {
     .ChatItem-Mention {
       margin-bottom: 0px;
       opacity: 0.75;
@@ -274,6 +383,7 @@ watch(() => props.select, (val) => {
       i {
         display: block;
       }
+
       display: flex;
 
       gap: 0.5rem;
@@ -284,6 +394,7 @@ watch(() => props.select, (val) => {
 
       cursor: pointer;
     }
+
     position: relative;
     margin-top: 5px;
     margin-bottom: -20px;
@@ -317,12 +428,14 @@ watch(() => props.select, (val) => {
     .ChatItem-Avatar {
       display: none;
     }
+
     justify-content: flex-end;
   }
 
   .ChatItem-Avatar {
     width: 48px;
   }
+
   z-index: 2;
   position: relative;
   display: flex;

@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller'
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
+
 import FontCarbon from '~/constants/carbon.json'
 
 const props = defineProps<{
@@ -21,17 +24,34 @@ const icons = [
 const searchQuery = ref('')
 const activeTab = ref('carbon')
 
-// const loadedIndex = ref(100)
+const loadedIndex = ref(100)
 
-// function loadMoreIcon() {
-//   loadedIndex.value += 100
-// }
+function loadMoreIcon() {
+  loadedIndex.value += 100
+}
 
-// watch(() => activeTab.value, () => loadedIndex.value = 100)
+onMounted(() => {
+  const observer = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting)
+      loadMoreIcon()
+  }, {
+    root: null,
+    rootMargin: '0px',
+    threshold: 1.0,
+  })
+
+  observer.observe(document.getElementById('load-more')!)
+
+  onBeforeUnmount(() => {
+    observer.disconnect()
+  })
+})
+
+watch(() => activeTab.value, () => loadedIndex.value = 100)
 
 const filteredIcons = computed(() => {
   const icon = (icons.find(item => item.type === activeTab.value)!.value)
-  // .filter((_, index) => index <= loadedIndex.value)
+    .filter((_, index) => index <= loadedIndex.value)
 
   if (searchQuery.value)
     return icon.filter(item => item.includes(searchQuery.value))
@@ -51,11 +71,14 @@ const filteredIcons = computed(() => {
             <el-scrollbar>
               <div class="IconSelector-List">
                 <div
-                  v-for="item in filteredIcons" :key="item"
-                  :active="{ 'bg-primary-light-9': model === item }" :alt="item"
-                  class="IconSelector-Item" @click="model = item"
+                  v-for="item in filteredIcons" :key="item" :active="{ 'bg-primary-light-9': model === item }"
+                  :alt="item" class="IconSelector-Item" @click="model = item"
                 >
                   <div :class="item" />
+                </div>
+
+                <div id="load-more" op-0 class="load-more">
+                  Lore more
                 </div>
               </div>
             </el-scrollbar>
@@ -88,7 +111,7 @@ const filteredIcons = computed(() => {
     flex-wrap: wrap;
     gap: 8px;
 
-    max-height: 300px;
+    height: 300px;
     justify-content: flex-start;
   }
 

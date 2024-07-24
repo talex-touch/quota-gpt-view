@@ -9,7 +9,7 @@ const menus = reactive([
     label: '个人资料',
     show: true,
     click: () => {
-      router.push('/profile')
+      router.push('/profile/base')
     },
   },
   {

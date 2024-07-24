@@ -157,21 +157,14 @@ const editSubmit = () => {
           <el-input v-model="formInline.value" placeholder="角色值" clearable />
         </el-form-item>
         <el-form-item label="状态">
-          <el-select
-            v-model="formInline.status"
-            placeholder="状态"
-            style="width: 120px;"
-          >
-            <el-option
-              v-for="item in [
-                { label: '启用', value: 1 },
-                { label: '禁用', value: 0 },
-              ]"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
+          <el-radio-group v-model="formInline.status">
+            <el-radio-button :value="0">
+              否
+            </el-radio-button>
+            <el-radio-button :value="1">
+              是
+            </el-radio-button>
+          </el-radio-group>
         </el-form-item>
         <el-form-item label="备注">
           <el-input
@@ -330,4 +323,4 @@ const editSubmit = () => {
 .CmsRole {
   flex-direction: column;
 }
-</style>deleteUser, , type MenuGetQuery
+</style>deleteUser, , type MenuGetQuerygetMenuList, 

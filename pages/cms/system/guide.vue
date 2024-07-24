@@ -1,11 +1,9 @@
 <script lang="ts" setup>
 import dayjs from 'dayjs'
 import type { FormInstance, FormRules } from 'element-plus'
-import { addUser, deleteUser, getRoleList, updateUser } from '~/composables/api/account'
-import type { IDocDataQuery, IDocGetQuery } from '~/composables/api/doc'
+import { getRoleList } from '~/composables/api/account'
+import type { IDocDataQuery } from '~/composables/api/doc'
 import { addDoc, getDocList, updateDoc } from '~/composables/api/doc'
-import UserAvatar from '~/components/personal/UserAvatar.vue'
-import UserUploadAvatar from '~/components/personal/UserUploadAvatar.vue'
 
 definePageMeta({
   name: '文档管理',
@@ -355,8 +353,10 @@ function handleDeleteUser(id: number, data: DocForm) {
           </div>
 
           <div v-if="dialogOptions.data.value !== null && dialogOptions.data.value !== undefined" class="GuideContent">
-            <RenderEditor v-if="dialogOptions.mode !== 'read'" v-model="dialogOptions.data.value" />
-            <RenderContent v-else readonly style="background: var(--el-bg-color)" :data="dialogOptions.data.value" />
+            <RenderEditor v-model="dialogOptions.data.value" :readonly="dialogOptions.mode === 'read'" />
+            <!-- <el-scrollbar v-else>
+              <RenderContent readonly style="background: var(--el-bg-color)" :data="dialogOptions.data.value" />
+            </el-scrollbar> -->
           </div>
 
           <div class="GuideEditor-Footer">
@@ -369,14 +369,14 @@ function handleDeleteUser(id: number, data: DocForm) {
               :model="dialogOptions.data" :rules="rules" label-width="auto" class="demo-ruleForm" status-icon inline
             >
               <el-form-item label="文档名称" prop="title">
-                <el-input v-model="dialogOptions.data.title" :disabled="dialogOptions.mode !== 'read'" />
+                <el-input v-model="dialogOptions.data.title" :disabled="dialogOptions.mode === 'read'" />
               </el-form-item>
               <el-form-item label="文档权限" prop="permission">
-                <el-input v-model="dialogOptions.data.permission" :disabled="dialogOptions.mode !== 'read'" />
+                <el-input v-model="dialogOptions.data.permission" :disabled="dialogOptions.mode === 'read'" />
               </el-form-item>
               <el-form-item v-if="dialogOptions.data.metaOptions" label="文档密码" prop="password">
                 <el-input
-                  v-model="dialogOptions.data.metaOptions!.password" :disabled="dialogOptions.mode !== 'read'"
+                  v-model="dialogOptions.data.metaOptions!.password" :disabled="dialogOptions.mode === 'read'"
                   type="password"
                 />
               </el-form-item>

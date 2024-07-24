@@ -14,12 +14,12 @@ const pageOptions = reactive<any>({
     enable: false,
     selected: new Array<number>(),
     getMessages() {
-      return [chatManager.messages.value.messages.filter((_, index) => pageOptions.share.selected.includes(index)), chatManager.messages.value.topic]
+      return [chatManager.messages.value?.messages.filter((_, index) => pageOptions.share.selected.includes(index)), chatManager.messages.value?.topic]
     },
   },
 })
 
-const roundLimit = computed(() => chatManager.messages.value.messages.length / 2 >= 10)
+const roundLimit = computed(() => ((chatManager.messages.value?.messages?.length) ?? 1) / 2 >= 10)
 
 function handleDelete(index: number) {
   chatManager.deleteMessage(index)
@@ -34,14 +34,14 @@ watch(
       return
 
     const conversation = chatManager.history.value[ind]
-    if (!conversation.model)
-      conversation.model = 'gpt-3.5-turbo'
 
-    chatManager.messages.value = conversation
-    if (!chatManager.messages.value.status)
-      chatManager.messages.value.status = Status.AVAILABLE
+    chatManager.messages.value = null
 
     setTimeout(() => {
+      chatManager.messages.value = conversation
+      if (!chatManager.messages.value!.status)
+        chatManager.messages.value!.status = Status.AVAILABLE
+
       pageOptions.share.enable = false
       chatRef.value?.handleBackToBottom(false)
     }, 200)
@@ -59,10 +59,8 @@ function handleCreate() {
   return true
 }
 
-async function handleSend(query: string, callback: Function) {
+async function handleSend(query: string) {
   if (!userStore.value.token) {
-    callback(Status.AVAILABLE)
-
     ElMessage.error({
       message: '内测模式下必须登录后使用！',
       grouping: true,
@@ -75,12 +73,12 @@ async function handleSend(query: string, callback: Function) {
 
   let genTitle: any = async (_index: number) => void 0
 
-  if (chatManager.messages.value.messages.length < 2) {
+  if (chatManager.messages.value?.messages && chatManager.messages.value.messages.length < 2) {
     if (pageOptions.select === -1) {
       const res = handleCreate()
 
       if (!res) {
-        callback(Status.AVAILABLE)
+        chatManager.setStatus(Status.AVAILABLE)
         return
       }
     }
@@ -110,17 +108,23 @@ async function handleSend(query: string, callback: Function) {
   conversation.sync = false
   conversation.lastUpdate = Date.now()
 
+  chatManager.setStatus(Status.GENERATING)
+
+  chatManager.messages.value = conversation
+
   await chatManager.sendMessage(obj, conversation, {
     onTriggerUpdate: () => {
-      chatRef.value?.handleBackToBottom(false)
+      chatRef.value?.generateScroll()
     },
     onTriggerStatus(status) {
-      callback(status)
+      chatManager.setStatus(status)
     },
     async onReqCompleted() {
       await genTitle(pageOptions.select)
 
-      chatManager.postTargetHistory(conversation)
+      setTimeout(() => {
+        chatManager.postTargetHistory(conversation)
+      }, 500)
     },
     onFrequentLimit() {
       chatManager.cancelCurrentReq()
@@ -140,33 +144,28 @@ provide('pageOptions', pageOptions)
 <template>
   <div :class="{ expand: pageOptions.expand }" class="PageContainer">
     <History
-      v-model:selectIndex="pageOptions.select"
-      v-model:expand="pageOptions.expand"
-      class="PageContainer-History"
-      :history="chatManager.history.value"
-      @create="handleCreate"
-      @delete="handleDelete"
+      v-model:selectIndex="pageOptions.select" v-model:expand="pageOptions.expand" class="PageContainer-History"
+      :history="chatManager.history.value" @create="handleCreate" @delete="handleDelete"
     />
 
     <div class="PageContainer-Main">
       <ThChat
-        ref="chatRef"
-        v-model:messages="chatManager.messages.value"
-        :status="chatManager.messages.value.status"
-        :round-limit="roundLimit"
+        ref="chatRef" v-model:messages="chatManager.messages.value" :round-limit="roundLimit"
         @cancel="chatManager.cancelCurrentReq()"
       />
       <ThInput
-        v-model:status="chatManager.messages.value.status"
-        :shrink="chatManager.messages.value.messages.length > 1"
-        :hide="pageOptions.share.enable || roundLimit"
-        @send="handleSend"
+        :status="chatManager.messages.value?.status ?? Status.AVAILABLE"
+        :shrink="(!!chatManager.messages.value) && (chatManager.messages.value.messages.length > 1)"
+        :hide="pageOptions.share.enable || roundLimit" @send="handleSend"
       />
 
-      <ShareSection :length="chatManager.messages.value.messages.length" :show="pageOptions.share.enable" :selected="pageOptions.share.selected" />
+      <ShareSection
+        v-if="chatManager.messages.value" :length="chatManager.messages.value.messages.length"
+        :show="pageOptions.share.enable" :selected="pageOptions.share.selected"
+      />
 
       <div class="copyright">
-        ThisAI. 可能会犯错，生成的内容仅供参考。v24.07.22
+        ThisAI. 可能会犯错，生成的内容仅供参考。v24.07.23
         <span class="business">四川科塔锐行科技有限公司</span>
       </div>
     </div>

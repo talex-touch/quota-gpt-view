@@ -173,6 +173,8 @@ export function useChatTitle(context: ChatCompletion) {
   return options
 }
 
+let lastSent = ''
+
 async function handleExecutorItem(item: string, callback: (data: any) => void) {
   if (item === '[DONE]') {
     callback({
@@ -189,6 +191,12 @@ async function handleExecutorItem(item: string, callback: (data: any) => void) {
     })
   }
   else {
+    let data = item
+    if (lastSent) {
+      data = lastSent + item
+      lastSent = ''
+    }
+
     try {
       const json = JSON5.parse(item)
 
@@ -200,8 +208,15 @@ async function handleExecutorItem(item: string, callback: (data: any) => void) {
         ...json,
       })
     }
-    catch (e) {
-      console.error('error', item)
+    catch (e: any) {
+      if (e.message.includes('invalid end of input')) {
+        console.warn('Item Not Completed, continuing receiving ...', item)
+
+        lastSent = data
+        return
+      }
+
+      console.error('@error', item)
       console.error(e)
 
       callback({
@@ -334,7 +349,7 @@ export class ChatManager {
     status: Status.AVAILABLE,
   }
 
-  messages = ref<ThHistory>(JSON.parse(JSON.stringify(this.originObj)))
+  messages = ref<ThHistory | null>(JSON.parse(JSON.stringify(this.originObj)))
   history: any
   loadingHistory = ref(false)
   historyCompleted = ref(false)
@@ -704,6 +719,9 @@ export class ChatManager {
   }
 
   cancelCurrentReq() {
+    if (!this.messages.value)
+      return
+
     const msg = this.messages.value.messages.at(-2)
 
     this.messages.value.messages.splice(this.messages.value.messages.length - 1, 1)
@@ -725,8 +743,13 @@ export class ChatManager {
 
     this.history.value.splice(index, 1)
   }
+
+  setStatus(status: Status) {
+    if (!this.messages.value)
+      return
+
+    this.messages.value.status = status
+  }
 }
 
 export const chatManager = new ChatManager()
-
-globalThis.$chat = chatManager

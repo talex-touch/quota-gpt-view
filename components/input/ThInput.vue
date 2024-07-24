@@ -1,4 +1,6 @@
 <script name="ThInput" setup lang="ts">
+import type { InputPlusProperty } from './input'
+import ThInputPlus from './ThInputPlus.vue'
 import { Status } from '~/composables/chat'
 
 const props = defineProps<{
@@ -7,14 +9,15 @@ const props = defineProps<{
   hide: boolean
 }>()
 const emits = defineEmits<{
-  (name: 'send', data: any, callback: (status: Status, data: any) => void): void
-  (name: 'changeStatus', data: Status): void
+  (name: 'send', data: any): void
   (name: 'clear'): void
 }>()
 
-const status = useVModel(props, 'status', emits)
-
 const input = ref('')
+const nonPlusMode = computed(() => input.value.startsWith('/') || input.value.startsWith('@'))
+const inputProperty = reactive<InputPlusProperty>({
+  internet: true,
+})
 const inputHistories = useLocalStorage<string[]>('inputHistories', [])
 const inputHistoryIndex = ref(inputHistories.value.length - 1)
 const showSend = computed(() => input.value.trim().length)
@@ -22,7 +25,7 @@ const showSend = computed(() => input.value.trim().length)
 function handleSend(event: Event) {
   if (!showSend.value)
     return
-  if (status.value !== Status.AVAILABLE)
+  if (props.status !== Status.AVAILABLE)
     return
 
   event.preventDefault()
@@ -36,17 +39,7 @@ function handleSend(event: Event) {
 
   inputHistoryIndex.value = inputHistories.value.length - 1
 
-  status.value = Status.GENERATING
-
-  emits('send', input.value, (_status: Status) => {
-    status.value = _status
-
-    const el = document.getElementById('main-input')
-
-    setTimeout(() => {
-      el?.focus()
-    })
-  })
+  emits('send', input.value)
 
   input.value = ''
 }
@@ -110,6 +103,14 @@ watch(
   },
   { immediate: true },
 )
+
+onMounted(() => {
+  const el = document.getElementById('main-input')
+
+  setTimeout(() => {
+    el?.focus()
+  })
+})
 </script>
 
 <template>
@@ -117,14 +118,17 @@ watch(
     :class="{
       disabled: hide,
       shrink,
+      collapse: nonPlusMode,
       showSend,
       generating: status === Status.GENERATING,
       error: status === Status.ERROR,
     }" class="ThInput" @keydown.enter="handleSend"
   >
-    <div class="ThInput-At">
-      <div i-carbon-add-large />
+    <div v-if="false" class="ThInput-Float">
+      <el-tag>QuotaGPT-Smart</el-tag>
     </div>
+
+    <ThInputPlus v-model="inputProperty" />
 
     <div class="ThInput-Input">
       <textarea
@@ -142,11 +146,35 @@ watch(
 </template>
 
 <style lang="scss" scoped>
+.ThInput-Float {
+  z-index: -1;
+  position: absolute;
+  display: flex;
+
+  justify-content: flex-start;
+
+  top: -50px;
+  left: 0;
+
+  width: 100%;
+  height: 40px;
+
+  border-radius: 14px;
+  box-shadow: var(--el-box-shadow);
+  background: var(--el-bg-color-page);
+}
+
 .ThInput {
+  &.collapse {
+    .ThInput-Plus {
+      display: none;
+    }
+  }
+
   &.disabled {
     .ThInput-Input,
     .ThInput-Send,
-    .ThInput-At {
+    .ThInput-Plus {
       opacity: 0;
     }
 
@@ -176,7 +204,7 @@ watch(
 
   z-index: 3;
   position: absolute;
-  padding: 0.5rem;
+  padding: 0.5rem 0.75rem;
   display: flex;
 
   gap: 0.5rem;
@@ -213,35 +241,6 @@ watch(
   //   width 0.75s;
 }
 
-.ThInput-At {
-  &:hover {
-    cursor: pointer;
-    background: #ffffff20;
-  }
-
-  &:active {
-    transform: scale(0.75);
-  }
-
-  position: relative;
-  display: flex;
-
-  align-items: center;
-  justify-content: center;
-
-  width: 32px;
-  height: 32px;
-
-  bottom: 2px;
-
-  border-radius: 12px;
-  transition: 0.25s;
-
-  .generating & {
-    opacity: 0;
-  }
-}
-
 .ThInput-Input {
   .error &,
   .generating & {
@@ -260,7 +259,7 @@ watch(
 
     top: 0;
 
-    width: calc(100% - 40px);
+    width: calc(100% - 20px - 1.5rem);
     max-height: 330px;
     height: 22px;
     min-height: 22px;
@@ -383,7 +382,7 @@ watch(
   justify-content: center;
 
   bottom: 8px;
-  right: 8px;
+  right: 0.75rem;
 
   width: 36px;
   height: 36px;

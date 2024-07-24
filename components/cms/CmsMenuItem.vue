@@ -1,6 +1,8 @@
 <script setup lang="ts">
 const props = defineProps<{
-  path: string
+  path?: string
+  query?: string
+  danger?: boolean
 }>()
 
 const select = ref(false)
@@ -9,16 +11,24 @@ const router = useRouter()
 const route = useRoute()
 
 watch(() => route.fullPath, () => {
-  select.value = route.fullPath === props.path
+  if (props.path)
+    select.value = route.fullPath === props.path
+
+  if (props.query)
+    select.value = route.query.data === props.query
 }, { immediate: true })
 
 function handleClick() {
-  router.push(props.path)
+  if (props.path)
+    router.push(props.path)
+
+  if (props.query)
+    router.push({ params: { data: props.query } })
 }
 </script>
 
 <template>
-  <div v-wave :class="{ select }" class="CmsMenuItem" @click="handleClick">
+  <div v-wave :class="{ select, danger }" class="CmsMenuItem" @click="handleClick">
     <slot />
   </div>
 </template>
@@ -31,6 +41,7 @@ function handleClick() {
 
     background-color: var(--el-border-color-extra-light);
   }
+
   position: relative;
   display: flex;
 
@@ -38,5 +49,14 @@ function handleClick() {
 
   cursor: pointer;
   transition: max-height 0.2s ease-in-out;
+}
+
+.CmsMenuItem.danger {
+  &:hover,
+  &.select {
+    color: var(--el-color-danger);
+
+    background-color: var(--el-border-color-extra-light);
+  }
 }
 </style>

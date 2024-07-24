@@ -27,7 +27,7 @@ onBeforeMount(async () => {
 
   // 将menu的每一项都排序 (orderNo)
   function _sort(arr: any[]) {
-    return arr.sort((a, b) => a.orderNo + b.orderNo)
+    return arr.sort((a, b) => b.orderNo - a.orderNo)
   }
 
   menus.value = _sort(res.data).map((item: any) => {
@@ -72,7 +72,7 @@ onBeforeMount(async () => {
       <el-aside class="CmsAside" width="240px">
         <CmsMenu v-for="item in menus" :key="item.id" :expandable="item.children?.length">
           <template #header>
-            <div i-carbon-document />
+            <div :class="item.meta.icon" />
             {{ item.name }}
           </template>
           <CmsMenuItem v-for="subMenu in item.children" :key="subMenu.id" :path="`/cms${subMenu.path}`">

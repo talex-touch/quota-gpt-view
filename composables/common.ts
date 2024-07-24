@@ -16,3 +16,17 @@ export function genFormatNowDate() {
 export async function sleep(time: number) {
   return new Promise(resolve => setTimeout(resolve, time))
 }
+
+export function getLastTextNode(node: HTMLElement): HTMLElement | null {
+  if (node.nodeType === Node.TEXT_NODE)
+    return node
+
+  for (let i = node.childNodes.length - 1; i >= 0; i--) {
+    const childNode = node.childNodes[i]
+    const lastTextNode = getLastTextNode(childNode as HTMLElement)
+    if (lastTextNode)
+      return lastTextNode
+  }
+
+  return null
+}
