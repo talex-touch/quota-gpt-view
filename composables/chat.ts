@@ -536,6 +536,16 @@ export class ChatManager {
   }
 
   async sendMessage(obj: any, conversation: ThHistory, callback: IMessageHandler) {
+    function complete() {
+      obj.agent.actions = obj.agent.actions.filter((item: string) => typeof item !== 'string')
+
+      setTimeout(() => {
+        callback.onTriggerUpdate()
+
+        callback?.onReqCompleted?.()
+      }, 200)
+    }
+
     // TODO: abort
     await useChatExecutor(
       conversation,
@@ -556,6 +566,8 @@ export class ChatManager {
 
           setTimeout(() => {
             callback.onTriggerUpdate()
+
+            complete()
           }, 200)
 
           return
@@ -583,20 +595,8 @@ export class ChatManager {
           obj.streaming = false
         }
         else if (event === 'on_chain_end') {
-          if (name === 'Agent') {
-            // obj.agent.actions.shift()
-
-            // 将 actions 中所有文本全部删除
-            obj.agent.actions = obj.agent.actions.filter((item: string) => typeof item !== 'string')
-
-            callback.onTriggerStatus(Status.AVAILABLE)
-
-            setTimeout(() => {
-              callback.onTriggerUpdate()
-
-              callback?.onReqCompleted?.()
-            }, 200)
-          }
+          if (name === 'Agent')
+            complete()
         }
         else if (event === 'on_tool_start') {
           if (name === 'TavilySearchResults')
