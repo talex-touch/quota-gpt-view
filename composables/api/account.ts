@@ -116,3 +116,7 @@ export function addMenu(query: MenuGetQuery) {
 export function getHistoryList() {
   return endHttp.get('account/login_histories')
 }
+
+export function addDept(body: any) {
+  return endHttp.post('system/depts', body)
+}
