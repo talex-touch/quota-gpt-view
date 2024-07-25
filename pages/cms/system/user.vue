@@ -339,9 +339,11 @@ function handleDeleteUser(id: number, data: UserForm) {
         </el-table>
 
         <el-pagination
-          v-if="users?.meta" v-model:current-page="users.meta.currentPage"
-          v-model:page-size="users.meta.itemsPerPage" float-right my-4 :page-sizes="[100, 200, 300, 400]"
-          layout="total, sizes, prev, pager, next, jumper" :total="users.meta.totalItems"
+          v-if="users?.meta"
+          v-model:current-page="users.meta.currentPage"
+          v-model:page-size="users.meta.itemsPerPage" float-right
+          my-4 :page-sizes="[100, 200, 300, 400]" layout="total, sizes, prev, pager, next, jumper" :total="users.meta.totalItems"
+          @change="fetchData"
         />
       </ClientOnly>
     </el-main>
