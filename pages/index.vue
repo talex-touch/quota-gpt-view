@@ -19,7 +19,7 @@ const pageOptions = reactive<any>({
   },
 })
 
-const roundLimit = computed(() => ((chatManager.messages.value?.messages?.length) ?? 1) / 2 >= 10)
+const roundLimit = computed(() => (!userStore.value?.token && ((chatManager.messages.value?.messages?.length) ?? 1) / 2 >= 10))
 
 function handleDelete(index: number) {
   chatManager.deleteMessage(index)
@@ -163,7 +163,7 @@ provide('pageOptions', pageOptions)
       />
 
       <div class="copyright">
-        ThisAI. 可能会犯错，生成的内容仅供参考。v24.07.26
+        ThisAI. 可能会犯错，生成的内容仅供参考。v24.07.27
         <span class="business">四川科塔锐行科技有限公司</span>
       </div>
     </div>
