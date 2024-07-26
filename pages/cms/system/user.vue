@@ -342,7 +342,7 @@ function handleDeleteUser(id: number, data: UserForm) {
           v-if="users?.meta"
           v-model:current-page="users.meta.currentPage"
           v-model:page-size="users.meta.itemsPerPage" float-right
-          my-4 :page-sizes="[100, 200, 300, 400]" layout="total, sizes, prev, pager, next, jumper" :total="users.meta.totalItems"
+          my-4 :page-sizes="[10, 30, 50, 100]" layout="total, sizes, prev, pager, next, jumper" :total="users.meta.totalItems"
           @change="fetchData"
         />
       </ClientOnly>
