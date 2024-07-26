@@ -25,19 +25,19 @@ function handleSelect(data: any) {
 const outline = ref()
 const content = computed(() => curDoc.value ? JSON.parse(decodeURI(atob(curDoc.value.value))) : '')
 
-watch(() => content.value, () => {
-  nextTick(async () => {
-    const outlineDom = outline.value
+// watch(() => content.value, () => {
+//   nextTick(async () => {
+//     const outlineDom = outline.value
 
-    const html = await Vditor.md2html(content.value)
-    outlineDom.innerHTML = html
-    // const el = document.querySelector('.RenderContent .RenderContent-Inner')
+//     const html = await Vditor.md2html(content.value)
+//     outlineDom.innerHTML = html
+//     // const el = document.querySelector('.RenderContent .RenderContent-Inner')
 
-    console.log('e', outlineDom)
+//     console.log('e', outlineDom)
 
-    Vditor.outlineRender(outlineDom, outlineDom)
-  })
-})
+//     Vditor.outlineRender(outlineDom, outlineDom)
+//   })
+// })
 </script>
 
 <template>
