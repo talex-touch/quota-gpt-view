@@ -31,18 +31,18 @@ watch(
   },
 )
 
-const content = computed(() => userStore.value.token ? [userStore.value.nickname, 'ThisAI Beta'] : ['Visitor', 'ThisAI Beta'])
+// const content = computed(() => userStore.value.token ? [userStore.value.nickname, 'ThisAI Beta'] : ['Visitor', 'ThisAI Beta'])
 
 provide('appOptions', pageOptions)
 </script>
 
 <template>
   <VitePwaManifest />
-  <el-watermark :font="font" :z-index="10" class="watermark" :content="content as any">
-    <NuxtLayout>
-      <NuxtPage />
-    </NuxtLayout>
-  </el-watermark>
+  <!-- <el-watermark :font="font" :z-index="10" class="watermark" :content="content as any"> -->
+  <NuxtLayout>
+    <NuxtPage />
+  </NuxtLayout>
+  <!-- </el-watermark> -->
 
   <Login v-model:show="pageOptions.model.login" />
 </template>
