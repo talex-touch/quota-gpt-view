@@ -32,6 +32,9 @@ function handleGeneratingDotUpdate(rootEl: HTMLElement, cursor: HTMLElement) {
   cursor.style.opacity = '1'
   timer && clearTimeout(timer)
   timer = setTimeout(() => {
+    if (props.item.generating)
+      return
+
     cursor.style.opacity = '0'
     completed.value = true
   }, 500)
@@ -100,6 +103,7 @@ const tools = reactive([
   {
     name: '属性',
     icon: 'i-carbon-settings-adjust',
+    userIgnored: true,
     trigger: () => {
       settingMode.visible = !settingMode.visible
     },
@@ -166,7 +170,6 @@ watch(() => props.select, (val) => {
       <div
         v-if="
           !item.generating
-            && item.role !== 'user'
             && !!item.content.length
             && !item.streaming
         " class="ChatItem-Mention"
@@ -187,7 +190,7 @@ watch(() => props.select, (val) => {
           </span>
         </span>
 
-        <span>
+        <span v-if="item.role !== 'user'">
           <span class="date">{{ timeAgo }}</span>
           &nbsp;
           <span v-if="item.content.length > 30" class="length">{{ item.content.length }} 字</span>
@@ -396,7 +399,7 @@ watch(() => props.select, (val) => {
     }
 
     position: relative;
-    margin-top: 5px;
+    margin-top: 10px;
     margin-bottom: -20px;
     padding: 0 1rem;
     display: flex;
@@ -405,13 +408,16 @@ watch(() => props.select, (val) => {
     align-items: center;
     justify-content: flex-start;
 
-    width: 100%;
+    // height: 32px;
+    width: fit-content;
 
     left: 0;
 
     opacity: 0;
     font-size: 12px;
     box-sizing: border-box;
+    // border-radius: 8px;
+    // background-color: var(--el-bg-color);
     transition: 0.25s;
   }
 
