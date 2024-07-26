@@ -3,7 +3,7 @@ import { getConversations, postHistory } from './api/chat'
 import { endHttp } from './api/axios'
 import { EndNormalUrl } from '~/constants'
 
-import type { ThHistory } from '~/components/history/history'
+import type { ThHistory } from '~/components/history/history-types'
 
 export enum QuotaModel {
   // 普通版本，纯问答（类豆包，普通联网）

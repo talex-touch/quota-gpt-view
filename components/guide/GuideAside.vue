@@ -4,16 +4,22 @@ import CmsMenuItem from '../cms/CmsMenuItem.vue'
 
 defineProps(['data'])
 
-// import TestDemo from './docs/test.md?raw'
+const emits = defineEmits<{
+  (e: 'select', data: any): void
+}>()
 
-// const categories = [
-//   {
-//     title: '测试',
-//     content: [
-//       TestDemo,
-//     ],
-//   },
-// ]
+function handleSelect(data: any) {
+  // const router = useRouter()
+
+  // router.push({
+  //   query: {
+  //     doc: data.id,
+  //     title: data.title,
+  //   },
+  // })
+
+  emits('select', data)
+}
 </script>
 
 <template>
@@ -26,11 +32,12 @@ defineProps(['data'])
       <el-scrollbar>
         <CmsMenu expandable>
           <template #header>
-            <div i-carbon-document />
+            <div i-carbon-folder />
             所有文档
           </template>
 
-          <CmsMenuItem v-for="doc in data" :key="doc.id" :query="doc.title">
+          <CmsMenuItem v-for="doc in data" :key="doc.id" :query="doc.title" @click="handleSelect(doc)">
+            <div i-carbon-document />
             {{ doc.title }}
           </CmsMenuItem>
         </CmsMenu>

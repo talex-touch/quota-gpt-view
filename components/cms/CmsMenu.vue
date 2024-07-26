@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ThArrowCheckBox from '../checkbox/ThArrowCheckBox.vue'
 
-const props = defineProps<{ expandable: boolean }>()
+defineProps<{ expandable: boolean }>()
 
 const main = ref()
 const expand = ref(true)
@@ -27,6 +27,10 @@ async function handleFlip() {
     el.style.height = '0px'
   }
 }
+
+defineExpose({
+  handleFlip,
+})
 </script>
 
 <template>
