@@ -17,10 +17,10 @@ const active = useVModel(props, 'modelValue', emit)
 <style lang="scss">
 .ThArrowCheckBox {
   &.active {
-    &::before,
-    &::after {
-      background-color: var(--el-color-primary);
-    }
+    // &::before,
+    // &::after {
+    //   // background-color: var(--el-color-primary);
+    // }
 
     &::before {
       transform: translate(-100%, 100%) rotate(40deg);

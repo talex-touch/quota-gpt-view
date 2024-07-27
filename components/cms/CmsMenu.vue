@@ -84,7 +84,7 @@ defineExpose({
 
   &.expand {
     .CmsMenu-Header {
-      color: var(--el-color-primary);
+      // color: var(--el-color-primary-light-5);
     }
   }
 
