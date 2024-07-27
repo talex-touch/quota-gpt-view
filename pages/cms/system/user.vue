@@ -18,6 +18,7 @@ const defaultProps = {
   label: 'name',
 }
 
+const treeDom = ref()
 const treeFilterQuery = ref()
 const depts = ref()
 
@@ -39,6 +40,7 @@ const formInline = reactive({
   email: '',
   phone: '',
   remark: '',
+  deptId: 0,
 })
 
 function handleReset() {
@@ -46,6 +48,9 @@ function handleReset() {
   formInline.email = ''
   formInline.phone = ''
   formInline.remark = ''
+  formInline.deptId = 0
+
+  treeDom.value?.setCurrentKey(null)
 }
 
 const roles = ref()
@@ -62,6 +67,7 @@ async function fetchData() {
     email: formInline.email,
     phone: formInline.phone,
     remark: formInline.remark,
+    deptId: formInline.deptId,
   }
 
   // 过滤掉为空的值
@@ -86,31 +92,38 @@ async function fetchData() {
   formLoading.value = false
 }
 
+watch(() => formInline.deptId, () => {
+  fetchData()
+})
+
 function formatDate(date: string) {
   return dayjs(date).format('YYYY-MM-DD HH:mm:ss')
 }
 
 interface UserForm extends UserQuery {
   roles?: any[]
+  deptId: number
 }
 
 const dialogOptions = reactive<{
   visible: boolean
   mode: 'edit' | 'read' | 'new'
-  data: Partial<UserForm>
+  data: UserForm | null
   loading: boolean
 }>({
   visible: false,
   mode: 'edit',
-  data: {},
+  data: null,
   loading: false,
 })
 
-function handleDialog(data: Partial<UserForm>, mode: 'edit' | 'read' | 'new') {
+function handleDialog(data: UserForm | null, mode: 'edit' | 'read' | 'new') {
   dialogOptions.mode = mode
   dialogOptions.visible = true
-  dialogOptions.data = mode === 'new'
+  dialogOptions.data = (mode === 'new'
     ? {
+        id: '',
+        email: '',
         username: '',
         nickname: '',
         avatar: '',
@@ -120,9 +133,10 @@ function handleDialog(data: Partial<UserForm>, mode: 'edit' | 'read' | 'new') {
         remark: '',
         roles: [],
       }
-    : { ...data }
+    : { ...data }) as UserForm
 
   dialogOptions.data.roleIds = dialogOptions.data.roles!.map((item: any) => item.id)
+  dialogOptions.data.deptId = dialogOptions.data.dept?.id ?? 0
 }
 
 const ruleFormRef = ref<FormInstance>()
@@ -165,7 +179,7 @@ async function submitForm(formEl: FormInstance | undefined) {
     dialogOptions.loading = true
 
     if (dialogOptions.mode !== 'new') {
-      const res: any = await updateUser(dialogOptions.data.id!, dialogOptions.data as UserForm)
+      const res: any = await updateUser(dialogOptions.data!.id!, dialogOptions.data as UserForm)
 
       if (res.code === 200) {
         ElMessage.success('修改成功！')
@@ -231,6 +245,28 @@ function handleDeleteUser(id: number, data: UserForm) {
       })
     })
 }
+
+function handleNodeClick(node: any, treeNode: any) {
+  if (treeNode.checked) {
+    treeDom.value?.setCurrentKey(null)
+    formInline.deptId = 0
+  }
+  else { formInline.deptId = node.id }
+}
+
+watch(treeFilterQuery, (val) => {
+  nextTick(() => treeDom.value!.filter(val))
+}, { immediate: true })
+
+function filterNode(value: string, data: any) {
+  if (!value)
+    return true
+
+  if (data.id === +value)
+    return true
+
+  return data.name.includes(value)
+}
 </script>
 
 <template>
@@ -243,7 +279,11 @@ function handleDeleteUser(id: number, data: UserForm) {
         <el-input v-model="treeFilterQuery" style="width: 200px" placeholder="搜索部门" />
       </el-header>
 
-      <el-tree style="max-width: 600px" :data="depts" :props="defaultProps" />
+      <el-tree
+        ref="treeDom" :filter-node-method="filterNode" :default-expand-all="true" :highlight-current="true"
+        :current-node-key="formInline.deptId" node-key="id" :check-on-click-node="true" style="max-width: 600px"
+        :data="depts" :props="defaultProps" @node-click="handleNodeClick"
+      />
     </el-aside>
 
     <el-main>
@@ -268,7 +308,7 @@ function handleDeleteUser(id: number, data: UserForm) {
           <el-button :loading="formLoading" type="primary" @click="fetchData">
             查询
           </el-button>
-          <el-button type="success" @click="handleDialog({}, 'new')">
+          <el-button type="success" @click="handleDialog(null, 'new')">
             新建用户
           </el-button>
         </el-form-item>
@@ -339,11 +379,9 @@ function handleDeleteUser(id: number, data: UserForm) {
         </el-table>
 
         <el-pagination
-          v-if="users?.meta"
-          v-model:current-page="users.meta.currentPage"
-          v-model:page-size="users.meta.itemsPerPage" float-right
-          my-4 :page-sizes="[10, 30, 50, 100]" layout="total, sizes, prev, pager, next, jumper" :total="users.meta.totalItems"
-          @change="fetchData"
+          v-if="users?.meta" v-model:current-page="users.meta.currentPage"
+          v-model:page-size="users.meta.itemsPerPage" float-right my-4 :page-sizes="[10, 30, 50, 100]"
+          layout="total, sizes, prev, pager, next, jumper" :total="users.meta.totalItems" @change="fetchData"
         />
       </ClientOnly>
     </el-main>
@@ -359,12 +397,15 @@ function handleDeleteUser(id: number, data: UserForm) {
       </template>
       <template #default>
         <el-form
-          ref="ruleFormRef" :disabled="dialogOptions.loading || dialogOptions.mode === 'read'"
-          style="max-width: 600px" :model="dialogOptions.data" :rules="rules" label-width="auto" class="demo-ruleForm"
-          status-icon
+          v-if="dialogOptions.data" ref="ruleFormRef"
+          :disabled="dialogOptions.loading || dialogOptions.mode === 'read'" style="max-width: 600px"
+          :model="dialogOptions.data" :rules="rules" label-width="auto" class="demo-ruleForm" status-icon
         >
           <el-form-item label="用户头像" prop="avatar">
-            <UserUploadAvatar v-model="dialogOptions.data.avatar" :disabled="dialogOptions.loading || dialogOptions.mode === 'read'" />
+            <UserUploadAvatar
+              v-model="dialogOptions.data.avatar"
+              :disabled="dialogOptions.loading || dialogOptions.mode === 'read'"
+            />
           </el-form-item>
           <el-form-item label="用户名称" prop="username">
             <el-input v-model="dialogOptions.data.username" :disabled="dialogOptions.mode !== 'new'" />
@@ -385,9 +426,11 @@ function handleDeleteUser(id: number, data: UserForm) {
             <el-input v-model="dialogOptions.data.phone" />
           </el-form-item>
           <el-form-item label="用户部门" prop="dept">
-            <el-select v-model="dialogOptions.data.dept" disabled placeholder="请选择部门">
-              <!-- <el-option v-for="item in depts" :key="item.id" :label="item.name" :value="item.id" /> -->
-            </el-select>
+            <el-tree-select
+              v-model="dialogOptions.data.deptId" :default-expand-all="true"
+              :highlight-current="true" node-key="id" :check-on-click-node="true"
+              :props="defaultProps" :data="depts" :render-after-expand="false"
+            />
           </el-form-item>
           <el-form-item label="用户角色" prop="roles">
             <el-select v-model="dialogOptions.data.roleIds" multiple placeholder="请选择角色">
