@@ -70,17 +70,24 @@ onBeforeMount(async () => {
     </el-header>
     <el-container class="CmsContainer">
       <el-aside class="CmsAside" width="240px">
-        <CmsMenu v-for="item in menus" :key="item.id" :expandable="item.children?.length">
-          <template #header>
-            <div :class="item.meta.icon" />
-            {{ item.name }}
-          </template>
-          <CmsMenuItem v-for="subMenu in item.children" :key="subMenu.id" :path="`/cms${subMenu.path}`">
+        <template v-for="item in menus" :key="item.id">
+          <CmsMenu v-if="item.children?.length" :expandable="item.children?.length">
+            <template #header>
+              <div :class="item.meta.icon" />
+              {{ item.name }}
+            </template>
+            <CmsMenuItem v-for="subMenu in item.children" :key="subMenu.id" :path="`/cms${subMenu.path}`">
+              <div flex items-center gap-2>
+                <div :class="subMenu.meta.icon" />{{ subMenu.name }}
+              </div>
+            </CmsMenuItem>
+          </CmsMenu>
+          <CmsMenuItem v-else :key="item.id" :path="`/cms${item.path}`">
             <div flex items-center gap-2>
-              <div :class="subMenu.meta.icon" />{{ subMenu.name }}
+              <div :class="item.meta.icon" />{{ item.name }}
             </div>
           </CmsMenuItem>
-        </CmsMenu>
+        </template>
       </el-aside>
       <el-main class="CmsMain">
         <slot />
