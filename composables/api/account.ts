@@ -113,6 +113,10 @@ export function addMenu(query: MenuGetQuery) {
   return endHttp.post('system/menus', query)
 }
 
+export function delMenu(id: number) {
+  return endHttp.del(`system/menus/${id}`)
+}
+
 export function getHistoryList() {
   return endHttp.get('account/login_histories')
 }

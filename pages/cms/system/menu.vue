@@ -2,7 +2,7 @@
 import dayjs from 'dayjs'
 import type { FormInstance, FormRules } from 'element-plus'
 import IconSelector from '~/components/selector/IconSelector.vue'
-import { type MenuGetQuery, addMenu, addUser, deleteUser, getMenuList, updateMenu, updateUser } from '~/composables/api/account'
+import { type MenuGetQuery, addMenu, addUser, delMenu, deleteUser, getMenuList, updateMenu, updateUser } from '~/composables/api/account'
 
 definePageMeta({
   name: '菜单管理',
@@ -221,9 +221,11 @@ function resetForm(formEl: FormInstance | undefined) {
   formEl.resetFields()
 }
 
-function handleDeleteUser(id: number, data: MenuGetQuery) {
+function handleDelete(id: number, data: MenuGetQuery) {
+  const typeText = data.type === 0 ? '目录' : data.type === 1 ? '菜单' : '权限'
+
   ElMessageBox.confirm(
-    `你确定要删除用户 123 #${id} 吗？删除后这个账户永久无法找回。`,
+    `你确定要删除${typeText} ${data.name} #${id} 吗？删除后这个${typeText}永久无法找回。`,
     '确认删除',
     {
       confirmButtonText: '取消',
@@ -234,11 +236,11 @@ function handleDeleteUser(id: number, data: MenuGetQuery) {
     .then(() => {
       ElMessage({
         type: 'success',
-        message: '已取消删除用户！',
+        message: `已取消删除${typeText}！`,
       })
     })
     .catch(async () => {
-      const res: any = await deleteUser(`${id}`)
+      const res: any = await delMenu(id)
       if (res.code !== 200) {
         ElMessage.error('删除失败！')
         return
@@ -248,7 +250,7 @@ function handleDeleteUser(id: number, data: MenuGetQuery) {
 
       ElNotification({
         title: 'Info',
-        message: `你永久删除了用户 123 及其相关数据！`,
+        message: `你永久删除了${typeText} ${data.name} 及其相关数据！`,
         type: 'info',
       })
     })
@@ -359,7 +361,7 @@ const menuWithRoot = computed(() => ([{ id: -1, name: '根目录', children: [..
                 <el-button plain text size="small" type="warning" @click="handleDialog(row, 'edit')">
                   编辑
                 </el-button>
-                <el-button plain text size="small" type="danger" @click="handleDeleteUser(row.id, row)">
+                <el-button plain text size="small" type="danger" @click="handleDelete(row.id, row)">
                   删除
                 </el-button>
               </template>
