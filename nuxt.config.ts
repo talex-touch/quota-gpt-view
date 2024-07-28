@@ -11,6 +11,7 @@ export default defineNuxtConfig({
     '@vite-pwa/nuxt',
     '@nuxt/eslint',
     'v-wave/nuxt',
+    "nuxt-echarts"
   ],
 
   vWave: {

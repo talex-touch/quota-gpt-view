@@ -813,7 +813,22 @@ export function deserializeMsgType(type: number) {
 
 export class ChatAdminManager {
   list(query: ChatLogQueryDto) {
-    return endHttp.get('/aigc/chat_log', query)
+    return endHttp.get('aigc/chat_log', query)
+  }
+
+  consumption_statistics(startDate?: string, endDate?: string) {
+    return endHttp.get('aigc/consumption_statistics', {
+      startDate,
+      endDate,
+    })
+  }
+
+  statistics(startDate?: string, endDate?: string, userId?: number) {
+    return endHttp.get('aigc/chat_log/statistics', {
+      startDate,
+      endDate,
+      userId,
+    })
   }
 }
 
