@@ -54,9 +54,9 @@ watch(
 .TextShaving span.display {
   position: relative;
 
-  background: radial-gradient(circle, #0000 0%, var(--el-bg-color) 90%);
+  background: radial-gradient(circle, var(--el-bg-color) 0%, #0000 30%);
 
-  background-size: 400% 200%;
+  background-size: 400% 400%;
 
   /* background: linear-gradient(90deg, #0000 0%, var(--el-bg-color) 90%);
   background-size: 200% 100%; */
@@ -85,12 +85,11 @@ watch(
 } */
 
 @keyframes TextShaving {
-  0%,
-  100% {
-    background-position: 400% 0;
+  0% {
+    background-position: 400% 400%;
   }
 
-  50% {
+  100% {
     background-position: 0 0;
   }
 }
