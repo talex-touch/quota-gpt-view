@@ -412,12 +412,13 @@ function filterTools(item: any, total: number, ind: number) {
       flex-direction: row-reverse;
 
       left: unset;
+      float: right;
       right: 10px !important;
     }
 
     z-index: 1;
-    position: absolute;
-
+    position: relative;
+    margin-bottom: -15px;
     padding: 0.25rem 0.5rem;
     display: flex;
 
@@ -429,7 +430,7 @@ function filterTools(item: any, total: number, ind: number) {
     width: max-content;
 
     left: 10px;
-    bottom: -15px;
+    bottom: 10px;
 
     opacity: 0;
     font-size: 12px;

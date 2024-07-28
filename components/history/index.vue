@@ -243,7 +243,7 @@ div.History {
   width: 8px;
   height: 50px;
 
-  opacity: 0.75;
+  opacity: 0.5;
   cursor: pointer;
   transform: translateX(0px) translateY(-50%);
   transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);

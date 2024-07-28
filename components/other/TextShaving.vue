@@ -54,15 +54,18 @@ watch(
 .TextShaving span.display {
   position: relative;
 
-  background: linear-gradient(90deg, #0000 0%, var(--el-bg-color) 90%);
+  background: radial-gradient(circle, #0000 0%, var(--el-bg-color) 90%);
 
-  background-size: 200% 100%;
+  background-size: 400% 200%;
+
+  /* background: linear-gradient(90deg, #0000 0%, var(--el-bg-color) 90%);
+  background-size: 200% 100%; */
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 
   filter: invert(1);
-  animation: TextShaving 2s linear infinite;
+  animation: TextShaving 8s linear infinite;
 }
 
 /* .TextShaving span:before {
@@ -82,10 +85,12 @@ watch(
 } */
 
 @keyframes TextShaving {
-  0% {
-    background-position: 200% 0;
-  }
+  0%,
   100% {
+    background-position: 400% 0;
+  }
+
+  50% {
     background-position: 0 0;
   }
 }
