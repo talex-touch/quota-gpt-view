@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import dayjs from 'dayjs'
+import NormalUser from '~/components/personal/NormalUser.vue'
 
 definePageMeta({
   name: '流量监控',
@@ -105,6 +106,14 @@ function formatDate(date: string) {
               <el-tag type="warning" color="#5273E015">
                 {{ deserializeMsgType(+row.message_type) }}
               </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="用户">
+            <template #default="{ row }">
+              <div v-if="row.user">
+                <NormalUser :data="row.user" />
+              </div>
+              <span v-else>-</span>
             </template>
           </el-table-column>
           <el-table-column label="模型">
