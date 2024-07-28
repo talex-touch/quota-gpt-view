@@ -5,7 +5,6 @@ import { Status } from '~/composables/chat'
 
 const props = defineProps<{
   status: Status
-  shrink: boolean
   hide: boolean
 }>()
 const emits = defineEmits<{
@@ -115,7 +114,6 @@ onMounted(() => {
   <div
     :class="{
       disabled: hide,
-      shrink,
       collapse: nonPlusMode,
       showSend,
       generating: status === Status.GENERATING,
@@ -211,14 +209,8 @@ onMounted(() => {
   left: 50%;
   bottom: 2.5%;
 
-  width: 80%;
+  width: min(70%, 1080px);
   min-height: 50px;
-
-  &.shrink {
-    width: 80%;
-
-    transform: translateX(-50%);
-  }
 
   &.generating {
     width: 20%;

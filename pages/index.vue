@@ -148,7 +148,7 @@ provide('pageOptions', pageOptions)
       />
       <ThInput
         :status="chatManager.messages.value?.status ?? Status.AVAILABLE"
-        :shrink="chatManager.messages.value?.messages?.length > 1" :hide="pageOptions.share.enable || roundLimit"
+        :hide="pageOptions.share.enable || roundLimit"
         @send="handleSend"
       />
 

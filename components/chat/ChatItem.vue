@@ -122,6 +122,16 @@ watch(() => check.value, (val) => {
 watch(() => props.select, (val) => {
   check.value = val.includes(props.ind)
 })
+
+function filterTools(item: any, total: number, ind: number) {
+  return tools.filter((tool) => {
+    return item.role === 'user'
+      ? !tool.userIgnored
+      : tool.lastShow
+        ? total === ind + 1
+        : true
+  })
+}
 </script>
 
 <template>
@@ -175,22 +185,17 @@ watch(() => props.select, (val) => {
         " class="ChatItem-Mention"
       >
         <span class="toolbox">
-          <span v-for="tool in tools" :key="tool.name" class="toolbox-item" @click="tool.trigger">
-            <el-tooltip
-              v-if="
-                item.role === 'user'
-                  ? !tool.userIgnored
-                  : tool.lastShow
-                    ? total === ind + 1
-                    : true
-              " :content="tool.name"
-            >
+          <span
+            v-for="tool in filterTools(item, total, ind)" :key="tool.name" class="toolbox-item"
+            @click="tool.trigger"
+          >
+            <el-tooltip :content="tool.name">
               <i :class="tool.icon" />
             </el-tooltip>
           </span>
         </span>
 
-        <span v-if="item.role !== 'user'">
+        <span>
           <span class="date">{{ timeAgo }}</span>
           &nbsp;
           <span v-if="item.content.length > 30" class="length">{{ item.content.length }} 字</span>
@@ -249,12 +254,13 @@ watch(() => props.select, (val) => {
   .settingVisible & {
     transform: translateY(100%) scale(1);
   }
+
   z-index: 10;
   position: absolute;
   padding: 0.5rem 1rem;
 
   left: 0;
-  bottom: 0;
+  bottom: -20px;
 
   width: 125px;
   height: 70px;
@@ -315,6 +321,7 @@ watch(() => props.select, (val) => {
       &.display {
         padding-bottom: 24px;
       }
+
       &.display.completed {
         padding-bottom: 0.5rem;
         box-shadow: var(--el-box-shadow);
@@ -376,12 +383,15 @@ watch(() => props.select, (val) => {
   &:hover,
   &.settingVisible {
     .ChatItem-Mention {
-      margin-bottom: 0px;
       opacity: 0.75;
     }
   }
 
   .ChatItem-Mention {
+    & > span {
+      flex: 1;
+    }
+
     .toolbox {
       i {
         display: block;
@@ -393,15 +403,23 @@ watch(() => props.select, (val) => {
       align-items: center;
 
       height: 12px;
-      width: max-content;
+      width: fit-content;
 
+      flex: 0;
       cursor: pointer;
     }
 
-    position: relative;
-    margin-top: 10px;
-    margin-bottom: -20px;
-    padding: 0 1rem;
+    .user & {
+      flex-direction: row-reverse;
+
+      left: unset;
+      right: 10px !important;
+    }
+
+    z-index: 1;
+    position: absolute;
+
+    padding: 0.25rem 0.5rem;
     display: flex;
 
     gap: 0.5rem;
@@ -409,15 +427,17 @@ watch(() => props.select, (val) => {
     justify-content: flex-start;
 
     // height: 32px;
-    width: fit-content;
+    width: max-content;
 
-    left: 0;
+    left: 10px;
+    bottom: -15px;
 
     opacity: 0;
     font-size: 12px;
     box-sizing: border-box;
-    // border-radius: 8px;
-    // background-color: var(--el-bg-color);
+    border-radius: 12px;
+    box-shadow: var(--el-box-shadow);
+    background-color: var(--el-bg-color-page);
     transition: 0.25s;
   }
 

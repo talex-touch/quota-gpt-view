@@ -353,17 +353,22 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
 
 .ThChat-Container {
   &-Wrapper {
+    z-index: 2;
     position: relative;
-    padding: 1rem 10%;
+    padding: 1rem 0;
     padding-top: 40px;
 
     display: flex;
     flex-direction: column;
 
+    left: 50%;
+    width: min(70%, 1080px);
+
     gap: 0.25rem;
     box-sizing: border-box;
-  }
 
+    transform: translateX(-50%);
+  }
   position: absolute;
 
   top: 0;
