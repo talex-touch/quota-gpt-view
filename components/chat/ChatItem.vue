@@ -229,7 +229,6 @@ function filterTools(item: any, total: number, ind: number) {
 
 .ChatItem.share {
   div.ChatItem-Mention {
-    margin-bottom: -20px;
     opacity: 0;
   }
 
@@ -239,8 +238,8 @@ function filterTools(item: any, total: number, ind: number) {
 
   margin-left: 1rem;
 
-  left: 25%;
-  width: 50%;
+  left: 10%;
+  width: 80%;
 
   &.check {
     padding: 0.5rem;
