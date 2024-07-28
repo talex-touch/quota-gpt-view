@@ -770,3 +770,51 @@ export class ChatManager {
 }
 
 export const chatManager = new ChatManager()
+
+export interface ChatLogQueryDto extends Record<string, any> {
+  message_type: number
+
+  model: string
+
+  status: string
+
+  page: number
+
+  pageSize: number
+}
+
+export enum ChatMsgType {
+  GENERATE_TITLE,
+  COMPLETION,
+  GENERATE_IMAGE,
+  GENERATE_VIDEO,
+  GENERATE_AUDIO,
+  GENERATE_DOCUMENT,
+}
+
+export function deserializeMsgType(type: number) {
+  switch (+type) {
+    case ChatMsgType.GENERATE_TITLE:
+      return '生成标题'
+    case ChatMsgType.COMPLETION:
+      return '生成文本'
+    case ChatMsgType.GENERATE_IMAGE:
+      return '生成图片'
+    case ChatMsgType.GENERATE_VIDEO:
+      return '生成视频'
+    case ChatMsgType.GENERATE_AUDIO:
+      return '生成音频'
+    case ChatMsgType.GENERATE_DOCUMENT:
+      return '生成文档'
+    default:
+      return '未知'
+  }
+}
+
+export class ChatAdminManager {
+  list(query: ChatLogQueryDto) {
+    return endHttp.get('/aigc/chat_log', query)
+  }
+}
+
+export const chatAdminManager = new ChatAdminManager()
