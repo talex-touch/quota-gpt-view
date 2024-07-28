@@ -132,7 +132,7 @@ function generateEChartsConfig(data: any) {
     },
   })
 
-  statistics.value.cost.base_cost = statistics.value.cost.total / 5
+  statistics.value.cost.base_cost = statistics.value.cost.total / 4
   statistics.value.tokens.rate = (statistics.value.tokens.completion / statistics.value.tokens.prompt).toFixed(4)
   statistics.value.time.rate = (statistics.value.time.average / 1000)
 
