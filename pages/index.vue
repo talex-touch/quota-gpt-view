@@ -158,7 +158,7 @@ provide('pageOptions', pageOptions)
       />
 
       <div class="copyright">
-        ThisAI. 可能会犯错，生成的内容仅供参考。v24.07.28
+        ThisAI. 可能会犯错，生成的内容仅供参考。v24.07.29
         <span class="business">四川科塔锐行科技有限公司</span>
       </div>
     </div>
