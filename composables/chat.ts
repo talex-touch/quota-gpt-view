@@ -25,6 +25,16 @@ export enum QuotaModel {
   QUOTA_THIS_NORMAL_ULTRA_PLUS = 'this-normal-ultra-plus',
 }
 
+export interface ChatCompletionDto {
+  model: QuotaModel
+
+  temperature: number
+
+  tools: boolean
+
+  generateTitle: boolean
+}
+
 export interface CompletionItem {
   done: boolean
   error?: boolean
@@ -57,7 +67,7 @@ export interface ChatCompletion {
   lastUpdate: number
   // lastSummarizeIndex: number
   mask?: Mask
-  model: string
+  model: QuotaModel
   _titleOptions?: {
     title: string
     status: Status
@@ -168,7 +178,9 @@ export function useChatTitle(context: ChatCompletion) {
         options.title = options.title.replaceAll('**', '')
       }, i * 20)
     }
-  }, true)
+  }, {
+    generateTitle: true,
+  })
 
   return options
 }
@@ -267,7 +279,7 @@ async function handleExecutorResult(reader: ReadableStreamDefaultReader<string>,
   }
 }
 
-export async function useChatExecutor(context: ChatCompletion, callback: (data: any) => void, generateTitle: boolean = false) {
+export async function useChatExecutor(context: ChatCompletion, callback: (data: any) => void, options: Partial<ChatCompletionDto>) {
   const _messages = context.messages.map((item) => {
     return {
       role: item.role,
@@ -305,7 +317,7 @@ export async function useChatExecutor(context: ChatCompletion, callback: (data: 
           Authorization: userStore.value.token ? `Bearer ${userStore.value.token}` : '',
         },
         body: {
-          generateTitle,
+          ...options,
           messages: _messages,
         },
       })
@@ -535,7 +547,7 @@ export class ChatManager {
     })
   }
 
-  async sendMessage(obj: any, conversation: ThHistory, callback: IMessageHandler) {
+  async sendMessage(obj: any, conversation: ThHistory, options: Partial<ChatCompletionDto>, callback: IMessageHandler) {
     function complete() {
       obj.agent.actions = obj.agent.actions.filter((item: string) => typeof item !== 'string')
 
@@ -719,6 +731,7 @@ export class ChatManager {
           console.log('tool end', res)
         }
       },
+      options,
     )
   }
 

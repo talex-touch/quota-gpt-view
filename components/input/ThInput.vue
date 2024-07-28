@@ -1,5 +1,5 @@
 <script name="ThInput" setup lang="ts">
-import type { InputPlusProperty } from './input'
+import { inputProperty } from './input'
 import ThInputPlus from './ThInputPlus.vue'
 import { Status } from '~/composables/chat'
 
@@ -15,9 +15,7 @@ const emits = defineEmits<{
 
 const input = ref('')
 const nonPlusMode = computed(() => input.value.startsWith('/') || input.value.startsWith('@'))
-const inputProperty = reactive<InputPlusProperty>({
-  internet: true,
-})
+
 const inputHistories = useLocalStorage<string[]>('inputHistories', [])
 const inputHistoryIndex = ref(inputHistories.value.length - 1)
 const showSend = computed(() => input.value.trim().length)

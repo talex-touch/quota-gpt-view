@@ -5,6 +5,7 @@ import History from '~/components/history/index.vue'
 import type { ThHistory } from '~/components/history/history'
 import { chatManager } from '~/composables/chat'
 import ShareSection from '~/components/chat/ShareSection.vue'
+import { inputProperty } from '~/components/input/input'
 
 const chatRef = ref()
 const pageOptions = reactive<any>({
@@ -58,15 +59,6 @@ function handleCreate() {
 }
 
 async function handleSend(query: string) {
-  if (!userStore.value.token) {
-    ElMessage.error({
-      message: '内测模式下必须登录后使用！',
-      grouping: true,
-    })
-
-    return
-  }
-
   const format = genFormatNowDate()
 
   let genTitle: any = async (_index: number) => void 0
@@ -111,6 +103,9 @@ async function handleSend(query: string) {
   chatManager.messages.value = conversation
 
   await chatManager.sendMessage(obj, conversation, {
+    model: chatManager.messages.value.model,
+    tools: inputProperty.internet,
+  }, {
     onTriggerUpdate: () => {
       chatRef.value?.generateScroll()
     },

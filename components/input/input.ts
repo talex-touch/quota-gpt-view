@@ -4,3 +4,7 @@ export interface InputPlusProperty {
    */
   internet: boolean
 }
+
+export const inputProperty = reactive<InputPlusProperty>({
+  internet: true,
+})
