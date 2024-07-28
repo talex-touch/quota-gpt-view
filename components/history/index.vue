@@ -218,7 +218,7 @@ div.History {
     left: 50%;
 
     width: 8px;
-    height: 24px;
+    height: 28px;
 
     border-radius: 4px;
     background-color: var(--el-text-color-primary);
