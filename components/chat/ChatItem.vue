@@ -325,6 +325,7 @@ function filterTools(item: any, total: number, ind: number) {
         padding-bottom: 0.5rem;
         box-shadow: var(--el-box-shadow);
         background-color: var(--el-bg-color);
+        // background-color: var(--el-bg-color);
       }
 
       box-shadow: none;

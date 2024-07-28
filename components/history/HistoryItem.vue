@@ -108,28 +108,34 @@ const menus = reactive([
 <style lang="scss">
 .HistoryItem {
   .content-wrapper {
-    &::after {
-      content: '';
-      position: absolute;
+    // &::after {
+    //   content: '';
+    //   position: absolute;
 
-      top: 10%;
-      right: calc(32px + 0.25rem);
+    //   top: 10%;
+    //   right: calc(32px + 0.25rem);
 
-      height: 80%;
-      width: 80px;
+    //   height: 80%;
+    //   width: 80px;
 
-      background: linear-gradient(to left, var(--el-bg-color), #0000);
-    }
-    &:hover::after {
-      background: linear-gradient(to left, var(--el-bg-color-page), #0000);
-    }
-    .active &::after {
-      background: linear-gradient(
-        to left,
-        var(--el-color-primary-light-5),
-        #0000
-      );
-    }
+    //   background: linear-gradient(to left, #0000, #0000);
+    // }
+    // &:hover::after {
+    //   background: linear-gradient(
+    //     to left,
+    //     var(--wallpaper-color-light, var(--el-bg-color)),
+    //     #0000
+    //   );
+    // }
+    // .active &::after {
+    //   --wallpaper-color-light: #0000;
+
+    //   background: linear-gradient(
+    //     to left,
+    //     var(--wallpaper-color-light, var(--el-color-primary-light-5)),
+    //     #0000
+    //   );
+    // }
 
     display: block;
 

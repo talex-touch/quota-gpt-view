@@ -369,6 +369,7 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
 
     transform: translateX(-50%);
   }
+
   position: absolute;
 
   top: 0;
@@ -404,6 +405,35 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
     height: 40px;
 
     // backdrop-filter: blur(18px) saturate(180%);
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    opacity: 0.5;
+    background-size: cover;
+    background-image: var(--wallpaper);
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    opacity: 0.5;
+    background-color: var(--el-bg-color-page);
   }
 
   position: relative;

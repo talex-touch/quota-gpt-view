@@ -177,6 +177,38 @@ provide('pageOptions', pageOptions)
   }
 
   &-History {
+    &::before {
+      z-index: -2;
+      content: '';
+      position: absolute;
+
+      top: 0;
+      left: 0;
+
+      width: 100%;
+      height: 100%;
+
+      opacity: 0.5;
+      filter: blur(18px);
+      background-size: cover;
+      background-image: var(--wallpaper);
+    }
+
+    &::after {
+      z-index: -1;
+      content: '';
+      position: absolute;
+
+      top: 0;
+      left: 0;
+
+      width: 100%;
+      height: 100%;
+
+      opacity: 0.5;
+      filter: blur(18px);
+      background-color: var(--el-bg-color);
+    }
     z-index: 3;
   }
 
@@ -205,6 +237,6 @@ provide('pageOptions', pageOptions)
   font-size: 14px;
   text-align: center;
   transform: translateX(-50%);
-  background: var(--el-bg-color-page);
+  // background: var(--el-bg-color-page);
 }
 </style>

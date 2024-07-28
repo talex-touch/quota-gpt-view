@@ -223,7 +223,9 @@ onMounted(() => {
   border-radius: 16px;
   transform: translateX(-50%);
   box-shadow: var(--el-box-shadow);
-  background-color: var(--el-bg-color);
+  // background-color: var(--el-bg-color);
+  backdrop-filter: blur(18px) saturate(180%);
+  background-color: var(--el-mask-color-extra-light);
   transition: 0.75s cubic-bezier(0.785, 0.135, 0.15, 0.86);
 
   // transition:

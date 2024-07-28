@@ -102,7 +102,7 @@ onMounted(() => {
     <div class="History-Wrapper">
       <el-scrollbar>
         <div class="History-Content">
-          <div class="History-Content-Item active" @click="emits('create')">
+          <div style="margin: 0 0.5rem" class="History-Content-Item active" @click="emits('create')">
             新建聊天
           </div>
           <br>
@@ -117,11 +117,6 @@ onMounted(() => {
           <LoadersEagleRoundLoading />
         </div>
       </el-scrollbar>
-    </div>
-
-    <div class="History-Bottom">
-      <DarkToggle />
-      <!-- <CloseCheckbox v-model="expand" /> -->
     </div>
   </div>
 </template>
@@ -153,7 +148,7 @@ div.History {
 
 .History-Wrapper {
   &::before {
-    z-index: 1;
+    z-index: 2;
     content: '';
     position: absolute;
 
@@ -161,14 +156,18 @@ div.History {
     bottom: 0px;
 
     width: 100%;
-    height: 50px;
+    height: 10px;
 
-    background: linear-gradient(to top, var(--el-bg-color-page) 0%, #0000 100%);
+    background: linear-gradient(
+      to top,
+      var(--wallpaper-color-lighter, var(--el-bg-color)) 0%,
+      #0000 100%
+    );
   }
   position: relative;
 
   width: 100%;
-  height: calc(100% - 50px);
+  height: 100%;
 
   box-sizing: border-box;
 }
@@ -252,8 +251,8 @@ div.History {
 .History-Content {
   position: relative;
   display: flex;
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
+  // padding-left: 0.5rem;
+  // padding-right: 0.5rem;
   padding-top: 80px;
   padding-bottom: 2rem;
   flex-direction: column;
@@ -274,26 +273,18 @@ div.History {
     font-weight: 600;
     text-align: center;
 
+    .wallpaper & {
+      background-image: none;
+
+      backdrop-filter: blur(4px);
+    }
+
     background-size: 4px 4px;
-    background-image: radial-gradient(transparent 1px, var(--el-bg-color) 1px);
+    background-image: radial-gradient(
+      transparent 1px,
+      var(--wallpaper-color-light, var(--el-bg-color)) 1px
+    );
     backdrop-filter: saturate(50%) blur(4px);
-  }
-  &-Bottom {
-    position: absolute;
-    padding: 0.5rem;
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    bottom: 0;
-
-    width: 100%;
-    height: 50px;
-
-    box-sizing: border-box;
-    // backdrop-filter: blur(18px) saturate(180%);
-    background-color: var(--el-bg-color-page);
   }
 
   .expand & {

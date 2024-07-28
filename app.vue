@@ -2,6 +2,7 @@
 import Login from '~/components/chore/Login.vue'
 import { appName } from '~/constants'
 import 'element-plus/theme-chalk/dark/css-vars.css'
+import { setWallpaper, themeOptions, wallpapers } from './composables/theme/colors'
 
 useHead({
   title: appName,
@@ -11,6 +12,14 @@ const pageOptions = reactive({
   model: {
     login: false,
   },
+})
+
+onMounted(() => {
+  if (themeOptions.value.theme) {
+    const wallpaper = wallpapers.find((item: any) => item.id === themeOptions.value.theme)
+
+    wallpaper && setWallpaper(wallpaper)
+  }
 })
 
 provide('appOptions', pageOptions)
