@@ -72,6 +72,8 @@ const historyList = computed(() => {
 
 onMounted(() => {
   const el = loadMore.value
+  if (!el)
+    return
 
   // observer
   const observer = new IntersectionObserver((entries) => {
@@ -80,7 +82,9 @@ onMounted(() => {
   }, {
     threshold: 0,
   })
-  observer.observe(el)
+
+  if (el instanceof Element)
+    observer.observe(el)
 
   watch(() => chatManager.historyCompleted.value, (val) => {
     if (val)
