@@ -96,7 +96,7 @@ onMounted(() => {
     </teleport>
 
     <div class="History-Title">
-      <h1>This!AI.</h1>
+      <h1>科塔智AI</h1>
     </div>
 
     <div class="History-Wrapper">
@@ -174,16 +174,66 @@ div.History {
 }
 
 .History-Indicator {
-  &.expand {
-    left: 270px;
-  }
   &:hover {
     opacity: 0.75;
-    height: 100px;
 
     cursor: pointer;
     transform: translateX(2px) translateY(-50%);
+
+    &::before {
+      width: 5px;
+      height: 16px;
+      transform: translate(-50%, -50%) translateY(5px) rotate(30deg);
+    }
+
+    &::after {
+      width: 5px;
+      height: 16px;
+      transform: translate(-50%, -50%) translateY(-5px) rotate(-30deg);
+    }
   }
+  &.expand {
+    left: 270px;
+    &:hover {
+      &::before {
+        width: 5px;
+        height: 16px;
+        transform: translate(-50%, -50%) translateY(5px) rotate(-30deg);
+      }
+
+      &::after {
+        width: 5px;
+        height: 16px;
+        transform: translate(-50%, -50%) translateY(-5px) rotate(30deg);
+      }
+    }
+  }
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+
+    top: 50%;
+    left: 50%;
+
+    width: 8px;
+    height: 24px;
+
+    border-radius: 4px;
+    background-color: var(--el-text-color-primary);
+    transform: translate(-50%, -50%);
+    transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+  }
+
+  &::before {
+    transform: translate(-50%, -50%) translateY(10px) rotate(0);
+  }
+
+  &::after {
+    transform: translate(-50%, -50%) translateY(-10px) rotate(0);
+  }
+
   z-index: 2;
   position: absolute;
 
@@ -193,10 +243,9 @@ div.History {
   width: 8px;
   height: 50px;
 
-  opacity: 0.5;
-  border-radius: 100px;
+  opacity: 0.75;
+  cursor: pointer;
   transform: translateX(0px) translateY(-50%);
-  background-color: var(--el-text-color-primary);
   transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
 }
 
