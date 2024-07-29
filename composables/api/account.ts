@@ -112,6 +112,11 @@ export interface UserQuery {
 
 export function addUser(query: UserQuery) {
   return endHttp.post('system/users', query)
+
+  // axios({
+  //   method: "POST",
+  //   data: query
+  // })
 }
 
 export function updateUser(id: string, query: UserQuery) {

@@ -2,8 +2,7 @@
 import Login from '~/components/chore/Login.vue'
 import { appName } from '~/constants'
 import 'element-plus/theme-chalk/dark/css-vars.css'
-
-const color = useColorMode()
+import { setWallpaper, themeOptions, wallpapers } from './composables/theme/colors'
 
 useHead({
   title: appName,
@@ -15,34 +14,22 @@ const pageOptions = reactive({
   },
 })
 
-const font = reactive({
-  color: 'rgba(0, 0, 0, .15)',
+onMounted(() => {
+  if (themeOptions.value.theme) {
+    const wallpaper = wallpapers.find((item: any) => item.id === themeOptions.value.theme)
+
+    wallpaper && setWallpaper(wallpaper)
+  }
 })
-
-watch(
-  color,
-  () => {
-    font.color = color.value === 'dark'
-      ? 'rgba(255, 255, 255, .15)'
-      : 'rgba(0, 0, 0, .15)'
-  },
-  {
-    immediate: true,
-  },
-)
-
-// const content = computed(() => userStore.value.token ? [userStore.value.nickname, 'ThisAI Beta'] : ['Visitor', 'ThisAI Beta'])
 
 provide('appOptions', pageOptions)
 </script>
 
 <template>
   <VitePwaManifest />
-  <!-- <el-watermark :font="font" :z-index="10" class="watermark" :content="content as any"> -->
   <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>
-  <!-- </el-watermark> -->
 
   <Login v-model:show="pageOptions.model.login" />
 </template>

@@ -160,6 +160,7 @@ onMounted(() => {
       width: 100%;
       height: 100%;
     }
+
     position: relative;
     display: flex;
 
@@ -223,6 +224,7 @@ onMounted(() => {
     width: 240px;
     border-right: 1px solid var(--el-border-color);
   }
+
   position: relative;
   display: flex;
 
@@ -237,7 +239,9 @@ onMounted(() => {
   overflow: hidden;
   border-radius: 18px;
   box-shadow: var(--el-box-shadow);
-  background-color: var(--el-bg-color);
+  // background-color: var(--el-bg-color);
+  background: var(--el-mask-color-extra-light);
+  backdrop-filter: blur(18px) saturate(150%);
 }
 
 .DocumentTemplate {
@@ -267,6 +271,7 @@ onMounted(() => {
         height: 36px;
       }
     }
+
     z-index: 1;
     padding: 0 1rem;
     display: flex;
@@ -276,11 +281,28 @@ onMounted(() => {
 
     width: 100%;
 
-    background: var(--el-bg-color);
+    background: var(--el-mask-color-extra-light);
+    backdrop-filter: blur(18px) saturate(150%);
     border-bottom: 1px solid var(--el-border-color);
   }
+
   .el-container {
     width: 100%;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    opacity: 0.5;
+    background-size: cover;
+    background-image: var(--wallpaper);
   }
 
   position: absolute;

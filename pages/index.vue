@@ -5,6 +5,7 @@ import History from '~/components/history/index.vue'
 import type { ThHistory } from '~/components/history/history'
 import { chatManager } from '~/composables/chat'
 import ShareSection from '~/components/chat/ShareSection.vue'
+import { inputProperty } from '~/components/input/input'
 
 const chatRef = ref()
 const pageOptions = reactive<any>({
@@ -58,15 +59,6 @@ function handleCreate() {
 }
 
 async function handleSend(query: string) {
-  if (!userStore.value.token) {
-    ElMessage.error({
-      message: '内测模式下必须登录后使用！',
-      grouping: true,
-    })
-
-    return
-  }
-
   const format = genFormatNowDate()
 
   let genTitle: any = async (_index: number) => void 0
@@ -111,6 +103,9 @@ async function handleSend(query: string) {
   chatManager.messages.value = conversation
 
   await chatManager.sendMessage(obj, conversation, {
+    model: chatManager.messages.value.model,
+    tools: inputProperty.internet,
+  }, {
     onTriggerUpdate: () => {
       chatRef.value?.generateScroll()
     },
@@ -153,7 +148,7 @@ provide('pageOptions', pageOptions)
       />
       <ThInput
         :status="chatManager.messages.value?.status ?? Status.AVAILABLE"
-        :shrink="chatManager.messages.value?.messages?.length > 1" :hide="pageOptions.share.enable || roundLimit"
+        :hide="pageOptions.share.enable || roundLimit"
         @send="handleSend"
       />
 
@@ -163,7 +158,7 @@ provide('pageOptions', pageOptions)
       />
 
       <div class="copyright">
-        ThisAI. 可能会犯错，生成的内容仅供参考。v24.07.28
+        ThisAI. 可能会犯错，生成的内容仅供参考。v24.07.29
         <span class="business">四川科塔锐行科技有限公司</span>
       </div>
     </div>
@@ -182,6 +177,38 @@ provide('pageOptions', pageOptions)
   }
 
   &-History {
+    &::before {
+      z-index: -2;
+      content: '';
+      position: absolute;
+
+      top: 0;
+      left: 0;
+
+      width: 100%;
+      height: 100%;
+
+      opacity: 0.5;
+      filter: blur(18px);
+      background-size: cover;
+      background-image: var(--wallpaper);
+    }
+
+    &::after {
+      z-index: -1;
+      content: '';
+      position: absolute;
+
+      top: 0;
+      left: 0;
+
+      width: 100%;
+      height: 100%;
+
+      opacity: 0.5;
+      filter: blur(18px);
+      background-color: var(--el-bg-color);
+    }
     z-index: 3;
   }
 
@@ -210,6 +237,6 @@ provide('pageOptions', pageOptions)
   font-size: 14px;
   text-align: center;
   transform: translateX(-50%);
-  background: var(--el-bg-color-page);
+  // background: var(--el-bg-color-page);
 }
 </style>

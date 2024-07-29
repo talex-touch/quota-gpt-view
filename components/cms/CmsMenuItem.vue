@@ -37,8 +37,10 @@ function handleClick() {
 .CmsMenuItem {
   &:hover,
   &.select {
+    .wallpaper & {
+      background: var(--el-mask-color-extra-light);
+    }
     color: var(--el-color-primary);
-
     background-color: var(--el-border-color-extra-light);
   }
 
