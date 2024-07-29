@@ -311,6 +311,7 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
   cursor: pointer;
   transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
   border-radius: 18px;
+  box-shadow: var(--el-box-shadow);
   transform: translate(-50%, -50%) translateX(100px) scale(0);
   backdrop-filter: blur(18px) saturate(180%);
 }
@@ -347,6 +348,7 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
   cursor: pointer;
   transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
   border-radius: 18px;
+  box-shadow: var(--el-box-shadow);
   transform: translate(-50%, -50%) translateX(-100px) scale(0);
   backdrop-filter: blur(18px) saturate(180%);
 }
