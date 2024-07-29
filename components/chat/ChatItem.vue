@@ -320,6 +320,11 @@ function filterTools(item: any, total: number, ind: number) {
 .ChatItem-Wrapper {
   &.agent {
     .ChatItem-Content-Inner {
+      pre {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans',
+          Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+      }
+
       &.display {
         padding-bottom: 24px;
       }
