@@ -78,7 +78,7 @@ const props = defineProps < {
 
     opacity: 0.5;
     border-radius: 12px;
-    background-color: var(--el-text-color-placeholder);
+    background-color: var(--el-mask-color-extra-light);
   }
   position: relative;
   padding: 0.25rem 0.5rem;

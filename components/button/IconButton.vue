@@ -42,7 +42,7 @@ const props = defineProps<{
 
       opacity: 0.5;
       border-radius: 12px;
-      background-color: var(--el-text-color-placeholder);
+      background-color: var(--el-mask-color-extra-light);
     }
     backdrop-filter: blur(16px) saturate(180%);
   }
@@ -50,7 +50,7 @@ const props = defineProps<{
     transform: scale(0.75);
   }
   &:hover {
-    background-color: var(--el-text-color-placeholder);
+    background-color: var(--el-mask-color-extra-light);
   }
 
   &.shining {
