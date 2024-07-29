@@ -33,8 +33,66 @@ export function getUsers(data?: Partial<UserGetQuery>) {
   return endHttp.get('system/users', data)
 }
 
+
+
+export interface RoleGetQuery {
+  /**
+   * 序号
+   */
+  id?:number,
+
+  /**
+   * 角色名称
+   */
+  name:string,
+  /**
+   * 角色值
+   */
+  value:string,
+  /**
+   * 状态
+   */
+  status: number,
+  /**
+   * 备注
+   */
+  remark: string,
+  /**
+   * 菜单id
+   */
+  menuIds:number[],
+  /**
+   * 创建时间
+   */
+  createdAt: string,
+  /**
+   * 更新
+   */
+  updater:string,
+}
 export function getRoleList() {
   return endHttp.get('system/roles')
+}
+
+
+
+
+//新增角色
+export function addRole(data: RoleGetQuery, ) {
+  return endHttp.get('system/roles',data)
+}
+//获取角色信息
+
+export function getRoleInfo(id:number) {
+  return endHttp.get('system/roles/'+id)
+}
+//更新角色
+export function updateRole(id:number,body:any) {
+  return endHttp.put('system/roles/'+id,body)
+}
+//删除角色
+export function deleteRole(id:number) {
+  return endHttp.del('system/roles/'+id)
 }
 
 export interface UserQuery {
