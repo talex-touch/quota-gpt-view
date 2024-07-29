@@ -159,7 +159,9 @@ function filterTools(item: any, total: number, ind: number) {
           </div>
         </div>
         <div v-else ref="dom" :class="{ completed, display: !!item.content.length }" class="ChatItem-Content-Inner">
-          <span v-if="item.role === 'user'">{{ item.content }}</span>
+          <span v-if="item.role === 'user'">
+            <pre>{{ item.content }}</pre>
+          </span>
           <RenderContent v-else :render="settingMode.render" readonly :data="item.content" />
           <!-- v-if="generating && !!item.content.length" -->
           <div v-if="props.ind === props.total - 1" class="Generating-Dot" />
