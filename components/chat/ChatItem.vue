@@ -159,7 +159,8 @@ function filterTools(item: any, total: number, ind: number) {
           </div>
         </div>
         <div v-else ref="dom" :class="{ completed, display: !!item.content.length }" class="ChatItem-Content-Inner">
-          <RenderContent :render="settingMode.render" readonly :data="item.content" />
+          <span v-if="item.role === 'user'">{{ item.content }}</span>
+          <RenderContent v-else :render="settingMode.render" readonly :data="item.content" />
           <!-- v-if="generating && !!item.content.length" -->
           <div v-if="props.ind === props.total - 1" class="Generating-Dot" />
         </div>
@@ -376,7 +377,9 @@ function filterTools(item: any, total: number, ind: number) {
 
     border-radius: 8px 16px 16px 16px;
     box-shadow: var(--el-box-shadow);
-    background-color: var(--el-bg-color);
+    // background-color: var(--el-bg-color);
+    background-color: var(--wallpaper-color-lighter);
+    backdrop-filter: blur(18px) saturate(180%);
     transition: 0.5s;
   }
 
