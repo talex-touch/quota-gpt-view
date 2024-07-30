@@ -1,0 +1,95 @@
+<script setup lang="ts">
+import PlanCard from '~/components/card/PlanCard.vue'
+import { price } from '~/constants/price'
+
+definePageMeta({
+  layout: 'personal',
+})
+
+const plans = computed(() => price.map((item, index) => ({
+  ...item,
+  price: {
+    discount: item.price.discounted / item.price.origin,
+    saved: item.price.origin - item.price.discounted,
+    ...item.price,
+  },
+  got: !index,
+})))
+</script>
+
+<template>
+  <div class="ProfileWrapper">
+    <div class="ProfileWrapper-Header">
+      <p class="title-theme">
+        订阅计划
+      </p>
+    </div>
+
+    <div class="ProfileWrapper-Main">
+      <el-scrollbar>
+        <div class="ProfileWrapper-MainWrapper">
+          <el-alert title="现在下单，新人用户享受限时 2.99/月 福利。" type="success" close-text="更多福利" />
+
+          <br>
+
+          <h1>简单，透明，高性价比计划</h1>
+          <p>立即开始提升你的办公效率、生活体验</p>
+
+          <div class="ProfileWrapper-MainWrapper-Plan">
+            <PlanCard
+              v-for="plan in plans"
+              :key="plan.name" :got="plan.got" :type="plan.type" :desc="plan.desc" :name="plan.name"
+              :price="plan.price"
+            >
+              <li v-for="feature in plan.features" :key="feature">
+                {{ feature }}
+              </li>
+            </PlanCard>
+          </div>
+          <br>
+        </div>
+      </el-scrollbar>
+    </div>
+  </div>
+</template>
+
+<style lang="scss" scoped>
+.ProfileWrapper-MainWrapper-Plan {
+  margin: 2rem 0;
+  display: flex;
+
+  gap: 1.25rem;
+  // padding: 5rem 0;
+}
+
+.ProfileWrapper-MainWrapper {
+  h1 {
+    font-size: 24px;
+    font-weight: 600;
+  }
+  p {
+    margin: 0.5rem 0;
+
+    opacity: 0.75;
+    font-weight: 400;
+  }
+  height: 800px;
+
+  text-align: center;
+}
+
+.title-theme {
+  &::before {
+    z-index: -1;
+    content: 'SUBSCRIPTION';
+    position: absolute;
+
+    opacity: 0.5;
+
+    letter-spacing: 1rem;
+    font-size: 1.5rem;
+
+    transform: translate(5rem, -0.25rem);
+  }
+}
+</style>

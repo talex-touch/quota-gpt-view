@@ -27,21 +27,24 @@ defineProps<{
 .ThemeBlock-Differ {
   position: absolute;
 
-  top: -2px;
-  left: -2px;
+  top: 2px;
+  left: 1px;
 
   width: 50%;
-  height: 100%;
+  height: calc(100% - 4px);
 
   overflow: hidden;
+  border-radius: 16px 0 0 16px;
+  background-color: #1f1f1f;
   // mix-blend-mode: difference;
 }
 
 .ThemeBlock-Inner-Main {
   .ThemeBlock-Inner-Main-Content {
-    .dark & {
+    .ThemeBlock.dark & {
       background: linear-gradient(to bottom, #0f0f0f, #0000);
     }
+
     position: relative;
 
     width: 100%;
@@ -50,14 +53,16 @@ defineProps<{
     border-radius: 12px;
     background: linear-gradient(to bottom, #dfdfdf, #0000);
   }
+
   p {
-    .dark & {
+    .ThemeBlock.dark & {
       color: #dfdfdf;
     }
 
     color: #8c8c8c;
     transform: scale(0.75) translate(-15%, 0);
   }
+
   position: relative;
   padding: 0.25rem;
 
@@ -71,9 +76,10 @@ defineProps<{
 
 .TheBlock-Inner-Aside {
   .ThemeBlock-Inner-Aside-Item {
-    .dark & {
+    .ThemeBlock.dark & {
       background-color: #2e2e2e;
     }
+
     position: relative;
 
     left: 5%;
@@ -84,9 +90,11 @@ defineProps<{
     border-radius: 4px;
     background-color: #dfdfdf;
   }
-  .dark & {
+
+  .ThemeBlock.dark & {
     border-right: 1px solid #2e2e2e;
   }
+
   display: flex;
   padding: 0.5rem 0;
 
@@ -95,14 +103,15 @@ defineProps<{
   gap: 0.5rem;
   width: 30%;
 
-  border-right: 1px solid var(--el-border-color);
+  border-right: 1px solid #dcdfe6;
 }
 
 .ThemeBlock {
   &-Inner {
-    .dark & {
+    .ThemeBlock.dark & {
       background-color: #1f1f1f;
     }
+
     position: relative;
     display: flex;
 
@@ -116,6 +125,7 @@ defineProps<{
   &.active {
     border-color: var(--el-color-primary);
   }
+
   position: relative;
   padding: 4px;
 

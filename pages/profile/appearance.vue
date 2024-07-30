@@ -1,11 +1,17 @@
 <script setup lang="ts">
+import { setWallpaper, themeColors, themeOptions, viewTransition, wallpapers } from '~/composables/theme/colors'
 import ShiningButton from '~/components/button/ShiningButton.vue'
 import TextShaving from '~/components/other/TextShaving.vue'
-import { setWallpaper, themeColors, themeOptions, wallpapers } from '~/composables/theme/colors'
 
 definePageMeta({
   layout: 'personal',
 })
+
+const colorMode = useColorMode()
+
+function toggleTheme(event: MouseEvent, theme: 'auto' | 'light' | 'dark') {
+  viewTransition(event, theme)
+}
 </script>
 
 <template>
@@ -34,17 +40,30 @@ definePageMeta({
             </p>
 
             <div my-4 class="ProfileWrapper-Display-Theme">
-              <ThemeBlock :active="true" theme="system" />
-              <ThemeBlock :active="false" theme="light" />
-              <ThemeBlock :active="false" theme="dark" />
+              <ThemeBlock :active="colorMode.preference === 'system'" theme="system" @click="toggleTheme($event, 'auto')" />
+              <ThemeBlock :active="colorMode.preference === 'light'" theme="light" @click="toggleTheme($event, 'light')" />
+              <ThemeBlock
+                :active="colorMode.preference === 'dark'" theme="dark" @click="toggleTheme($event, 'dark')"
+              />
             </div>
           </div>
 
           <div my-12 class="ProfileWrapper-Wallpaper">
-            <p>自定义你的界面墙纸</p>
-            <p op-50>
-              设置你的自定义墙纸
-            </p>
+            <div flex justify-between pr-8 class="ProfileWrapper-WallpaperHeader">
+              <div class="wallpaper-start">
+                <p>自定义你的界面墙纸</p>
+                <p op-50>
+                  设置你的自定义墙纸
+                </p>
+              </div>
+
+              <div v-if="themeOptions.theme" flex class="wallpaper-end">
+                当前选择：{{ themeOptions.theme }}
+                <el-button type="danger" @click="setWallpaper(null)">
+                  重置
+                </el-button>
+              </div>
+            </div>
 
             <div my-4 class="ProfileWrapper-Display-Theme">
               <div
@@ -73,7 +92,17 @@ definePageMeta({
   </div>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
+.ProfileWrapper-WallpaperHeader {
+  .wallpaper-end {
+    // flex-direction: column;
+
+    gap: 0.5rem;
+    align-items: center;
+    margin-right: 2rem;
+  }
+}
+
 .Wallpaper-Item {
   img {
     width: 100%;
@@ -106,11 +135,12 @@ definePageMeta({
 
     border: 1px solid var(--t, var(--el-color-primary));
   }
+
   position: relative;
   padding: 4px;
 
-  width: 380px;
-  height: 200px;
+  width: 320px;
+  height: 180px;
 
   cursor: pointer;
 }
@@ -120,7 +150,7 @@ definePageMeta({
 }
 
 .ProfileWrapper-MainWrapper {
-  height: 700px;
+  height: 750px;
 }
 
 .ProfileWrapper-Display {
@@ -129,6 +159,7 @@ definePageMeta({
 
     gap: 0.5rem;
   }
+
   margin: 1rem 0;
 }
 
@@ -140,6 +171,7 @@ definePageMeta({
 
         opacity: 1;
       }
+
       &::after {
         width: 15px;
 
@@ -194,6 +226,7 @@ definePageMeta({
     border-radius: 50%;
     background-color: var(--c);
   }
+
   padding: 0.5rem 0;
   display: flex;
 

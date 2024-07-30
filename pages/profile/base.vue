@@ -115,13 +115,15 @@ const lastEditTime = computed(() => dayjs(userStore.value.updatedAt).format('DD 
         更新个人信息可能会有延迟
       </div>
 
-      <el-button size="large" @click="resetForm(ruleFormRef)">
-        重置
-      </el-button>
+      <div>
+        <el-button size="large" @click="resetForm(ruleFormRef)">
+          重置
+        </el-button>
 
-      <el-button size="large" type="primary" @click="submitForm(ruleFormRef)">
-        更新
-      </el-button>
+        <el-button size="large" type="primary" @click="submitForm(ruleFormRef)">
+          更新
+        </el-button>
+      </div>
     </div>
   </div>
 </template>

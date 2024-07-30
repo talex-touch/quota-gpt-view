@@ -168,6 +168,8 @@ onMounted(() => {
 
     width: 100%;
     height: 100%;
+
+    backdrop-filter: blur(8px) saturate(180%);
   }
 
   &-Aside {
@@ -223,6 +225,7 @@ onMounted(() => {
 
     width: 240px;
     border-right: 1px solid var(--el-border-color);
+    backdrop-filter: blur(58px) saturate(180%);
   }
 
   position: relative;
@@ -231,17 +234,17 @@ onMounted(() => {
   top: 50%;
   left: 50%;
 
-  width: 1080px;
-  height: calc(80% - 61px - 2rem);
+  width: 100%;
+  height: 100%;
+  // height: calc(100% - 61px);
 
   transform: translate(-50%, -50%);
 
   overflow: hidden;
-  border-radius: 18px;
+  // border-radius: 18px;
   box-shadow: var(--el-box-shadow);
   // background-color: var(--el-bg-color);
   background: var(--el-mask-color-extra-light);
-  backdrop-filter: blur(18px) saturate(150%);
 }
 
 .DocumentTemplate {
@@ -282,7 +285,7 @@ onMounted(() => {
     width: 100%;
 
     background: var(--el-mask-color-extra-light);
-    backdrop-filter: blur(18px) saturate(150%);
+    backdrop-filter: blur(58px) saturate(180%);
     border-bottom: 1px solid var(--el-border-color);
   }
 

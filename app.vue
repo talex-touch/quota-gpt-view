@@ -53,10 +53,25 @@ body,
   padding: 0;
 
   overflow: hidden;
+
+  --theme-color: var(--wallpaper-color, var(--el-color-primary));
+  --theme-color-light: var(
+    --wallpaper-color-light,
+    var(--el-color-primary-light-5)
+  );
 }
 
 html.dark {
   background: #222;
   color: white;
+}
+
+::view-transition-new(root),
+::view-transition-old(root) {
+  animation: none;
+}
+
+.dark::view-transition-old(root) {
+  z-index: 100;
 }
 </style>

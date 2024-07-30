@@ -68,7 +68,10 @@ function handleClick() {
   &.select {
     color: var(--el-color-success);
 
-    background-color: var(--el-border-color);
+    background-color: var(
+      --wallpaper-color-light,
+      var(--el-border-color-extra-light)
+    );
   }
 }
 </style>

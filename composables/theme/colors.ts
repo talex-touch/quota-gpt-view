@@ -4,6 +4,11 @@ import Grass from '/backgrounds/grass.jpg'
 import Dessert from '/backgrounds/dessert.jpg'
 import Powder from '/backgrounds/powder.jpg'
 import Universe from '/backgrounds/universe.jpg'
+import Golden from '/backgrounds/golden.jpg'
+import Blocks from '/backgrounds/blocks.jpg'
+import Earth from '/backgrounds/earth.jpg'
+
+// import { useColorMode } from '@vueuse/core'
 
 export const themeColors = [
   '#3AB8FD',
@@ -57,6 +62,24 @@ export const wallpapers = [
     color: '#B4B1BA',
     wallpaper: Universe,
   },
+  {
+    id: 'golden',
+    label: '灿煌云巅',
+    color: '#FCCC48',
+    wallpaper: Golden,
+  },
+  {
+    id: 'blocks',
+    label: '菁彩积木',
+    color: '#203243',
+    wallpaper: Blocks,
+  },
+  {
+    id: 'earth',
+    label: '瀚宇地球',
+    color: '#4F637B',
+    wallpaper: Earth,
+  },
 ]
 
 export const themeOptions = useLocalStorage('theme-options', {
@@ -65,6 +88,17 @@ export const themeOptions = useLocalStorage('theme-options', {
 })
 
 export function setWallpaper(paper: any) {
+  if (!paper) {
+    themeOptions.value.theme = ''
+    document.body.classList.remove('wallpaper')
+
+    document.documentElement.style.setProperty('--wallpaper-color', '')
+    document.documentElement.style.setProperty('--wallpaper-color-light', '')
+    document.documentElement.style.setProperty('--wallpaper-color-lighter', '')
+    document.documentElement.style.setProperty('--wallpaper', '')
+
+    return
+  }
   themeOptions.value.theme = paper.id
 
   document.body.classList.add('wallpaper')
@@ -73,4 +107,50 @@ export function setWallpaper(paper: any) {
   document.documentElement.style.setProperty('--wallpaper-color-light', `${paper.color}80`)
   document.documentElement.style.setProperty('--wallpaper-color-lighter', `${paper.color}30`)
   document.documentElement.style.setProperty('--wallpaper', `url(${paper.wallpaper})`)
+}
+
+export function viewTransition(e: { clientX: number, clientY: number }, theme?: 'auto' | 'light' | 'dark') {
+  if (!document.startViewTransition)
+    return
+
+  const color = useColorMode()
+
+  const compColorMode = computed({
+    get() {
+      return color.preference
+    },
+    set(val: string) {
+      color.preference = val
+    },
+  })
+
+  const transition = document.startViewTransition(() => {
+    compColorMode.value = theme || (compColorMode.value === 'dark' ? 'light' : 'dark')
+  })
+
+  transition.ready.then(() => {
+    const { clientX, clientY } = e
+
+    const radius = Math.hypot(
+      Math.max(clientX, innerWidth - clientX),
+      Math.max(clientY, innerHeight - clientY),
+    )
+    const clipPath = [
+      `circle(0% at ${clientX}px ${clientY}px)`,
+      `circle(${radius}px at ${clientX}px ${clientY}px)`,
+    ]
+    const isDark = document.documentElement.classList.contains('dark')
+
+    document.documentElement.animate(
+      {
+        clipPath: isDark ? clipPath.reverse() : clipPath,
+      },
+      {
+        duration: 500,
+        pseudoElement: isDark
+          ? '::view-transition-old(root)'
+          : '::view-transition-new(root)',
+      },
+    )
+  })
 }
