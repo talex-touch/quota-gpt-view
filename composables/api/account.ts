@@ -124,3 +124,23 @@ export function getHistoryList() {
 export function addDept(body: any) {
   return endHttp.post('system/depts', body)
 }
+
+export function getParamList(Query: any) {
+  return endHttp.get('system/param-config', Query)
+}
+
+export function addParam(Header: any) {
+  return endHttp.post('system/param-config', Header)
+}
+
+export function inquireParamInformation(Path: any) {
+  return endHttp.get('system/param-config/{id}', Path)
+}
+
+export function updateParam(Path: any) {
+  return endHttp.post('system/param-config/{id}', Path)
+}
+
+export function delParam(Path: any) {
+  return endHttp.post('system/param-config/{id}', Path)
+}
