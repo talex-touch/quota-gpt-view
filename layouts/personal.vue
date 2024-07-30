@@ -232,7 +232,7 @@ onMounted(() => {
   left: 50%;
 
   width: 1080px;
-  height: calc(80% - 61px - 2rem);
+  height: calc(100% - 61px - 1rem);
 
   transform: translate(-50%, -50%);
 

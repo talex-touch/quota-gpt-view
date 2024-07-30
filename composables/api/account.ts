@@ -33,66 +33,61 @@ export function getUsers(data?: Partial<UserGetQuery>) {
   return endHttp.get('system/users', data)
 }
 
-
-
 export interface RoleGetQuery {
   /**
    * 序号
    */
-  id?:number,
+  id?: number
 
   /**
    * 角色名称
    */
-  name:string,
+  name: string
   /**
    * 角色值
    */
-  value:string,
+  value: string
   /**
    * 状态
    */
-  status: number,
+  status: number
   /**
    * 备注
    */
-  remark: string,
+  remark: string
   /**
    * 菜单id
    */
-  menuIds:number[],
+  menuIds: number[]
   /**
    * 创建时间
    */
-  createdAt: string,
+  createdAt: string
   /**
    * 更新
    */
-  updater:string,
+  updater: string
 }
 export function getRoleList() {
   return endHttp.get('system/roles')
 }
 
-
-
-
-//新增角色
-export function addRole(data: RoleGetQuery, ) {
-  return endHttp.get('system/roles',data)
+// 新增角色
+export function addRole(data: RoleGetQuery) {
+  return endHttp.get('system/roles', data)
 }
-//获取角色信息
+// 获取角色信息
 
-export function getRoleInfo(id:number) {
-  return endHttp.get('system/roles/'+id)
+export function getRoleInfo(id: number) {
+  return endHttp.get(`system/roles/${id}`)
 }
-//更新角色
-export function updateRole(id:number,body:any) {
-  return endHttp.put('system/roles/'+id,body)
+// 更新角色
+export function updateRole(id: number, body: any) {
+  return endHttp.put(`system/roles/${id}`, body)
 }
-//删除角色
-export function deleteRole(id:number) {
-  return endHttp.del('system/roles/'+id)
+// 删除角色
+export function deleteRole(id: number) {
+  return endHttp.del(`system/roles/${id}`)
 }
 
 export interface UserQuery {
@@ -205,5 +200,29 @@ export function updateParam(Path: any) {
 }
 
 export function delParam(Path: any) {
+  return endHttp.post('system/param-config/{id}', Path)
+}
+
+export function getDictList(Query: any) {
+  return endHttp.get('system/dict-type', Query)
+}
+
+export function addDict(Header: any) {
+  return endHttp.post('system/dict-type', Header)
+}
+
+export function getAllDictList(Header: any) {
+  return endHttp.get('system/dict-type/select-options', Header)
+}
+
+export function inquireDictInformation(Path: any) {
+  return endHttp.get('system/dict-type/{id}', Path)
+}
+
+export function updateDict(Header: any) {
+  return endHttp.post('system/dict-type/{id}', Header)
+}
+
+export function delDict(Path: any) {
   return endHttp.post('system/param-config/{id}', Path)
 }
