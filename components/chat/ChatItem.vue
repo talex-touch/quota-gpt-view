@@ -452,7 +452,6 @@ function filterTools(item: any, total: number, ind: number) {
     background-color: var(--el-bg-color-page);
     transition: 0.25s;
   }
-
   position: relative;
 
   width: max-content;
@@ -463,6 +462,7 @@ function filterTools(item: any, total: number, ind: number) {
 
 .ChatItem {
   &.user {
+    z-index: 2;
     .ChatItem-Avatar {
       display: none;
     }
@@ -474,7 +474,7 @@ function filterTools(item: any, total: number, ind: number) {
     width: 48px;
   }
 
-  z-index: 2;
+  z-index: 3;
   position: relative;
   display: flex;
   margin: 1rem 0;
