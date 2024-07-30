@@ -69,7 +69,7 @@ const sections = reactive([
 
       opacity: 0.5;
       border-radius: 16px;
-      background-color: var(--el-bg-color-page);
+      background-color: var(--el-bg-color);
     }
     position: relative;
     padding: 0.75rem;
