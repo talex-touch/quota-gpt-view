@@ -1,8 +1,7 @@
 <script lang="ts" setup>
 import dayjs from 'dayjs'
 import type { ComponentSize, FormInstance, FormRules } from 'element-plus'
-import { type UserQuery, addUser, deleteUser, getDepartmentList, getRoleList, getUsers, updateUser } from '~/composables/api/account'
-import UserAvatar from '~/components/personal/UserAvatar.vue'
+import { type UserQuery, addUser, deleteUser, getDepartmentList, getParamList, getRoleList, getUsers, updateUser } from '~/composables/api/account'
 import UserUploadAvatar from '~/components/personal/UserUploadAvatar.vue'
 
 definePageMeta({
@@ -53,22 +52,12 @@ function handleReset() {
   treeDom.value?.setCurrentKey(null)
 }
 
-const roles = ref()
-
 onMounted(fetchData)
 
 async function fetchData() {
   formLoading.value = true
 
-  const query: Record<string, any> = {
-    page: users.value.meta.currentPage,
-    pageSize: users.value.meta.itemsPerPage,
-    username: formInline.user,
-    email: formInline.email,
-    phone: formInline.phone,
-    remark: formInline.remark,
-    deptId: formInline.deptId,
-  }
+  const query: any = {}
 
   // 过滤掉为空的值
   Object.entries(query).forEach(([key, value]) => {
@@ -76,14 +65,13 @@ async function fetchData() {
       delete query[key]
   })
 
-  const res: any = (await getUsers(query))
+  const res: any = (await getParamList(query))
   if (!res) {
     ElMessage.warning('参数错误，查询失败！')
   }
   else {
     if (res.code === 200) {
       depts.value = (await getDepartmentList()).data
-      roles.value = (await getRoleList()).data
 
       users.value = res.data
     }
@@ -100,15 +88,10 @@ function formatDate(date: string) {
   return dayjs(date).format('YYYY-MM-DD HH:mm:ss')
 }
 
-interface UserForm extends UserQuery {
-  roles?: any[]
-  deptId: number
-}
-
 const dialogOptions = reactive<{
   visible: boolean
   mode: 'edit' | 'read' | 'new'
-  data: UserForm | null
+  data: any | null
   loading: boolean
 }>({
   visible: false,
@@ -117,56 +100,22 @@ const dialogOptions = reactive<{
   loading: false,
 })
 
-function handleDialog(data: UserForm | null, mode: 'edit' | 'read' | 'new') {
+function handleDialog(data: any | null, mode: 'edit' | 'read' | 'new') {
   dialogOptions.mode = mode
   dialogOptions.visible = true
   dialogOptions.data = (mode === 'new'
     ? {
-        id: '',
-        email: '',
-        username: '',
-        nickname: '',
-        avatar: '',
-        qq: '',
-        phone: '',
-        status: 1,
-        remark: '',
-        roles: [],
-      }
-    : { ...data }) as UserForm
 
-  dialogOptions.data.roleIds = dialogOptions.data.roles!.map((item: any) => item.id)
+      }
+    : { ...data }) as any
+
   dialogOptions.data.deptId = dialogOptions.data.dept?.id ?? 0
 }
 
 const ruleFormRef = ref<FormInstance>()
 
-const rules = reactive<FormRules<UserForm>>({
-  username: [
-    { required: true, message: '请输入用户名称', trigger: 'blur' },
-    { min: 5, max: 24, message: '用户名需要在 5-24 位之间', trigger: 'blur' },
-  ],
-  nickname: [
-    { required: true, message: '请输入用户昵称', trigger: 'blur' },
-    { min: 5, max: 24, message: '用户名需要在 5-24 位之间', trigger: 'blur' },
-  ],
-  password: [
-    { required: true, message: '请输入用户密码', trigger: 'blur' },
-    { min: 6, max: 16, message: '用户密码需要在 6-16 位之间', trigger: 'blur' },
-    { pattern: /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{6,16}$/, message: '用户密码必须包含数字和字母', trigger: 'blur' },
-  ],
-  avatar: [
-    { required: true, message: '请上传头像', trigger: 'blur' },
-  ],
-  // qq: [
-  //   { required: true, message: '请输入QQ号', trigger: 'blur' },
-  // ],
-  phone: [
-    { required: true, message: '请输入手机号', trigger: 'blur' },
-  ],
-  status: [
-    { required: true, message: '请选择状态', trigger: 'blur' },
-  ],
+const rules = reactive<FormRules<any>>({
+
 })
 
 async function submitForm(formEl: FormInstance | undefined) {
@@ -179,7 +128,7 @@ async function submitForm(formEl: FormInstance | undefined) {
     dialogOptions.loading = true
 
     if (dialogOptions.mode !== 'new') {
-      const res: any = await updateUser(dialogOptions.data!.id!, dialogOptions.data as UserForm)
+      const res: any = await updateUser(dialogOptions.data!.id!, dialogOptions.data as any)
 
       if (res.code === 200) {
         ElMessage.success('修改成功！')
@@ -191,7 +140,7 @@ async function submitForm(formEl: FormInstance | undefined) {
       }
     }
     else {
-      const res: any = await addUser(dialogOptions.data as UserForm)
+      const res: any = await addUser(dialogOptions.data as any)
 
       if (res.code === 200) {
         ElMessage.success('添加成功！')
@@ -213,9 +162,9 @@ function resetForm(formEl: FormInstance | undefined) {
   formEl.resetFields()
 }
 
-function handleDeleteUser(id: number, data: UserForm) {
+function handleDeleteUser(id: number, data: any) {
   ElMessageBox.confirm(
-    `你确定要删除用户 ${data.username}(${data.nickname}) #${id} 吗？删除后这个账户永久无法找回。`,
+    `你确定要删除 #${id} 吗？删除后这个账户永久无法找回。`,
     '确认删除',
     {
       confirmButtonText: '取消',
@@ -240,7 +189,7 @@ function handleDeleteUser(id: number, data: UserForm) {
 
       ElNotification({
         title: 'Info',
-        message: `你永久删除了用户 ${data.username}(${data.nickname}) #${id} 及其相关数据！`,
+        message: `你永久删除了 #${id} 及其相关数据！`,
         type: 'info',
       })
     })
@@ -271,36 +220,11 @@ function filterNode(value: string, data: any) {
 
 <template>
   <el-container class="CmsUser">
-    <el-aside width="320px">
-      <el-header>
-        <p font-bold>
-          组织架构
-        </p>
-        <el-input v-model="treeFilterQuery" style="width: 200px" placeholder="搜索部门" />
-      </el-header>
-
-      <el-tree
-        ref="treeDom" :filter-node-method="filterNode" :default-expand-all="true" :highlight-current="true"
-        :current-node-key="formInline.deptId" node-key="id" :check-on-click-node="true" style="max-width: 600px"
-        :data="depts" :props="defaultProps" @node-click="handleNodeClick"
-      />
-    </el-aside>
-
     <el-main>
       <el-form :disabled="formLoading" :inline="true" :model="formInline">
         <el-form-item label="用户名">
           <el-input v-model="formInline.user" minlength="4" placeholder="搜索用户名" clearable />
         </el-form-item>
-        <el-form-item label="邮箱">
-          <el-input v-model="formInline.email" placeholder="搜索邮箱" clearable />
-        </el-form-item>
-        <el-form-item label="手机号">
-          <el-input v-model="formInline.phone" placeholder="搜索手机号" clearable />
-        </el-form-item>
-        <el-form-item label="备注">
-          <el-input v-model="formInline.remark" placeholder="搜索备注" clearable />
-        </el-form-item>
-
         <el-form-item style="margin-right: 0" float-right>
           <el-button @click="handleReset">
             重置
@@ -309,80 +233,26 @@ function filterNode(value: string, data: any) {
             查询
           </el-button>
           <el-button type="success" @click="handleDialog(null, 'new')">
-            新建用户
+            新建参数
           </el-button>
         </el-form-item>
       </el-form>
 
       <ClientOnly>
-        <el-table v-if="users?.items" :data="users.items" style="width: 100%">
-          <el-table-column type="index" label="序号" width="60" />
-          <el-table-column prop="date" label="头像" width="80">
-            <template #default="scope">
-              <UserAvatar :avatar="scope.row.avatar" />
-            </template>
-          </el-table-column>
-          <el-table-column prop="username" label="用户名(昵称)" width="240">
-            <template #default="{ row }">
-              {{ row.username }}<span op-50>({{ row.nickname }})</span>
-            </template>
-          </el-table-column>
-          <el-table-column prop="email" label="邮箱" width="180" />
-          <el-table-column prop="department" label="部门" width="180">
-            <template #default="{ row }">
-              <el-tag v-if="row.dept">
-                {{ row.dept.name }}
-              </el-tag>
-              <span v-else>无</span>
-            </template>
-          </el-table-column>
-          <el-table-column prop="phone" label="手机号" width="180" />
-          <el-table-column prop="role" label="角色" width="180">
-            <template #default="{ row }">
-              <span v-if="row.roles?.length">
-                <el-tag v-for="role in row.roles" :key="role.id"> {{ role.name }}</el-tag>
-              </span>
-              <span v-else>无</span>
-            </template>
-          </el-table-column>
-          <el-table-column prop="status" label="状态" width="180">
-            <template #default="scope">
-              <el-tag :type="scope.row.status === 1 ? 'success' : 'danger'">
-                {{ scope.row.status === 1 ? '启用' : '禁用' }}
-              </el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column prop="remark" label="备注" width="180" />
-          <el-table-column prop="createdAt" label="创建时间" width="180">
-            <template #default="scope">
-              {{ formatDate(scope.row.createdAt) }}
-            </template>
-          </el-table-column>
-          <el-table-column prop="updatedAt" label="更新时间" width="180">
-            <template #default="scope">
-              {{ formatDate(scope.row.updatedAt) }}
-            </template>
-          </el-table-column>
-          <el-table-column fixed="right" label="操作" width="200">
-            <template #default="{ row }">
-              <el-button plain text size="small" @click="handleDialog(row, 'read')">
-                详情
-              </el-button>
-              <el-button plain text size="small" type="warning" @click="handleDialog(row, 'edit')">
-                编辑
-              </el-button>
-              <el-button plain text size="small" type="danger" @click="handleDeleteUser(row.id, row)">
-                删除
-              </el-button>
-            </template>
-          </el-table-column>
+        <el-table v-if="depts?.items" :data="depts.items" style="width: 100%">
+          <el-table-column prop="名字" label="name" width="180" />
+          <el-table-column prop="密钥" label="key" width="180" />
+          <el-table-column prop="value" label="value" width="180" />
+          <el-table-column prop="创建时间" label="createdAt" width="180" />
+          <el-table-column prop="修改时间" label="updatedAt" width="180" />
+          <el-table>
+            <el-pagination
+              v-if="depts?.meta" v-model:current-page="depts.meta.currentPage"
+              v-model:page-size="depts.meta.itemsPerPage" float-right my-4 :page-sizes="[10, 30, 50, 100]"
+              layout="total, sizes, prev, pager, next, jumper" :total="depts.meta.totalItems" @change="fetchData"
+            />
+          </el-table>
         </el-table>
-
-        <el-pagination
-          v-if="users?.meta" v-model:current-page="users.meta.currentPage"
-          v-model:page-size="users.meta.itemsPerPage" float-right my-4 :page-sizes="[10, 30, 50, 100]"
-          layout="total, sizes, prev, pager, next, jumper" :total="users.meta.totalItems" @change="fetchData"
-        />
       </ClientOnly>
     </el-main>
 
@@ -432,11 +302,6 @@ function filterNode(value: string, data: any) {
               :render-after-expand="false"
             />
           </el-form-item>
-          <el-form-item label="用户角色" prop="roles">
-            <el-select v-model="dialogOptions.data.roleIds" multiple placeholder="请选择角色">
-              <el-option v-for="item in roles.items" :key="item.id" :label="item.name" :value="item.id" />
-            </el-select>
-          </el-form-item>
           <el-form-item label="用户状态" prop="status">
             <el-radio-group v-model="dialogOptions.data.status">
               <el-radio-button :value="0">
@@ -478,8 +343,5 @@ function filterNode(value: string, data: any) {
 
 <style lang="scss">
 .CmsUser {
-  .el-aside {
-    border-right: 1px solid var(--el-border-color);
-  }
 }
 </style>
