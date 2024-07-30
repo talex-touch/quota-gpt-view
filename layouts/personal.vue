@@ -46,6 +46,9 @@ onMounted(() => {
             <CmsMenuItem path="/profile/base">
               <div i-carbon-user />账号资料
             </CmsMenuItem>
+            <CmsMenuItem emphasis path="/profile/plan">
+              <div i-carbon:document-multiple-01 />订阅计划
+            </CmsMenuItem>
             <CmsMenuItem path="/profile/test">
               <div i-carbon-software-resource-cluster />我的内测
             </CmsMenuItem>
@@ -54,9 +57,6 @@ onMounted(() => {
             </CmsMenuItem>
             <CmsMenuItem path="/profile/appearance">
               <div i-carbon-moon />外观设置
-            </CmsMenuItem>
-            <CmsMenuItem path="/profile/language">
-              <div i-carbon-language />语言设置
             </CmsMenuItem>
           </div>
 
