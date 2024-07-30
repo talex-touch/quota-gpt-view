@@ -51,6 +51,7 @@
     "eslint": "^9.2.0",
     "eslint-plugin-format": "^0.1.1",
     "nuxt": "^3.11.2",
+    "nuxt-echarts": "^0.1.0",
     "pinia": "^2.1.7",
     "sass": "^1.77.6",
     "typescript": "^5.4.5",

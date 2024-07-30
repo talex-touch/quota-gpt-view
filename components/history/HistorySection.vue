@@ -65,6 +65,10 @@ watch(() => route, () => {
 </template>
 
 <style lang="scss">
+.History-ContentHolder {
+  padding: 0 0.5rem;
+}
+
 .HistorySection {
   p {
     z-index: 1;
@@ -73,15 +77,24 @@ watch(() => route, () => {
     top: 70px;
 
     margin: 0.75rem 0 0.5rem;
-    padding: 0.5rem;
+    padding: 0.5rem 1rem;
 
     font-weight: 600;
     color: var(--el-text-color-primary);
 
     // background: var(--el-bg-color);
     background-size: 4px 4px;
-    background-image: radial-gradient(transparent 1px, var(--el-bg-color) 1px);
+    background-image: radial-gradient(
+      transparent 1px,
+      var(--wallpaper-color-light, var(--el-bg-color)) 1px
+    );
     backdrop-filter: saturate(50%) blur(4px);
+
+    .wallpaper & {
+      background-image: none;
+
+      backdrop-filter: blur(4px);
+    }
   }
 }
 
@@ -182,11 +195,18 @@ watch(() => route, () => {
       .History-Content-Fixed {
         opacity: 1;
       }
-      background-color: var(--el-bg-color-page);
+      color: #fff;
+      background-color: var(
+        --wallpaper-color-light,
+        var(--el-color-primary-light-5)
+      );
     }
     &.active {
       color: var(--el-text-color-primary);
-      background-color: var(--el-color-primary-light-5);
+      background-color: var(
+        --wallpaper-color-light,
+        var(--el-color-primary-light-5)
+      );
     }
     position: relative;
     padding: 0.5rem 0.5rem;

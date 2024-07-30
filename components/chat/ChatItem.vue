@@ -122,6 +122,16 @@ watch(() => check.value, (val) => {
 watch(() => props.select, (val) => {
   check.value = val.includes(props.ind)
 })
+
+function filterTools(item: any, total: number, ind: number) {
+  return tools.filter((tool) => {
+    return item.role === 'user'
+      ? !tool.userIgnored
+      : tool.lastShow
+        ? total === ind + 1
+        : true
+  })
+}
 </script>
 
 <template>
@@ -149,7 +159,11 @@ watch(() => props.select, (val) => {
           </div>
         </div>
         <div v-else ref="dom" :class="{ completed, display: !!item.content.length }" class="ChatItem-Content-Inner">
-          <RenderContent :render="settingMode.render" readonly :data="item.content" />
+          <span v-if="item.role === 'user'">
+            {{ item.content }}
+            <!-- <pre></pre> -->
+          </span>
+          <RenderContent v-else :render="settingMode.render" readonly :data="item.content" />
           <!-- v-if="generating && !!item.content.length" -->
           <div v-if="props.ind === props.total - 1" class="Generating-Dot" />
         </div>
@@ -175,22 +189,17 @@ watch(() => props.select, (val) => {
         " class="ChatItem-Mention"
       >
         <span class="toolbox">
-          <span v-for="tool in tools" :key="tool.name" class="toolbox-item" @click="tool.trigger">
-            <el-tooltip
-              v-if="
-                item.role === 'user'
-                  ? !tool.userIgnored
-                  : tool.lastShow
-                    ? total === ind + 1
-                    : true
-              " :content="tool.name"
-            >
+          <span
+            v-for="tool in filterTools(item, total, ind)" :key="tool.name" class="toolbox-item"
+            @click="tool.trigger"
+          >
+            <el-tooltip :content="tool.name">
               <i :class="tool.icon" />
             </el-tooltip>
           </span>
         </span>
 
-        <span v-if="item.role !== 'user'">
+        <span>
           <span class="date">{{ timeAgo }}</span>
           &nbsp;
           <span v-if="item.content.length > 30" class="length">{{ item.content.length }} 字</span>
@@ -224,7 +233,6 @@ watch(() => props.select, (val) => {
 
 .ChatItem.share {
   div.ChatItem-Mention {
-    margin-bottom: -20px;
     opacity: 0;
   }
 
@@ -234,8 +242,8 @@ watch(() => props.select, (val) => {
 
   margin-left: 1rem;
 
-  left: 25%;
-  width: 50%;
+  left: 10%;
+  width: 80%;
 
   &.check {
     padding: 0.5rem;
@@ -249,12 +257,13 @@ watch(() => props.select, (val) => {
   .settingVisible & {
     transform: translateY(100%) scale(1);
   }
+
   z-index: 10;
   position: absolute;
   padding: 0.5rem 1rem;
 
   left: 0;
-  bottom: 0;
+  bottom: -20px;
 
   width: 125px;
   height: 70px;
@@ -312,13 +321,20 @@ watch(() => props.select, (val) => {
 .ChatItem-Wrapper {
   &.agent {
     .ChatItem-Content-Inner {
+      pre {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans',
+          Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+      }
+
       &.display {
         padding-bottom: 24px;
       }
+
       &.display.completed {
         padding-bottom: 0.5rem;
         box-shadow: var(--el-box-shadow);
         background-color: var(--el-bg-color);
+        // background-color: var(--el-bg-color);
       }
 
       box-shadow: none;
@@ -369,19 +385,24 @@ watch(() => props.select, (val) => {
 
     border-radius: 8px 16px 16px 16px;
     box-shadow: var(--el-box-shadow);
-    background-color: var(--el-bg-color);
+    // background-color: var(--el-bg-color);
+    background-color: var(--wallpaper-color-lighter);
+    backdrop-filter: blur(18px) saturate(180%);
     transition: 0.5s;
   }
 
   &:hover,
   &.settingVisible {
     .ChatItem-Mention {
-      margin-bottom: 0px;
       opacity: 0.75;
     }
   }
 
   .ChatItem-Mention {
+    & > span {
+      flex: 1;
+    }
+
     .toolbox {
       i {
         display: block;
@@ -393,15 +414,24 @@ watch(() => props.select, (val) => {
       align-items: center;
 
       height: 12px;
-      width: max-content;
+      width: fit-content;
 
+      flex: 0;
       cursor: pointer;
     }
 
+    .user & {
+      flex-direction: row-reverse;
+
+      left: unset;
+      float: right;
+      right: 10px !important;
+    }
+
+    z-index: 1;
     position: relative;
-    margin-top: 10px;
-    margin-bottom: -20px;
-    padding: 0 1rem;
+    margin-bottom: -15px;
+    padding: 0.25rem 0.5rem;
     display: flex;
 
     gap: 0.5rem;
@@ -409,15 +439,17 @@ watch(() => props.select, (val) => {
     justify-content: flex-start;
 
     // height: 32px;
-    width: fit-content;
+    width: max-content;
 
-    left: 0;
+    left: 10px;
+    bottom: 10px;
 
     opacity: 0;
     font-size: 12px;
     box-sizing: border-box;
-    // border-radius: 8px;
-    // background-color: var(--el-bg-color);
+    border-radius: 12px;
+    box-shadow: var(--el-box-shadow);
+    background-color: var(--el-bg-color-page);
     transition: 0.25s;
   }
 

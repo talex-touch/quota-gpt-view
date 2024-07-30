@@ -37,6 +37,24 @@ onBeforeMount(async () => {
     return item
   })
 })
+
+const color = useColorMode()
+
+const font = reactive({
+  color: 'rgba(0, 0, 0, .15)',
+})
+
+watch(
+  color,
+  () => {
+    font.color = color.value === 'dark'
+      ? 'rgba(255, 255, 255, .15)'
+      : 'rgba(0, 0, 0, .15)'
+  },
+  {
+    immediate: true,
+  },
+)
 </script>
 
 <template>
@@ -90,7 +108,9 @@ onBeforeMount(async () => {
         </template>
       </el-aside>
       <el-main class="CmsMain">
-        <slot />
+        <el-watermark :font="font" :z-index="10" class="watermark" :content="[userStore.nickname!, 'ThisAI CMS']">
+          <slot />
+        </el-watermark>
       </el-main>
     </el-container>
   </el-container>

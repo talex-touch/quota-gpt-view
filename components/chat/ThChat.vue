@@ -311,6 +311,7 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
   cursor: pointer;
   transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
   border-radius: 18px;
+  box-shadow: var(--el-box-shadow);
   transform: translate(-50%, -50%) translateX(100px) scale(0);
   backdrop-filter: blur(18px) saturate(180%);
 }
@@ -347,21 +348,28 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
   cursor: pointer;
   transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
   border-radius: 18px;
+  box-shadow: var(--el-box-shadow);
   transform: translate(-50%, -50%) translateX(-100px) scale(0);
   backdrop-filter: blur(18px) saturate(180%);
 }
 
 .ThChat-Container {
   &-Wrapper {
+    z-index: 2;
     position: relative;
-    padding: 1rem 10%;
+    padding: 1rem 0;
     padding-top: 40px;
 
     display: flex;
     flex-direction: column;
 
+    left: 50%;
+    width: min(70%, 1080px);
+
     gap: 0.25rem;
     box-sizing: border-box;
+
+    transform: translateX(-50%);
   }
 
   position: absolute;
@@ -399,6 +407,35 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
     height: 40px;
 
     // backdrop-filter: blur(18px) saturate(180%);
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    opacity: 0.5;
+    background-size: cover;
+    background-image: var(--wallpaper);
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    opacity: 0.25;
+    background-color: var(--el-bg-color-page);
   }
 
   position: relative;

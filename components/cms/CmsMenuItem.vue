@@ -3,6 +3,7 @@ const props = defineProps<{
   path?: string
   query?: string
   danger?: boolean
+  emphasis?: boolean
 }>()
 
 const select = ref(false)
@@ -28,7 +29,7 @@ function handleClick() {
 </script>
 
 <template>
-  <div v-wave :class="{ select, danger }" class="CmsMenuItem" @click="handleClick">
+  <div v-wave :class="{ select, danger, emphasis }" class="CmsMenuItem" @click="handleClick">
     <slot />
   </div>
 </template>
@@ -37,8 +38,10 @@ function handleClick() {
 .CmsMenuItem {
   &:hover,
   &.select {
+    .wallpaper & {
+      background: var(--el-mask-color-extra-light);
+    }
     color: var(--el-color-primary);
-
     background-color: var(--el-border-color-extra-light);
   }
 
@@ -57,6 +60,15 @@ function handleClick() {
     color: var(--el-color-danger);
 
     background-color: var(--el-border-color-extra-light);
+  }
+}
+
+.CmsMenuItem.emphasis {
+  &:hover,
+  &.select {
+    color: var(--el-color-success);
+
+    background-color: var(--el-border-color);
   }
 }
 </style>

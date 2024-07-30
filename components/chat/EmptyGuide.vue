@@ -54,9 +54,24 @@ const sections = reactive([
       cursor: pointer;
 
       transform: scale(1.0125);
-      box-shadow: var(--el-box-shadow);
+    }
+
+    &::before {
+      z-index: -1;
+      content: '';
+      position: absolute;
+
+      top: 0;
+      left: 0;
+
+      width: 100%;
+      height: 100%;
+
+      opacity: 0.5;
+      border-radius: 16px;
       background-color: var(--el-bg-color-page);
     }
+    position: relative;
     padding: 0.75rem;
 
     min-width: 350px;
@@ -65,7 +80,6 @@ const sections = reactive([
     text-align: left;
     transition: 0.25s;
     border-radius: 16px;
-    background-color: var(--el-bg-color);
   }
   display: flex;
   margin-top: 1rem;

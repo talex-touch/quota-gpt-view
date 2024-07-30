@@ -312,7 +312,7 @@ async function duplicatingShearsClick() {
       min-height: 28px;
       height: auto;
 
-      line-height: 1.5rem;
+      line-height: 32px;
     }
 
     padding: 1rem;

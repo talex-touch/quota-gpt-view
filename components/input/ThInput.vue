@@ -1,11 +1,10 @@
 <script name="ThInput" setup lang="ts">
-import type { InputPlusProperty } from './input'
+import { inputProperty } from './input'
 import ThInputPlus from './ThInputPlus.vue'
 import { Status } from '~/composables/chat'
 
 const props = defineProps<{
   status: Status
-  shrink: boolean
   hide: boolean
 }>()
 const emits = defineEmits<{
@@ -15,9 +14,7 @@ const emits = defineEmits<{
 
 const input = ref('')
 const nonPlusMode = computed(() => input.value.startsWith('/') || input.value.startsWith('@'))
-const inputProperty = reactive<InputPlusProperty>({
-  internet: true,
-})
+
 const inputHistories = useLocalStorage<string[]>('inputHistories', [])
 const inputHistoryIndex = ref(inputHistories.value.length - 1)
 const showSend = computed(() => input.value.trim().length)
@@ -117,7 +114,6 @@ onMounted(() => {
   <div
     :class="{
       disabled: hide,
-      shrink,
       collapse: nonPlusMode,
       showSend,
       generating: status === Status.GENERATING,
@@ -213,14 +209,8 @@ onMounted(() => {
   left: 50%;
   bottom: 2.5%;
 
-  width: 80%;
+  width: min(70%, 1080px);
   min-height: 50px;
-
-  &.shrink {
-    width: 80%;
-
-    transform: translateX(-50%);
-  }
 
   &.generating {
     width: 20%;
@@ -233,7 +223,9 @@ onMounted(() => {
   border-radius: 16px;
   transform: translateX(-50%);
   box-shadow: var(--el-box-shadow);
-  background-color: var(--el-bg-color);
+  // background-color: var(--el-bg-color);
+  backdrop-filter: blur(18px) saturate(180%);
+  background-color: var(--el-mask-color-extra-light);
   transition: 0.75s cubic-bezier(0.785, 0.135, 0.15, 0.86);
 
   // transition:
