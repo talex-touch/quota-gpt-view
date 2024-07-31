@@ -1,6 +1,5 @@
 import { getAccountDetail, getPermissionList } from './api/account'
 import { endHttp } from './api/axios'
-import { EndNormalUrl } from '~/constants'
 
 export interface AccountDetail {
   id: number

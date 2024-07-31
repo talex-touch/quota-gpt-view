@@ -9,13 +9,15 @@ definePageMeta({
 
 <template>
   <div class="Cms">
-    hi
     <el-empty />
   </div>
 </template>
 
 <style lang="scss">
 .Cms {
-  background: red;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 </style>

@@ -1,7 +1,7 @@
 import JSON5 from 'json5'
 import { getConversations, postHistory } from './api/chat'
 import { endHttp } from './api/axios'
-import { EndNormalUrl } from '~/constants'
+import { globalOptions } from '~/constants'
 
 import type { ThHistory } from '~/components/history/history-types'
 
@@ -309,7 +309,7 @@ export async function useChatExecutor(context: ChatCompletion, callback: (data: 
 
   async function _func() {
     try {
-      const res = await $fetch<ReadableStream>(`${EndNormalUrl}api/aigc/executor${userStore.value.token ? `/authorized?uid=${userStore.value.id}` : ''}`, {
+      const res = await $fetch<ReadableStream>(`${globalOptions.getEndsUrl()}api/aigc/executor${userStore.value.token ? `/authorized?uid=${userStore.value.id}` : ''}`, {
         method: 'POST',
         responseType: 'stream',
         headers: {

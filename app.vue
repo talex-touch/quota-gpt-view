@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import Login from '~/components/chore/Login.vue'
-import { appName } from '~/constants'
+import { appName, globalOptions } from '~/constants'
 import 'element-plus/theme-chalk/dark/css-vars.css'
-import { setWallpaper, themeOptions, wallpapers } from './composables/theme/colors'
+import { setWallpaper, themeOptions, wallpapers } from '~/composables/theme/colors'
 
 useHead({
   title: appName,
@@ -13,6 +13,19 @@ const pageOptions = reactive({
     login: false,
   },
 })
+
+const globalOptionsStore = useLocalStorage('global-options', {
+  url: '',
+})
+
+if (!globalOptionsStore.value.url)
+  globalOptionsStore.value.url = globalOptions.getEndsUrl()
+
+globalOptions.onUpdateUrl((url: string) => {
+  globalOptionsStore.value.url = url
+})
+
+globalOptions.setEndsUrl(globalOptionsStore.value.url)
 
 onMounted(() => {
   if (themeOptions.value.theme) {

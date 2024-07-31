@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { EndNormalUrl } from '~/constants'
+import { globalOptions } from '~/constants'
 
 const router = useRouter()
 
@@ -45,7 +45,7 @@ const menus = reactive([
 ])
 
 const appOptions: any = inject('appOptions')!
-const avatarUrl = computed(() => `${EndNormalUrl}${userStore.value.avatar}`)
+const avatarUrl = computed(() => `${globalOptions.getEndsUrl()}${userStore.value.avatar}`)
 </script>
 
 <template>

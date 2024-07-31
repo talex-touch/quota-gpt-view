@@ -3,7 +3,6 @@ import type { ComponentSize, FormInstance, FormRules, UploadProps } from 'elemen
 import { Plus } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
 import { getAccountDetail } from '~/composables/api/account'
-import { EndNormalUrl } from '~/constants'
 import UserUploadAvatar from '~/components/personal/UserUploadAvatar.vue'
 
 definePageMeta({
