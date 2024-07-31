@@ -33,7 +33,7 @@ export function getUsers(data?: Partial<UserGetQuery>) {
   return endHttp.get('system/users', data)
 }
 
-export interface RoleGetQuery {
+export interface RoleEditQuery {
   /**
    * 序号
    */
@@ -68,12 +68,22 @@ export interface RoleGetQuery {
    */
   updater: string
 }
-export function getRoleList() {
-  return endHttp.get('system/roles')
+
+export interface RoleGetQuery {
+  page: number
+  pageSize: number
+  name: string
+  value: string
+  remark: string
+  status: number
+}
+
+export function getRoleList(query?: Partial<UserGetQuery>) {
+  return endHttp.get('system/roles', query)
 }
 
 // 新增角色
-export function addRole(data: RoleGetQuery) {
+export function addRole(data: RoleEditQuery) {
   return endHttp.get('system/roles', data)
 }
 // 获取角色信息
@@ -101,7 +111,7 @@ export interface UserQuery {
   remark: string
   status: number
   roleIds: number[]
-  dept: string
+  dept: any
   password: string
 }
 

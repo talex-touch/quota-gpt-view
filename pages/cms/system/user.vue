@@ -399,7 +399,7 @@ function filterNode(value: string, data: any) {
         <el-form
           v-if="dialogOptions.data" ref="ruleFormRef"
           :disabled="dialogOptions.loading || dialogOptions.mode === 'read'" style="max-width: 600px"
-          :model="dialogOptions.data" :rules="rules" label-width="auto" class="demo-ruleForm" status-icon
+          :model="dialogOptions.data" :rules="rules" label-width="auto" status-icon
         >
           <el-form-item label="用户头像" prop="avatar">
             <UserUploadAvatar
@@ -427,9 +427,9 @@ function filterNode(value: string, data: any) {
           </el-form-item>
           <el-form-item label="用户部门" prop="dept">
             <el-tree-select
-              v-model="dialogOptions.data.deptId" :default-expand-all="true"
-              :highlight-current="true" node-key="id" :check-on-click-node="true"
-              :props="defaultProps" :data="depts" :render-after-expand="false"
+              v-model="dialogOptions.data.deptId" :default-expand-all="true" :highlight-current="true"
+              node-key="id" :check-on-click-node="true" :props="defaultProps" :data="depts"
+              :render-after-expand="false"
             />
           </el-form-item>
           <el-form-item label="用户角色" prop="roles">
@@ -448,7 +448,7 @@ function filterNode(value: string, data: any) {
             </el-radio-group>
           </el-form-item>
           <el-form-item label="用户备注" prop="remark">
-            <el-input v-model="dialogOptions.data.remark" type="textarea" />
+            <el-input v-model="dialogOptions.data.remark" placeholder="请输入备注..." type="textarea" />
           </el-form-item>
         </el-form>
       </template>

@@ -69,7 +69,7 @@ export default defineNuxtConfig({
         { name: 'theme-color', media: '(prefers-color-scheme: dark)', content: '#222222' },
       ],
       script: [
-        { src: 'https://o.alicdn.com/captcha-frontend/aliyunCaptcha/AliyunCaptcha.js' },
+        { async: true, src: 'https://o.alicdn.com/captcha-frontend/aliyunCaptcha/AliyunCaptcha.js' },
       ],
     },
   },

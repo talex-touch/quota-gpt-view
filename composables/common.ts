@@ -1,3 +1,5 @@
+import dayjs from 'dayjs'
+
 export function genFormatDate(date: Date) {
   // now date: YYYY/M/D HH:mm:ss
   const year = date.getFullYear()
@@ -29,4 +31,8 @@ export function getLastTextNode(node: HTMLElement): HTMLElement | null {
   }
 
   return null
+}
+
+export function formatDate(date: string) {
+  return dayjs(date).format('YYYY-MM-DD HH:mm:ss')
 }
