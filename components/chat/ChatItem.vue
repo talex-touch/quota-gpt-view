@@ -160,9 +160,7 @@ function filterTools(item: any, total: number, ind: number) {
         </div>
         <div v-else ref="dom" :class="{ completed, display: !!item.content.length }" class="ChatItem-Content-Inner">
           <span v-if="item.role === 'user'">
-            <pre>
-            {{ item.content }}
-            </pre>
+            <pre v-text="item.content" />
           </span>
           <RenderContent v-else :render="settingMode.render" readonly :data="item.content" />
           <!-- v-if="generating && !!item.content.length" -->
@@ -371,6 +369,20 @@ function filterTools(item: any, total: number, ind: number) {
   .ChatItem-Content-Inner {
     .user & {
       border-radius: 16px;
+    }
+
+    pre {
+      max-width: 100%;
+      overflow-wrap: break-word;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      word-break: break-all;
+
+      font-variant-ligatures: no-common-ligatures;
+      font-family: 'Helvetica Neue', 'Luxi Sans', 'DejaVu Sans',
+        'Hiragino Sans GB', 'Microsoft Yahei', sans-serif, 'Apple Color Emoji',
+        'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', 'Android Emoji',
+        'EmojiSymbols';
     }
 
     position: relative;
