@@ -44,7 +44,7 @@ provide('appOptions', pageOptions)
     <NuxtPage />
   </NuxtLayout>
 
-  <Login v-model:show="pageOptions.model.login" />
+  <Login v-if="!userStore.token" v-model:show="pageOptions.model.login" />
 </template>
 
 <style>

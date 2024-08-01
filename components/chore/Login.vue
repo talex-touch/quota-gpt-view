@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import LoginCore from './login/LoginCore.vue'
-import { doAccountExist, sendSMSCode, useSMSLogin } from '~/composables/api/auth'
+import { Platform, getQrCodeStatus, postQrCodeReq, qrCodeLogin, sendSMSCode, useSMSLogin } from '~/composables/api/auth'
 import ThCheckBox from '~/components/checkbox/ThCheckBox.vue'
-
-
 
 const props = defineProps<{
   show: boolean
@@ -64,6 +62,11 @@ function parser(input: string) {
 }
 
 const show = useVModel(props, 'show', emits)
+const codeData = useLocalStorage('code-data', {
+  expired: true,
+  lastFetch: -1,
+  data: {},
+})
 const data = reactive({
   mode: 'code',
   account: '',
@@ -107,7 +110,7 @@ async function handleLogin() {
   }
 
   // Internal Test
-  const res = await doAccountExist(phone)
+  // const res = await doAccountExist(phone)
   // if (!res.data) {
   //   ElMessage.error('请先通过内测资格后再登录使用！')
   //   return
@@ -137,7 +140,9 @@ function refreshSmsTitle() {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
+  data.agreement = localStorage.getItem('user') != null
+
   newCaptcha(CaptchaSceneId.Auth, '#captcha-element', '#captcha-button', {
     captchaVerifyCallback: async (param: string) => {
       const _res = {
@@ -180,7 +185,9 @@ onMounted(() => {
       }
       else {
         try {
-          const res = await useSMSLogin(data.account.replaceAll(' ', ''), data.code, param)
+          const state = codeData.value.expired ? undefined : (codeData.value.data as any)?.loginCode
+
+          const res = await useSMSLogin(data.account.replaceAll(' ', ''), data.code, param, state)
           const result = await res.json()
           if (result.code !== 1002)
             _res.captchaResult = true
@@ -217,7 +224,80 @@ onMounted(() => {
     },
     onBizResultCallback: () => void 0,
   })
+
+  await fetchCode()
+
+  codeStatusTimer()
 })
+
+async function fetchCode() {
+  let { lastFetch, data: _data, expired } = codeData.value
+
+  if (Date.now() - lastFetch >= 580000 || expired) {
+    codeData.value.lastFetch = Date.now()
+
+    const res: any = await postQrCodeReq(Platform.WECHAT)
+
+    if (res.code === 200) {
+      codeData.value.data = _data = res.data
+      codeData.value.expired = false
+    }
+  }
+}
+
+const codeStatus = ref(0)
+
+async function codeStatusTimer() {
+  if (userStore.value.token)
+    return
+
+  if (props.show)
+    await _codeStatusTimer()
+
+  setTimeout(codeStatusTimer, 2000)
+}
+
+async function _codeStatusTimer() {
+  const _codeData: any = codeData.value.data
+  if (!_codeData || !_codeData.loginCode)
+    return await fetchCode()
+
+  if (codeData.value.expired)
+    return
+
+  const res = await getQrCodeStatus(Platform.WECHAT, _codeData.loginCode)
+  if (res.data === null) {
+    codeData.value.expired = true
+    return
+  }
+
+  codeStatus.value = res.data
+}
+
+watch(() => codeStatus.value, async (status) => {
+  if (status !== 3)
+    return
+
+  const _codeData: any = codeData.value.data
+
+  const res: any = await qrCodeLogin(_codeData.loginCode)
+
+  localStorage.removeItem('code-data')
+
+  setTimeout(() => {
+    userStore.value.token = (res.data.token)
+
+    ElMessage.info('登录成功！')
+
+    show.value = false
+
+    setTimeout(() => {
+      location.reload()
+    }, 200)
+  }, 200)
+})
+
+const codeUrl = computed(() => `https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=${codeData.value.data?.ticket}`)
 </script>
 
 <template>
@@ -247,7 +327,10 @@ onMounted(() => {
             </el-input>
             <el-input v-model="data.code" maxlength="6" size="large">
               <template #append>
-                <el-button v-wave :loading="smsOptions.loading" :disabled="smsOptions.disabled || data.account.length !== 13" @click="handleSendCode">
+                <el-button
+                  v-wave :loading="smsOptions.loading"
+                  :disabled="smsOptions.disabled || data.account.length !== 13" @click="handleSendCode"
+                >
                   {{ smsOptions.title }}
                 </el-button>
               </template>
@@ -260,7 +343,30 @@ onMounted(() => {
         <div class="Login-Main-Vice">
           <p>微信扫码登录</p>
 
-          <el-image />
+          <div class="Login-Main-Vice-Wrapper">
+            <div v-if="!data.agreement" class="scanned">
+              <div i-carbon:list-checked />
+              <p>协议</p>
+              <span>你需要同意协议</span>
+            </div>
+            <div v-else-if="codeStatus === 4" class="scanned">
+              <div i-carbon:notification />
+              <p>需要绑定</p>
+              <span>请输入手机号进行绑定</span>
+            </div>
+            <div v-else-if="codeStatus === 3" class="scanned">
+              <div i-carbon:devices />
+              <p>正在登录</p>
+              <span>请稍等，正在登录...</span>
+            </div>
+            <div v-else-if="codeStatus !== 0" class="scanned">
+              <div i-carbon:checkmark-filled />
+              <p>已扫码</p>
+              <span>请在手机上确认登录</span>
+            </div>
+
+            <el-image :src="codeUrl" />
+          </div>
         </div>
       </div>
 
@@ -272,6 +378,44 @@ onMounted(() => {
 </template>
 
 <style lang="scss">
+.Login-Main-Vice-Wrapper {
+  position: relative;
+  .scanned {
+    & > div {
+      width: 32px;
+      height: 32px;
+
+      // color: var(--el-color-success);
+    }
+    z-index: 1;
+    position: absolute;
+    padding: 1rem;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+
+    border-radius: 12px;
+    background: var(--el-overlay-color-lighter);
+    backdrop-filter: blur(5px);
+    color: white;
+    font-size: 14px;
+
+    & > div {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  }
+}
+
 .Login-Main-Major {
   .el-form {
     display: flex;

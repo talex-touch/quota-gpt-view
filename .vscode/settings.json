@@ -48,6 +48,7 @@
     "echarts",
     "kwargs",
     "Tavily",
-    "Volc"
+    "Volc",
+    "WECHAT"
   ]
 }

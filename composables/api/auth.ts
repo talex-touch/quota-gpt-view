@@ -14,7 +14,7 @@ export async function sendSMSCode(phone: string, param: string) {
   })
 }
 
-export async function useSMSLogin(phone: string, code: string, param: string) {
+export async function useSMSLogin(phone: string, code: string, param: string, state?: string) {
   return fetch(`${globalOptions.getEndsUrl()}api/auth/sms_login`, {
     method: 'POST',
     headers: {
@@ -24,10 +24,27 @@ export async function useSMSLogin(phone: string, code: string, param: string) {
       code,
       phone,
       param,
+      state
     }),
   })
 }
 
 export function doAccountExist(account?: string) {
   return endHttp.get(`auth/account_exist?account=${account}`)
+}
+
+export enum Platform {
+  WECHAT = 'wechat',
+}
+
+export function postQrCodeReq(platform: Platform) {
+  return endHttp.post('platform/qrcode', { platform })
+}
+
+export function getQrCodeStatus(platform: Platform, key: string) {
+  return endHttp.get('platform/qrcode/status', { platform, key })
+}
+
+export function qrCodeLogin(code: string) {
+  return endHttp.get('auth/platform_login', { code })
 }
