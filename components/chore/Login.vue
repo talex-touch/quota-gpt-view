@@ -198,17 +198,22 @@ onMounted(async () => {
             _res.bizResult = true
 
           if (result.code === 200) {
-            setTimeout(() => {
-              userStore.value.token = (result.data.token)
-
-              ElMessage.info('登录成功！')
-
-              show.value = false
-
+            if (!result.data) {
+              ElMessage.error(result.message)
+            }
+            else {
               setTimeout(() => {
-                location.reload()
+                userStore.value.token = (result.data.token)
+
+                ElMessage.info('登录成功！')
+
+                show.value = false
+
+                setTimeout(() => {
+                  location.reload()
+                }, 200)
               }, 200)
-            }, 200)
+            }
           }
 
           console.error(result)
@@ -269,6 +274,7 @@ async function _codeStatusTimer() {
   const res = await getQrCodeStatus(Platform.WECHAT, _codeData.loginCode)
   if (res.data === null || Date.now() - lastFetch >= 280000) {
     codeData.value.expired = true
+    codeStatus.value = 0
     return
   }
 
@@ -314,11 +320,13 @@ const codeUrl = computed(() => `https://mp.weixin.qq.com/cgi-bin/showqrcode?tick
       </div>
 
       <div class="Login-Main">
-        <div class="Login-Main-Major">
+        <div :class="{ bind: codeStatus === 4 }" class="Login-Main-Major">
           <p>手机登录</p>
 
           <div id="captcha-element" absolute />
           <button id="captcha-button" absolute />
+
+          <div class="indicator" />
 
           <el-form>
             <el-input v-model="data.account" maxlength="13" :parser="parser" :formatter="formatter" size="large">
@@ -386,6 +394,7 @@ const codeUrl = computed(() => `https://mp.weixin.qq.com/cgi-bin/showqrcode?tick
 <style lang="scss">
 .Login-Main-Vice-Wrapper {
   position: relative;
+
   .scanned {
     & > div {
       width: 32px;
@@ -393,6 +402,7 @@ const codeUrl = computed(() => `https://mp.weixin.qq.com/cgi-bin/showqrcode?tick
 
       // color: var(--el-color-success);
     }
+
     z-index: 1;
     position: absolute;
     padding: 1rem;
@@ -432,6 +442,98 @@ const codeUrl = computed(() => `https://mp.weixin.qq.com/cgi-bin/showqrcode?tick
   }
 
   width: 60%;
+}
+
+@keyframes arrow_shaving {
+  0%,
+  100% {
+    width: 60px;
+    transform: translateX(10px);
+  }
+
+  50% {
+    width: 50px;
+    transform: translateX(0px);
+  }
+}
+
+@keyframes arrow_shaving_before {
+  0%,
+  100% {
+    width: 30px;
+    transform: translate(-1px, 0px) rotate(45deg);
+  }
+
+  50% {
+    width: 25px;
+    transform: translate(-1px, 0px) rotate(30deg);
+  }
+}
+
+@keyframes arrow_shaving_after {
+  0%,
+  100% {
+    width: 30px;
+    transform: translate(-2px, 1px) rotate(-45deg);
+    filter: drop-shadow(0 0 2px var(--el-color-primary));
+  }
+
+  50% {
+    width: 25px;
+    transform: translate(-2px, 1px) rotate(-30deg);
+    filter: drop-shadow(0 0 16px var(--el-color-primary));
+  }
+}
+
+.indicator {
+  .bind & {
+    opacity: 1;
+  }
+
+  &::before,
+  &::after {
+    z-index: 1;
+    content: '';
+    position: absolute;
+
+    top: 0;
+    left: 2px;
+
+    width: 30px;
+    height: 4px;
+
+    border-radius: 8px;
+    transition: cubic-bezier(0.165, 0.84, 0.44, 1);
+    background-color: var(--el-color-primary);
+  }
+
+  &::before {
+    transform: translate(-1px, 0px) rotate(45deg);
+    animation: arrow_shaving_before 1s infinite;
+    transform-origin: left top;
+  }
+
+  &::after {
+    transform: translate(-2px, 1px) rotate(-45deg);
+    animation: arrow_shaving_after 1s infinite;
+    transform-origin: left top;
+  }
+
+  z-index: 10;
+  position: absolute;
+
+  top: 102px;
+  left: 350px;
+
+  width: 60px;
+  height: 5px;
+
+  opacity: 0;
+  transition: 0.25s;
+  border-radius: 8px;
+  animation: arrow_shaving 1s infinite;
+  background-color: var(--el-color-primary);
+  filter: drop-shadow(0 0 4px var(--el-color-primary));
 }
 
 .Login-Main-Vice {
