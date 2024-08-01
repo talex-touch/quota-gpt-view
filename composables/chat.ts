@@ -228,6 +228,18 @@ async function handleExecutorItem(item: string, callback: (data: any) => void) {
         return
       }
 
+      if (item.includes('message content must be less than 1024 tokens')) {
+        ElMessage.error(`未登录时不允许发送长token！`)
+
+        callback({
+          done: true,
+          error: true,
+          frequentLimit: true,
+        })
+
+        return
+      }
+
       console.error('@error', item)
       console.error(e)
 

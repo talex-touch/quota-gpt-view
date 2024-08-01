@@ -12,6 +12,29 @@ const colorMode = useColorMode()
 function toggleTheme(event: MouseEvent, theme: 'auto' | 'light' | 'dark') {
   viewTransition(event, theme)
 }
+
+const textList = reactive({
+  ind: 0,
+  list: [
+    '外观自定义限时免费',
+    '主题定制限时免费',
+    '墙纸定制限时免费',
+  ],
+})
+const textShaving = ref('')
+
+function timer() {
+  if (textList.ind >= textList.list.length - 1)
+    textList.ind = 0
+  else
+    textList.ind++
+
+  textShaving.value = textList.list[textList.ind]
+
+  setTimeout(timer, 5000)
+}
+
+timer()
 </script>
 
 <template>
@@ -40,11 +63,15 @@ function toggleTheme(event: MouseEvent, theme: 'auto' | 'light' | 'dark') {
             </p>
 
             <div my-4 class="ProfileWrapper-Display-Theme">
-              <ThemeBlock :active="colorMode.preference === 'system'" theme="system" @click="toggleTheme($event, 'auto')" />
-              <ThemeBlock :active="colorMode.preference === 'light'" theme="light" @click="toggleTheme($event, 'light')" />
               <ThemeBlock
-                :active="colorMode.preference === 'dark'" theme="dark" @click="toggleTheme($event, 'dark')"
+                :active="colorMode.preference === 'system'" theme="system"
+                @click="toggleTheme($event, 'auto')"
               />
+              <ThemeBlock
+                :active="colorMode.preference === 'light'" theme="light"
+                @click="toggleTheme($event, 'light')"
+              />
+              <ThemeBlock :active="colorMode.preference === 'dark'" theme="dark" @click="toggleTheme($event, 'dark')" />
             </div>
           </div>
 
@@ -83,7 +110,8 @@ function toggleTheme(event: MouseEvent, theme: 'auto' | 'light' | 'dark') {
     </div>
 
     <div class="ProfileWrapper-Footer">
-      <TextShaving text="外观自定义需要高级订阅来启用" />
+      <!-- <TextShaving text="外观自定义需要高级订阅来启用" /> -->
+      <TextShaving :text="textShaving" />
 
       <ShiningButton>
         立即订阅 PRO
