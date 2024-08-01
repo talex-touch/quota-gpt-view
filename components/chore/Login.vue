@@ -233,7 +233,7 @@ onMounted(async () => {
 async function fetchCode() {
   let { lastFetch, data: _data, expired } = codeData.value
 
-  if (Date.now() - lastFetch >= 580000 || expired) {
+  if (Date.now() - lastFetch >= 280000 || expired) {
     codeData.value.lastFetch = Date.now()
 
     const res: any = await postQrCodeReq(Platform.WECHAT)
@@ -265,8 +265,9 @@ async function _codeStatusTimer() {
   if (codeData.value.expired)
     return
 
+  const { lastFetch, data: _data } = codeData.value
   const res = await getQrCodeStatus(Platform.WECHAT, _codeData.loginCode)
-  if (res.data === null) {
+  if (res.data === null || Date.now() - lastFetch >= 280000) {
     codeData.value.expired = true
     return
   }
@@ -349,6 +350,11 @@ const codeUrl = computed(() => `https://mp.weixin.qq.com/cgi-bin/showqrcode?tick
               <p>协议</p>
               <span>你需要同意协议</span>
             </div>
+            <div v-else-if="codeData.expired" cursor-pointer class="scanned" @click="fetchCode">
+              <div i-carbon:ibm-cloud-direct-link-1-dedicated />
+              <p>已过期</p>
+              <span>点击刷新验证码</span>
+            </div>
             <div v-else-if="codeStatus === 4" class="scanned">
               <div i-carbon:notification />
               <p>需要绑定</p>
@@ -365,7 +371,7 @@ const codeUrl = computed(() => `https://mp.weixin.qq.com/cgi-bin/showqrcode?tick
               <span>请在手机上确认登录</span>
             </div>
 
-            <el-image :src="codeUrl" />
+            <el-image style=" border-radius: 12px;" :src="codeUrl" />
           </div>
         </div>
       </div>
