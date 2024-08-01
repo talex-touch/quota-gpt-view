@@ -20,7 +20,7 @@ const pageOptions = reactive<any>({
   },
 })
 
-const roundLimit = computed(() => (!userStore.value?.token && ((chatManager.messages.value?.messages?.length) ?? 1) / 2 >= 10))
+const roundLimit = computed(() => (!userStore.value?.token && ((chatManager.messages.value?.messages?.length) ?? 1) >= 10))
 
 function handleDelete(index: number) {
   chatManager.deleteMessage(index)

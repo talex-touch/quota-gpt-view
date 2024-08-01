@@ -458,7 +458,7 @@ export class ChatManager {
     })
 
     const res: any = await postHistory({
-      uid: data.id || (`${Date.now()}DJLASKFJOEJ-INTERNAL_TEST`),
+      uid: data.id || (`${Date.now()}THIS_AI_STANDARD_QUOTA_WISH`),
       topic: data.topic,
       value: `${btoa(encodeURIComponent(JSON.stringify(data.messages)))}`,
       meta: JSON.stringify(meta),
