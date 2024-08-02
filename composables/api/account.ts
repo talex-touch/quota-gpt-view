@@ -236,3 +236,10 @@ export function updateDict(Header: any) {
 export function delDict(Path: any) {
   return endHttp.post('system/param-config/{id}', Path)
 }
+
+export function getOrderPlanPrice(type: 'STANDARD' | 'ULTIMATE', time: string) {
+  return endHttp.get('order/price', {
+    type,
+    time,
+  })
+}

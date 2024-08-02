@@ -2,6 +2,7 @@ export const price = [
   {
     name: 'FREE',
     type: '免费订阅',
+    value: 'FREE',
     desc: '畅享标准模型，无限制的网络能力，一致的图表生成能力。',
     price: {
       origin: 0,
@@ -23,6 +24,7 @@ export const price = [
   {
     name: 'PLUS',
     type: '标准订阅',
+    value: 'STANDARD',
     desc: '畅享模态模型，大文件分析能力，强化图表生成能力。',
     price: {
       origin: 19.9,
@@ -44,6 +46,7 @@ export const price = [
   {
     name: 'PRO',
     type: '高级订阅',
+    value: 'ULTIMATE',
     desc: '全模态模型，高级文件分析、图片生成能力，高级工具矩阵。',
     price: {
       origin: 49.9,

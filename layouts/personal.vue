@@ -12,86 +12,110 @@ onMounted(() => {
     router.back()
   }
 })
+
+const privacyPhone = computed(() => {
+  const phone = userStore.value?.phone
+  if (!phone)
+    return ''
+
+  return `${phone.substring(0, 3)}******${phone.substring(9)}`
+})
 </script>
 
 <template>
-  <el-container class="DocumentTemplate">
-    <el-header>
-      <span flex items-center>
-        <span class="head-start">
-          <Logo />
-          <span font-bold>ThisAI</span>
-        </span>
-        个人中心
-      </span>
+  <el-container class="PersonalTemplate">
+    <div class="PersonalWrapper">
+      <div class="PersonalWrapper-Aside">
+        <div class="PersonalWrapper-AsideHead">
+          <AccountAvatar />
+          <div class="head-text">
+            <p> {{ userStore.nickname }}</p>
+            <p op-75>
+              +86 {{ privacyPhone }}
+            </p>
+          </div>
+        </div>
 
-      <div class="head-end">
-        <span class="name">{{ userStore.username }}
-        </span>
-
-        <AccountAvatar />
-      </div>
-    </el-header>
-    <el-container>
-      <div class="PersonalWrapper">
-        <div class="PersonalWrapper-Aside">
-          <p class="title">
-            个人信息
+        <div class="PersonalWrapper-AsideMenu">
+          <p class="sub-title">
+            基础信息
           </p>
-
-          <div class="PersonalWrapper-AsideMenu">
-            <p class="sub-title">
-              基础信息
-            </p>
-            <CmsMenuItem path="/profile/base">
-              <div i-carbon-user />账号资料
-            </CmsMenuItem>
-            <CmsMenuItem emphasis path="/profile/plan">
-              <div i-carbon:document-multiple-01 />订阅计划
-            </CmsMenuItem>
-            <CmsMenuItem path="/profile/test">
-              <div i-carbon-software-resource-cluster />我的内测
-            </CmsMenuItem>
-            <CmsMenuItem path="/profile/notification">
-              <div i-carbon-notification />通知设置
-            </CmsMenuItem>
-            <CmsMenuItem path="/profile/appearance">
-              <div i-carbon-moon />外观设置
-            </CmsMenuItem>
-          </div>
-
-          <div class="PersonalWrapper-AsideMenu">
-            <p class="sub-title">
-              安全设置
-            </p>
-            <CmsMenuItem path="/profile/link">
-              <div i-carbon-attachment />三方绑定
-            </CmsMenuItem>
-            <CmsMenuItem danger path="/profile/password">
-              <div i-carbon-password />修改密码
-            </CmsMenuItem>
-            <CmsMenuItem path="/profile/history">
-              <div i-carbon-data-table />登录历史
-            </CmsMenuItem>
-            <CmsMenuItem path="/profile/mf2a">
-              <div i-carbon-tablet />MF2A
-            </CmsMenuItem>
-            <CmsMenuItem danger path="/profile/developer">
-              <div i-carbon-code />开发者设置
-            </CmsMenuItem>
-          </div>
+          <CmsMenuItem path="/profile/base">
+            <div i-carbon-user />账号资料
+          </CmsMenuItem>
+          <CmsMenuItem emphasis path="/profile/plan">
+            <div i-carbon:document-multiple-01 />订阅计划
+          </CmsMenuItem>
+          <CmsMenuItem path="/profile/test">
+            <div i-carbon-software-resource-cluster />我的内测
+          </CmsMenuItem>
+          <CmsMenuItem path="/profile/notification">
+            <div i-carbon-notification />通知设置
+          </CmsMenuItem>
+          <CmsMenuItem path="/profile/appearance">
+            <div i-carbon-moon />外观设置
+          </CmsMenuItem>
         </div>
-        <div class="PersonalWrapper-Main">
-          <el-scrollbar>
-            <slot />
-          </el-scrollbar>
+
+        <div class="PersonalWrapper-AsideMenu">
+          <p class="sub-title">
+            安全设置
+          </p>
+          <CmsMenuItem path="/profile/link">
+            <div i-carbon-attachment />三方绑定
+          </CmsMenuItem>
+          <CmsMenuItem danger path="/profile/password">
+            <div i-carbon-password />修改密码
+          </CmsMenuItem>
+          <CmsMenuItem path="/profile/history">
+            <div i-carbon-data-table />登录历史
+          </CmsMenuItem>
+          <CmsMenuItem path="/profile/mf2a">
+            <div i-carbon-tablet />MF2A
+          </CmsMenuItem>
+          <CmsMenuItem danger path="/profile/developer">
+            <div i-carbon-code />开发者设置
+          </CmsMenuItem>
         </div>
       </div>
-    </el-container>
+
+      <div class="PersonalWrapper-Main">
+        <el-scrollbar>
+          <slot />
+        </el-scrollbar>
+      </div>
+    </div>
   </el-container>
 </template>
 
 <style lang="scss">
+.PersonalWrapper-AsideHead {
+  .AccountAvatar {
+    .el-avatar {
+      width: 100%;
+      height: 100%;
+    }
+
+    position: relative;
+
+    width: 36px;
+    height: 36px;
+
+    top: unset;
+    right: unset;
+  }
+
+  padding: 1rem 0;
+  display: flex;
+
+  gap: 1rem;
+  align-items: center;
+
+  width: 100%;
+
+  // border-bottom: 1px solid var(--wallpaper-color-light, var(--el-border-color));
+}
+
 .PersonalWrapper {
   .el-scrollbar__view {
     display: flex;
@@ -117,17 +141,22 @@ onMounted(() => {
 
   &-Main {
     .ProfileWrapper-Header {
-      position: relative;
-      padding: 0 1rem;
+      z-index: 2;
+      position: sticky;
+      padding: 0.5rem 1rem;
       display: flex;
 
       flex-direction: column;
       justify-content: center;
 
+      top: 0;
       height: 80px;
+      width: 100%;
 
       font-weight: 600;
-      border-bottom: 1px solid var(--el-border-color);
+      font-size: 1.5rem;
+      background-color: var(--el-bg-color-page);
+      // border-bottom: 1px solid var(--el-border-color);
     }
 
     .ProfileWrapper-Footer {
@@ -142,13 +171,11 @@ onMounted(() => {
       width: 100%;
 
       font-weight: 600;
-      border-top: 1px solid var(--el-border-color);
+      // border-top: 1px solid var(--el-border-color);
     }
 
     .ProfileWrapper-Main {
-      padding: 1.5rem 1rem;
-
-      flex: 1;
+      padding: 1.5rem 2rem;
     }
 
     .ProfileWrapper {
@@ -162,6 +189,7 @@ onMounted(() => {
     }
 
     position: relative;
+    // padding: 0.5rem 1rem;
     display: flex;
 
     flex-direction: column;
@@ -169,7 +197,9 @@ onMounted(() => {
     width: 100%;
     height: 100%;
 
-    backdrop-filter: blur(8px) saturate(180%);
+    overflow: hidden;
+    background-color: var(--el-bg-color-page);
+    // backdrop-filter: blur(8px) saturate(180%);
   }
 
   &-Aside {
@@ -217,15 +247,16 @@ onMounted(() => {
     }
 
     display: flex;
-    padding: 1.5rem 1rem;
+    padding: 1rem 1rem;
 
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
 
-    width: 240px;
-    border-right: 1px solid var(--el-border-color);
+    width: 320px;
+    // border-right: 1px solid var(--el-border-color);
     backdrop-filter: blur(58px) saturate(180%);
+    background-color: var(--el-mask-color-extra-light);
   }
 
   position: relative;
@@ -242,57 +273,12 @@ onMounted(() => {
 
   overflow: hidden;
   // border-radius: 18px;
-  box-shadow: var(--el-box-shadow);
+  // box-shadow: var(--el-box-shadow);
   // background-color: var(--el-bg-color);
-  background: var(--el-mask-color-extra-light);
+  // background: var(--el-mask-color-extra-lighter);
 }
 
-.DocumentTemplate {
-  .el-header {
-    .head-start {
-      margin-right: 1rem;
-      padding-right: 1rem;
-
-      display: flex;
-      align-items: center;
-
-      border-right: 1px solid var(--el-border-color);
-    }
-
-    .head-end {
-      .name {
-        position: relative;
-        right: 50px;
-      }
-    }
-
-    .AccountAvatar-Wrapper {
-      margin-top: 7px;
-
-      .el-avatar {
-        width: 36px;
-        height: 36px;
-      }
-    }
-
-    z-index: 1;
-    padding: 0 1rem;
-    display: flex;
-
-    align-items: center;
-    justify-content: space-between;
-
-    width: 100%;
-
-    background: var(--el-mask-color-extra-light);
-    backdrop-filter: blur(58px) saturate(180%);
-    border-bottom: 1px solid var(--el-border-color);
-  }
-
-  .el-container {
-    width: 100%;
-  }
-
+.PersonalTemplate {
   &::before {
     content: '';
     position: absolute;
@@ -318,6 +304,6 @@ onMounted(() => {
   width: 100%;
   height: 100%;
 
-  background-color: var(--el-bg-color);
+  // background-color: var(--el-bg-color-page);
 }
 </style>

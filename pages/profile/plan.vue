@@ -6,6 +6,8 @@ definePageMeta({
   layout: 'personal',
 })
 
+const router = useRouter()
+
 const plans = computed(() => price.map((item, index) => ({
   ...item,
   price: {
@@ -15,6 +17,10 @@ const plans = computed(() => price.map((item, index) => ({
   },
   got: !index,
 })))
+
+function toCheckout(plan: any) {
+  router.push(`/profile/buy?type=SUBSCRIPTION&plan=${plan.value}`)
+}
 </script>
 
 <template>
@@ -28,7 +34,8 @@ const plans = computed(() => price.map((item, index) => ({
     <div class="ProfileWrapper-Main">
       <el-scrollbar>
         <div class="ProfileWrapper-MainWrapper">
-          <el-alert title="现在下单，新人用户享受限时 2.99/月 福利。" type="success" close-text="更多福利" />
+          <!-- <el-alert title="现在下单，新人用户享受限时 2.99/月 福利。" type="success" close-text="更多福利" /> -->
+          <el-alert title="价格以结算页面最终价格为准。" type="warning" close-text="了解" />
 
           <br>
 
@@ -37,9 +44,8 @@ const plans = computed(() => price.map((item, index) => ({
 
           <div class="ProfileWrapper-MainWrapper-Plan">
             <PlanCard
-              v-for="plan in plans"
-              :key="plan.name" :got="plan.got" :type="plan.type" :desc="plan.desc" :name="plan.name"
-              :price="plan.price"
+              v-for="plan in plans" :key="plan.name" :got="plan.got" :type="plan.type" :desc="plan.desc"
+              :name="plan.name" :price="plan.price" @click="toCheckout(plan)"
             >
               <li v-for="feature in plan.features" :key="feature">
                 {{ feature }}
@@ -73,7 +79,7 @@ const plans = computed(() => price.map((item, index) => ({
     opacity: 0.75;
     font-weight: 400;
   }
-  height: 800px;
+  // height: 800px;
 
   text-align: center;
 }

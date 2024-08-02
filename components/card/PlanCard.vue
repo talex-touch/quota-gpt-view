@@ -14,6 +14,8 @@ const props = defineProps<{
   desc: string
   got: boolean
 }>()
+
+const emits = defineEmits(['click'])
 </script>
 
 <template>
@@ -72,10 +74,10 @@ const props = defineProps<{
           <span>File sharing</span>
         </li> -->
       </ul>
-      <div v-wave :class="{ got }" class="action">
-        <a class="button" href="#">
+      <div v-wave :class="{ got }" class="action" @click="emits('click', $event)">
+        <span class="button" href="#">
           {{ got ? '当前方案' : '立即订阅' }}
-        </a>
+        </span>
       </div>
     </div>
   </div>
