@@ -24,7 +24,7 @@ function handleClick() {
     router.push(props.path)
 
   if (props.query)
-    router.push({ params: { data: props.query } })
+    router.push({ query: { data: props.query } })
 }
 </script>
 

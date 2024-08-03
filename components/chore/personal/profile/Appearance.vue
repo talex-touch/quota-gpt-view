@@ -3,10 +3,6 @@ import { setWallpaper, themeColors, themeOptions, viewTransition, wallpapers } f
 import ShiningButton from '~/components/button/ShiningButton.vue'
 import TextShaving from '~/components/other/TextShaving.vue'
 
-definePageMeta({
-  layout: 'personal',
-})
-
 const colorMode = useColorMode()
 
 function toggleTheme(event: MouseEvent, theme: 'auto' | 'light' | 'dark') {

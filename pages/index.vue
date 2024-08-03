@@ -9,6 +9,7 @@ import { inputProperty } from '~/components/input/input'
 
 const chatRef = ref()
 const pageOptions = reactive<any>({
+  settingDialog: false,
   expand: true,
   select: -1,
   share: {
@@ -148,8 +149,7 @@ provide('pageOptions', pageOptions)
       />
       <ThInput
         :status="chatManager.messages.value?.status ?? Status.AVAILABLE"
-        :hide="pageOptions.share.enable || roundLimit"
-        @send="handleSend"
+        :hide="pageOptions.share.enable || roundLimit" @send="handleSend"
       />
 
       <ShareSection
@@ -161,6 +161,8 @@ provide('pageOptions', pageOptions)
         ThisAI. 可能会犯错，生成的内容仅供参考。v24.08.03
         <span class="business">四川科塔锐行科技有限公司</span>
       </div>
+
+      <ChorePersonalDialog v-if="userStore.token" v-model="pageOptions.settingDialog" />
     </div>
   </div>
 </template>

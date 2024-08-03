@@ -1,17 +1,24 @@
 <script setup lang="ts">
-import Logo from '../components/chore/Logo.vue'
 import AccountAvatar from '../components/personal/AccountAvatar.vue'
 import CmsMenuItem from '~/components/cms/CmsMenuItem.vue'
 
-const router = useRouter()
+import Account from '~/components/chore/personal/profile/Account.vue'
+import Plan from '~/components/chore/personal/profile/Plan.vue'
+import empty from '~/components/chore/personal/profile/empty.vue'
+import History from '~/components/chore/personal/profile/History.vue'
+import Appearance from '~/components/chore/personal/profile/Appearance.vue'
 
-onMounted(() => {
-  if (!userStore.value.token?.length) {
-    ElMessage.error('未登录')
+const props = defineProps<{
+  modelValue: boolean
+}>()
 
-    router.back()
-  }
-})
+const emits = defineEmits<{
+  (e: 'update:modelValue', value: boolean): void
+}>()
+
+const show = useVModel(props, 'modelValue', emits)
+
+const route = useRoute()
 
 const privacyPhone = computed(() => {
   const phone = userStore.value?.phone
@@ -20,10 +27,38 @@ const privacyPhone = computed(() => {
 
   return `${phone.substring(0, 3)}******${phone.substring(9)}`
 })
+
+const comp = ref()
+const queryComponentMapper: Record<string, any> = {
+  account: Account,
+  plan: Plan,
+  link: empty,
+  appearance: Appearance,
+  history: History,
+  developer: empty,
+}
+
+watch(() => route.fullPath, () => {
+  const data = route.query.data
+
+  if (data) {
+    show.value = true
+  }
+  else {
+    show.value = false
+    return
+  }
+
+  comp.value = queryComponentMapper[data as string]
+}, { immediate: true })
 </script>
 
 <template>
-  <el-container class="PersonalTemplate">
+  <el-container :class="{ show }" class="PersonalTemplate">
+    <div class="BuyDialog-Close" @click="$router.push('/')">
+      <div i-carbon:close />
+    </div>
+
     <div class="PersonalWrapper">
       <div class="PersonalWrapper-Aside">
         <div class="PersonalWrapper-AsideHead">
@@ -37,51 +72,42 @@ const privacyPhone = computed(() => {
         </div>
 
         <div class="PersonalWrapper-AsideMenu">
-          <p class="sub-title">
-            基础信息
-          </p>
-          <CmsMenuItem path="/profile/base">
+          <CmsMenuItem query="account">
             <div i-carbon-user />账号资料
           </CmsMenuItem>
-          <CmsMenuItem emphasis path="/profile/plan">
+          <CmsMenuItem emphasis query="plan">
             <div i-carbon:document-multiple-01 />订阅计划
           </CmsMenuItem>
-          <CmsMenuItem path="/profile/test">
+          <!-- <CmsMenuItem path="/profile/test">
             <div i-carbon-software-resource-cluster />我的内测
-          </CmsMenuItem>
-          <CmsMenuItem path="/profile/notification">
+          </CmsMenuItem> -->
+          <CmsMenuItem query="notification">
             <div i-carbon-notification />通知设置
           </CmsMenuItem>
-          <CmsMenuItem path="/profile/appearance">
+          <CmsMenuItem query="appearance">
             <div i-carbon-moon />外观设置
           </CmsMenuItem>
-        </div>
-
-        <div class="PersonalWrapper-AsideMenu">
-          <p class="sub-title">
-            安全设置
-          </p>
-          <CmsMenuItem path="/profile/link">
+          <CmsMenuItem query="link">
             <div i-carbon-attachment />三方绑定
           </CmsMenuItem>
-          <CmsMenuItem danger path="/profile/password">
+          <!-- <CmsMenuItem danger path="/profile/password">
             <div i-carbon-password />修改密码
-          </CmsMenuItem>
-          <CmsMenuItem path="/profile/history">
+          </CmsMenuItem> -->
+          <CmsMenuItem query="history">
             <div i-carbon-data-table />登录历史
           </CmsMenuItem>
-          <CmsMenuItem path="/profile/mf2a">
+          <!-- <CmsMenuItem path="/profile/mf2a">
             <div i-carbon-tablet />MF2A
-          </CmsMenuItem>
-          <CmsMenuItem danger path="/profile/developer">
+          </CmsMenuItem> -->
+          <CmsMenuItem danger query="developer">
             <div i-carbon-code />开发者设置
           </CmsMenuItem>
         </div>
       </div>
 
       <div class="PersonalWrapper-Main">
-        <el-scrollbar>
-          <slot />
+        <el-scrollbar v-if="comp">
+          <component :is="comp" />
         </el-scrollbar>
       </div>
     </div>
@@ -114,6 +140,30 @@ const privacyPhone = computed(() => {
   width: 100%;
 
   // border-bottom: 1px solid var(--wallpaper-color-light, var(--el-border-color));
+}
+
+.BuyDialog-Close {
+  &:hover {
+    color: var(--el-color-danger);
+  }
+  z-index: 1;
+  position: absolute;
+  display: flex;
+
+  top: 0;
+  right: 0;
+
+  width: 24px;
+  height: 24px;
+
+  cursor: pointer;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+  transform: translate(50%, -50%);
+  background-color: var(--el-bg-color-page);
 }
 
 .PersonalWrapper {
@@ -198,6 +248,7 @@ const privacyPhone = computed(() => {
     height: 100%;
 
     overflow: hidden;
+    border-radius: 0 16px 16px 0;
     background-color: var(--el-bg-color-page);
     // backdrop-filter: blur(8px) saturate(180%);
   }
@@ -215,7 +266,7 @@ const privacyPhone = computed(() => {
 
     .PersonalWrapper-AsideMenu {
       & > .CmsMenuItem {
-        padding: 0.75rem 1.25rem;
+        padding: 0.75rem 1rem;
 
         gap: 0.5rem;
         align-items: center;
@@ -223,16 +274,6 @@ const privacyPhone = computed(() => {
         width: 100%;
 
         border-radius: 18px;
-      }
-
-      & > p.sub-title {
-        margin: 0.5rem 0;
-        width: 100%;
-
-        opacity: 0.5;
-        font-size: 14px;
-        text-align: left;
-        font-weight: 600;
       }
 
       display: flex;
@@ -254,8 +295,9 @@ const privacyPhone = computed(() => {
     align-items: center;
 
     width: 320px;
-    // border-right: 1px solid var(--el-border-color);
-    backdrop-filter: blur(58px) saturate(180%);
+    border-radius: 16px 0 0 16px;
+    border-right: 1px solid var(--el-border-color);
+    backdrop-filter: blur(18px) saturate(180%);
     background-color: var(--el-mask-color-extra-light);
   }
 
@@ -279,6 +321,11 @@ const privacyPhone = computed(() => {
 }
 
 .PersonalTemplate {
+  &.show {
+    opacity: 1;
+    pointer-events: all;
+    transform: translate(-50%, -50%) scale(1);
+  }
   &::before {
     content: '';
     position: absolute;
@@ -290,10 +337,11 @@ const privacyPhone = computed(() => {
     height: 100%;
 
     opacity: 0.5;
+    border-radius: 16px;
     background-size: cover;
     background-image: var(--wallpaper);
   }
-
+  z-index: 3;
   position: absolute;
   display: flex;
 
@@ -302,8 +350,19 @@ const privacyPhone = computed(() => {
   justify-content: center;
 
   width: 100%;
+  max-width: min(1080px, 60%);
   height: 100%;
+  max-height: min(720px, 60%);
 
-  // background-color: var(--el-bg-color-page);
+  top: 50%;
+  left: 50%;
+
+  // overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  border-radius: 16px;
+  background-color: var(--el-bg-color);
+  transform: translate(-50%, -50%) scale(1.25);
+  transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
 }
 </style>
