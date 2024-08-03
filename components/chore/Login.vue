@@ -11,6 +11,8 @@ const emits = defineEmits<{
   (e: 'modelValue:show'): void
 }>()
 
+const codeStatus = ref(0)
+
 function formatter(value: string) {
   // 移除所有非数字字符
   const cleaned = value.replace(/\D/g, '')
@@ -185,7 +187,7 @@ onMounted(async () => {
       }
       else {
         try {
-          const state = codeData.value.expired ? undefined : (codeData.value.data as any)?.loginCode
+          const state = (codeStatus.value !== 4 || codeData.value.expired) ? undefined : (codeData.value.data as any)?.loginCode
 
           const res = await useSMSLogin(data.account.replaceAll(' ', ''), data.code, param, state)
           const result = await res.json()
@@ -250,11 +252,15 @@ async function fetchCode() {
   }
 }
 
-const codeStatus = ref(0)
+const startTime = Date.now()
 
 async function codeStatusTimer() {
   if (userStore.value.token)
     return
+
+  // 如果超过2分钟用户啥也没做就不要她登陆了 免得一直ddos后台
+  if (Date.now() - startTime >= 120000)
+    show.value = false
 
   if (props.show)
     await _codeStatusTimer()
@@ -304,6 +310,7 @@ watch(() => codeStatus.value, async (status) => {
   }, 200)
 })
 
+// @ts-expect-error force exist
 const codeUrl = computed(() => `https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=${codeData.value.data?.ticket}`)
 </script>
 
