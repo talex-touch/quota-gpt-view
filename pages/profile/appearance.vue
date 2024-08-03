@@ -177,10 +177,6 @@ timer()
   flex-wrap: wrap;
 }
 
-.ProfileWrapper-MainWrapper {
-  height: 750px;
-}
-
 .ProfileWrapper-Display {
   &-Theme {
     display: flex;
@@ -279,7 +275,7 @@ timer()
     letter-spacing: 1rem;
     font-size: 1.5rem;
 
-    transform: translate(5rem, -0.25rem);
+    transform: translate(6.5rem, 0.125rem);
   }
 }
 </style>
