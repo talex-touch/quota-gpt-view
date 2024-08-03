@@ -131,7 +131,7 @@ const planProgress = computed(() => {
         </div>
       </template>
       <template #default>
-        <div :class="[userStore.subscription.type]" class="AccountAvatar-Head">
+        <div :class="[userStore.subscription?.type]" class="AccountAvatar-Head">
           <el-avatar :src="avatarUrl" />
 
           <p flex items-center>
