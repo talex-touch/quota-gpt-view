@@ -1,4 +1,7 @@
 import dayjs from 'dayjs'
+import duration from 'dayjs/plugin/duration'
+
+dayjs.extend(duration)
 
 export function genFormatDate(date: Date) {
   // now date: YYYY/M/D HH:mm:ss
@@ -35,4 +38,8 @@ export function getLastTextNode(node: HTMLElement): HTMLElement | null {
 
 export function formatDate(date: any, format: string = 'YYYY-MM-DD HH:mm:ss') {
   return dayjs(date).format(format)
+}
+
+export function formatDuration(duration: number, format: string = 'HH:mm:ss') {
+  return dayjs.duration(duration, 'milliseconds').format(format)
 }

@@ -11,7 +11,7 @@ import BuyDialog from '~/components/chore/buy/BuyDialog.vue'
 import Logo from '~/components/chore/Logo.vue'
 import JSConfetti from 'js-confetti'
 import { SUBSCRIPTION_PLAN_LIST } from '~/composables/subscription'
-import { getOrderPlanPrice } from '~/composables/api/account'
+import { getOrderPlanPrice, getOrderStatus } from '~/composables/api/account'
 
 const route = useRoute()
 const router = useRouter()
@@ -89,29 +89,162 @@ const payOptions = reactive({
   price: 0,
   code: '',
   unavailable: false,
+  countdown: {
+    created: 0,
+    upto: 0,
+  },
+  success: false,
 })
 
-function selectPlan(plan: any) {
-  payOptions.type = plan.type
-  payOptions.time = plan.time
+function parseDataInfo(data: any) {
+  orderDetail.info = [...data.info]
+  orderInfo[0].children = [{
+    name: '订单信息',
+    value: data.name,
+  }, {
+    name: '有效期限',
+    value: `${data.meta.range} 天`,
+  }, {
+    name: '购买时间',
+    value: '-',
+  }, {
+    name: '取消截至',
+    value: '-',
+  }]
+
+  const { fee, average, originPrice, tax, feeTax } = data.meta
+
+  orderInfo[1].children = [
+    {
+      name: '标准费率',
+      value: (originPrice / 100).toFixed(2),
+    },
+    {
+      name: '优惠价格',
+      value: `-${((originPrice - fee) / 100).toFixed(2)}`,
+    },
+    {
+      name: '平均费率',
+      value: `${(average / 100).toFixed(2)}/天`,
+    },
+    {
+      name: '标准税费',
+      value: `+${(tax / 100).toFixed(2)}`,
+    },
+
+  ]
+
+  orderInfo[2].value = `${(feeTax / 100).toFixed(2)
+    } ￥`
+
+  payOptions.price = feeTax
+
+  router.push({
+    query: {
+      ...route.query,
+      plan: payOptions.type,
+      time: payOptions.time,
+    },
+  })
 }
 
+function selectPlan(_plan: any) {
+  payOptions.type = _plan.type
+  payOptions.time = _plan.time
+
+  // get plan
+  const plan = plans.find(plan => plan.type === payOptions.type && plan.time === payOptions.time)
+  if (!plan)
+    return // impossible
+
+  // 后面的 scope 是监测不到变化的，放心用REFLECT
+
+  setTimeout(async () => {
+    orderDetail.loading = true
+
+    // fetch data
+    const res = await getOrderPlanPrice(payOptions.type as any, payOptions.time)
+
+    if (!res.data) {
+      payOptions.unavailable = true
+      return
+    }
+
+    payOptions.unavailable = false
+
+    const { data } = res
+
+    orderDetail.loading = false
+
+    parseDataInfo(data)
+  })
+}
+
+let func: any
+
 function timer() {
+  if (payOptions.success)
+    return
+
   payOptions.now = Date.now()
 
   // update overview
-  if (!payOptions.unavailable && orderDetail[0]?.children.length === 4) {
+  if (!payOptions.unavailable && orderInfo[0]?.children.length === 4) {
     const nowTime = formatDate(payOptions.now, 'YYYY/MM/DD HH:mm:ss')
 
     orderInfo[0].children[2].value = nowTime
     orderInfo[0].children[3].value = formatDate(payOptions.now + 4 * 60 * 60 * 1000, 'YYYY/MM/DD HH:mm:ss')
   }
 
-  setTimeout(timer, 500)
+  func?.()
+
+  setTimeout(timer, 100)
 }
 
 onMounted(() => {
-  if (route.query?.plan && route.query?.time) {
+  if (route.query?.orderId) {
+    setTimeout(async () => {
+      const res = await getOrderStatus(route.query?.orderId as string)
+      if (!res.data) {
+        ElMessage.error('订单不存在')
+        router.back()
+        return
+      }
+
+      const { data } = res
+
+      const info = data.additionalInfo ? JSON.parse(`${decodeURIComponent(atob(data.additionalInfo))}`) : {}
+
+      if (!info) {
+        ElMessage.error('获取订单信息异常')
+        return
+      }
+
+      orderDetail.id = data.id
+
+      parseDataInfo(info.meta.subscription)
+
+      if (data.status !== 1)
+        return
+
+      payOptions.success = true
+
+      const nowTime = formatDate(data.createdAt, 'YYYY/MM/DD HH:mm:ss')
+
+      orderInfo[0].children[2].value = nowTime
+      orderInfo[0].children[3].value = formatDate(payOptions.now + 4 * 60 * 60 * 1000, 'YYYY/MM/DD HH:mm:ss')
+
+      buyEffect()
+
+      orderInfo[2].value = `${(info.meta.subscription.meta.fee / 100).toFixed(2)
+        } ￥`
+
+      // 删除 orderInfo[1].children 最后一个成员
+      orderInfo[1].children.pop()
+    })
+  }
+
+  else if (route.query?.plan && route.query?.time) {
     const plan = plans.find(plan => plan.type === route.query?.plan && plan.time === route.query?.time)
     if (plan)
       selectPlan(plan)
@@ -127,107 +260,98 @@ function submit() {
   payOptions.dialog = true
 }
 
-watchEffect(() => {
-  // get plan
-  const plan = plans.find(plan => plan.type === payOptions.type && plan.time === payOptions.time)
-  if (!plan)
-    return // impossible
+const countdownObj = computed(() => {
+  if (!payOptions.countdown.created)
+    return null
 
-  console.log('a', plan)
+  const { created, upto } = payOptions.countdown
 
-  // 后面的 scope 是监测不到变化的，放心用REFLECT
+  const now = payOptions.now
 
-  setTimeout(async () => {
-    orderDetail.loading = true
+  const left = upto - now
 
-    // fetch data
-    const res = await getOrderPlanPrice(payOptions.type as any, payOptions.time)
-
-    if (!res.data) {
-      payOptions.unavailable = true
-    }
-    else {
-      payOptions.unavailable = false
-      payOptions.price = res.data
-    }
-
-    orderDetail.loading = false
-
-    function mapperTime(time: any) {
-      switch (time) {
-        case 'MONTH':
-          return '1个月 (30天)'
-        case 'QUARTER':
-          return '1个季度 (90天)'
-        case 'YEAR':
-          return '1年 (365天)'
-        default:
-          return time
-      }
-    }
-
-    orderDetail.info = [...plan.info]
-    orderInfo[0].children = [{
-      name: '订单信息',
-      value: plan.name,
-    }, {
-      name: '有效期限',
-      value: mapperTime(plan.time),
-    }, {
-      name: '购买时间',
-      value: '',
-    }, {
-      name: '取消截至',
-      value: '',
-    }]
-
-    orderInfo[1].children = [
-      {
-        name: '标准费率',
-        value: payOptions.price / 100,
-      },
-      {
-        name: '优惠价格',
-        value: `0.00`,
-      },
-      {
-        name: '标准税费',
-        value: '0.00',
-      },
-      {
-        name: '平均费率',
-        value: '0.00',
-      },
-    ]
-
-    orderInfo[2].value = `${(payOptions.price / 100).toFixed(2)
-      } ￥`
-
-    router.push({
-      query: {
-        ...route.query,
-        plan: plan.type,
-        time: plan.time,
-      },
-    })
-  })
+  return {
+    expired: upto < payOptions.now,
+    left,
+    created,
+    upto,
+    now,
+    uptoText: formatDate(upto, 'YYYY/MM/DD HH:mm:ss'),
+  }
 })
+
+async function paySuccess(data: any) {
+  if (data.status !== 1) {
+    ElMessage.error('支付失败，请联系管理员！')
+    await router.push('/profile/plan')
+    return
+  }
+
+  payOptions.dialog = false
+  payOptions.success = true
+
+  buyEffect()
+
+  ElMessage.success('支付成功！')
+
+  setTimeout(() => location.reload(), 3000)
+}
+
+function handleOrderEstablished(data: any) {
+  orderDetail.id = data.order.id
+  const createdAt = new Date(data.order.createdAt)
+  payOptions.countdown = {
+    created: createdAt.getTime(),
+    upto: createdAt.getTime() + 15 * 60 * 1000,
+  }
+
+  router.push({
+    query: {
+      orderId: orderDetail.id,
+    },
+  })
+
+  let ctn = 0
+  func = async () => {
+    ctn += 1
+    if (ctn < 20)
+      return
+
+    ctn = 0
+
+    const status = await getOrderStatus(data.order.id)
+
+    if (status.data.status !== 0) {
+      func = null
+
+      paySuccess(status.data)
+    }
+  }
+}
 </script>
 
 <template>
   <div class="ProfileWrapper">
-    <!-- <div class="ProfileWrapper-Steps">
-      <el-steps style="max-width: 600px" :active="payOptions.step">
-        <el-step title="Step 1" />
-        <el-step title="Step 2" />
-      </el-steps>
-    </div> -->
+    <div class="ProfileWrapper-Header">
+      <el-page-header title="返回" @back="router.back()">
+        <template #content>
+          <span class="text-large mr-3 font-600">
+            <span v-if="orderDetail.id">订单详情</span>
+            <span v-else-if="subscriptionMode">选择订阅</span>
+            <span v-else>充值余额</span>
+          </span>
+        </template>
+      </el-page-header>
+
+      <PersonalAccountAvatar />
+    </div>
 
     <div class="ProfileWrapper-Main">
       <p>
         结账
+        <span v-if="payOptions?.success" style="font-size: 18px;font-weight: normal;opacity: 0.65">您已成功完成支付。</span>
         <span
-          v-if="subscriptionMode"
+          v-else-if="subscriptionMode"
           style="font-size: 18px;font-weight: normal;opacity: 0.65"
         >现在选择适合你的订阅，邀请用户可得返现哦。</span>
         <span v-else style="font-size: 18px;font-weight: normal;opacity: 0.65">平台倡导量入为出，请理性消费。未成年人下单前必须由监护人同意。</span>
@@ -235,11 +359,14 @@ watchEffect(() => {
 
       <div class="ProfileWrapper-Content">
         <div class="ProfileWrapper-ContentInner">
-          <OtherWarnAlert v-if="orderDetail.id" icon="i-carbon:information" title="您的订单将被保留">
-            我们将您的订单保留至 2024/08/02 09:17:02。你可以随时取消这个订单。
+          <OtherWarnAlert v-if="countdownObj?.expired" icon="i-carbon:information" title="订单超时">
+            订单已关闭
+          </OtherWarnAlert>
+          <OtherWarnAlert v-else-if="orderDetail.id && countdownObj" icon="i-carbon:information" title="您的订单将被保留">
+            我们将您的订单保留至 {{ countdownObj.uptoText }}。你可以随时继续支付这个订单。
           </OtherWarnAlert>
 
-          <div v-if="subscriptionMode" class="ProfileWrapper-Content-Info Options">
+          <div v-if="subscriptionMode && !orderDetail.id" class="ProfileWrapper-Content-Info Options">
             <p>选择订阅</p>
             <ul>
               <li
@@ -251,15 +378,21 @@ watchEffect(() => {
               </li>
             </ul>
           </div>
-          <div v-else class="ProfileWrapper-Content-Info">
+          <div v-else-if="!orderDetail.id" class="ProfileWrapper-Content-Info">
             <p>充值余额</p>
           </div>
           <div v-if="!payOptions.unavailable" class="ProfileWrapper-Content-Info">
-            <p>订单详情<span v-if="orderDetail.id">#{{ orderDetail.id }}</span></p>
+            <div class="title">
+              订单详情<span v-if="orderDetail.id">#{{ orderDetail.id }}</span>
+
+              <div v-if="payOptions.success" class="pay-stamp">
+                <TextShaving text="已支付" />
+              </div>
+            </div>
             <ul v-loading="orderDetail.loading">
               <li v-for="line in orderDetail.info" :key="line.name" :class="{ free: line.free }">
                 <span>{{ line.name }}</span>
-                <span v-if="!line.free">{{ line.price.replace("%total%", (payOptions.price / 100).toFixed(2)) }}￥</span>
+                <span v-if="!line.free">{{ (line.price / 100).toFixed(2) }}￥</span>
                 <span v-else>附赠</span>
               </li>
             </ul>
@@ -268,11 +401,12 @@ watchEffect(() => {
             v-if="!payOptions.unavailable" v-loading="orderDetail.loading"
             class="ProfileWrapper-Content-Info Payments"
           >
-            <p>支付详情</p>
+            <p>支付方式</p>
             <ul>
               <li
                 v-for="payment in payments.children" :key="payment.value"
-                :class="{ active: payments.select === payment.value }" @click="payments.select = payment.value"
+                :class="{ active: payments.select === payment.value, disabled: countdownObj?.expired || payOptions.success }"
+                @click="payments.select = payment.value"
               >
                 <img :src="payment.svg">{{ payment.name }}
               </li>
@@ -293,7 +427,7 @@ watchEffect(() => {
             <ul v-for="item in orderInfo" :key="item.label" :class="{ line: item.value }">
               <p>{{ item.label }}</p>
               <template v-if="item.children">
-                <li v-for="line in item.children" :key="line.name">
+                <li v-for="line in item.children" :key="line.name" :class="{ discount: +line.value < 0 }">
                   <span op-75>
                     {{ line.name }}
                   </span>
@@ -309,21 +443,41 @@ watchEffect(() => {
             </ul>
           </div>
 
-          <div v-if="!payOptions.unavailable" v-loading="orderDetail.loading" class="ProfileWrapper-Content-Info">
+          <div
+            v-if="!payOptions?.success && !countdownObj?.expired && !payOptions.unavailable"
+            v-loading="orderDetail.loading" class="ProfileWrapper-Content-Info"
+          >
             <p>优惠券码</p>
             <el-input v-model="payOptions.code" placeholder="可选" />
           </div>
 
           <div
-            v-if="!payOptions.unavailable" v-loading="orderDetail.loading"
+            v-if="payOptions?.success" v-loading="orderDetail.loading" flex items-center
+            class="ProfileWrapper-Content-Info Confirm"
+          >
+            <div flex items-center>
+              <ThCheckBox v-model="payOptions.agreement" />&nbsp;使用即代表您已阅读同意《使用服务协议》和《订单退款协议》
+            </div>
+            <ShiningButton :class="{ shrink: !payOptions.agreement }">
+              售后咨询
+            </ShiningButton>
+          </div>
+          <div
+            v-else-if="!countdownObj?.expired && !payOptions.unavailable" v-loading="orderDetail.loading"
             class="ProfileWrapper-Content-Info Confirm"
           >
             <div flex items-center>
               <ThCheckBox v-model="payOptions.agreement" />&nbsp;购买即代表您已阅读同意《使用服务协议》和《用户隐私协议》
             </div>
             <ShiningButton :class="{ shrink: !payOptions.agreement }" @click="submit">
-              确认支付
+              {{ orderDetail.id ? '继续支付' : '确认支付' }}
             </ShiningButton>
+          </div>
+          <div
+            v-else-if="countdownObj?.expired" v-loading="orderDetail.loading" flex items-center
+            class="ProfileWrapper-Content-Info Confirm"
+          >
+            <TextShaving style="width: max-content" text="订单已失效" />
           </div>
           <div v-else v-loading="orderDetail.loading" flex items-center class="ProfileWrapper-Content-Info Confirm">
             <TextShaving style="width: max-content" text="当前计划不可用" />
@@ -336,13 +490,62 @@ watchEffect(() => {
       <Logo />Powered by QuotaWish.
     </div>
 
-    <BuyDialog v-model="payOptions.dialog" :price="payOptions.price" :method="payments.select" />
+    <BuyDialog
+      v-model="payOptions.dialog" :countdown="countdownObj" :type="payOptions.type" :time="payOptions.time"
+      :price="payOptions.price" :method="payments.select" @order="handleOrderEstablished"
+    />
   </div>
 </template>
 
+<style lang="scss">
+.ProfileWrapper-Header .AccountAvatar {
+  position: relative;
+
+  top: 0;
+  right: 0;
+}
+</style>
+
 <style lang="scss" scoped>
+.pay-stamp {
+  position: absolute;
+  padding: 0.25rem 0.5rem;
+
+  top: 50%;
+  right: 0;
+
+  font-size: 16px;
+  font-weight: normal;
+
+  color: #000;
+  border-radius: 12px;
+  background-color: #23d96e50;
+  transform: translateY(-50%);
+  box-shadow: 0 0 12px 4px #23d96e50;
+  border: 1px solid var(--el-color-success);
+}
+
+.ProfileWrapper-Header {
+  position: absolute;
+  padding: 1rem 2rem;
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+  // justify-content: flex-start;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+
+  height: 60px;
+
+  border-bottom: 1px solid var(--el-border-color);
+}
+
 div.ProfileWrapper-Footer {
-  z-index: -1;
+  z-index: 0;
   position: absolute;
   padding: 0.5rem 0;
   display: flex;
@@ -428,6 +631,10 @@ div.Confirm {
       &.active {
         border: 2px solid var(--theme-color);
       }
+      &.disabled {
+        opacity: 0.75;
+        pointer-events: none;
+      }
 
       padding: 0.5rem 1rem;
 
@@ -455,12 +662,14 @@ div.Confirm {
 }
 
 .ProfileWrapper-Content-Info {
-  & > p {
+  & > p,
+  & div.title {
     span {
       margin: 0 8px;
       font-size: 20px;
       opacity: 0.5;
     }
+    position: relative;
 
     padding: 1rem 0;
 
@@ -574,6 +783,16 @@ div.Confirm {
     gap: 0.75rem;
 
     li {
+      &.discount {
+        & :last-child {
+          color: var(--el-color-danger);
+
+          font-weight: 600;
+        }
+      }
+
+      position: relative;
+
       display: flex;
       justify-content: space-between;
     }

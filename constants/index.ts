@@ -4,7 +4,7 @@ export const appDescription = 'THISAI'
 export const ENDS_URL = {
   dev: {
     label: 'Development',
-    value: 'http://127.0.0.1:7001/',
+    value: 'https://dev.quotawish.com/',
   },
   test: {
     label: 'Test',

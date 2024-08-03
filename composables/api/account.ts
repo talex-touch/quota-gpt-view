@@ -238,8 +238,26 @@ export function delDict(Path: any) {
 }
 
 export function getOrderPlanPrice(type: 'STANDARD' | 'ULTIMATE', time: string) {
-  return endHttp.get('order/price', {
+  return endHttp.get(`order/price?_time=${Date.now()}`, {
     type,
     time,
+    payMethod: 2,
   })
+}
+
+export function orderPlanPrice(type: 'STANDARD' | 'ULTIMATE', time: string) {
+  return endHttp.post('order/subscribe', {
+    type,
+    time,
+    payMethod: 2,
+    couponCode: 'test',
+  })
+}
+
+export function getUserNearestUnPayOrder() {
+  return endHttp.get(`order/target?now=${Date.now()}`)
+}
+
+export function getOrderStatus(id: string) {
+  return endHttp.get(`order/status/target?time=${Date.now()}`, { id })
 }
