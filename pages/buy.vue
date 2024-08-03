@@ -650,6 +650,10 @@ div.Confirm {
       img {
         width: 1.5rem;
         height: 1.5rem;
+
+        .dark & {
+          filter: invert(1);
+        }
       }
 
       cursor: pointer;
