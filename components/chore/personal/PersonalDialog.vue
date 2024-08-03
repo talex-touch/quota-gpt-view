@@ -29,6 +29,7 @@ const privacyPhone = computed(() => {
 })
 
 const comp = ref()
+const expand = ref(false)
 const queryComponentMapper: Record<string, any> = {
   account: Account,
   plan: Plan,
@@ -43,6 +44,7 @@ watch(() => route.fullPath, () => {
 
   if (data) {
     show.value = true
+    expand.value = data === 'plan'
   }
   else {
     show.value = false
@@ -54,7 +56,7 @@ watch(() => route.fullPath, () => {
 </script>
 
 <template>
-  <el-container :class="{ show }" class="PersonalTemplate">
+  <el-container :class="{ show, expand }" class="PersonalTemplate">
     <div class="BuyDialog-Close" @click="$router.push('/')">
       <div i-carbon:close />
     </div>
@@ -216,7 +218,7 @@ watch(() => route.fullPath, () => {
       display: flex;
 
       align-items: center;
-      justify-content: flex-end;
+      justify-content: flex-start;
 
       height: 80px;
       width: 100%;
@@ -325,6 +327,10 @@ watch(() => route.fullPath, () => {
 }
 
 .PersonalTemplate {
+  &.expand {
+    width: min(1280px, 100%);
+    height: min(950px, 100%);
+  }
   &.show {
     // opacity: 1;
     pointer-events: all;
@@ -353,10 +359,8 @@ watch(() => route.fullPath, () => {
   flex-direction: column;
   justify-content: center;
 
-  width: 100%;
-  max-width: min(1080px, 60%);
-  height: 100%;
-  max-height: min(720px, 60%);
+  width: min(1080px, 60%);
+  height: min(720px, 60%);
 
   top: 50%;
   left: 50%;

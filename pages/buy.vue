@@ -283,7 +283,9 @@ const countdownObj = computed(() => {
 async function paySuccess(data: any) {
   if (data.status !== 1) {
     ElMessage.error('支付失败，请联系管理员！')
-    await router.push('/profile/plan')
+    await router.push('/', {
+      query: { data: 'plan' },
+    })
     return
   }
 

@@ -2,10 +2,6 @@
 import PlanCard from '~/components/card/PlanCard.vue'
 import { price } from '~/constants/price'
 
-definePageMeta({
-  layout: 'personal',
-})
-
 const router = useRouter()
 
 const plans = computed(() => price.map((item, index) => ({
@@ -19,7 +15,7 @@ const plans = computed(() => price.map((item, index) => ({
 })))
 
 function toCheckout(plan: any) {
-  router.push(`/profile/buy?type=SUBSCRIPTION&plan=${plan.value}&time=MONTH`)
+  router.push(`/buy?type=SUBSCRIPTION&plan=${plan.value}&time=MONTH`)
 }
 </script>
 
@@ -32,36 +28,34 @@ function toCheckout(plan: any) {
     </div>
 
     <div class="ProfileWrapper-Main">
-      <el-scrollbar>
-        <div class="ProfileWrapper-MainWrapper">
-          <!-- <el-alert title="现在下单，新人用户享受限时 2.99/月 福利。" type="success" close-text="更多福利" /> -->
-          <el-alert title="价格以结算页面最终价格为准。" type="warning" close-text="了解" />
+      <div class="ProfileWrapper-MainWrapper">
+        <!-- <el-alert title="现在下单，新人用户享受限时 2.99/月 福利。" type="success" close-text="更多福利" /> -->
+        <el-alert title="价格以结算页面最终价格为准。" type="warning" close-text="了解" />
 
-          <br>
+        <br>
 
-          <h1>简单，透明，高性价比计划</h1>
-          <p>立即开始提升你的办公效率、生活体验</p>
+        <h1>简单，透明，高性价比计划</h1>
+        <p>立即开始提升你的办公效率、生活体验</p>
 
-          <div class="ProfileWrapper-MainWrapper-Plan">
-            <PlanCard
-              v-for="plan in plans" :key="plan.name" :got="plan.got" :type="plan.type" :desc="plan.desc"
-              :name="plan.name" :price="plan.price" @click="toCheckout(plan)"
-            >
-              <li v-for="feature in plan.features" :key="feature">
-                {{ feature }}
-              </li>
-            </PlanCard>
-          </div>
-          <br>
+        <div class="ProfileWrapper-MainWrapper-Plan">
+          <PlanCard
+            v-for="plan in plans" :key="plan.name" :got="plan.got" :type="plan.type" :desc="plan.desc"
+            :name="plan.name" :price="plan.price" @click="toCheckout(plan)"
+          >
+            <li v-for="feature in plan.features" :key="feature">
+              {{ feature }}
+            </li>
+          </PlanCard>
         </div>
-      </el-scrollbar>
+        <br>
+      </div>
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .ProfileWrapper-MainWrapper-Plan {
-  margin: 2rem 0;
+  margin: 1rem 0;
   display: flex;
 
   gap: 1.25rem;
@@ -95,7 +89,7 @@ function toCheckout(plan: any) {
     letter-spacing: 1rem;
     font-size: 1.5rem;
 
-    transform: translate(5rem, -0.25rem);
+    transform: translate(6.5rem, 0.125rem);
   }
 }
 </style>

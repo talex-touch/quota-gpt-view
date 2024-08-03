@@ -107,21 +107,21 @@ const lastEditTime = computed(() => dayjs(userStore.value.updatedAt).format('DD 
           <el-input v-model="ruleForm.qq" disabled size="large" />
         </el-form-item>
       </el-form>
+
+      <ChorePersonalInvitationCard />
     </div>
 
-    <div class="ProfileWrapper-Footer">
-      <div class="ProfileWrapper-Start">
-        更新个人信息可能会有延迟
-      </div>
-
+    <div flex class="ProfileWrapper-Footer">
       <div>
-        <el-button size="large" @click="resetForm(ruleFormRef)">
-          重置
-        </el-button>
-
         <el-button size="large" type="primary" @click="submitForm(ruleFormRef)">
           更新
         </el-button>
+        <el-button size="large" @click="resetForm(ruleFormRef)">
+          重置
+        </el-button>
+      </div>
+      <div class="ProfileWrapper-Start">
+        更新个人信息可能会有延迟
       </div>
     </div>
   </div>
@@ -129,7 +129,7 @@ const lastEditTime = computed(() => dayjs(userStore.value.updatedAt).format('DD 
 
 <style lang="scss">
 .ProfileWrapper-Start {
-  position: absolute;
+  position: relative;
 
   left: 2rem;
 

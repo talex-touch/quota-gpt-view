@@ -111,13 +111,14 @@ const emits = defineEmits(['click'])
 
     opacity: 1;
     color: var(--el-text-color-primary);
+    text-shadow: 0 0 4px var(--theme-color);
   }
 
   .pricing {
     &.origin {
       font-weight: 600;
-      color: var(--el-color-danger);
-      text-shadow: 0 0 4px var(--el-color-danger);
+      color: #f4d553;
+      text-shadow: 0 0 4px #000e;
     }
 
     .origin-price {
