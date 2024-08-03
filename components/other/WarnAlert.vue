@@ -29,9 +29,9 @@ const props = defineProps<{
     height: 100%;
 
     background-image: repeating-radial-gradient(
-      #f5c7a1 50%,
-      #ffeecc 70%,
-      #f5c7a1 95%
+      #f5c7a180 50%,
+      #ffeecc80 70%,
+      #f5c7a180 95%
     );
     background-size: 50% 200px;
     background-position: 80%;
@@ -40,6 +40,7 @@ const props = defineProps<{
   }
 
   .icon {
+    color: #000;
     font-size: 32px;
   }
 
@@ -55,6 +56,8 @@ const props = defineProps<{
     p {
       font-size: 16px;
       font-weight: 600;
+
+      color: #000;
     }
 
     span {
