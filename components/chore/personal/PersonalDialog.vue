@@ -210,7 +210,8 @@ watch(() => route.fullPath, () => {
     }
 
     .ProfileWrapper-Footer {
-      position: relative;
+      z-index: 2;
+      position: sticky;
       padding: 1rem 2rem;
       display: flex;
 
@@ -220,11 +221,14 @@ watch(() => route.fullPath, () => {
       height: 80px;
       width: 100%;
 
+      bottom: 0;
       font-weight: 600;
+      background-color: var(--el-bg-color-page);
       // border-top: 1px solid var(--el-border-color);
     }
 
     .ProfileWrapper-Main {
+      z-index: 1;
       padding: 1.5rem 2rem;
     }
 
@@ -322,25 +326,25 @@ watch(() => route.fullPath, () => {
 
 .PersonalTemplate {
   &.show {
-    opacity: 1;
+    // opacity: 1;
     pointer-events: all;
-    transform: translate(-50%, -50%) scale(1);
+    transform: translate(-50%, -50%);
   }
-  &::before {
-    content: '';
-    position: absolute;
+  // &::before {
+  //   content: '';
+  //   position: absolute;
 
-    top: 0;
-    left: 0;
+  //   top: 0;
+  //   left: 0;
 
-    width: 100%;
-    height: 100%;
+  //   width: 100%;
+  //   height: 100%;
 
-    opacity: 0.5;
-    border-radius: 16px;
-    background-size: cover;
-    background-image: var(--wallpaper);
-  }
+  //   opacity: 0.5;
+  //   border-radius: 16px;
+  //   background-size: cover;
+  //   background-image: var(--wallpaper);
+  // }
   z-index: 3;
   position: absolute;
   display: flex;
@@ -358,11 +362,12 @@ watch(() => route.fullPath, () => {
   left: 50%;
 
   // overflow: hidden;
-  opacity: 0;
+  // opacity: 0;
   pointer-events: none;
   border-radius: 16px;
-  background-color: var(--el-bg-color);
-  transform: translate(-50%, -50%) scale(1.25);
+  box-shadow: var(--el-box-shadow);
+  // background-color: var(--el-bg-color);
+  transform: translate(-50%, -200%);
   transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
 }
 </style>

@@ -94,7 +94,8 @@ timer()
                 :class="{ active: wallpaper.id === themeOptions.theme }" class="Wallpaper-Item"
                 @click="setWallpaper(wallpaper)"
               >
-                <img :alt="wallpaper.label" :src="wallpaper.wallpaper" class="Wallpaper-Item-Img">
+                <el-image :key="wallpaper.label" :src="wallpaper.wallpaper" lazy class="Wallpaper-Item-Img" />
+                <!-- <img :alt="wallpaper.label" :src="wallpaper.wallpaper" class="Wallpaper-Item-Img"> -->
                 <span>{{ wallpaper.label }}</span>
               </div>
             </div>
@@ -123,12 +124,12 @@ timer()
 
     gap: 0.5rem;
     align-items: center;
-    margin-right: 2rem;
+    // margin-right: 2rem;
   }
 }
 
 .Wallpaper-Item {
-  img {
+  .Wallpaper-Item-Img {
     width: 100%;
     height: 100%;
 

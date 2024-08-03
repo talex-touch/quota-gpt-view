@@ -32,7 +32,7 @@ function formatDate(date: string) {
     </div>
 
     <div class="ProfileWrapper-Main">
-      <el-table v-if="historyList?.items" size="large" table-layout="auto" :data="historyList.items">
+      <el-table v-if="historyList?.items" height="100%" strip border size="large" table-layout="auto" :data="historyList.items">
         <el-table-column label="IP">
           <template #default="{ row }">
             {{ row.ip }}
@@ -68,7 +68,17 @@ function formatDate(date: string) {
   </div>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
+:deep(.el-table) {
+  --el-table-bg-color: var(--el-bg-color-page);
+  --el-table-tr-bg-color: var(--el-bg-color-page);
+  --el-table-header-bg-color: var(--el-bg-color-page);
+}
+
+.ProfileWrapper-Main {
+  height: calc(100% - 80px);
+}
+
 .ProfileWrapper-Start {
   position: absolute;
 

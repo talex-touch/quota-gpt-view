@@ -129,8 +129,8 @@ defineProps<{
   position: relative;
   padding: 4px;
 
-  width: 240px;
-  height: 150px;
+  width: 220px;
+  height: 140px;
 
   cursor: pointer;
   border-radius: 16px;
