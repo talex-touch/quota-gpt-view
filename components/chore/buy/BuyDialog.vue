@@ -71,6 +71,8 @@ async function syncLocalData(res: any) {
   if (!res.data) {
     ElMessage.error(res.message || '获取失败')
     console.error('res', res)
+
+    show.value = false
     return
   }
 
@@ -79,8 +81,6 @@ async function syncLocalData(res: any) {
   emits('order', data)
 
   payOptions.price = data.order.totalAmount
-
-  console.log('data', data)
 
   const url = await QrCode.toDataURL(data.code_url, { margin: 2 })
 

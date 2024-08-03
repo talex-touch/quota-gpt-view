@@ -290,11 +290,11 @@ async function paySuccess(data: any) {
   payOptions.dialog = false
   payOptions.success = true
 
-  buyEffect()
+  // buyEffect()
 
   ElMessage.success('支付成功！')
 
-  setTimeout(() => location.reload(), 3000)
+  setTimeout(() => location.reload(), 1200)
 }
 
 function handleOrderEstablished(data: any) {
@@ -333,7 +333,7 @@ function handleOrderEstablished(data: any) {
 <template>
   <div class="ProfileWrapper">
     <div class="ProfileWrapper-Header">
-      <el-page-header title="返回" @back="router.back()">
+      <el-page-header title="返回" @back="router.push('/profile/plan')">
         <template #content>
           <span class="text-large mr-3 font-600">
             <span v-if="orderDetail.id">订单详情</span>
@@ -349,7 +349,9 @@ function handleOrderEstablished(data: any) {
     <div class="ProfileWrapper-Main">
       <p>
         结账
-        <span v-if="payOptions?.success" style="font-size: 18px;font-weight: normal;opacity: 0.65">您已成功完成支付。</span>
+        <span v-if="payOptions?.success" style="font-size: 18px;font-weight: normal;opacity: 0.65">您已成功完成支付，
+          订单到账可能会有一定延迟。
+        </span>
         <span
           v-else-if="subscriptionMode"
           style="font-size: 18px;font-weight: normal;opacity: 0.65"
