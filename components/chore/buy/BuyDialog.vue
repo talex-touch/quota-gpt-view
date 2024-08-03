@@ -12,6 +12,7 @@ const props = defineProps<{
 
   type: string
   time: string
+  couponCode: string
 
   countdown: any
 }>()
@@ -60,7 +61,7 @@ async function fetchData() {
 
   loading.value = true
 
-  const res = await orderPlanPrice(props.type as any, props.time)
+  const res = await orderPlanPrice(props.type as any, props.time, props.couponCode)
 
   syncLocalData(res)
 

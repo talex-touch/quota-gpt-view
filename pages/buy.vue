@@ -283,7 +283,8 @@ const countdownObj = computed(() => {
 async function paySuccess(data: any) {
   if (data.status !== 1) {
     ElMessage.error('支付失败，请联系管理员！')
-    await router.push('/', {
+    await router.push({
+      path: '/',
       query: { data: 'plan' },
     })
     return
@@ -495,8 +496,8 @@ function handleOrderEstablished(data: any) {
     </div>
 
     <BuyDialog
-      v-model="payOptions.dialog" :countdown="countdownObj" :type="payOptions.type" :time="payOptions.time"
-      :price="payOptions.price" :method="payments.select" @order="handleOrderEstablished"
+      v-model="payOptions.dialog" :coupon-code="payOptions.code" :countdown="countdownObj" :type="payOptions.type"
+      :time="payOptions.time" :price="payOptions.price" :method="payments.select" @order="handleOrderEstablished"
     />
   </div>
 </template>

@@ -245,12 +245,12 @@ export function getOrderPlanPrice(type: 'STANDARD' | 'ULTIMATE', time: string) {
   })
 }
 
-export function orderPlanPrice(type: 'STANDARD' | 'ULTIMATE', time: string) {
+export function orderPlanPrice(type: 'STANDARD' | 'ULTIMATE', time: string, couponCode: string) {
   return endHttp.post('order/subscribe', {
     type,
     time,
     payMethod: 2,
-    couponCode: 'test',
+    couponCode,
   })
 }
 
