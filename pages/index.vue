@@ -239,6 +239,8 @@ provide('pageOptions', pageOptions)
   font-size: 14px;
   text-align: center;
   transform: translateX(-50%);
+
+  mix-blend-mode: difference;
   // background: var(--el-bg-color-page);
 }
 </style>
