@@ -91,31 +91,16 @@ const payOptions = reactive({
   unavailable: false,
 })
 
-async function selectPlan(plan: any) {
-  orderDetail.loading = true
-
+function selectPlan(plan: any) {
   payOptions.type = plan.type
   payOptions.time = plan.time
-
-  // fetch data
-  const res = await getOrderPlanPrice(payOptions.type as any, payOptions.time)
-
-  if (!res.data) {
-    payOptions.unavailable = true
-  }
-  else {
-    payOptions.unavailable = false
-    payOptions.price = res.data
-  }
-
-  orderDetail.loading = false
 }
 
 function timer() {
   payOptions.now = Date.now()
 
   // update overview
-  if (!payOptions.unavailable) {
+  if (!payOptions.unavailable && orderDetail[0]?.children.length === 4) {
     const nowTime = formatDate(payOptions.now, 'YYYY/MM/DD HH:mm:ss')
 
     orderInfo[0].children[2].value = nowTime
@@ -148,62 +133,83 @@ watchEffect(() => {
   if (!plan)
     return // impossible
 
-  function mapperTime(time: any) {
-    switch (time) {
-      case 'MONTH':
-        return '1个月 (30天)'
-      case 'QUARTER':
-        return '1个季度 (90天)'
-      case 'YEAR':
-        return '1年 (365天)'
-      default:
-        return time
+  console.log('a', plan)
+
+  // 后面的 scope 是监测不到变化的，放心用REFLECT
+
+  setTimeout(async () => {
+    orderDetail.loading = true
+
+    // fetch data
+    const res = await getOrderPlanPrice(payOptions.type as any, payOptions.time)
+
+    if (!res.data) {
+      payOptions.unavailable = true
     }
-  }
+    else {
+      payOptions.unavailable = false
+      payOptions.price = res.data
+    }
 
-  orderDetail.info = [...plan.info]
-  orderInfo[0].children = [{
-    name: '订单信息',
-    value: plan.name,
-  }, {
-    name: '有效期限',
-    value: mapperTime(plan.time),
-  }, {
-    name: '购买时间',
-    value: '',
-  }, {
-    name: '取消截至',
-    value: '',
-  }]
+    orderDetail.loading = false
 
-  orderInfo[1].children = [
-    {
-      name: '标准费率',
-      value: payOptions.price / 100,
-    },
-    {
-      name: '优惠价格',
-      value: `0.00`,
-    },
-    {
-      name: '标准税费',
-      value: '0.00',
-    },
-    {
-      name: '平均费率',
-      value: '0.00',
-    },
-  ]
+    function mapperTime(time: any) {
+      switch (time) {
+        case 'MONTH':
+          return '1个月 (30天)'
+        case 'QUARTER':
+          return '1个季度 (90天)'
+        case 'YEAR':
+          return '1年 (365天)'
+        default:
+          return time
+      }
+    }
 
-  orderInfo[2].value = `${(payOptions.price / 100).toFixed(2)
-    } ￥`
+    orderDetail.info = [...plan.info]
+    orderInfo[0].children = [{
+      name: '订单信息',
+      value: plan.name,
+    }, {
+      name: '有效期限',
+      value: mapperTime(plan.time),
+    }, {
+      name: '购买时间',
+      value: '',
+    }, {
+      name: '取消截至',
+      value: '',
+    }]
 
-  router.push({
-    query: {
-      ...route.query,
-      plan: plan.type,
-      time: plan.time,
-    },
+    orderInfo[1].children = [
+      {
+        name: '标准费率',
+        value: payOptions.price / 100,
+      },
+      {
+        name: '优惠价格',
+        value: `0.00`,
+      },
+      {
+        name: '标准税费',
+        value: '0.00',
+      },
+      {
+        name: '平均费率',
+        value: '0.00',
+      },
+    ]
+
+    orderInfo[2].value = `${(payOptions.price / 100).toFixed(2)
+      } ￥`
+
+    router.push({
+      query: {
+        ...route.query,
+        plan: plan.type,
+        time: plan.time,
+      },
+    })
   })
 })
 </script>
@@ -276,7 +282,9 @@ watchEffect(() => {
             <OtherDefaultAlert icon="i-carbon:manage-protection" title="随时取消政策">
               在科塔锐行，我们深知计划可能随时发生变化。为此，我们特别设计了一套取消政策，旨在为您带来最大的灵活性与安心保障。当您选择我们时，您将享有充分的自由度来调整或取消预订，无需担心任何取消费用。我们的政策允许您在购买后<span
                 font-bold
-              >3 小时</span>内免费修改订单，确保您的计划能够灵活适应各种突发状况。
+              >3 小时</span>内免费修改订单，确保您的计划能够灵活适应各种突发状况。<el-link type="primary">
+                了解更多
+              </el-link>
             </OtherDefaultAlert>
           </div>
         </div>
@@ -334,6 +342,7 @@ watchEffect(() => {
 
 <style lang="scss" scoped>
 div.ProfileWrapper-Footer {
+  z-index: -1;
   position: absolute;
   padding: 0.5rem 0;
   display: flex;
