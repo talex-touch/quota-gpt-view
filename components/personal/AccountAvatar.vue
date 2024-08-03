@@ -136,9 +136,9 @@ const planProgress = computed(() => {
 
           <p flex items-center>
             <span class="name">{{ userStore.nickname }} <span class="privilege">
-              <span v-if="!userStore.subscription">免费订阅</span>
-              <span v-else-if="userStore.subscription.type === 'ULTIMATE'">高级订阅</span>
-              <span v-else-if="userStore.subscription.type === 'STANDARD'">标准订阅</span>
+              <span v-if="!userStore.subscription?.type">免费订阅</span>
+              <span v-else-if="userStore.subscription?.type === 'ULTIMATE'">高级订阅</span>
+              <span v-else-if="userStore.subscription?.type === 'STANDARD'">标准订阅</span>
             </span>
               <span mx-2 style="--c: #FB533080" class="privilege"> <span class="dummy">0.00 ￥</span></span>
             </span>
