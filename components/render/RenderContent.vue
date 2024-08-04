@@ -167,6 +167,10 @@ onMounted(() => {
       color: #cb5a3d;
       // color: var(--el-color-primary);
     }
+
+    span.hljs-name {
+      color: #25aff3;
+    }
     // margin: 0 0.25rem;
     // padding: 0.25rem 0.5rem;
 

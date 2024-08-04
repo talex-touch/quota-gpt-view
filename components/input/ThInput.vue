@@ -61,8 +61,8 @@ function handleInputKeydown(event: KeyboardEvent) {
 
   const isLastOne = inputHistoryIndex.value === inputHistories.value.length - 1
 
-  const { key } = event
-  if (key === 'ArrowUp') {
+  const { key, ctrlKey } = event
+  if (ctrlKey && key === 'ArrowUp') {
     if (inputHistoryIndex.value !== 0 && isLastOne)
       input.value && inputHistories.value.push(input.value)
 
@@ -71,7 +71,7 @@ function handleInputKeydown(event: KeyboardEvent) {
     if (inputHistoryIndex.value < 0)
       inputHistoryIndex.value = 0
   }
-  else if (key === 'ArrowDown') {
+  else if (ctrlKey && key === 'ArrowDown') {
     if (isLastOne)
       return (input.value = '')
 

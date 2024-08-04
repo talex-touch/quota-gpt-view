@@ -490,4 +490,9 @@ span.tip {
   font-size: 14px;
   opacity: 0.75;
 }
+
+font.immersive-translate-target-wrapper {
+  display: none !important;
+  visibility: hidden !important;
+}
 </style>

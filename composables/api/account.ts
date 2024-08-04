@@ -265,3 +265,66 @@ export function getOrderStatus(id: string) {
 export function getUserSubscription() {
   return endHttp.get('order/subscribe')
 }
+
+export function getCouponList() {
+  return endHttp.get('coupon/list')
+}
+
+export interface CreateCouponDto extends Record<string, string | number | boolean | undefined> {
+  prefix?: string // 优惠码前缀（必须是6位）
+  quantity: number // 优惠码数量，一次性最多不超过1000个
+  discountAmount: number // 优惠金额（正数表示优惠金额[单位：分]，负数表示优惠百分比）
+  startDate?: string // 有效期开始时间（没有表示通用）
+  endDate?: string // 有效期结束时间（没有表示通用）
+  maxUsage: number // 最大使用次数
+  minimumSpend: number // 最小消费金额（单位：分）
+  maximumDiscount?: number // 最大抵扣消费（正数表示消费金额[单位：分]，负数表示消费百分比）
+  stackable?: boolean // 是否可叠加使用，默认为false
+  newUserOnly?: boolean // 是否仅限新用户使用，默认为false
+
+  code?: string
+  user_id?: number
+  updater_id?: number
+  creator_id?: number
+}
+
+export interface CouponListQueryDto extends Partial<CreateCouponDto> {
+  page: number
+  pageSize: number
+}
+
+export function getAllCoupon(query: CouponListQueryDto) {
+  return endHttp.post('coupon/all', query)
+}
+
+export interface ICouponCode {
+  applicableCategories?: null
+  code?: string
+  createdAt?: string
+  creator?: any
+  discountAmount?: number
+  endDate?: null
+  id?: number
+  info?: null
+  mainCode?: string
+  maximumDiscount?: null
+  maxUsage?: number
+  minimumSpend?: number
+  newUserOnly?: boolean
+  stackable?: boolean
+  startDate?: null
+  updatedAt?: string
+  usedCount?: number
+}
+
+export function createBatchesCodeList(dto: CreateCouponDto) {
+  return endHttp.post('coupon/create_batches', dto)
+}
+
+export function assignCouponCode(code: string, userId: number) {
+  return endHttp.post('coupon/assign', { couponId: code, uid: userId })
+}
+
+export function invalidateCouponCode(couponId: string) {
+  return endHttp.post('coupon/invalidate', { couponId })
+}
