@@ -47,6 +47,7 @@ const menus = reactive([
     show: true,
     click: () => {
       userStore.value.token = ''
+      userStore.value.subscription = null
 
       location.reload()
     },

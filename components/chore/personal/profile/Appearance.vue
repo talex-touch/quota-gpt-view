@@ -12,9 +12,10 @@ function toggleTheme(event: MouseEvent, theme: 'auto' | 'light' | 'dark') {
 const textList = reactive({
   ind: 0,
   list: [
-    '外观自定义限时免费',
-    '主题定制限时免费',
-    '墙纸定制限时免费',
+    '主题界面永久免费',
+    '立即订阅计划来解锁更多自定义',
+    '自定义墙纸可以让界面更加纯粹',
+    '不同墙纸可以搭配不同主题界面',
   ],
 })
 const textShaving = ref('')
@@ -28,6 +29,30 @@ function timer() {
   textShaving.value = textList.list[textList.ind]
 
   setTimeout(timer, 5000)
+}
+
+const loading = ref('')
+async function trySetWallpaper(paper: any, event: Event) {
+  if (loading.value)
+    return
+
+  if (themeOptions.value.theme === paper.id)
+    return
+
+  if (!paper.free && !userStore.value.subscription?.type) {
+    ElMessage.error('很抱歉，此墙纸只供订阅用户使用！')
+    return
+  }
+
+  loading.value = paper.id
+
+  await sleep(600)
+
+  // TODO: sync personal data to cloud
+
+  await setWallpaper(paper, event as any)
+
+  loading.value = ''
 }
 
 timer()
@@ -82,7 +107,7 @@ timer()
 
               <div v-if="themeOptions.theme" flex class="wallpaper-end">
                 当前选择：{{ themeOptions.theme }}
-                <el-button type="danger" @click="setWallpaper(null)">
+                <el-button type="danger" @click="setWallpaper(null, $event)">
                   重置
                 </el-button>
               </div>
@@ -90,13 +115,15 @@ timer()
 
             <div my-4 class="ProfileWrapper-Display-Theme">
               <div
-                v-for="wallpaper in wallpapers" :key="wallpaper.label" :style="`--t: ${wallpaper.color}`"
-                :class="{ active: wallpaper.id === themeOptions.theme }" class="Wallpaper-Item"
-                @click="setWallpaper(wallpaper)"
+                v-for="wallpaper in wallpapers"
+                :key="wallpaper.label" v-loader="loading === wallpaper.id" :style="`--t: ${wallpaper.color}`"
+                :class="{ lock: !wallpaper?.free, active: wallpaper.id === themeOptions.theme }" class="Wallpaper-Item"
+                @click="trySetWallpaper(wallpaper, $event)"
               >
                 <el-image :key="wallpaper.label" :src="wallpaper.wallpaper" lazy class="Wallpaper-Item-Img" />
                 <!-- <img :alt="wallpaper.label" :src="wallpaper.wallpaper" class="Wallpaper-Item-Img"> -->
-                <span>{{ wallpaper.label }}</span>
+                <span>{{ wallpaper.label }}
+                </span>
               </div>
             </div>
           </div>
@@ -129,7 +156,48 @@ timer()
 }
 
 .Wallpaper-Item {
+  &::before {
+    z-index: 1;
+    content: '订阅用户专享';
+    position: absolute;
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    width: 100%;
+    height: 100%;
+
+    top: 4px;
+    right: 4px;
+
+    height: 20px;
+    width: 100px;
+
+    opacity: 0;
+    color: #000;
+    font-size: 14px;
+    line-height: 24px;
+    border-radius: 0 8px 0 8px;
+    box-shadow: -2px 2px 1px 1px var(--el-color-warning);
+    background-color: var(--el-color-warning);
+  }
+  &.lock::before {
+    opacity: 1;
+  }
+
   .Wallpaper-Item-Img {
+    // 用来防止浏览器大图插件显示图片影响点击
+    &::before {
+      content: '';
+      position: absolute;
+
+      top: 0;
+      left: 0;
+
+      width: 100%;
+      height: 100%;
+    }
     width: 100%;
     height: 100%;
 

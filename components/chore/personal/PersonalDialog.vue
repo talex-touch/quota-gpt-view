@@ -333,6 +333,7 @@ watch(() => route.fullPath, () => {
   }
   &.show {
     // opacity: 1;
+    visibility: unset;
     pointer-events: all;
     transform: translate(-50%, -50%);
   }
@@ -367,6 +368,7 @@ watch(() => route.fullPath, () => {
 
   // overflow: hidden;
   // opacity: 0;
+  visibility: hidden;
   pointer-events: none;
   border-radius: 16px;
   box-shadow: var(--el-box-shadow);

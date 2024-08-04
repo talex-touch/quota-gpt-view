@@ -111,7 +111,9 @@ const emits = defineEmits(['click'])
 
     opacity: 1;
     color: var(--el-text-color-primary);
-    text-shadow: 0 0 4px var(--theme-color);
+    .wallpaper & {
+      text-shadow: 0 0 4px var(--theme-color);
+    }
   }
 
   .pricing {

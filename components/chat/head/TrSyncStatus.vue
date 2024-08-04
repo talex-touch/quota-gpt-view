@@ -90,6 +90,7 @@ const props = defineProps < {
   opacity: 0;
   overflow: hidden;
   box-sizing: border-box;
+  box-shadow: var(--el-box-shadow);
   backdrop-filter: blur(16px) saturate(180%);
   transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
 }

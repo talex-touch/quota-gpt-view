@@ -7,6 +7,7 @@ import Universe from '/backgrounds/universe.jpg'
 import Golden from '/backgrounds/golden.jpg'
 import Blocks from '/backgrounds/blocks.jpg'
 import Earth from '/backgrounds/earth.jpg'
+import Zakaria from '/backgrounds/zakaria.jpg'
 
 // import { useColorMode } from '@vueuse/core'
 
@@ -26,6 +27,13 @@ export const themeColors = [
 ]
 
 export const wallpapers = [
+  {
+    id: 'zakaria',
+    free: true,
+    label: 'Zakaria',
+    color: '#595B54',
+    wallpaper: Zakaria,
+  },
   {
     id: 'mountain',
     label: '日照雪山',
@@ -87,7 +95,7 @@ export const themeOptions = useLocalStorage('theme-options', {
   theme: '',
 })
 
-export function setWallpaper(paper: any) {
+export async function _setWallpaper(paper: any) {
   if (!paper) {
     themeOptions.value.theme = ''
     document.body.classList.remove('wallpaper')
@@ -109,10 +117,62 @@ export function setWallpaper(paper: any) {
   document.documentElement.style.setProperty('--wallpaper', `url(${paper.wallpaper})`)
 }
 
-export function viewTransition(e: { clientX: number, clientY: number }, theme?: 'auto' | 'light' | 'dark') {
+export async function setWallpaper(paper: any, e: { clientX: number, clientY: number }) {
   if (!document.startViewTransition)
-    return
+    return _setWallpaper(paper)
 
+  return new Promise((resolve) => {
+    const transition = document.startViewTransition?.(() => {
+      _setWallpaper(paper)
+    })
+
+    transition!.ready.then(() => {
+      const { clientX, clientY } = e
+
+      const radius = Math.hypot(
+        Math.max(clientX, innerWidth - clientX),
+        Math.max(clientY, innerHeight - clientY),
+      )
+      const clipPath = [
+        `circle(0% at ${clientX}px ${clientY}px)`,
+        `circle(${radius}px at ${clientX}px ${clientY}px)`,
+      ]
+      const isDark = document.documentElement.classList.contains('dark')
+
+      document.documentElement.animate(
+        {
+          clipPath: isDark ? clipPath.reverse() : clipPath,
+        },
+        {
+          duration: 500,
+          pseudoElement: isDark
+            ? '::view-transition-old(root)'
+            : '::view-transition-new(root)',
+        },
+      )
+    })
+
+    transition!.finished.then(() => {
+      resolve(void 0)
+    })
+  })
+}
+
+export function detectWallpaper() {
+  if (themeOptions.value.theme) {
+    const paper = wallpapers.find(p => p.id === themeOptions.value.theme)
+    if (!paper || paper.free)
+      return
+
+    if (
+      !userStore.value.subscription?.type)
+      _setWallpaper(null)
+    else
+      _setWallpaper(paper)
+  }
+}
+
+export function viewTransition(e: { clientX: number, clientY: number }, theme?: 'auto' | 'light' | 'dark') {
   const color = useColorMode()
 
   const compColorMode = computed({
@@ -123,6 +183,12 @@ export function viewTransition(e: { clientX: number, clientY: number }, theme?: 
       color.preference = val
     },
   })
+
+  if (!document.startViewTransition) {
+    compColorMode.value = theme || (compColorMode.value === 'dark' ? 'light' : 'dark')
+
+    return
+  }
 
   const transition = document.startViewTransition(() => {
     compColorMode.value = theme || (compColorMode.value === 'dark' ? 'light' : 'dark')

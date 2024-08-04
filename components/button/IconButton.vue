@@ -93,5 +93,6 @@ const props = defineProps<{
   transition: 0.25s;
   user-select: none;
   border-radius: 12px;
+  box-shadow: var(--el-box-shadow);
 }
 </style>
