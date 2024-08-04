@@ -141,7 +141,7 @@ function handleClick(item: any) {
 
     //   color: var(--el-text-color-primary);
     // }
-    color: var(--el-color-info);
+    color: var(--el-text-color-regular);
   }
 }
 </style>

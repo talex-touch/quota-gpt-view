@@ -78,7 +78,7 @@ const curSelect = computed(() => models.find(item => item.value === model.value)
           <span
             v-for="feature in item.features"
             :key="feature"
-            :style="`${item.valuable ? 'color: var(--el-color-info)' : ''}`"
+            :style="`${item.valuable ? 'color: var(--el-text-color-regular)' : ''}`"
           >
             {{ feature }}
           </span>
@@ -142,7 +142,7 @@ const curSelect = computed(() => models.find(item => item.value === model.value)
   }
 
   .ModelSelector-Models {
-    background-color: var(--el-bg-color);
+    background-color: var(--el-mask-color-extra-light);
   }
 
   &::before {
@@ -227,6 +227,10 @@ const curSelect = computed(() => models.find(item => item.value === model.value)
   }
 
   &-Selections {
+    .wallpaper & {
+      background-color: var(--el-mask-color-extra-light);
+      backdrop-filter: blur(18px) saturate(180%);
+    }
     z-index: 1;
     position: absolute;
     padding: 0.5rem;
@@ -243,6 +247,7 @@ const curSelect = computed(() => models.find(item => item.value === model.value)
     transform: scale(0);
     transform-origin: right top;
     box-shadow: var(--el-box-shadow);
+
     background-color: var(--el-bg-color);
     transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
   }
