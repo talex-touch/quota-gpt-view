@@ -4,6 +4,7 @@ import { endHttp } from './api/axios'
 import { globalOptions } from '~/constants'
 
 import type { ThHistory } from '~/components/history/history-types'
+import { inputProperty } from '~/components/input/input'
 
 export enum QuotaModel {
   // 普通版本，纯问答（类豆包，普通联网）
@@ -743,7 +744,10 @@ export class ChatManager {
           console.log('tool end', res)
         }
       },
-      options,
+      {
+        ...options,
+        temperature: inputProperty.temperature / 100,
+      },
     )
   }
 

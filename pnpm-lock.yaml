@@ -53,6 +53,9 @@ importers:
       element-plus:
         specifier: ^2.7.6
         version: 2.7.6(vue@3.4.27(typescript@5.4.5))
+      gpt-tokenizer:
+        specifier: ^2.2.1
+        version: 2.2.1
       gsap:
         specifier: ^3.12.5
         version: 3.12.5
@@ -3816,6 +3819,9 @@ packages:
   gopd@1.0.1:
     resolution: {integrity: sha512-d65bNlIadxvpb/A2abVdlqKqV563juRnZ1Wtk6s1sIR8uNsXR70xqIzVqxVf1eTqDunwT2MkczEeaezCKTZhwA==}
 
+  gpt-tokenizer@2.2.1:
+    resolution: {integrity: sha512-JYvLWTpPtFGz7eS7uixHslv3L96zka0n18MlQeH5YVl5F6mNhssxzSBTeqwNfW8A0AQIMYEaOfbSr+MaoCUvpg==}
+
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
 
@@ -5621,6 +5627,9 @@ packages:
   reusify@1.0.4:
     resolution: {integrity: sha512-U9nH88a3fc/ekCF1l0/UP1IosiuIjyTh7hBvXVMHYgVcfGvt897Xguj2UOLDeI5BG2m7/uwyaLVT6fbtCwTyzw==}
     engines: {iojs: '>=1.0.0', node: '>=0.10.0'}
+
+  rfc4648@1.5.3:
+    resolution: {integrity: sha512-MjOWxM065+WswwnmNONOT+bD1nXzY9Km6u3kzvnx8F8/HXGZdz3T6e6vZJ8Q/RIMUSp/nxqjH3GwvJDy8ijeQQ==}
 
   rfdc@1.3.1:
     resolution: {integrity: sha512-r5a3l5HzYlIC68TpmYKlxWjmOP6wiPJ1vWv2HeLhNsRZMrCkxeqxiHlQ21oXmQ4F3SiryXBHhAD7JZqvOJjFmg==}
@@ -11480,6 +11489,10 @@ snapshots:
     dependencies:
       get-intrinsic: 1.2.4
 
+  gpt-tokenizer@2.2.1:
+    dependencies:
+      rfc4648: 1.5.3
+
   graceful-fs@4.2.11: {}
 
   graphemer@1.4.0: {}
@@ -13787,6 +13800,8 @@ snapshots:
   retry@0.12.0: {}
 
   reusify@1.0.4: {}
+
+  rfc4648@1.5.3: {}
 
   rfdc@1.3.1: {}
 

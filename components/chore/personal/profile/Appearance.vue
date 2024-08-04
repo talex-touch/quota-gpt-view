@@ -97,7 +97,7 @@ timer()
           </div>
 
           <div my-12 class="ProfileWrapper-Wallpaper">
-            <div flex justify-between pr-8 class="ProfileWrapper-WallpaperHeader">
+            <div flex justify-between class="ProfileWrapper-WallpaperHeader">
               <div class="wallpaper-start">
                 <p>自定义你的界面墙纸</p>
                 <p op-50>
@@ -259,12 +259,14 @@ timer()
         width: 10px;
 
         opacity: 1;
+        transition: 0.25s;
       }
 
       &::after {
         width: 15px;
 
         opacity: 1;
+        transition: 0.25s 0.125s;
       }
     }
 
@@ -283,7 +285,7 @@ timer()
       background-color: #fff;
 
       opacity: 0;
-      transition: 0.25s;
+      // transition: 0.25s;
     }
 
     &::before {
@@ -294,6 +296,7 @@ timer()
       height: 3px;
 
       transform: rotate(45deg);
+      transition: 0.25s 0.125s;
     }
 
     &::after {
@@ -304,6 +307,7 @@ timer()
       height: 3px;
 
       transform: rotate(-50deg);
+      transition: 0.25s;
     }
 
     position: relative;

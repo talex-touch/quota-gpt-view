@@ -61,7 +61,7 @@ const curSelect = computed(() => models.find(item => item.value === model.value)
 
 <template>
   <div :class="{ expand }" class="ModelSelector">
-    <span class="model-name">
+    <span class="model-name" :class="[curSelect!.value]">
       {{ curSelect!.name }}
       <div i-carbon-chevron-up />
     </span>
@@ -211,6 +211,16 @@ const curSelect = computed(() => models.find(item => item.value === model.value)
   }
 
   .model-name {
+    &.this-normal-turbo {
+      color: #348475;
+      font-weight: 600;
+      // text-shadow: 0 0 2px #348475;
+    }
+    &.this-normal-ultra {
+      color: #9b5122;
+      font-weight: 600;
+      // text-shadow: 0 0 2px #348475;
+    }
     div {
       transition: 0.25s;
     }

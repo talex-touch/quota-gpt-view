@@ -302,6 +302,8 @@ async function paySuccess(data: any) {
 }
 
 function handleOrderEstablished(data: any) {
+  console.log('e', data)
+
   orderDetail.id = data.order.id
   const createdAt = new Date(data.order.createdAt)
   payOptions.countdown = {
