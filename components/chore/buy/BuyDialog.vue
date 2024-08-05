@@ -155,6 +155,9 @@ const countdownText = computed(() => {
 <style lang="scss">
 .BuyDialog-Main {
   & > p.title {
+    .dark & img {
+      filter: invert(1);
+    }
     display: flex;
 
     gap: 1rem;

@@ -4,6 +4,7 @@ import { price } from '~/constants/price'
 
 const router = useRouter()
 
+const drawerVisible = ref(false)
 const plans = computed(() => price.map((item, index) => ({
   ...item,
   price: {
@@ -25,6 +26,9 @@ function toCheckout(plan: any) {
       <p class="title-theme">
         订阅计划
       </p>
+      <el-link type="primary" @click="drawerVisible = true">
+        我的优惠券
+      </el-link>
     </div>
 
     <div class="ProfileWrapper-Main">
@@ -50,10 +54,26 @@ function toCheckout(plan: any) {
         <br>
       </div>
     </div>
+
+    <el-drawer v-model="drawerVisible">
+      <template #title>
+        优惠券列表
+      </template>
+      <LazyChorePersonalAddonCoupons />
+    </el-drawer>
   </div>
 </template>
 
 <style lang="scss" scoped>
+div.ProfileWrapper-Header {
+  display: flex;
+
+  flex-direction: row;
+
+  justify-content: space-between;
+  align-items: center;
+}
+
 .ProfileWrapper-MainWrapper-Plan {
   margin: 1rem 0;
   display: flex;

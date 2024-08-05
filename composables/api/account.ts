@@ -270,6 +270,12 @@ export function getCouponList() {
   return endHttp.get('coupon/list')
 }
 
+export function userBindCoupon(code: string) {
+  return endHttp.post('coupon/add', {
+    couponId: code,
+  })
+}
+
 export interface CreateCouponDto extends Record<string, string | number | boolean | undefined> {
   prefix?: string // 优惠码前缀（必须是6位）
   quantity: number // 优惠码数量，一次性最多不超过1000个

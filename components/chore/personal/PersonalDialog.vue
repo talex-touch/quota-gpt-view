@@ -223,7 +223,7 @@ watch(() => route.fullPath, () => {
       height: 80px;
       width: 100%;
 
-      bottom: 0;
+      bottom: -1px;
       font-weight: 600;
       background-color: var(--el-bg-color-page);
       // border-top: 1px solid var(--el-border-color);
@@ -329,7 +329,7 @@ watch(() => route.fullPath, () => {
 .PersonalTemplate {
   &.expand {
     width: min(1280px, 100%);
-    height: min(950px, 100%);
+    height: min(950px, 95%);
   }
   &.show {
     // opacity: 1;

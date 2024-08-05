@@ -198,7 +198,7 @@ function transformCodes(code: string) {
       </el-form>
 
       <ClientOnly>
-        <el-table v-if="coupons?.items" height="90%" :data="coupons.items" table-layout="auto" style="width: 100%">
+        <el-table v-if="coupons?.items" height="85%" :data="coupons.items" table-layout="auto" style="width: 100%">
           <el-table-column type="index" label="序号" />
 
           <el-table-column label="券码">
@@ -305,7 +305,7 @@ function transformCodes(code: string) {
             <el-form-item label="卡券码">
               <span>{{ dialogOptions.data.mainCode }}</span>
               &nbsp;
-              <div v-click="dialogOptions.data.mainCode" i-carbon:copy cursor-pointer />
+              <div v-copy="dialogOptions.data.mainCode" i-carbon:copy cursor-pointer />
             </el-form-item>
             <el-form-item label="优惠金额">
               <span>
@@ -446,5 +446,8 @@ function transformCodes(code: string) {
 
 <style lang="scss">
 .CmsCoupon {
+  .el-main {
+    overflow: hidden;
+  }
 }
 </style>
