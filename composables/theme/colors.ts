@@ -109,44 +109,56 @@ export function setWallpaper(paper: any) {
   document.documentElement.style.setProperty('--wallpaper', `url(${paper.wallpaper})`)
 }
 
+/**
+ * 视图转换函数，根据点击事件和主题模式执行视图转换动画
+ * @param e 包含客户端X和Y坐标的事件对象
+ * @param theme 可选的主题模式，包括'auto'、'light'和'dark'
+ */
 export function viewTransition(e: { clientX: number, clientY: number }, theme?: 'auto' | 'light' | 'dark') {
+ // 检查浏览器是否支持startViewTransition方法
   if (!document.startViewTransition)
     return
-
+ // 使用颜色模式钩子来获取和设置颜色偏好
   const color = useColorMode()
-
+ // 用于颜色模式的获取和设置
   const compColorMode = computed({
     get() {
-      return color.preference
+      return color.preference  //用户选择的颜色
     },
     set(val: string) {
       color.preference = val
     },
   })
-
+// 启动视图转换，切换颜色模式
   const transition = document.startViewTransition(() => {
     compColorMode.value = theme || (compColorMode.value === 'dark' ? 'light' : 'dark')
   })
 
+  // 在视图转换完成后执行动画
   transition.ready.then(() => {
+    // 从事件对象中解构出客户端的X和Y坐标
     const { clientX, clientY } = e
-
+// 计算剪裁路径的半径，求 直角三角形的斜边长度  
     const radius = Math.hypot(
       Math.max(clientX, innerWidth - clientX),
       Math.max(clientY, innerHeight - clientY),
     )
+     // 定义剪裁路径的动画，从零到计算出的半径
     const clipPath = [
       `circle(0% at ${clientX}px ${clientY}px)`,
       `circle(${radius}px at ${clientX}px ${clientY}px)`,
     ]
+    // 获取当前页面是否为暗色模式
     const isDark = document.documentElement.classList.contains('dark')
 
+      // 动画文档元素的剪裁路径，动画时长为500毫秒
     document.documentElement.animate(
       {
         clipPath: isDark ? clipPath.reverse() : clipPath,
       },
       {
         duration: 500,
+           // 根据暗黑模式与否选择不同的伪元素进行动画
         pseudoElement: isDark
           ? '::view-transition-old(root)'
           : '::view-transition-new(root)',
