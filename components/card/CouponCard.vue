@@ -87,6 +87,7 @@ const props = defineProps<{
     font-size: 16px;
     transition: 0.25s;
     visibility: hidden;
+    border-radius: 12px;
     background-color: #00000080;
   }
 
