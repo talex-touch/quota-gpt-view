@@ -74,6 +74,9 @@ importers:
       qrcode:
         specifier: ^1.5.3
         version: 1.5.3
+      ua-parser-js:
+        specifier: ^1.0.38
+        version: 1.0.38
       v-wave:
         specifier: ^2.0.0
         version: 2.0.0(rollup@4.17.2)(vue@3.4.27(typescript@5.4.5))
@@ -6172,6 +6175,9 @@ packages:
     resolution: {integrity: sha512-vcI4UpRgg81oIRUFwR0WSIHKt11nJ7SAVlYNIu+QpqeyXP+gpQJy/Z4+F0aGxSE4MqwjyXvW/TzgkLAx2AGHwQ==}
     engines: {node: '>=14.17'}
     hasBin: true
+
+  ua-parser-js@1.0.38:
+    resolution: {integrity: sha512-Aq5ppTOfvrCMgAPneW1HfWj66Xi7XL+/mIy996R1/CLS/rcyJQm6QZdsKrUeivDFQ+Oc9Wyuwor8Ze8peEoUoQ==}
 
   ufo@1.5.3:
     resolution: {integrity: sha512-Y7HYmWaFwPUmkoQCUIAYpKqkOf+SbVj/2fJJZ4RJMCfZp0rTGwRbzQD+HghfnhKOjL9E01okqz+ncJskGYfBNw==}
@@ -14386,6 +14392,8 @@ snapshots:
       possible-typed-array-names: 1.0.0
 
   typescript@5.4.5: {}
+
+  ua-parser-js@1.0.38: {}
 
   ufo@1.5.3: {}
 

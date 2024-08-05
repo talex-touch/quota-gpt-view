@@ -85,7 +85,7 @@ const curSelect = computed(() => models.find(item => item.value === model.value)
         </div>
       </div>
 
-      <el-link type="info" class="model-diff-link" @click="expand = !expand">
+      <el-link type="info" class="only-pc-display model-diff-link" @click="expand = !expand">
         <div v-if="!expand" i-carbon-help />
         <div v-else i-carbon-close />
         &nbsp;
@@ -252,6 +252,10 @@ const curSelect = computed(() => models.find(item => item.value === model.value)
 
     width: 210px;
     height: 185px;
+
+    .mobile & {
+      height: 155px;
+    }
 
     border-radius: 16px;
     transform: scale(0);

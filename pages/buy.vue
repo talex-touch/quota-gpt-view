@@ -344,7 +344,7 @@ function handleOrderEstablished(data: any) {
 <template>
   <div class="ProfileWrapper">
     <div class="ProfileWrapper-Header">
-      <el-page-header title="返回" @back="router.push('/profile/plan')">
+      <el-page-header title="返回" @back="router.push('/?data=plan')">
         <template #content>
           <span class="text-large mr-3 font-600">
             <span v-if="orderDetail.id">订单详情</span>

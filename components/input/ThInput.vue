@@ -150,7 +150,7 @@ onMounted(() => {
     <div class="ThInput-Input">
       <textarea
         id="main-input" v-model="input" :maxlength="userStore.token ? 10000 : 256" autofocus autocomplete="off"
-        placeholder="问任何问题都可以 (Shift + Enter以换行)..." @keydown="handleInputKeydown"
+        placeholder="Shift + Enter换行" @keydown="handleInputKeydown"
       />
     </div>
 
@@ -461,5 +461,11 @@ onMounted(() => {
   100% {
     filter: blur(10px) hue-rotate(360deg);
   }
+}
+
+.mobile .ThInput {
+  bottom: 3rem;
+
+  width: 90%;
 }
 </style>

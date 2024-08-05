@@ -232,6 +232,9 @@ onMounted(async () => {
     onBizResultCallback: () => void 0,
   })
 
+  if (document.body.classList.contains('mobile'))
+    return
+
   await fetchCode()
 
   codeStatusTimer()
@@ -356,7 +359,7 @@ const codeUrl = computed(() => `https://mp.weixin.qq.com/cgi-bin/showqrcode?tick
             </el-button>
           </el-form>
         </div>
-        <div class="Login-Main-Vice">
+        <div class="Login-Main-Vice only-pc-display">
           <p>微信扫码登录</p>
 
           <div class="Login-Main-Vice-Wrapper">
@@ -673,5 +676,13 @@ const codeUrl = computed(() => `https://mp.weixin.qq.com/cgi-bin/showqrcode?tick
   background: var(--el-overlay-color-lighter);
   backdrop-filter: blur(18px) saturate(180%);
   transition: 0.25s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+}
+
+.mobile .Login-Container {
+  .Login-Main-Major {
+    width: 100%;
+  }
+  width: 95%;
+  height: 60%;
 }
 </style>

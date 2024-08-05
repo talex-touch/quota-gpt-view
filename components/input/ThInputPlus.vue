@@ -176,7 +176,6 @@ watch(() => chatManager.messages.value.model, (val) => {
 
     user-select: none;
   }
-
   position: absolute;
   padding: 0.5rem 0.5rem;
 

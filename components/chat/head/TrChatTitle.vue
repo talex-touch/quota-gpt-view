@@ -6,12 +6,18 @@ const props = defineProps({
 const _title = computed(() => {
   return props.title.replace(/^['"]|['"]$/g, '')
 })
+
+const mobile = ref(false)
+
+onMounted(() => setTimeout(() => mobile.value = document.body.classList.contains('mobile'), 2000))
 </script>
 
 <template>
-  <div class="TrChatTitle">
-    {{ _title }}
-  </div>
+  <teleport to=".PageContainer" :disabled="!mobile">
+    <div class="TrChatTitle">
+      {{ _title }}
+    </div>
+  </teleport>
 </template>
 
 <style style="">
@@ -31,6 +37,7 @@ const _title = computed(() => {
     border-radius: 12px;
     background-color: var(--el-mask-color-extra-light);
   }
+  z-index: 5;
   position: relative;
   padding: 0.25rem 0.5rem;
 
@@ -38,5 +45,27 @@ const _title = computed(() => {
 
   box-shadow: var(--el-box-shadow);
   backdrop-filter: blur(16px) saturate(180%);
+}
+
+.mobile .TrChatTitle {
+  position: absolute;
+  /* padding: 0; */
+
+  top: 2px;
+
+  width: 100%;
+
+  /* // 超出隐藏 */
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  word-break: keep-all;
+
+  font-size: 14px;
+  border-radius: 0;
+  text-align: center;
+
+  border-bottom: 1px solid var(--el-border-color);
 }
 </style>

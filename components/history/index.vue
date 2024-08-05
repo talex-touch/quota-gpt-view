@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import dayjs from 'dayjs'
-import type { DisplayHistory, ThHistory } from './history'
+import type { ThHistory } from './history'
 
 const props = defineProps<{
   expand: boolean
@@ -98,11 +98,62 @@ onMounted(() => {
     if (val)
       observer.unobserve(el)
   }, { immediate: true })
+
+  setTimeout(() => {
+    // 判断如果是移动端，那么从左向右滑动就要打开
+    if (document.body.classList.contains('mobile'))
+      mobileSlideProcess()
+  })
 })
+
+const dom = ref()
+
+async function mobileSlideProcess() {
+  expand.value = false
+
+  const el = dom.value
+
+  let down = false
+  let startX = 0
+
+  document.addEventListener('touchstart', (e) => {
+    const touch = e.touches[0]
+    const { clientX, clientY } = touch
+    const { left, top } = el.getBoundingClientRect()
+
+    const screenWidth = window.innerWidth
+    const percent = screenWidth * 0.3
+
+    if (clientX < left + percent && clientY > top + 20) {
+      startX = clientX
+
+      down = true
+    }
+    else if (expand.value) {
+      if (clientX > left + 20 && clientY > top + 20) {
+        startX = clientX
+
+        down = true
+      }
+    }
+  })
+
+  document.addEventListener('touchend', (e: TouchEvent) => {
+    if (!down)
+      return
+
+    const diff = startX - e.changedTouches[0].clientX
+
+    if (Math.abs(diff) >= window.innerWidth * 0.1)
+      expand.value = diff < 0
+
+    down = false
+  })
+}
 </script>
 
 <template>
-  <div class="History">
+  <div ref="dom" class="History">
     <teleport to="body">
       <div :class="{ expand }" class="History-Indicator" @click="expand = !expand" />
     </teleport>
@@ -125,7 +176,10 @@ onMounted(() => {
           />
         </div>
 
-        <div v-if="!chatManager.historyCompleted.value" ref="loadMore" :class="{ show: chatManager.loadingHistory.value }" class="loadMore">
+        <div
+          v-if="!chatManager.historyCompleted.value" ref="loadMore"
+          :class="{ show: chatManager.loadingHistory.value }" class="loadMore"
+        >
           <LoadersEagleRoundLoading />
         </div>
       </el-scrollbar>
@@ -143,6 +197,7 @@ div.History {
     &.show {
       opacity: 1;
     }
+
     position: relative;
     display: flex;
 
@@ -176,6 +231,7 @@ div.History {
       #0000 100%
     );
   }
+
   position: relative;
 
   width: 100%;
@@ -203,8 +259,10 @@ div.History {
       transform: translate(-50%, -50%) translateY(-5px) rotate(-30deg);
     }
   }
+
   &.expand {
     left: 270px;
+
     &:hover {
       &::before {
         width: 5px;
@@ -313,6 +371,7 @@ div.History {
       0.75s opacity cubic-bezier(0.785, 0.135, 0.15, 0.86),
       0.75s transform cubic-bezier(0.785, 0.135, 0.15, 0.86);
   }
+
   z-index: 10;
   position: relative;
   margin-left: -1px;
@@ -330,5 +389,11 @@ div.History {
     0.75s width cubic-bezier(0.785, 0.135, 0.15, 0.86),
     0.5s opacity cubic-bezier(0.785, 0.135, 0.15, 0.86),
     0.25s transform cubic-bezier(0.785, 0.135, 0.15, 0.86);
+}
+
+.mobile .History {
+  position: absolute;
+
+  padding-top: 1rem;
 }
 </style>

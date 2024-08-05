@@ -50,6 +50,8 @@ async function fetchData() {
       delete query[key]
   })
 
+  coupons.value.items.length = 0
+
   const res: any = (await getAllCoupon(query))
   if (!res) {
     ElMessage.warning('参数错误，查询失败！')

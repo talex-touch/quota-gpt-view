@@ -168,6 +168,20 @@ provide('pageOptions', pageOptions)
 </template>
 
 <style lang="scss">
+.mobile .copyright {
+  .business {
+    display: none;
+  }
+
+  position: absolute;
+
+  left: 50%;
+
+  bottom: 2rem;
+
+  transform: translateX(-50%) scale(0.75);
+}
+
 .PageContainer {
   &-Main {
     z-index: 2;
@@ -211,6 +225,7 @@ provide('pageOptions', pageOptions)
       filter: blur(18px);
       background-color: var(--el-bg-color);
     }
+
     z-index: 3;
   }
 

@@ -471,6 +471,10 @@ function filterTools(item: any, total: number, ind: number) {
   max-width: 70%;
   min-width: 48px;
   height: max-content;
+
+  .mobile & {
+    max-width: 80%;
+  }
 }
 
 .ChatItem {

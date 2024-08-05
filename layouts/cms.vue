@@ -60,6 +60,8 @@ const endUrl = ref(globalOptions.getEndsUrl())
 
 watch(() => endUrl.value, (val) => {
   globalOptions.setEndsUrl(val)
+
+  setTimeout(() => location.reload(), 500)
 })
 
 /* computed({

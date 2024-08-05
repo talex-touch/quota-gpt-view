@@ -124,7 +124,7 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
       <div class="ThChat-HeadBar" flex items-center gap-4>
         <TrSyncStatus :syncing="messages.syncing" :sync="messages.sync" />
         <TrChatTitle :title="messages.topic" />
-        <IconButton :shining="options.share.enable" :stay="true" @click="handleShare">
+        <IconButton class="only-pc-display" :shining="options.share.enable" :stay="true" @click="handleShare">
           <div i-carbon-share />
         </IconButton>
       </div>
@@ -370,6 +370,9 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
     box-sizing: border-box;
 
     transform: translateX(-50%);
+    .mobile & {
+      width: 95%;
+    }
   }
 
   position: absolute;
@@ -383,6 +386,10 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
 
 .ThChat {
   &-Title {
+    .mobile & {
+      top: 2rem;
+    }
+
     & .model {
       position: absolute;
 

@@ -3,6 +3,7 @@ import Login from '~/components/chore/Login.vue'
 import { appName, globalOptions } from '~/constants'
 import 'element-plus/theme-chalk/dark/css-vars.css'
 import { _setWallpaper, detectWallpaper } from '~/composables/theme/colors'
+import { UAParser } from 'ua-parser-js'
 
 useHead({
   title: appName,
@@ -30,6 +31,11 @@ globalOptions.setEndsUrl(globalOptionsStore.value.url)
 
 onMounted(() => {
   detectWallpaper()
+
+  const deviceObj = UAParser(navigator.userAgent)
+
+  if (deviceObj.device?.type)
+    document.body.classList.add(deviceObj.device.type)
 })
 
 router.afterEach(() => {
@@ -62,7 +68,10 @@ provide('appOptions', pageOptions)
 html,
 body,
 #__nuxt {
+  position: absolute;
+
   height: 100vh;
+  width: 100vw;
   margin: 0;
   padding: 0;
 
@@ -73,6 +82,11 @@ body,
     --wallpaper-color-light,
     var(--el-color-primary-light-5)
   );
+}
+
+body.mobile {
+  touch-action: none;
+  touch-action: pan-y;
 }
 
 html.dark {

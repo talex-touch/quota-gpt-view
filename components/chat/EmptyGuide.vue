@@ -140,6 +140,20 @@ const sections = reactive([
       font-size: 3.75rem;
     }
 
+    .mobile & {
+      .ai-underline {
+        &::before {
+          height: 3px;
+          bottom: 5px;
+        }
+
+        top: 0;
+
+        font-size: 40px;
+      }
+      font-size: 40px;
+    }
+
     transition: 0.25s;
   }
   z-index: 1;

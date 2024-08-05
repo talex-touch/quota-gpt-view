@@ -150,7 +150,7 @@ const planProgress = computed(() => {
             </span>
           </p>
         </div>
-        <div class="AccountAvatar-Selections" style="display: flex; gap: 16px; flex-direction: column">
+        <div class="only-pc-display AccountAvatar-Selections" style="display: flex; gap: 16px; flex-direction: column">
           <div
             v-for="item in menus" :key="item.label" v-wave :class="{ danger: item.danger, divider: item.divider }"
             :style="`${item.show ? '' : 'display: none'}`" class="AccountAvatar-MenuItem" @click="item?.click"
