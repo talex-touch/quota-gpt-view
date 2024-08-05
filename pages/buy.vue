@@ -311,6 +311,10 @@ function handleOrderEstablished(data: any) {
     upto: createdAt.getTime() + 15 * 60 * 1000,
   }
 
+  // 更新总价
+  orderInfo[2].value = `${(data.order.totalAmount / 100).toFixed(2)
+    } ￥`
+
   router.push({
     path: '/buy',
     query: {
