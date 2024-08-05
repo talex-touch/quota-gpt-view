@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { models } from './model'
+// import { inputProperty } from '~/components/input/input'
 
 const props = defineProps<{
   modelValue: string
@@ -55,22 +56,40 @@ async function handleLayout() {
 }
 
 function handleClick(item: any) {
-  if (props.expand) {
-    expandSelect.value = item.value
+  // if (props.expand) {
+  //   expandSelect.value = item.value
 
-    return
-  }
+  //   return
+  // }
 
   if (item.valuable)
     return
-  model.value = item.value
+
+  expandSelect.value = model.value = item.value
 }
+
+const mappedModel = computed(() => {
+  const subscriptionType = userStore.value?.subscription?.type
+
+  const _models = [...models]
+
+  switch (subscriptionType) {
+    case 'ULTIMATE':
+      _models[2].valuable = false
+      // fallthrough
+    case 'STANDARD':
+      _models[1].valuable = false
+      break
+  }
+
+  return _models
+})
 </script>
 
 <template>
   <div ref="modelRef" class="ModelSelector-Models">
     <div
-      v-for="item in models"
+      v-for="item in mappedModel"
       :key="item.name"
       v-wave
       :class="{
@@ -141,7 +160,7 @@ function handleClick(item: any) {
 
     //   color: var(--el-text-color-primary);
     // }
-    color: var(--el-color-info);
+    color: var(--el-text-color-regular);
   }
 }
 </style>

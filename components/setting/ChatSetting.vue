@@ -90,6 +90,7 @@ function analyze(item: any) {
 
 .ChatSettings {
   &.display {
+    visibility: unset;
     transform: translate(-50%, -50%) translateY(0);
   }
   z-index: 10;
@@ -102,6 +103,7 @@ function analyze(item: any) {
   width: 40%;
   height: 45%;
 
+  visibility: hidden;
   border-radius: 16px;
   box-sizing: border-box;
   box-shadow: var(--el-box-shadow);

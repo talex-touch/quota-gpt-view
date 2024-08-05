@@ -36,6 +36,7 @@ const _title = computed(() => {
 
   border-radius: 12px;
 
+  box-shadow: var(--el-box-shadow);
   backdrop-filter: blur(16px) saturate(180%);
 }
 </style>

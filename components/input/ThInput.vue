@@ -1,4 +1,5 @@
 <script name="ThInput" setup lang="ts">
+import { encode } from 'gpt-tokenizer'
 import { inputProperty } from './input'
 import ThInputPlus from './ThInputPlus.vue'
 import { Status } from '~/composables/chat'
@@ -60,8 +61,8 @@ function handleInputKeydown(event: KeyboardEvent) {
 
   const isLastOne = inputHistoryIndex.value === inputHistories.value.length - 1
 
-  const { key } = event
-  if (key === 'ArrowUp') {
+  const { key, ctrlKey } = event
+  if (ctrlKey && key === 'ArrowUp') {
     if (inputHistoryIndex.value !== 0 && isLastOne)
       input.value && inputHistories.value.push(input.value)
 
@@ -70,7 +71,7 @@ function handleInputKeydown(event: KeyboardEvent) {
     if (inputHistoryIndex.value < 0)
       inputHistoryIndex.value = 0
   }
-  else if (key === 'ArrowDown') {
+  else if (ctrlKey && key === 'ArrowDown') {
     if (isLastOne)
       return (input.value = '')
 
@@ -93,10 +94,20 @@ function triggerUpdateInput() {
   el!.style.height = `${el.scrollHeight}px`
 }
 
+const len = ref(0)
+
 watch(
   () => input.value,
-  () => {
-    nextTick(triggerUpdateInput)
+  (_, oldVal) => {
+    nextTick(() => {
+      setTimeout(triggerUpdateInput)
+
+      len.value = encode(input.value).length
+
+      const limit = userStore.value.token ? 8192 : 256
+      if (len.value > limit)
+        input.value = oldVal!
+    })
   },
   { immediate: true },
 )
@@ -120,16 +131,26 @@ onMounted(() => {
       error: status === Status.ERROR,
     }" class="ThInput" @keydown.enter="handleSend"
   >
-    <div v-if="false" class="ThInput-Float">
-      <el-tag>QuotaGPT-Smart</el-tag>
+    <div class="ThInput-Float">
+      <div class="ThInput-Float-Start">
+        <span v-if="inputProperty.internet" class="tag">联网模式</span>
+        <!-- <span class="tag">SMART</span> -->
+      </div>
+
+      <div class="ThInput-Float-End">
+        <span class="tag">{{ len }}/
+          <span v-if="userStore.token">8192</span>
+          <span v-else>256</span>
+        </span>
+      </div>
     </div>
 
     <ThInputPlus v-model="inputProperty" />
 
     <div class="ThInput-Input">
       <textarea
-        id="main-input" v-model="input" :maxlength="userStore.token ? 10000 : 256" autofocus autocomplete="off" placeholder="问任何问题都可以 (Shift + Enter以换行)..."
-        @keydown="handleInputKeydown"
+        id="main-input" v-model="input" :maxlength="userStore.token ? 10000 : 256" autofocus autocomplete="off"
+        placeholder="问任何问题都可以 (Shift + Enter以换行)..." @keydown="handleInputKeydown"
       />
     </div>
 
@@ -143,11 +164,36 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .ThInput-Float {
+  span.tag {
+    position: relative;
+    padding: 0.25rem 0.5rem;
+
+    top: 0;
+    left: 0;
+
+    font-size: 14px;
+
+    border-radius: 8px;
+    box-shadow: var(--el-box-shadow-dark);
+    background: var(--el-mask-color-extra-light);
+  }
+
+  & > div {
+    display: flex;
+
+    gap: 0.25rem;
+
+    transform: scale(0.85);
+  }
+
   z-index: -1;
   position: absolute;
+  padding: 0 1rem;
   display: flex;
 
-  justify-content: flex-start;
+  // gap: 0.5rem;
+  align-items: center;
+  justify-content: space-between;
 
   top: -50px;
   left: 0;
@@ -156,8 +202,10 @@ onMounted(() => {
   height: 40px;
 
   border-radius: 14px;
-  box-shadow: var(--el-box-shadow);
-  background: var(--el-bg-color-page);
+  transition: 0.25s;
+  // box-shadow: var(--el-box-shadow);
+  // backdrop-filter: blur(18px);
+  // background: var(--el-bg-color-page);
 }
 
 .ThInput {
@@ -165,13 +213,22 @@ onMounted(() => {
     .ThInput-Plus {
       display: none;
     }
+
+    .ThInput-Float {
+      opacity: 0;
+    }
   }
 
   &.disabled {
+    .ThInput-Float,
     .ThInput-Input,
     .ThInput-Send,
     .ThInput-Plus {
       opacity: 0;
+    }
+
+    .ThInput-Float {
+      transform: translateY(100%) scale(0);
     }
 
     width: 0 !important;
@@ -183,11 +240,12 @@ onMounted(() => {
       opacity 0.125s 0.375s,
       width 0.5s;
   }
+
   &.error {
     padding: 0;
   }
 
-  span {
+  > span {
     position: absolute;
 
     top: 50%;

@@ -163,12 +163,20 @@ onMounted(() => {
   // }
 
   pre code {
+    span.hljs-keyword {
+      color: #cb5a3d;
+      // color: var(--el-color-primary);
+    }
+
+    span.hljs-name {
+      color: #25aff3;
+    }
     // margin: 0 0.25rem;
     // padding: 0.25rem 0.5rem;
 
     // border-radius: 12px;
     color: var(--el-text-color-primary);
-    // background-color: var(--el-bg-color-page);
+    background-color: var(--el-bg-color-page);
   }
 }
 </style>

@@ -26,12 +26,20 @@ const categories = [
     filter: (time: number) => dayjs(time).isSame(dayjs(Date.now()), 'day'),
   },
   {
+    title: '昨天',
+    filter: (time: number) => new Date().getDate() - dayjs(time).toDate().getDate() === 1,
+  },
+  {
     title: '近7天',
     filter: (time: number) => Date.now() - time <= 7 * 24 * 3600 * 1000,
   },
   {
     title: '这个月',
     filter: (time: number) => dayjs(time).isSame(dayjs(Date.now()), 'month'),
+  },
+  {
+    title: '上个月',
+    filter: (time: number) => new Date().getMonth() - dayjs(time).toDate().getMonth() === 1,
   },
   {
     title: '以前',

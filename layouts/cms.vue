@@ -97,7 +97,8 @@ watch(() => endUrl.value, (val) => {
         <!-- 设置全局环境地址 -->
         <el-select v-model="endUrl" placeholder="选择系统环境" style="width: 200px">
           <el-option
-            v-for="item in Object.values(ENDS_URL)" :key="item.value" :label="item.label" :value="item.value"
+            v-for="item in Object.values(ENDS_URL)" :key="item.value" :label="item.label"
+            :value="item.value"
           />
         </el-select>
 
