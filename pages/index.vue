@@ -177,7 +177,7 @@ provide('pageOptions', pageOptions)
 
   left: 50%;
 
-  bottom: 2rem;
+  bottom: 1rem;
 
   transform: translateX(-50%) scale(0.75);
 }

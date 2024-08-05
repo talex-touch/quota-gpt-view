@@ -13,6 +13,7 @@ const pageOptions = reactive({
   model: {
     login: false,
   },
+  mobile: false,
 })
 
 const router = useRouter()
@@ -34,8 +35,12 @@ onMounted(() => {
 
   const deviceObj = UAParser(navigator.userAgent)
 
-  if (deviceObj.device?.type)
+  if (deviceObj.device?.type) {
     document.body.classList.add(deviceObj.device.type)
+
+    if (deviceObj.device.type === 'mobile')
+      pageOptions.mobile = true
+  }
 })
 
 router.afterEach(() => {

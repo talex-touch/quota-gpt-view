@@ -9,7 +9,8 @@ const _title = computed(() => {
 
 const mobile = ref(false)
 
-onMounted(() => setTimeout(() => mobile.value = document.body.classList.contains('mobile'), 2000))
+const pageOptions = inject('appOptions')
+onMounted(() => setTimeout(() => mobile.value = pageOptions.mobile, 200))
 </script>
 
 <template>
