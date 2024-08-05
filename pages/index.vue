@@ -27,6 +27,8 @@ function handleDelete(index: number) {
   chatManager.deleteMessage(index)
 
   pageOptions.select = chatManager.history.value.length - 1
+
+  handleCreate()
 }
 
 watch(

@@ -272,22 +272,32 @@ async function handleExecutorResult(reader: ReadableStreamDefaultReader<string>,
     if (value.includes('data: 请求超时'))
       continue
 
-    const _value = /* lastData + */ value
-
-    // if (!_value.endsWith(' ') && !_value.endsWith('}') && !_value.endsWith('\n')) {
-    //   lastData = _value
-
-    //   continue
-    // }
-
-    // console.log('v', _value)
+    const _value = value
 
     const arr = _value.split('\n')
+
     for (let i = 0; i < arr.length; i++) {
       const item = arr[i]
 
-      if (item.startsWith('data: '))
-        handleExecutorItem(item.slice(6), callback)
+      if (item.startsWith('data: ')) { handleExecutorItem(item.slice(6), callback) }
+      else {
+        try {
+          const data = JSON.parse(item)
+
+          if (data.code === 1101) {
+            userStore.value.token = ''
+            userStore.value.subscription = null
+
+            location.reload()
+          }
+
+          if (data?.message && !data?.data)
+            ElMessage.error(data.message)
+        }
+        catch (_ignored) {
+          console.error('error in chat', _ignored)
+        }
+      }
     }
   }
 }
@@ -562,7 +572,8 @@ export class ChatManager {
 
   async sendMessage(obj: any, conversation: ThHistory, options: Partial<ChatCompletionDto>, callback: IMessageHandler) {
     function complete() {
-      obj.agent.actions = obj.agent.actions.filter((item: string) => typeof item !== 'string')
+      if (obj.agent?.actions?.length)
+        obj.agent.actions = obj.agent.actions.filter((item: string) => typeof item !== 'string')
 
       setTimeout(() => {
         callback.onTriggerUpdate()
