@@ -196,6 +196,10 @@ const props = defineProps<{
     border-radius: 12px 0 0 12px;
     background: linear-gradient(45deg, orange, red);
 
+    .dark & {
+      background: linear-gradient(45deg, #d48e0be0, #d40808e0);
+    }
+
     .newUsersOnly & {
       // background: linear-gradient(45deg, #8743fb, #cb7561);
       background: linear-gradient(45deg, #08ce67, #3e9375);
@@ -223,5 +227,9 @@ const props = defineProps<{
 
   transition: 0.25s;
   background-color: #fef9ed;
+  .dark & {
+    color: #eee;
+    background-color: #262626;
+  }
 }
 </style>
