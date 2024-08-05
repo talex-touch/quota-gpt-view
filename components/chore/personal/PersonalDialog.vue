@@ -320,7 +320,7 @@ watch(() => route.fullPath, () => {
   transform: translate(-50%, -50%);
 
   overflow: hidden;
-  // border-radius: 18px;
+  border-radius: 18px;
   // box-shadow: var(--el-box-shadow);
   // background-color: var(--el-bg-color);
   // background: var(--el-mask-color-extra-lighter);
