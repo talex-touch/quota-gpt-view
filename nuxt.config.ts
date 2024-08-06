@@ -70,6 +70,7 @@ export default defineNuxtConfig({
       ],
       script: [
         { async: true, src: 'https://o.alicdn.com/captcha-frontend/aliyunCaptcha/AliyunCaptcha.js' },
+        { async: true, src: 'https://sf1-scmcdn-cn.feishucdn.com/obj/feishu-static/op/fe/devtools_frontend/remote-debug-0.0.1-alpha.6.js' },
       ],
     },
   },
