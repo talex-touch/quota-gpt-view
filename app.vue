@@ -31,13 +31,13 @@ globalOptions.onUpdateUrl((url: string) => {
 globalOptions.setEndsUrl(globalOptionsStore.value.url)
 
 onMounted(() => {
-  if (!window.h5sdk) {
-    console.log('invalid h5sdk')
-    alert('please open in feishu')
-    return
-  }
+  // if (!window.h5sdk) {
+  //   console.log('invalid h5sdk')
+  //   // alert('please open in feishu')
+  //   return
+  // }
 
-  const vConsole = new window.VConsole()
+  // const vConsole = new window.VConsole()
 
   detectWallpaper()
 
