@@ -334,3 +334,38 @@ export function assignCouponCode(code: string, userId: number) {
 export function invalidateCouponCode(couponId: string) {
   return endHttp.post('coupon/invalidate', { couponId })
 }
+
+export interface IAdminOrderQuery extends Record<string, any> {
+  /**
+   * 支付时间范围(max)
+   */
+  maxPayTime?: Date
+  /**
+   * 购买金额范围(max)
+   */
+  maxPrice?: number
+  /**
+   * 支付时间范围(min)
+   */
+  minPayTime?: Date
+  /**
+   * 购买金额范围(min)
+   */
+  minPrice?: number
+  page: number
+  pageSize: number
+  payMethod?: number
+  status?: number
+  /**
+   * 购买用户
+   */
+  userid?: number
+}
+
+export function getAdminOrders(query: IAdminOrderQuery) {
+  return endHttp.post('order/admin/list', query)
+}
+
+export function getAdminOrderStatistics() {
+  return endHttp.get('order/admin/statistics')
+}

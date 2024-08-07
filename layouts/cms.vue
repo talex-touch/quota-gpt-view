@@ -129,7 +129,7 @@ watch(() => endUrl.value, (val) => {
         </template>
       </el-aside>
       <el-main class="CmsMain">
-        <el-watermark :font="font" :z-index="10" class="watermark" :content="[userStore.nickname!, 'ThisAI CMS']">
+        <el-watermark :font="font" :z-index="100" class="watermark" :content="[userStore.nickname!, 'ThisAI CMS']">
           <slot />
         </el-watermark>
       </el-main>
