@@ -58,22 +58,17 @@ function handleScroll(e: any) {
       </ClientOnly>
     </el-aside>
     <el-main>
+      <div v-if="curDoc" class="GuideMain markdown-body">
+        <el-scrollbar @scroll="handleScroll">
+          <div class="GuideMain-Header">
+            <h1>{{ curDoc.title }}</h1>
+            <p>最后更新于 {{ formatDate(curDoc.updatedAt) }}</p>
+          </div>
+          <ArticleMilkContent :content="content" @outline="handleOutLine" />
+        </el-scrollbar>
+      </div>
       <ClientOnly>
-        <!-- <div v-if="curDoc"> -->
-        <!-- {{ content }} -->
-        <div class="GuideMain markdown-body">
-          <el-scrollbar @scroll="handleScroll">
-            <div class="GuideMain-Header">
-              <h1>{{ curDoc.title }}</h1>
-              <p>最后更新于 {{ formatDate(curDoc.updatedAt) }}</p>
-            </div>
-            <ArticleMilkContent :content="content" @outline="handleOutLine" />
-          </el-scrollbar>
-        </div>
-        <!-- <div ref="outline" class="outline-preview"> -->
         <ArticleContentOutline v-if="outline" :outline="outline" />
-        <!-- </div> -->
-        <!-- </div> -->
       </ClientOnly>
     </el-main>
   </div>
@@ -86,15 +81,18 @@ function handleScroll(e: any) {
       font-size: 24px;
       font-weight: 600;
     }
+
     p {
       opacity: 0.5;
     }
+
     padding: 1rem 2rem;
   }
 
   .el-scrollbar {
     width: 100%;
   }
+
   position: relative;
 
   flex: 1;
@@ -106,6 +104,7 @@ function handleScroll(e: any) {
   .RenderContent {
     padding: 0 10%;
   }
+
   display: flex;
 }
 
@@ -116,6 +115,7 @@ function handleScroll(e: any) {
 
     border-left: 1px solid var(--el-border-color);
   }
+
   display: flex;
   padding: 0;
 
