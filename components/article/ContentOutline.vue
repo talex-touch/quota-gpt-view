@@ -72,7 +72,7 @@ function handleScroll() {
       // }
     }
     else {
-      if (rect.top + 50 >= rect.height) {
+      if (rect.top + 5 >= rect.height) {
         ind = i
         break
       }

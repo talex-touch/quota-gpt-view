@@ -312,7 +312,7 @@ function handleDeleteUser(id: number, data: DocForm) {
 
         <el-pagination
           v-if="docs?.meta" v-model:current-page="docs.meta.currentPage"
-          v-model:page-size="docs.meta.itemsPerPage" float-right my-4 :page-sizes="[100, 200, 300, 400]"
+          v-model:page-size="docs.meta.itemsPerPage" class="1" float-right my-4 :page-sizes="[10, 200, 300, 400]"
           layout="total, sizes, prev, pager, next, jumper" :total="docs.meta.totalItems"
         />
       </ClientOnly>
@@ -400,7 +400,9 @@ function handleDeleteUser(id: number, data: DocForm) {
     text-align: center;
   }
 
-  flex-direction: column;
+  .el-main {
+    flex-direction: column;
+  }
 }
 
 .GuideEditor {
@@ -422,6 +424,7 @@ function handleDeleteUser(id: number, data: DocForm) {
     box-shadow: var(--el-box-shadow);
     background-color: var(--el-bg-color);
   }
+
   .GuideEditor-Footer {
     .GuideEditor-Func {
       position: absolute;
@@ -436,6 +439,7 @@ function handleDeleteUser(id: number, data: DocForm) {
     .el-form-item {
       margin-bottom: 0;
     }
+
     position: absolute;
     display: flex;
 
@@ -453,11 +457,13 @@ function handleDeleteUser(id: number, data: DocForm) {
     box-shadow: var(--el-box-shadow);
     background-color: var(--el-bg-color);
   }
+
   .Header-Footer {
     position: absolute;
 
     right: 1rem;
   }
+
   .GuideContent {
     .RenderEditor,
     .RenderContent,
@@ -468,6 +474,7 @@ function handleDeleteUser(id: number, data: DocForm) {
     .RenderContent {
       padding: 0 1rem;
     }
+
     position: absolute;
 
     top: 50px;
@@ -479,6 +486,7 @@ function handleDeleteUser(id: number, data: DocForm) {
     transform: translateX(-50%);
     border: 1px solid var(--el-border-color);
   }
+
   z-index: 10;
   position: absolute;
   padding: 0;
