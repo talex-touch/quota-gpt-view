@@ -1,3 +1,6 @@
+import { feishuLogin } from '../api/auth'
+import type { RouterTyped } from '#vue-router'
+
 // 强制声明tt存在
 declare global {
   interface Window {
@@ -14,7 +17,10 @@ declare global {
  */
 function authLogin() {
   if (!window.tt.requestAccess) {
-    alert('请使用新版飞书客户端打开！')
+    ElMessageBox.alert('请使用新版飞书客户端打开', '当前客户端版本过低', {
+      confirmButtonText: '了解',
+    })
+
     return
   }
 
@@ -22,27 +28,44 @@ function authLogin() {
     // 网页应用 App ID
     appID: 'cli_a63b10f14db4d00d',
     scopeList: ['contact:user.phone:readonly'],
-    success: (res: any) => {
+    success: async (res: any) => {
       // 用户授权后返回预授权码
       const { code } = res
-      console.log('code', code)
+
+      const result = await feishuLogin(code)
+
+      userStore.value.token = (result.data.token)
+
+      ElMessage.info('登录成功！')
+
+      setTimeout(() => {
+        location.reload()
+      }, 200)
     },
     fail: (error: any) => {
       // 需要额外根据errno判断是否为 客户端不支持requestAccess导致的失败
       const { errno, errString } = error
 
-      confirm(errString)
-
-      // location.reload()
+      ElMessageBox.alert(errString, `无法完成授权(${errno})`, {
+        confirmButtonText: '了解',
+      })
     },
   })
 }
 
-export default () => {
+export default (router: RouterTyped) => {
   const vConsole = new window.VConsole()
 
-  window.h5sdk.ready(() => {
-    if (!userStore.value.token)
+  window.h5sdk.ready(async () => {
+    if (userStore.value.token) {
+      await router.push('/cms')
+
+      ElMessage.success('已通过风险环境异常检测')
+    }
+    else {
+      await router.push('/chores/feishu/authorize')
+
       authLogin()
+    }
   })
 }

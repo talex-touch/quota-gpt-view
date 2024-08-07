@@ -24,7 +24,7 @@ export async function useSMSLogin(phone: string, code: string, param: string, st
       code,
       phone,
       param,
-      state
+      state,
     }),
   })
 }
@@ -47,4 +47,8 @@ export function getQrCodeStatus(platform: Platform, key: string) {
 
 export function qrCodeLogin(code: string) {
   return endHttp.get('auth/platform_login', { code })
+}
+
+export function feishuLogin(code: string) {
+  return endHttp.get('auth/platform_login/feishu', { code })
 }

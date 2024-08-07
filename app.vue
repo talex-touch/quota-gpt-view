@@ -33,7 +33,7 @@ globalOptions.setEndsUrl(globalOptionsStore.value.url)
 
 onMounted(() => {
   if (window.h5sdk)
-    feishuInit()
+    feishuInit(router)
 
   detectWallpaper()
 

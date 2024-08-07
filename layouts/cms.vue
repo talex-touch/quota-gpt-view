@@ -149,20 +149,24 @@ watch(() => endUrl.value, (val) => {
 }
 
 .rotate-enter-active {
+  z-index: 10;
+
   transition: 0.5s 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
 }
 
-.rotate-enter-active {
-  z-index: 10;
-}
-
 .rotate-enter-from {
+  position: absolute !important;
+
   opacity: 0;
+
+  width: 100%;
 
   transform: translateX(-1%);
 }
 
 .rotate-leave-to {
+  position: absolute !important;
+
   opacity: 0;
 
   transform: translateX(1%);
@@ -182,6 +186,7 @@ watch(() => endUrl.value, (val) => {
 .CmsMain {
   position: relative;
 
+  flex: 1;
   width: 100%;
   height: 100%;
 

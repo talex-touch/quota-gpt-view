@@ -18,6 +18,7 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .Authorize {
+  position: absolute;
   padding: 2rem;
   display: flex;
 
@@ -26,10 +27,15 @@ onMounted(() => {
   flex-direction: column;
   justify-content: center;
 
-  width: 500px;
-  height: 350px;
+  left: 50%;
+
+  width: 90%;
+  max-width: 500px;
+  height: 100%;
+  max-height: 350px;
 
   border-radius: 16px;
+  transform: translateX(-50%);
   box-shadow: var(--el-box-shadow);
   border: 1px solid var(--el-border-color);
   background-color: var(--el-bg-color-page);

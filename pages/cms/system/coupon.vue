@@ -13,6 +13,7 @@ definePageMeta({
   },
 })
 
+const router = useRouter()
 const formLoading = ref(false)
 const coupons = ref({
   items: [],
@@ -37,6 +38,15 @@ function handleReset() {
 onMounted(fetchData)
 
 async function fetchData() {
+  if (!window.h5sdk) {
+    ElMessageBox.alert('您需要通过风险检测才可使用本功能！', '环境检测异常', {
+      confirmButtonText: '了解',
+    })
+
+    router.back()
+    return
+  }
+
   formLoading.value = true
 
   const query: CouponListQueryDto = {
