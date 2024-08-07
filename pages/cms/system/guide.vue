@@ -399,6 +399,8 @@ function handleDeleteUser(id: number, data: DocForm) {
   .el-table__cell .cell {
     text-align: center;
   }
+
+  flex-direction: column;
 }
 
 .GuideEditor {

@@ -24,7 +24,7 @@ import AccountAvatar from '../components/personal/AccountAvatar.vue'
         <AccountAvatar />
       </div>
     </el-header>
-    <el-container>
+    <el-container class="DocumentTemplate-Main">
       <slot />
     </el-container>
   </el-container>
@@ -90,6 +90,19 @@ import AccountAvatar from '../components/personal/AccountAvatar.vue'
 
     border-bottom: 1px solid var(--el-border-color);
   }
+
+  &-Main {
+    position: relative;
+    margin: 0;
+    padding: 0;
+
+    height: 100%;
+    width: 100%;
+    max-width: 1680px;
+
+    overflow: hidden;
+  }
+
   position: absolute;
   display: flex;
 

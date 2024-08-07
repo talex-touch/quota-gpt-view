@@ -201,7 +201,7 @@ pre .rich-copy {
   user-select: none;
   border-radius: 4px;
   transition: all 0.2s;
-  background-color: var(--major-color);
+  background-color: var(--el-color-primary-light-9);
 }
 
 pre .rich-copy:hover {
@@ -224,6 +224,7 @@ pre .rich-lang {
 
 .rich-quote-shadow {
   &::before {
+    z-index: 10;
     content: '';
     position: absolute;
 

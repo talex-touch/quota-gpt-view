@@ -117,11 +117,11 @@ function handleScroll(e: any) {
   position: absolute;
   display: flex;
 
-  top: 61px;
+  top: 0;
   left: 0;
 
   width: 100%;
-  height: calc(100% - 61px);
+  height: 100%;
 }
 
 .GuideAside {
