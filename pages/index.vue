@@ -28,7 +28,7 @@ function handleDelete(index: number) {
 
   pageOptions.select = chatManager.history.value.length - 1
 
-  handleCreate()
+  // handleCreate()
 }
 
 watch(
@@ -118,9 +118,11 @@ async function handleSend(query: string) {
     async onReqCompleted() {
       await genTitle(pageOptions.select)
 
-      setTimeout(() => {
-        chatManager.postTargetHistory(conversation)
-      }, 500)
+      if (userStore.value.token) {
+        setTimeout(() => {
+          chatManager.postTargetHistory(conversation)
+        }, 500)
+      }
     },
     onFrequentLimit() {
       chatManager.cancelCurrentReq()
@@ -160,7 +162,7 @@ provide('pageOptions', pageOptions)
       />
 
       <div class="copyright">
-        ThisAI. 可能会犯错，生成的内容仅供参考。v24.08.05
+        ThisAI. 可能会犯错，生成的内容仅供参考。v24.08.07
         <span class="business">四川科塔锐行科技有限公司</span>
       </div>
 

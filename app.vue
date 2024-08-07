@@ -4,6 +4,7 @@ import { appName, globalOptions } from '~/constants'
 import 'element-plus/theme-chalk/dark/css-vars.css'
 import { _setWallpaper, detectWallpaper } from '~/composables/theme/colors'
 import { UAParser } from 'ua-parser-js'
+import feishuInit from '~/composables/feishu/init'
 
 useHead({
   title: appName,
@@ -31,13 +32,8 @@ globalOptions.onUpdateUrl((url: string) => {
 globalOptions.setEndsUrl(globalOptionsStore.value.url)
 
 onMounted(() => {
-  // if (!window.h5sdk) {
-  //   console.log('invalid h5sdk')
-  //   // alert('please open in feishu')
-  //   return
-  // }
-
-  // const vConsole = new window.VConsole()
+  if (window.h5sdk)
+    feishuInit()
 
   detectWallpaper()
 
