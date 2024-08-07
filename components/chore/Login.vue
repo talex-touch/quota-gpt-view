@@ -12,6 +12,7 @@ const emits = defineEmits<{
 }>()
 
 const codeStatus = ref(0)
+let startTime = Date.now()
 
 function formatter(value: string) {
   // 移除所有非数字字符
@@ -142,6 +143,11 @@ function refreshSmsTitle() {
   }
 }
 
+watch(() => show.value, (val) => {
+  if (val)
+    startTime = Date.now()
+})
+
 onMounted(async () => {
   data.agreement = localStorage.getItem('user') != null
 
@@ -254,8 +260,6 @@ async function fetchCode() {
     }
   }
 }
-
-const startTime = Date.now()
 
 async function codeStatusTimer() {
   if (userStore.value.token)
