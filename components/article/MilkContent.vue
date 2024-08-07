@@ -78,6 +78,33 @@ onMounted(async () => {
   .milkdown {
     height: 100%;
     width: 100%;
+    .editor {
+      > p {
+        margin: 1rem 0;
+      }
+
+      ul {
+        li {
+          &::before {
+            content: '';
+            position: absolute;
+
+            top: 50%;
+            left: 0%;
+
+            width: 8px;
+            height: 8px;
+
+            border-radius: 50%;
+            transform: translate(0, -50%);
+            background-color: var(--theme-color);
+          }
+          position: relative;
+
+          text-indent: 16px;
+        }
+      }
+    }
   }
   padding: 0.5rem 1.5rem;
 
@@ -228,8 +255,8 @@ pre .rich-lang {
     content: '';
     position: absolute;
 
-    left: var(--x);
-    top: var(--y);
+    left: var(--x, 0);
+    top: var(--y, 0);
 
     width: 20px;
     height: 20px;
@@ -249,7 +276,7 @@ pre .rich-lang {
   padding-top: 1px;
 
   border-radius: 8px;
-  transform: translate(var(--offX), var(--offY));
+  transform: translate(var(--offX, 0), var(--offY, 0));
   transition: 0.125s;
   overflow: hidden;
 }

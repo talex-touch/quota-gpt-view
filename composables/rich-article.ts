@@ -51,7 +51,7 @@ const preRich: IRichFunc = (() => {
 
     // 防君子不防小人2333
     waterMark.className = 'rich-article rich-watermark'
-    waterMark.innerHTML = '<span class=\'watermark\'>TalexMeBlog</span>'
+    waterMark.innerHTML = '<span class=\'watermark\'>QuotaWish</span>'
 
     // 获取parent
     const parentDom = dom.parentElement!
