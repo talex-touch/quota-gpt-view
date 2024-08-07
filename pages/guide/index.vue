@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import Vditor from 'vditor'
 import GuideAside from '~/components/guide/GuideAside.vue'
 import { getDocList } from '~/composables/api/doc'
 
@@ -7,54 +6,87 @@ definePageMeta({
   layout: 'document',
 })
 
+const route = useRoute()
 const curDoc = ref()
 const documents = ref([])
-
-onMounted(async () => {
-  const res: any = await getDocList()
-
-  if (res.code === 200)
-    documents.value = res.data.items
-  else ElMessage.error(res.message)
-})
 
 function handleSelect(data: any) {
   curDoc.value = data
 }
 
-const outline = ref()
-const content = computed(() => curDoc.value ? JSON.parse(decodeURI(atob(curDoc.value.value))) : '')
+const content = ref('')
+const outline = ref('')
 
-// watch(() => content.value, () => {
-//   nextTick(async () => {
-//     const outlineDom = outline.value
+watchEffect(() => {
+  if (!curDoc.value)
+    return
 
-//     const html = await Vditor.md2html(content.value)
-//     outlineDom.innerHTML = html
-//     // const el = document.querySelector('.RenderContent .RenderContent-Inner')
+  outline.value = ''
+  content.value = JSON.parse(decodeURI(atob(curDoc.value.value)))
+})
 
-//     console.log('e', outlineDom)
+onMounted(async () => {
+  const res: any = await getDocList()
 
-//     Vditor.outlineRender(outlineDom, outlineDom)
-//   })
-// })
+  if (res.code === 200) { documents.value = res.data.items }
+  else { ElMessage.error(res.message); return }
+
+  const query = route.query.data
+  if (query)
+    curDoc.value = documents.value.find((item: any) => item.title === query)
+})
+
+function handleOutLine(data: any) {
+  outline.value = data
+}
+
+let _func: any
+provide('onScroll', (func: any) => {
+  _func = func
+})
+
+function handleScroll(e: any) {
+  _func?.(e)
+}
 </script>
 
 <template>
   <div class="Guide expand">
     <el-aside class="GuideAside" width="200px">
-      <GuideAside :data="documents" @select="handleSelect" />
+      <ClientOnly>
+        <GuideAside :data="documents" @select="handleSelect" />
+      </ClientOnly>
     </el-aside>
     <el-main>
-      <div v-if="curDoc">
-        <RenderContent :readonly="false" :render="{ enable: true, media: true }" :data="content" />
-        <div ref="outline" class="outline-preview" />
-      </div>
+      <ClientOnly>
+        <!-- <div v-if="curDoc"> -->
+        <!-- {{ content }} -->
+        <div class="GuideMain markdown-body">
+          <el-scrollbar @scroll="handleScroll">
+            <ArticleMilkContent :content="content" @outline="handleOutLine" />
+          </el-scrollbar>
+        </div>
+        <!-- <div ref="outline" class="outline-preview"> -->
+        <ArticleContentOutline v-if="outline" :outline="outline" />
+        <!-- </div> -->
+        <!-- </div> -->
+      </ClientOnly>
     </el-main>
   </div>
 </template>
 
 <style lang="scss">
+.GuideMain {
+  .el-scrollbar {
+    width: 100%;
+  }
+  position: relative;
+
+  flex: 1;
+  width: 100%;
+  height: 100%;
+}
+
 .el-main > div {
   .RenderContent {
     padding: 0 10%;
@@ -63,14 +95,23 @@ const content = computed(() => curDoc.value ? JSON.parse(decodeURI(atob(curDoc.v
 }
 
 .el-main {
+  ul {
+    width: 30%;
+    max-width: 240px;
+
+    border-left: 1px solid var(--el-border-color);
+  }
+  display: flex;
   padding: 0;
+
+  overflow: hidden;
 }
 
-.outline-preview {
-  width: 30%;
+// .outline-preview {
+//   width: 30%;
 
-  border-left: 1px solid var(--el-border-color);
-}
+//   border-left: 1px solid var(--el-border-color);
+// }
 
 .Guide {
   position: absolute;

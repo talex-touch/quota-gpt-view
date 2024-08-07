@@ -30,17 +30,17 @@ function handleSelect(data: any) {
 
     <div class="GuideAside-Wrapper">
       <el-scrollbar>
-        <CmsMenu expandable>
+        <!-- <CmsMenu expandable>
           <template #header>
             <div i-carbon-folder />
             所有文档
-          </template>
+          </template> -->
 
-          <CmsMenuItem v-for="doc in data" :key="doc.id" :query="doc.title" @click="handleSelect(doc)">
-            <div i-carbon-document />
-            {{ doc.title }}
-          </CmsMenuItem>
-        </CmsMenu>
+        <CmsMenuItem v-for="doc in data" :key="doc.id" :query="doc.title" @click="handleSelect(doc)">
+          <div i-carbon-document />
+          {{ doc.title }}
+        </CmsMenuItem>
+        <!-- </CmsMenu> -->
         <div class="GuideAside-Content">
           <!-- <GuideAsideSection
             v-for="(section, index) in GuideAsideList"
