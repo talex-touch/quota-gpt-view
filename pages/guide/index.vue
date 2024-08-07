@@ -95,7 +95,7 @@ function handleScroll(e: any) {
 }
 
 .el-main {
-  ul {
+  > ul {
     width: 30%;
     max-width: 240px;
 
