@@ -527,8 +527,8 @@ export class ChatManager {
 
   createMessage() {
     if (!userStore.value.token) {
-      if (this.history.value.length >= 5) {
-        ElMessageBox.alert('受限于浏览器限制，未登录最多可记录5段历史对话，登录后可享受数据云端穿梭能力。', '你需要登录来继续', {
+      if (this.history.value.length >= 15) {
+        ElMessageBox.alert('受限于浏览器限制，未登录最多可记录15段历史对话，登录后可享受数据云端穿梭能力。', '你需要登录来继续', {
           confirmButtonText: '了解',
         })
 

@@ -84,11 +84,17 @@ async function handleSend(query: string) {
 
   const conversation: ThHistory = chatManager.history.value[pageOptions.select]
 
+  const meta = {
+    model: chatManager.messages.value.model,
+    tools: inputProperty.internet,
+  }
+
   conversation.messages.push({
     date: format,
     role: 'user',
     content: query,
     streaming: false,
+    meta,
   })
 
   const obj = reactive<any>({
@@ -107,10 +113,7 @@ async function handleSend(query: string) {
 
   chatManager.messages.value = conversation
 
-  await chatManager.sendMessage(obj, conversation, {
-    model: chatManager.messages.value.model,
-    tools: inputProperty.internet,
-  }, {
+  await chatManager.sendMessage(obj, conversation, meta, {
     onTriggerUpdate: () => {
       chatRef.value?.generateScroll()
     },
