@@ -5,5 +5,7 @@ dist
 .nuxt
 .env
 .idea/
-.vscode/*
-.github/*
+.vscode
+.github
+.vscode/settings.json
+.vscode/extensions.json
