@@ -78,10 +78,8 @@ function handleScroll() {
 
   // 如果滚动距离超过了一个屏幕
   options.backToTop = false
-  if (scrollTop > window.innerWidth * 0.75) {
+  if (scrollTop > window.innerWidth * 0.75)
     options.backToTop = true
-    return
-  }
 
   // const rect = scrollbarEl.getBoundingClientRect()
   // console.log(clientHeight, scrollTop, '|', scrollHeight, 'a', rect, scrollbarEl.parentElement.parentElement.clientHeight)
@@ -154,7 +152,7 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
     </div>
 
     <div class="ThChat-Container" :class="{ stop: options.stopGenerating, backToBottom: options.backToBottom }">
-      <div :class="{ in: options.backToTop }" class="ToTop" @click="handleBackToTop">
+      <div :class="{ in: options.backToTop }" class="ToTop only-pc-display" @click="handleBackToTop">
         <div i-carbon:arrow-up />
         查看{{ messageBubbles.length }}条历史消息
       </div>

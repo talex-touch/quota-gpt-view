@@ -81,10 +81,6 @@ watch(() => formInline.deptId, () => {
   fetchData()
 })
 
-function formatDate(date: string) {
-  return dayjs(date).format('YYYY-MM-DD HH:mm:ss')
-}
-
 const dialogOptions = reactive<{
   visible: boolean
   mode: 'edit' | 'read' | 'new'
