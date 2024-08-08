@@ -308,7 +308,7 @@ function handleOrderEstablished(data: any) {
   const createdAt = new Date(data.order.createdAt)
   payOptions.countdown = {
     created: createdAt.getTime(),
-    upto: createdAt.getTime() + 15 * 60 * 1000,
+    upto: createdAt.getTime() + 5 * 60 * 1000,
   }
 
   // 更新总价
