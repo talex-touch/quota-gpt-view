@@ -56,8 +56,10 @@ function handleInputKeydown(event: KeyboardEvent) {
     return
 
   if (event.key === 'Backspace') {
-    if (template.value && !input.value)
+    if (template.value && !input.value) {
       template.value = {}
+      pageOptions.template = null
+    }
   }
 
   if (event.key === 'Enter') {
