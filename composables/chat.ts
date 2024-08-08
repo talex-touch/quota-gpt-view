@@ -884,6 +884,7 @@ export interface PromptEntityDto {
    * 使用记录
    */
   usages?: any[]
+  audits?: any[]
 
   status?: number
 }
@@ -918,6 +919,13 @@ export class ChatAdminManager {
 
   async updateTemplate(id: string, dto: PromptEntityDto) {
     return endHttp.put(`aigc/prompts/${id}`, dto)
+  }
+
+  async auditTemplate(id: number, dto: { status: number, reason?: string }) {
+    return endHttp.post(`aigc/prompts/audit/${id}`, {
+      status: dto.status,
+      reason: dto.reason,
+    })
   }
 }
 

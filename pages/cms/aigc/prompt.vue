@@ -228,10 +228,148 @@ function handleDeleteUser(id: number, data: PromptEntityDto) {
   //     })
   //   })
 }
+
+const auditOptions = reactive<{
+  dialog: boolean
+  data: PromptEntityDto
+  result: {
+    agreement: boolean
+    status: 'pass' | 'reject'
+    reason: string
+  }
+}>({
+  dialog: false,
+  data: {},
+  result: {
+    agreement: true,
+    status: 'reject',
+    reason: '',
+  },
+})
+
+function handleAudit(data: any) {
+  auditOptions.data = data
+  auditOptions.dialog = true
+}
+
+async function submitAudit() {
+  const id = auditOptions.data.id!
+  const status = auditOptions.result.status === 'pass' ? 1 : 2
+  const reason = auditOptions.result.reason
+
+  const res: any = await chatAdminManager.auditTemplate(+id, {
+    status,
+    reason,
+  })
+
+  if (res.code === 200) {
+    ElMessage.success('审核提交成功！')
+    auditOptions.dialog = false
+    fetchData()
+  }
+  else {
+    ElMessage.error(res.message ?? '审核提交失败！')
+  }
+}
+
+const rejectReason = reactive([
+  { label: '内容违规', value: '您提交的内容违反了相关规定，不能通过审核哦。' },
+  { label: '内容涉黄', value: '您的内容包含了不适当的色情信息，这是不被允许的哟。' },
+  { label: '内容涉政', value: '您的内容涉及到政治方面的敏感信息，无法通过审核呢。' },
+  { label: '内容涉恐', value: '您的内容涉及恐怖相关的信息，不符合要求哦。' },
+  { label: '内容涉毒', value: '您的内容涉及毒品相关信息，这是绝对不可以的哈。' },
+  { label: '内容抄袭', value: '亲，您的内容存在抄袭情况，这是不被认可的哟。' },
+  { label: '内容虚假', value: '哎呀，您的内容存在虚假信息，不能通过审核呀。' },
+  { label: '内容侵权', value: '您的内容侵犯了他人的权益，是不可以的呢。' },
+  { label: '内容质量差', value: '亲，您的内容质量不太好，无法达到通过的标准哟。' },
+  { label: '内容表意不明', value: '哎呀，您的内容意思表达不清晰，不能通过审核哈。' },
+  { label: '内容存在误导', value: '您的内容可能会对他人产生误导，所以不能通过呢。' },
+  { label: '内容过时', value: '亲，您的内容已经过时了，不符合当前的要求哟。' },
+  { label: '内容与主题不符', value: '哎呀，您的内容与主题不相关，不能予以通过呀。' },
+  { label: '内容缺乏依据', value: '您的内容缺乏足够的依据支持，是无法通过审核的呢。' },
+  { label: '内容存在偏见', value: '亲，您的内容存在一定的偏见，这是不合适的哟。' },
+  { label: '内容逻辑混乱', value: '哎呀，您的内容逻辑不够清晰，不能通过审核哈。' },
+  { label: '内容语言不当', value: '您的内容语言使用不恰当，无法通过审核呢。' },
+  { label: '内容重复', value: '亲，您的内容存在重复的情况，不能通过哟。' },
+  { label: '内容格式错误', value: '哎呀，您的内容格式存在问题，不能予以通过呀。' },
+  { label: '内容未经证实', value: '您的内容未经证实，是不可以通过审核的呢。' },
+  { label: '内容存在安全隐患', value: '亲，您的内容可能存在安全方面的隐患，不能通过哟。' },
+  { label: '内容违反道德规范', value: '哎呀，您的内容违反了道德规范，不能通过审核哈。' },
+])
+
+function getAuditType(status: number) {
+  if (status === 0)
+    return 'primary'
+  else if (status === 1)
+    return 'success'
+  else
+    return 'danger'
+}
 </script>
 
 <template>
   <el-container class="CmsPrompt">
+    <el-dialog
+      v-model="auditOptions.dialog" :close-on-press-escape="false" :close-on-click-modal="false" width="60%"
+      title="PromptTemplate 审核"
+    >
+      <el-form v-if="auditOptions.data" :model="auditOptions.data" label-width="auto">
+        <el-form-item label="模板头像" prop="avatar">
+          <UserUploadAvatar v-model="auditOptions.data.avatar!" disabled />
+        </el-form-item>
+        <el-form-item label="模板标题" prop="title">
+          <el-input v-model="auditOptions.data.title" :maxlength="255" disabled />
+        </el-form-item>
+        <el-form-item label="模板内容" prop="content">
+          <el-input
+            v-model="auditOptions.data.content" show-word-limit :maxlength="1024" disabled
+            :autosize="{ minRows: 5, maxRows: 30 }" type="textarea"
+          />
+        </el-form-item>
+        <el-form-item label="参考Prompt" prop="agreement">
+          <span>
+            I want you to act as a prompt generator. Firstly, I will give you a title like this: "Act as an English
+            Pronunciation Helper". Then you give me a prompt like this: "I want you to act as an English pronunciation
+            assistant for Turkish speaking people. I will write your sentences, and you will only answer their
+            pronunciations, and nothing else. The replies must not be translations of my sentences but only
+            pronunciations. Pronunciations should use Turkish Latin letters for phonetics. Do not write explanations
+            on replies. My first sentence is "how the weather is in Istanbul?"." (You should adapt the sample prompt
+            according to the title I gave. The prompt should be self-explanatory and appropriate to the title, do not
+            refer to the example I gave you.). My first title is "提示词功能" (Give me prompt only)<el-link
+              mx-2
+              type="primary" @click="dialogOptions.meta.dialog = true"
+            >Prompt工程师参考</el-link>
+          </span>
+        </el-form-item>
+      </el-form>
+
+      <el-divider />
+      <el-form>
+        <el-form-item :model="auditOptions.result" label="审核结果" prop="status">
+          <el-radio-group v-model="auditOptions.result.status" size="small">
+            <el-radio-button label="通过审核" value="pass" />
+            <el-radio-button label="拒绝驳回" value="reject" />
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item v-if="auditOptions.result.status === 'reject'" label="拒绝原因" prop="reason">
+          <el-select v-model="auditOptions.result.reason">
+            <el-option v-for="item in rejectReason" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
+          {{ auditOptions.result.reason }}
+        </el-form-item>
+        <el-form-item v-if="auditOptions.result.status === 'pass'" label="审核承诺" prop="agreement">
+          <el-checkbox v-model="auditOptions.result.agreement">
+            通过模板审核代表我对该模板造成的任何后果负责，包括但不限于民事责任，刑事责任。若因该模板自身缺陷所表达不佳所造成的后果由模板创建者承担。
+          </el-checkbox>
+        </el-form-item>
+        <el-form-item label="审核操作" prop="action">
+          <el-button type="warning" @click="submitAudit">
+            提交
+          </el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
+
     <el-main>
       <el-form :disabled="formLoading" :inline="true" :model="formInline">
         <el-form-item label="标题">
@@ -266,14 +404,19 @@ function handleDeleteUser(id: number, data: PromptEntityDto) {
           </el-table-column>
           <el-table-column label="正文字数">
             <template #default="{ row }">
-              {{ row.content.length }}字
+              {{ row.content?.length }}字
             </template>
           </el-table-column>
           <el-table-column prop="status" label="状态">
             <template #default="{ row }">
-              <el-tag v-if="row.status === 0" type="warning">
-                等待审核
-              </el-tag>
+              <template v-if="row.status === 0">
+                <el-tag type="warning">
+                  等待审核
+                </el-tag>
+                <el-button v-permission="`aigc:audit`" type="primary" size="small" plain mx-2 @click="handleAudit(row)">
+                  立即审核
+                </el-button>
+              </template>
               <el-tag v-else-if="row.status === 1" type="success">
                 已通过
               </el-tag>
@@ -307,10 +450,14 @@ function handleDeleteUser(id: number, data: PromptEntityDto) {
               <el-button plain text size="small" @click="handleDialog(row, 'read')">
                 详情
               </el-button>
-              <el-button :disabled="true" plain text size="small" type="warning" @click="handleDialog(row, 'edit')">
+              <el-button v-if="row.status !== 0" plain text size="small" type="warning" @click="handleDialog(row, 'edit')">
                 编辑
               </el-button>
-              <el-button :disabled="true" plain text size="small" type="danger" @click="handleDeleteUser(row.id, row)">
+              <el-button
+                v-if="row.status === 1"
+                :disabled="true" plain text size="small" type="danger"
+                @click="handleDeleteUser(row.id, row)"
+              >
                 删除
               </el-button>
             </template>
@@ -375,6 +522,25 @@ function handleDeleteUser(id: number, data: PromptEntityDto) {
               <li>5.如果您发现AI生成的内容违规，请及时联系管理员</li>
               <li>6.您可以在模板中穿插以下变量：{{ `\{\{ history \}\}` }}, {{ `\{\{ input \}\}` }}, {{ `\{\{ memory \}\}` }}</li>
             </ul>
+          </el-form-item>
+          <el-form-item v-if="dialogOptions.mode === 'read'" label="审核记录">
+            <el-timeline style="max-width: 600px">
+              <el-timeline-item
+                v-for="(audit, index) in dialogOptions.data.audits" :key="index"
+                :type="getAuditType(audit.status)" size="large" :timestamp="audit.createdAt"
+              >
+                <span v-if="audit.status === 2" flex items-center>
+                  <PersonalNormalUser :data="audit.auditor" />: {{ audit.reason }}
+                </span>
+                <span v-else-if="audit.status === 1" flex items-center>
+                  已经
+                  <PersonalNormalUser :data="audit.auditor" /> 审核通过
+                </span>
+                <span v-else-if="audit.status === 0" flex items-center>
+                  <PersonalNormalUser :data="audit.auditor" />: 正在审核中({{ audit.reason }})
+                </span>
+              </el-timeline-item>
+            </el-timeline>
           </el-form-item>
           <el-form-item v-if="dialogOptions.mode !== 'read'" label="操作按钮">
             <el-button
@@ -444,12 +610,20 @@ function handleDeleteUser(id: number, data: PromptEntityDto) {
             <el-button @click="resetForm(ruleFormRef)">
               重置
             </el-button>
-            <el-button
-              :disabled="!dialogOptions.meta.polish && dialogOptions.meta.translation"
-              :loading="dialogOptions.loading" type="primary" @click="submitForm(ruleFormRef)"
+            <el-popconfirm
+              v-if="dialogOptions.data"
+              title="提交模板审核代表我对该模板造成的任何后果负责，包括但不限于民事责任，刑事责任。若因该模板自身缺陷所表达不佳所造成的后果由我自身承担。"
+              @confirm="submitForm(ruleFormRef)"
             >
-              {{ dialogOptions.mode !== 'new' ? "修改" : "新增" }}
-            </el-button>
+              <template #reference>
+                <el-button
+                  :disabled="dialogOptions.data.content!.length < 200 || !dialogOptions.meta.polish && dialogOptions.meta.translation"
+                  :loading="dialogOptions.loading" type="primary"
+                >
+                  {{ dialogOptions.mode !== 'new' ? "修改并提交审核" : "新建并提交审核" }}
+                </el-button>
+              </template>
+            </el-popconfirm>
           </template>
         </div>
       </template>
