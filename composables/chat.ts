@@ -181,6 +181,8 @@ export function useChatTitle(context: ChatCompletion) {
     }
   }, {
     generateTitle: true,
+    model: QuotaModel.QUOTA_THIS_NORMAL,
+    temperature: 0.1,
   })
 
   return options

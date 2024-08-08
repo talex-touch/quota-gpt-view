@@ -5,7 +5,7 @@ export const appDescription = 'THISAI'
 export const ENDS_URL = {
   local: {
     label: 'Local',
-    value: 'http://127.0.0.1:7001',
+    value: 'http://127.0.0.1:7001/',
   },
   dev: {
     label: 'Development',

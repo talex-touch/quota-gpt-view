@@ -34,8 +34,10 @@ function handleDelete(index: number) {
 watch(
   () => pageOptions.select,
   (ind) => {
-    if (ind < 0 || ind >= chatManager.history.value.length)
+    if (ind < 0 || ind >= chatManager.history.value.length) {
+      chatManager.messages.value = JSON.parse(JSON.stringify(chatManager.originObj))
       return
+    }
 
     const conversation = chatManager.history.value[ind]
 
