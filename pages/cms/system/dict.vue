@@ -58,7 +58,6 @@ async function fetchData() {
   formLoading.value = true
 
   const query: any = {}
-  }
 
   // 过滤掉为空的值
   Object.entries(query).forEach(([key, value]) => {
@@ -71,9 +70,8 @@ async function fetchData() {
     ElMessage.warning('参数错误，查询失败！')
   }
   else {
-    if (res.code === 200) {
+    if (res.code === 200)
       depts.value = res.data
-    }
   }
 
   formLoading.value = false
@@ -104,7 +102,7 @@ function handleDialog(data: any | null, mode: 'edit' | 'read' | 'new') {
   dialogOptions.visible = true
   dialogOptions.data = (mode === 'new'
     ? {
-    
+
       }
     : { ...data }) as any
 
@@ -239,12 +237,12 @@ function filterNode(value: string, data: any) {
 
       <ClientOnly>
         <el-table v-if="users?.items" :data="users.items" style="width: 100%">
-        <el-table-column prop="创建者" label="creator" width="180" />
-        <el-table-column prop="更新者" label="Name" width="180" />
-        <el-table-column prop="name" label="Name" width="180" />
-        <el-table-column prop="name" label="Name" width="180" />
-        <el-table-column prop="name" label="Name" width="180" />
-        <el-table-column prop="name" label="Name" width="180" />
+          <el-table-column prop="创建者" label="creator" width="180" />
+          <el-table-column prop="更新者" label="Name" width="180" />
+          <el-table-column prop="name" label="Name" width="180" />
+          <el-table-column prop="name" label="Name" width="180" />
+          <el-table-column prop="name" label="Name" width="180" />
+          <el-table-column prop="name" label="Name" width="180" />
         </el-table>
         <el-pagination
           v-if="users?.meta" v-model:current-page="users.meta.currentPage"
@@ -269,9 +267,7 @@ function filterNode(value: string, data: any) {
           :disabled="dialogOptions.loading || dialogOptions.mode === 'read'" style="max-width: 600px"
           :model="dialogOptions.data" :rules="rules" label-width="auto" class="demo-ruleForm" status-icon
         >
-
-          <el-form-item label="用户名称" prop="username">
-          </el-form-item>
+          <el-form-item label="用户名称" prop="username" />
         </el-form>
       </template>
       <template #footer>
