@@ -1,8 +1,7 @@
 <script lang="ts" setup>
 import dayjs from 'dayjs'
 import type { ComponentSize, FormInstance, FormRules } from 'element-plus'
-import { type UserQuery, addUser, deleteUser, getDepartmentList, getRoleList, getUsers, updateUser } from '~/composables/api/account'
-import UserAvatar from '~/components/personal/UserAvatar.vue'
+import { type UserQuery, addUser, deleteUser, getDepartmentList, getDictList, getRoleList, getUsers, updateUser } from '~/composables/api/account'
 import UserUploadAvatar from '~/components/personal/UserUploadAvatar.vue'
 
 definePageMeta({
@@ -58,14 +57,7 @@ onMounted(fetchData)
 async function fetchData() {
   formLoading.value = true
 
-  const query: Record<string, any> = {
-    page: users.value.meta.currentPage,
-    pageSize: users.value.meta.itemsPerPage,
-    username: formInline.user,
-    email: formInline.email,
-    phone: formInline.phone,
-    remark: formInline.remark,
-    deptId: formInline.deptId,
+  const query: any = {}
   }
 
   // 过滤掉为空的值
@@ -74,15 +66,13 @@ async function fetchData() {
       delete query[key]
   })
 
-  const res: any = (await getUsers(query))
+  const res: any = (await getDictList(query))
   if (!res) {
     ElMessage.warning('参数错误，查询失败！')
   }
   else {
     if (res.code === 200) {
-      depts.value = (await getDepartmentList()).data
-
-      users.value = res.data
+      depts.value = res.data
     }
   }
 
@@ -100,7 +90,7 @@ function formatDate(date: string) {
 const dialogOptions = reactive<{
   visible: boolean
   mode: 'edit' | 'read' | 'new'
-  data: UserForm | null
+  data: any | null
   loading: boolean
 }>({
   visible: false,
@@ -109,20 +99,22 @@ const dialogOptions = reactive<{
   loading: false,
 })
 
-function handleDialog(data: Partial<any>, mode: 'edit' | 'read' | 'new') {
+function handleDialog(data: any | null, mode: 'edit' | 'read' | 'new') {
   dialogOptions.mode = mode
   dialogOptions.visible = true
   dialogOptions.data = (mode === 'new'
     ? {
-
+    
       }
-    : { ...data }) as UserForm
+    : { ...data }) as any
+
   dialogOptions.data.deptId = dialogOptions.data.dept?.id ?? 0
 }
 
 const ruleFormRef = ref<FormInstance>()
 
 const rules = reactive<FormRules<any>>({
+
 })
 
 async function submitForm(formEl: FormInstance | undefined) {
@@ -232,7 +224,6 @@ function filterNode(value: string, data: any) {
         <el-form-item label="用户名">
           <el-input v-model="formInline.user" minlength="4" placeholder="搜索用户名" clearable />
         </el-form-item>
-
         <el-form-item style="margin-right: 0" float-right>
           <el-button @click="handleReset">
             重置
@@ -241,27 +232,24 @@ function filterNode(value: string, data: any) {
             查询
           </el-button>
           <el-button type="success" @click="handleDialog(null, 'new')">
-            新建字典
+            新建字典管理
           </el-button>
         </el-form-item>
       </el-form>
 
       <ClientOnly>
-        <el-table v-if="depts?.items" :data="depts.items" style="width: 100%">
-          <el-table-column prop="创建者" label="creator" />
-          <el-table-column prop="更新者" label="updater" />
-          <el-table-column prop="名字" label="status" />
-          <el-table-column prop="code" label="code" />
-          <el-table-column prop="status" label="status" />
-          <el-table-column prop="remark" label="remark" />
-          <el-table-column prop="创建日期" label="createdAt" />
-          <el-table-column prop="更改日期" label="updatedAt" />
+        <el-table v-if="users?.items" :data="users.items" style="width: 100%">
+        <el-table-column prop="创建者" label="creator" width="180" />
+        <el-table-column prop="更新者" label="Name" width="180" />
+        <el-table-column prop="name" label="Name" width="180" />
+        <el-table-column prop="name" label="Name" width="180" />
+        <el-table-column prop="name" label="Name" width="180" />
+        <el-table-column prop="name" label="Name" width="180" />
         </el-table>
-
         <el-pagination
-          v-if="depts?.meta" v-model:current-page="depts.meta.currentPage"
-          v-model:page-size="depts.meta.itemsPerPage" float-right my-4 :page-sizes="[10, 30, 50, 100]"
-          layout="total, sizes, prev, pager, next, jumper" :total="depts.meta.totalItems" @change="fetchData"
+          v-if="users?.meta" v-model:current-page="users.meta.currentPage"
+          v-model:page-size="users.meta.itemsPerPage" float-right my-4 :page-sizes="[10, 30, 50, 100]"
+          layout="total, sizes, prev, pager, next, jumper" :total="users.meta.totalItems" @change="fetchData"
         />
       </ClientOnly>
     </el-main>
@@ -281,54 +269,8 @@ function filterNode(value: string, data: any) {
           :disabled="dialogOptions.loading || dialogOptions.mode === 'read'" style="max-width: 600px"
           :model="dialogOptions.data" :rules="rules" label-width="auto" class="demo-ruleForm" status-icon
         >
-          <el-form-item label="用户头像" prop="avatar">
-            <UserUploadAvatar
-              v-model="dialogOptions.data.avatar"
-              :disabled="dialogOptions.loading || dialogOptions.mode === 'read'"
-            />
-          </el-form-item>
+
           <el-form-item label="用户名称" prop="username">
-            <el-input v-model="dialogOptions.data.username" :disabled="dialogOptions.mode !== 'new'" />
-          </el-form-item>
-          <el-form-item label="用户昵称" prop="nickname">
-            <el-input v-model="dialogOptions.data.nickname" />
-          </el-form-item>
-          <el-form-item label="用户密码" prop="nickname">
-            <el-input v-model="dialogOptions.data.password" :disabled="dialogOptions.mode !== 'new'" type="password" />
-          </el-form-item>
-          <el-form-item label="用户邮箱" prop="email">
-            <el-input v-model="dialogOptions.data.email" />
-          </el-form-item>
-          <el-form-item label="QQ" prop="qq">
-            <el-input v-model="dialogOptions.data.qq" />
-          </el-form-item>
-          <el-form-item label="用户手机号" prop="phone">
-            <el-input v-model="dialogOptions.data.phone" />
-          </el-form-item>
-          <el-form-item label="用户部门" prop="dept">
-            <el-tree-select
-              v-model="dialogOptions.data.deptId" :default-expand-all="true"
-              :highlight-current="true" node-key="id" :check-on-click-node="true"
-              :props="defaultProps" :data="depts" :render-after-expand="false"
-            />
-          </el-form-item>
-          <el-form-item label="用户角色" prop="roles">
-            <el-select v-model="dialogOptions.data.roleIds" multiple placeholder="请选择角色">
-              <el-option v-for="item in roles.items" :key="item.id" :label="item.name" :value="item.id" />
-            </el-select>
-          </el-form-item>
-          <el-form-item label="用户状态" prop="status">
-            <el-radio-group v-model="dialogOptions.data.status">
-              <el-radio-button :value="0">
-                已禁用
-              </el-radio-button>
-              <el-radio-button :value="1">
-                未禁用
-              </el-radio-button>
-            </el-radio-group>
-          </el-form-item>
-          <el-form-item label="用户备注" prop="remark">
-            <el-input v-model="dialogOptions.data.remark" type="textarea" />
           </el-form-item>
         </el-form>
       </template>
@@ -358,5 +300,8 @@ function filterNode(value: string, data: any) {
 
 <style lang="scss">
 .CmsUser {
+  .el-aside {
+    border-right: 1px solid var(--el-border-color);
+  }
 }
 </style>
