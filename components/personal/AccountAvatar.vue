@@ -45,9 +45,11 @@ const menus = reactive([
     icon: 'i-carbon-close-large',
     label: '退出登录',
     show: true,
-    click: () => {
+    click: async () => {
       userStore.value.token = ''
       userStore.value.subscription = null
+
+      await router.push('/')
 
       location.reload()
     },

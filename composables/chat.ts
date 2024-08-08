@@ -840,6 +840,45 @@ export function deserializeMsgType(type: number) {
   }
 }
 
+export interface PromptQueryDto extends Record<string, any> {
+  page?: number
+  pageSize?: number
+  /**
+   * 标题
+   */
+  title?: string
+}
+
+export interface PromptEntityDto {
+  /**
+   * 提示词头像
+   */
+  avatar: null | string
+  /**
+   * 提示文本
+   */
+  content: string
+  createdAt: Date
+  /**
+   * 创建者
+   */
+  creator: any
+  id: number
+  /**
+   * 提示词标题
+   */
+  title: string
+  updatedAt: Date
+  /**
+   * 更新者
+   */
+  updater: any
+  /**
+   * 使用记录
+   */
+  usages: any[]
+}
+
 export class ChatAdminManager {
   list(query: ChatLogQueryDto) {
     return endHttp.get('aigc/chat_log', query)
@@ -858,6 +897,10 @@ export class ChatAdminManager {
       endDate,
       userId,
     })
+  }
+
+  async promptList(dto: PromptQueryDto) {
+    return endHttp.post('aigc/prompts/list', dto)
   }
 }
 
