@@ -63,7 +63,7 @@ function handleCreate() {
   return true
 }
 
-async function handleSend(query: string) {
+async function handleSend(query: string, _meta: any) {
   const format = genFormatNowDate()
 
   let genTitle: any = async (_index: number) => void 0
@@ -87,6 +87,7 @@ async function handleSend(query: string) {
   const meta = {
     model: chatManager.messages.value.model,
     tools: inputProperty.internet,
+    templateId: _meta?.template,
   }
 
   conversation.messages.push({
@@ -157,6 +158,7 @@ provide('pageOptions', pageOptions)
         @cancel="chatManager.cancelCurrentReq()"
       />
       <ThInput
+        :template-enable="!chatManager.messages.value.messages.length"
         :status="chatManager.messages.value?.status ?? Status.AVAILABLE"
         :hide="pageOptions.share.enable || roundLimit" @send="handleSend"
       />

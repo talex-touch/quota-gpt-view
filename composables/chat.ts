@@ -36,6 +36,8 @@ export interface ChatCompletionDto {
   generateTitle: boolean
 
   generateSummary: number
+
+  templateId: number
 }
 
 export interface CompletionItem {
@@ -78,6 +80,7 @@ export interface ChatCompletion {
     generating: boolean
   }
   status: Status
+  templateId?: number
 }
 
 export interface Mask {
@@ -470,6 +473,7 @@ export class ChatManager {
       mask: data.mask,
       model: data.model,
       status: data.status,
+      templateId: data.templateId,
     }
 
     Object.entries(meta).forEach(([key, value]) => {
@@ -590,6 +594,9 @@ export class ChatManager {
         callback?.onReqCompleted?.()
       }, 200)
     }
+
+    if (!conversation.templateId && options.templateId !== -1)
+      conversation.templateId = options.templateId
 
     // TODO: abort
     await useChatExecutor(

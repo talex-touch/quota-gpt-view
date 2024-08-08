@@ -186,7 +186,7 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeyDown))
 
 .ThInputAt {
   .el-scrollbar__bar.is-vertical {
-    width: 2px;
+    width: 3px;
   }
 
   &.show {
@@ -205,6 +205,6 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeyDown))
   box-shadow: var(--el-box-shadow);
   transform: translateY(10%) scale(0);
   background-color: var(--el-bg-color);
-  transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+  transition: 0.25s cubic-bezier(0.785, 0.135, 0.15, 0.86);
 }
 </style>

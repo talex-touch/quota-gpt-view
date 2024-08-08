@@ -7,15 +7,16 @@ import { Status } from '~/composables/chat'
 const props = defineProps<{
   status: Status
   hide: boolean
+  templateEnable: boolean
 }>()
 const emits = defineEmits<{
-  (name: 'send', data: any): void
+  (name: 'send', data: any, meta: any): void
   (name: 'clear'): void
 }>()
 
 const input = ref('')
 const template = ref<any>({})
-const nonPlusMode = computed(() => !template.value?.title && (input.value.startsWith('/') || input.value.startsWith('@')))
+const nonPlusMode = computed(() => props.templateEnable && !template.value?.title && (input.value.startsWith('/') || input.value.startsWith('@')))
 
 const inputHistories = useLocalStorage<string[]>('inputHistories', [])
 const inputHistoryIndex = ref(inputHistories.value.length - 1)
@@ -41,7 +42,9 @@ function handleSend(event: Event) {
 
   inputHistoryIndex.value = inputHistories.value.length - 1
 
-  emits('send', input.value)
+  emits('send', input.value, {
+    template: template.value?.id || -1,
+  })
 
   input.value = ''
 }
@@ -164,6 +167,7 @@ function handleTemplateSelect(data: any) {
     </div>
 
     <InputAddonThInputAt
+      v-if="templateEnable"
       :input="input" :show="!template?.title && input.startsWith('@')"
       @select="handleTemplateSelect"
     />
@@ -172,7 +176,11 @@ function handleTemplateSelect(data: any) {
 
     <div flex class="ThInput-Input">
       <div v-if="template.content" class="ThInput-InputHeader">
-        {{ template.content }}
+        <el-scrollbar>
+          <div class="ThInput-InputHeader-Main">
+            {{ template.content }}
+          </div>
+        </el-scrollbar>
       </div>
 
       <div flex items-center class="ThInput-InputMain">
@@ -211,6 +219,7 @@ function handleTemplateSelect(data: any) {
 
 .ThInput-Float {
   span.tag {
+    z-index: -1;
     position: relative;
     padding: 0.25rem 0.5rem;
 
@@ -220,8 +229,8 @@ function handleTemplateSelect(data: any) {
     font-size: 14px;
 
     border-radius: 8px;
-    box-shadow: var(--el-box-shadow-dark);
-    background: var(--el-mask-color-extra-light);
+    box-shadow: var(--el-box-shadow);
+    background: var(--el-bg-color);
   }
 
   & > div {
@@ -241,7 +250,7 @@ function handleTemplateSelect(data: any) {
   align-items: center;
   justify-content: space-between;
 
-  top: -50px;
+  bottom: -35px;
   left: 0;
 
   width: 100%;
@@ -385,12 +394,20 @@ function handleTemplateSelect(data: any) {
       background: var(--el-bg-color);
       border: 1px solid var(--el-border-color);
     }
+    :deep(.el-scrollbar__bar.is-vertical) {
+      width: 3px;
+    }
+    .ThInput-InputHeader-Main {
+      padding-right: 0.5rem;
+
+      max-height: 100px;
+    }
     position: relative;
     padding: 0.5rem 0.5rem;
 
     width: 100%;
 
-    overflow: hidden;
+    // overflow: hidden;
     // border-radius: 12px 12px 0 0;
   }
 
