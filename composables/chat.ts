@@ -34,6 +34,8 @@ export interface ChatCompletionDto {
   tools: boolean
 
   generateTitle: boolean
+
+  generateSummary: number
 }
 
 export interface CompletionItem {
@@ -334,7 +336,12 @@ export async function useChatExecutor(context: ChatCompletion, callback: (data: 
 
   async function _func() {
     try {
-      const res = await $fetch<ReadableStream>(`${globalOptions.getEndsUrl()}api/aigc/executor${userStore.value.token ? `/authorized?uid=${userStore.value.id}` : ''}`, {
+      let url = ''
+      if (userStore.value.token && options.generateSummary !== 0)
+        url = `${globalOptions.getEndsUrl()}api/aigc/executor/completion?uid=${userStore.value.id}`
+      else url = `${globalOptions.getEndsUrl()}api/aigc/executor${userStore.value.token ? `/authorized?uid=${userStore.value.id}` : ''}`
+
+      const res = await $fetch<ReadableStream>(url, {
         method: 'POST',
         responseType: 'stream',
         headers: {
@@ -403,7 +410,7 @@ export class ChatManager {
           this.history.value.push(...leftHistory)
 
           // 移除localHistory中所有sync true
-          this.history.value = this.history.value.filter((item: any) => !item.sync)
+          localHistory.value = this.history.value = this.history.value.filter((item: any) => !item.sync)
 
           console.warn('left histories', localHistory.value.length, this.history.value.length)
 
@@ -853,30 +860,32 @@ export interface PromptEntityDto {
   /**
    * 提示词头像
    */
-  avatar: null | string
+  avatar?: string
   /**
    * 提示文本
    */
-  content: string
-  createdAt: Date
+  content?: string
+  createdAt?: Date
   /**
    * 创建者
    */
-  creator: any
-  id: number
+  creator?: any
+  id?: number
   /**
    * 提示词标题
    */
-  title: string
-  updatedAt: Date
+  title?: string
+  updatedAt?: Date
   /**
    * 更新者
    */
-  updater: any
+  updater?: any
   /**
    * 使用记录
    */
-  usages: any[]
+  usages?: any[]
+
+  status?: number
 }
 
 export class ChatAdminManager {
@@ -901,6 +910,14 @@ export class ChatAdminManager {
 
   async promptList(dto: PromptQueryDto) {
     return endHttp.post('aigc/prompts/list', dto)
+  }
+
+  async createTemplate(dto: PromptEntityDto) {
+    return endHttp.post('aigc/prompts', dto)
+  }
+
+  async updateTemplate(id: string, dto: PromptEntityDto) {
+    return endHttp.put(`aigc/prompts/${id}`, dto)
   }
 }
 

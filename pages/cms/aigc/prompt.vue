@@ -1,7 +1,10 @@
 <script lang="ts" setup>
-import dayjs from 'dayjs'
-import type { ComponentSize, FormInstance, FormRules } from 'element-plus'
+import type { FormInstance, FormRules } from 'element-plus'
 import UserAvatar from '~/components/personal/UserAvatar.vue'
+import UserUploadAvatar from '~/components/personal/UserUploadAvatar.vue'
+import { $completion } from '~/composables/completion/init'
+import StandardPrompt from '~/composables/completion/standard-prompt.txt?raw'
+import RenderContentOld from '~/components/render/RenderContentOld.vue'
 
 definePageMeta({
   name: 'PromptTemplate管理',
@@ -24,6 +27,7 @@ const prompts = ref({
   },
 })
 
+const PromptEngineer = ref(`\`\`\`markdown\n${StandardPrompt} \n\`\`\``)
 const formInline = reactive({
   title: '',
 })
@@ -66,12 +70,54 @@ const dialogOptions = reactive<{
   mode: 'edit' | 'read' | 'new'
   data: PromptEntityDto | null
   loading: boolean
+  meta: {
+    stashContent: string
+    polish: boolean
+    translation: boolean
+    dialog: boolean
+  }
 }>({
   visible: false,
   mode: 'edit',
   data: null,
   loading: false,
+  meta: {
+    stashContent: '',
+    polish: false,
+    translation: false,
+    dialog: false,
+  },
 })
+
+async function polishContent(type: number) {
+  if (!dialogOptions.data?.content)
+    return
+
+  const completion = $completion.v1.createCompletion($completion.v1.createEmptyHistoryWithInput(dialogOptions.data?.content))
+
+  completion.registerHandler({
+    onCompletionStart() {
+      dialogOptions.loading = true
+    },
+    onCompletion() {
+      dialogOptions.meta.stashContent = completion.tempMessage.content
+
+      return false
+    },
+    onReqCompleted() {
+      if (type === 1)
+        dialogOptions.meta.polish = true
+      else if (type === 2)
+        dialogOptions.meta.translation = true
+
+      dialogOptions.loading = false
+    },
+  })
+
+  await completion.send({
+    generateSummary: type + 1,
+  })
+}
 
 function handleDialog(data: PromptEntityDto | null, mode: 'edit' | 'read' | 'new') {
   dialogOptions.mode = mode
@@ -79,25 +125,30 @@ function handleDialog(data: PromptEntityDto | null, mode: 'edit' | 'read' | 'new
   dialogOptions.data = (mode === 'new'
     ? {
         id: '',
-        email: '',
-        username: '',
-        nickname: '',
         avatar: '',
-        qq: '',
-        phone: '',
-        status: 1,
-        remark: '',
-        roles: [],
+        content: '',
+        title: '',
       }
     : { ...data }) as PromptEntityDto
+
+  dialogOptions.meta.stashContent = ''
+  dialogOptions.meta.polish = false
+  dialogOptions.meta.translation = false
 }
 
 const ruleFormRef = ref<FormInstance>()
 
 const rules = reactive<FormRules<PromptEntityDto>>({
   title: [
-    { required: true, message: '请输入用户名称', trigger: 'blur' },
-    { min: 5, max: 24, message: '用户名需要在 5-24 位之间', trigger: 'blur' },
+    { required: true, message: '请输入模板标题', trigger: 'blur' },
+    { min: 5, max: 255, message: '模板标题需要在 5-255 位之间', trigger: 'blur' },
+  ],
+  content: [
+    { required: true, message: '请输入模板内容', trigger: 'blur' },
+    { min: 200, max: 1024, message: '模板内容需要在 200-1024 位之间', trigger: 'blur' },
+  ],
+  avatar: [
+    { required: true, message: '请上传头像', trigger: 'blur' },
   ],
 })
 
@@ -110,30 +161,30 @@ async function submitForm(formEl: FormInstance | undefined) {
 
     dialogOptions.loading = true
 
-    // if (dialogOptions.mode !== 'new') {
-    //   const res: any = await updateUser(dialogOptions.data!.id!, dialogOptions.data as PromptEntityDto)
+    if (dialogOptions.mode !== 'new') {
+      const res: any = await chatAdminManager.updateTemplate(`${dialogOptions.data!.id!}`, dialogOptions.data as PromptEntityDto)
 
-    //   if (res.code === 200) {
-    //     ElMessage.success('修改成功！')
-    //     dialogOptions.visible = false
-    //     fetchData()
-    //   }
-    //   else {
-    //     ElMessage.error(res.message ?? '修改失败！')
-    //   }
-    // }
-    // else {
-    //   const res: any = await addUser(dialogOptions.data as PromptEntityDto)
+      if (res.code === 200) {
+        ElMessage.success('修改成功！')
+        dialogOptions.visible = false
+        fetchData()
+      }
+      else {
+        ElMessage.error(res.message ?? '修改失败！')
+      }
+    }
+    else {
+      const res: any = await chatAdminManager.createTemplate(dialogOptions.data as PromptEntityDto)
 
-    //   if (res.code === 200) {
-    //     ElMessage.success('添加成功！')
-    //     dialogOptions.visible = false
-    //     fetchData()
-    //   }
-    //   else {
-    //     ElMessage.error(res.message ?? '添加失败！')
-    //   }
-    // }
+      if (res.code === 200) {
+        ElMessage.success('添加成功！')
+        dialogOptions.visible = false
+        fetchData()
+      }
+      else {
+        ElMessage.error(res.message ?? '添加失败！')
+      }
+    }
 
     dialogOptions.loading = false
   })
@@ -195,51 +246,43 @@ function handleDeleteUser(id: number, data: PromptEntityDto) {
             查询
           </el-button>
           <el-button type="success" @click="handleDialog(null, 'new')">
-            新建用户
+            新建模板
           </el-button>
         </el-form-item>
       </el-form>
 
       <ClientOnly>
         <el-table v-if="prompts?.items" :data="prompts.items" style="width: 100%">
-          <el-table-column type="index" label="序号" width="60" />
-          <el-table-column prop="date" label="头像" width="80">
+          <el-table-column type="index" label="序号" />
+          <el-table-column label="头像">
             <template #default="scope">
               <UserAvatar :avatar="scope.row.avatar" />
             </template>
           </el-table-column>
-          <el-table-column prop="username" label="用户名(昵称)" width="240">
+          <el-table-column label="标题">
             <template #default="{ row }">
-              {{ row.username }}<span op-50>({{ row.nickname }})</span>
+              {{ row.title }}
             </template>
           </el-table-column>
-          <el-table-column prop="email" label="邮箱" width="180" />
-          <el-table-column prop="department" label="部门" width="180">
+          <el-table-column label="正文字数">
             <template #default="{ row }">
-              <el-tag v-if="row.dept">
-                {{ row.dept.name }}
+              {{ row.content.length }}字
+            </template>
+          </el-table-column>
+          <el-table-column prop="status" label="状态">
+            <template #default="{ row }">
+              <el-tag v-if="row.status === 0" type="warning">
+                等待审核
               </el-tag>
-              <span v-else>无</span>
-            </template>
-          </el-table-column>
-          <el-table-column prop="phone" label="手机号" width="180" />
-          <el-table-column prop="role" label="角色" width="180">
-            <template #default="{ row }">
-              <span v-if="row.roles?.length">
-                <el-tag v-for="role in row.roles" :key="role.id"> {{ role.name }}</el-tag>
-              </span>
-              <span v-else>无</span>
-            </template>
-          </el-table-column>
-          <el-table-column prop="status" label="状态" width="180">
-            <template #default="scope">
-              <el-tag :type="scope.row.status === 1 ? 'success' : 'danger'">
-                {{ scope.row.status === 1 ? '启用' : '禁用' }}
+              <el-tag v-else-if="row.status === 1" type="success">
+                已通过
+              </el-tag>
+              <el-tag v-else-if="row.status === 2" type="danger">
+                未通过
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column prop="remark" label="备注" width="180" />
-          <el-table-column prop="createdAt" label="创建时间" width="180">
+          <el-table-column prop="createdAt" label="创建时间">
             <template #default="scope">
               {{ formatDate(scope.row.createdAt) }}
             </template>
@@ -249,15 +292,25 @@ function handleDeleteUser(id: number, data: PromptEntityDto) {
               {{ formatDate(scope.row.updatedAt) }}
             </template>
           </el-table-column>
+          <el-table-column label="最后更新">
+            <template #default="{ row }">
+              <PersonalNormalUser :data="row.updater" />
+            </template>
+          </el-table-column>
+          <el-table-column label="创建者">
+            <template #default="{ row }">
+              <PersonalNormalUser :data="row.creator" />
+            </template>
+          </el-table-column>
           <el-table-column fixed="right" label="操作" width="200">
             <template #default="{ row }">
               <el-button plain text size="small" @click="handleDialog(row, 'read')">
                 详情
               </el-button>
-              <el-button plain text size="small" type="warning" @click="handleDialog(row, 'edit')">
+              <el-button :disabled="true" plain text size="small" type="warning" @click="handleDialog(row, 'edit')">
                 编辑
               </el-button>
-              <el-button plain text size="small" type="danger" @click="handleDeleteUser(row.id, row)">
+              <el-button :disabled="true" plain text size="small" type="danger" @click="handleDeleteUser(row.id, row)">
                 删除
               </el-button>
             </template>
@@ -272,63 +325,109 @@ function handleDeleteUser(id: number, data: PromptEntityDto) {
       </ClientOnly>
     </el-main>
 
-    <el-drawer v-model="dialogOptions.visible" :close-on-click-modal="false" :close-on-press-escape="false">
+    <el-drawer v-model="dialogOptions.visible" size="50%" :close-on-click-modal="false" :close-on-press-escape="false">
       <template #header>
         <h4>
           <span v-if="dialogOptions.mode === 'new'">新建</span>
           <span v-else-if="dialogOptions.mode === 'edit'">编辑</span>
-          <span v-else-if="dialogOptions.mode === 'read'">查看</span>用户信息<span v-if="dialogOptions.data" mx-4 op-50>#{{
+          <span v-else-if="dialogOptions.mode === 'read'">查看</span>模板信息<span v-if="dialogOptions.data" mx-4 op-50>#{{
             dialogOptions.data.id }}</span>
         </h4>
       </template>
       <template #default>
         <el-form
           v-if="dialogOptions.data" ref="ruleFormRef"
-          :disabled="dialogOptions.loading || dialogOptions.mode === 'read'" style="max-width: 600px"
+          :disabled="dialogOptions.loading || dialogOptions.mode === 'read'" style="max-width: 1280px"
           :model="dialogOptions.data" :rules="rules" label-width="auto" status-icon
         >
-          <!-- <el-form-item label="用户头像" prop="avatar">
+          <el-form-item label="模板头像" prop="avatar">
             <UserUploadAvatar
-              v-model="dialogOptions.data.avatar"
+              v-model="dialogOptions.data.avatar!"
               :disabled="dialogOptions.loading || dialogOptions.mode === 'read'"
             />
           </el-form-item>
-          <el-form-item label="用户名称" prop="username">
-            <el-input v-model="dialogOptions.data.username" :disabled="dialogOptions.mode !== 'new'" />
+          <el-form-item v-if="dialogOptions.data && dialogOptions.mode === 'read'" label="模板状态">
+            <el-tag v-if="dialogOptions.data.status === 0" type="warning">
+              等待审核
+            </el-tag>
+            <el-tag v-else-if="dialogOptions.data.status === 1" type="success">
+              已通过
+            </el-tag>
+            <el-tag v-else-if="dialogOptions.data.status === 2" type="danger">
+              未通过
+            </el-tag>
           </el-form-item>
-          <el-form-item label="用户昵称" prop="nickname">
-            <el-input v-model="dialogOptions.data.nickname" />
+          <el-form-item label="模板标题" prop="title">
+            <el-input v-model="dialogOptions.data.title" :maxlength="255" :disabled="dialogOptions.mode !== 'new'" />
           </el-form-item>
-          <el-form-item label="用户密码" prop="nickname">
-            <el-input v-model="dialogOptions.data.password" :disabled="dialogOptions.mode !== 'new'" type="password" />
+          <el-form-item label="模板内容" prop="content">
+            <el-input
+              v-model="dialogOptions.data.content" show-word-limit :maxlength="1024"
+              :autosize="{ minRows: 5, maxRows: 30 }" type="textarea"
+            />
           </el-form-item>
-          <el-form-item label="用户邮箱" prop="email">
-            <el-input v-model="dialogOptions.data.email" />
+          <el-form-item v-if="dialogOptions.mode !== 'read'" label="模板须知" prop="agreement">
+            <ul>
+              <li>1.当您完成攥写后请依次点击"润色"，"翻译"按钮</li>
+              <li>2.系统AI会自动将您的模板进行润色翻译调整</li>
+              <li>3.如果您不满意效果可以进行微调</li>
+              <li>4.请您仔细核验AI生成的内容，如果存在违规会自动审核失败</li>
+              <li>5.如果您发现AI生成的内容违规，请及时联系管理员</li>
+              <li>6.您可以在模板中穿插以下变量：{{ `\{\{ history \}\}` }}, {{ `\{\{ input \}\}` }}, {{ `\{\{ memory \}\}` }}</li>
+            </ul>
           </el-form-item>
-          <el-form-item label="QQ" prop="qq">
-            <el-input v-model="dialogOptions.data.qq" />
+          <el-form-item v-if="dialogOptions.mode !== 'read'" label="操作按钮">
+            <el-button
+              :loading="dialogOptions.loading" :disabled="dialogOptions.data.content!.length < 200"
+              @click="polishContent(0)"
+            >
+              润色
+            </el-button>
+            <el-button
+              :loading="dialogOptions.loading" :disabled="dialogOptions.data.content!.length < 200"
+              @click="polishContent(1)"
+            >
+              翻译
+            </el-button>
+            <el-button
+              :loading="dialogOptions.loading" :disabled="!dialogOptions.meta.stashContent!.length"
+              @click="dialogOptions.data.content = dialogOptions.meta.stashContent!"
+            >
+              接受
+            </el-button>
           </el-form-item>
-          <el-form-item label="用户手机号" prop="phone">
-            <el-input v-model="dialogOptions.data.phone" />
+          <el-form-item v-if="dialogOptions.mode !== 'read'" label="翻译润色" prop="content">
+            <el-input
+              v-model="dialogOptions.meta.stashContent" :disabled="true" show-word-limit :maxlength="1024"
+              :autosize="{ minRows: 5, maxRows: 30 }" type="textarea"
+            />
           </el-form-item>
-          <el-form-item label="用户角色" prop="roles">
-            <el-select v-model="dialogOptions.data.roleIds" multiple placeholder="请选择角色">
-              <el-option v-for="item in roles.items" :key="item.id" :label="item.name" :value="item.id" />
-            </el-select>
+
+          <el-form-item v-if="dialogOptions.mode !== 'read'" label="提交须知" prop="agreement">
+            <ul>
+              <li>1.您的提示词需要为英文格式</li>
+              <li>2.您的提示词需要保证清晰明了，不能包含任何恶意内容</li>
+              <li>3.提示词必须至少200字以保证模板效果</li>
+              <li>4.请您在提交之前仔细核验变量</li>
+              <li>5.提交后，您的模板将会进入审核流程，审核通过后，您的模板将会在模板市场中展示</li>
+            </ul>
           </el-form-item>
-          <el-form-item label="用户状态" prop="status">
-            <el-radio-group v-model="dialogOptions.data.status">
-              <el-radio-button :value="0">
-                已禁用
-              </el-radio-button>
-              <el-radio-button :value="1">
-                未禁用
-              </el-radio-button>
-            </el-radio-group>
+
+          <el-form-item v-if="dialogOptions.mode !== 'read'" label="参考Prompt" prop="agreement">
+            <span>
+              I want you to act as a prompt generator. Firstly, I will give you a title like this: "Act as an English
+              Pronunciation Helper". Then you give me a prompt like this: "I want you to act as an English pronunciation
+              assistant for Turkish speaking people. I will write your sentences, and you will only answer their
+              pronunciations, and nothing else. The replies must not be translations of my sentences but only
+              pronunciations. Pronunciations should use Turkish Latin letters for phonetics. Do not write explanations
+              on replies. My first sentence is "how the weather is in Istanbul?"." (You should adapt the sample prompt
+              according to the title I gave. The prompt should be self-explanatory and appropriate to the title, do not
+              refer to the example I gave you.). My first title is "提示词功能" (Give me prompt only)<el-link
+                mx-2
+                type="primary" @click="dialogOptions.meta.dialog = true"
+              >Prompt工程师参考</el-link>
+            </span>
           </el-form-item>
-          <el-form-item label="用户备注" prop="remark">
-            <el-input v-model="dialogOptions.data.remark" placeholder="请输入备注..." type="textarea" />
-          </el-form-item> -->
         </el-form>
       </template>
       <template #footer>
@@ -345,12 +444,50 @@ function handleDeleteUser(id: number, data: PromptEntityDto) {
             <el-button @click="resetForm(ruleFormRef)">
               重置
             </el-button>
-            <el-button :loading="dialogOptions.loading" type="primary" @click="submitForm(ruleFormRef)">
+            <el-button
+              :disabled="!dialogOptions.meta.polish && dialogOptions.meta.translation"
+              :loading="dialogOptions.loading" type="primary" @click="submitForm(ruleFormRef)"
+            >
               {{ dialogOptions.mode !== 'new' ? "修改" : "新增" }}
             </el-button>
           </template>
         </div>
       </template>
+    </el-drawer>
+
+    <el-drawer
+      v-model="dialogOptions.meta.dialog" size="50%" :close-on-click-modal="false"
+      :close-on-press-escape="false" direction="ltr"
+    >
+      <template #header>
+        <h4>
+          标准 PromptEngineer 格式参考
+        </h4>
+      </template>
+      <el-tabs>
+        <el-tab-pane label="PromptEngineer">
+          <RenderContentOld readonly :data="PromptEngineer" />
+        </el-tab-pane>
+        <el-tab-pane label="External">
+          <div flex gap-2>
+            <el-link target="_blank" href="https://prompt-shortcut.writeathon.cn/">
+              WriteAthon
+            </el-link>
+            <el-link target="_blank" href="https://prompts.chat/">
+              Prompts
+            </el-link>
+            <el-link target="_blank" href="https://gpt.candobear.com/prompt">
+              CandoBear Prompts
+            </el-link>
+            <el-link target="_blank" href="https://github.com/langgptai/wonderful-prompts">
+              Wonderful Prompts(GitHub)
+            </el-link>
+            <el-link target="_blank" href="https://huggingface.co/spaces/merve/ChatGPT-prompt-generator">
+              Auto Prompt Generator(HuggingFace)
+            </el-link>
+          </div>
+        </el-tab-pane>
+      </el-tabs>
     </el-drawer>
   </el-container>
 </template>
