@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. TalexDreamSoul
+ * Copyright (c) 2024. TalexDreamSoul
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 
 import axios, { type CreateAxiosDefaults } from 'axios'
-import { EndNormalUrl } from '~/constants'
+import { globalOptions } from '~/constants'
 
 export function genAxios(options: CreateAxiosDefaults) {
   const $http = axios.create(options)
@@ -163,5 +163,5 @@ export function genAxios(options: CreateAxiosDefaults) {
 }
 
 export const endHttp = genAxios({
-  baseURL: `${EndNormalUrl}api`,
+  baseURL: `${globalOptions.getEndsUrl()}api`,
 })

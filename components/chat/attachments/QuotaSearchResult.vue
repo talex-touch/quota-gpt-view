@@ -66,6 +66,21 @@ const props = defineProps<{
   opacity: 0;
   animation: 0.25s var(--i) cubic-bezier(0.075, 0.82, 0.165, 1) reference-join
     forwards;
+
+  a {
+    display: inline;
+
+    white-space: pre-wrap;
+    word-break: break-all;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+
+    // max-width: 50%;
+  }
+
+  .mobile & {
+    margin: 0.25rem 0;
+  }
 }
 
 .QuotaSearchResult {
@@ -77,6 +92,7 @@ const props = defineProps<{
 
   width: max-content;
   height: max-content;
+  max-width: 100%;
 
   opacity: 0.25;
   font-size: 14px;

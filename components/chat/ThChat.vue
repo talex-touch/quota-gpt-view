@@ -24,6 +24,7 @@ const scrollbar = ref()
 
 const share: any = (inject('pageOptions')! as any).share
 const options = reactive({
+  backToTop: false,
   backToBottom: false,
   stopGenerating: false,
   share,
@@ -74,6 +75,14 @@ function handleScroll() {
     return
 
   const { scrollTop, scrollHeight, clientHeight } = scrollbarEl
+
+  // 如果滚动距离超过了一个屏幕
+  options.backToTop = false
+  if (scrollTop > window.innerWidth * 0.75) {
+    options.backToTop = true
+    return
+  }
+
   // const rect = scrollbarEl.getBoundingClientRect()
   // console.log(clientHeight, scrollTop, '|', scrollHeight, 'a', rect, scrollbarEl.parentElement.parentElement.clientHeight)
   if (Math.abs(clientHeight - scrollHeight) < 10) {
@@ -91,6 +100,15 @@ function handleBackToBottom(animation: boolean = true) {
   el.scrollTo({
     top: el.scrollHeight,
     behavior: animation ? 'smooth' : 'instant',
+  })
+}
+
+function handleBackToTop() {
+  const el: HTMLElement = scrollbar.value.wrapRef
+
+  el.scrollTo({
+    top: 0,
+    behavior: 'smooth',
   })
 }
 
@@ -124,7 +142,7 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
       <div class="ThChat-HeadBar" flex items-center gap-4>
         <TrSyncStatus :syncing="messages.syncing" :sync="messages.sync" />
         <TrChatTitle :title="messages.topic" />
-        <IconButton :shining="options.share.enable" :stay="true" @click="handleShare">
+        <IconButton class="only-pc-display" :shining="options.share.enable" :stay="true" @click="handleShare">
           <div i-carbon-share />
         </IconButton>
       </div>
@@ -136,6 +154,11 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
     </div>
 
     <div class="ThChat-Container" :class="{ stop: options.stopGenerating, backToBottom: options.backToBottom }">
+      <div :class="{ in: options.backToTop }" class="ToTop" @click="handleBackToTop">
+        <div i-carbon:arrow-up />
+        查看{{ messageBubbles.length }}条历史消息
+      </div>
+
       <el-scrollbar ref="scrollbar" @scroll="handleScroll">
         <div v-if="messages" class="ThChat-Container-Wrapper">
           <ChatItem
@@ -170,6 +193,36 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
 </template>
 
 <style lang="scss">
+.ToTop {
+  &.in {
+    transform: translateX(0);
+  }
+  z-index: 1;
+  position: absolute;
+  padding: 1rem 2rem 1rem 0.5rem;
+  display: flex;
+
+  top: 10%;
+  right: 0;
+
+  gap: 0.5rem;
+  align-items: center;
+
+  width: max-content;
+  height: 30px;
+
+  font-size: 1rem;
+  font-weight: bold;
+
+  cursor: pointer;
+  transform: translateX(120%);
+  border-radius: 16px 0 0 16px;
+  box-shadow: var(--el-box-shadow);
+  backdrop-filter: blur(18px) saturate(180%);
+  background-color: var(--theme-color-light);
+  transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+}
+
 .TrChat-RateLimit {
   &::before {
     content: '';
@@ -370,6 +423,9 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
     box-sizing: border-box;
 
     transform: translateX(-50%);
+    .mobile & {
+      width: 95%;
+    }
   }
 
   position: absolute;
@@ -383,6 +439,10 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
 
 .ThChat {
   &-Title {
+    .mobile & {
+      top: 2rem;
+    }
+
     & .model {
       position: absolute;
 

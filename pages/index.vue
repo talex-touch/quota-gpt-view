@@ -9,6 +9,7 @@ import { inputProperty } from '~/components/input/input'
 
 const chatRef = ref()
 const pageOptions = reactive<any>({
+  settingDialog: false,
   expand: true,
   select: -1,
   share: {
@@ -20,12 +21,14 @@ const pageOptions = reactive<any>({
   },
 })
 
-const roundLimit = computed(() => (!userStore.value?.token && ((chatManager.messages.value?.messages?.length) ?? 1) / 2 >= 10))
+const roundLimit = computed(() => (!userStore.value?.token && ((chatManager.messages.value?.messages?.length) ?? 1) >= 10))
 
 function handleDelete(index: number) {
   chatManager.deleteMessage(index)
 
   pageOptions.select = chatManager.history.value.length - 1
+
+  // handleCreate()
 }
 
 watch(
@@ -115,9 +118,11 @@ async function handleSend(query: string) {
     async onReqCompleted() {
       await genTitle(pageOptions.select)
 
-      setTimeout(() => {
-        chatManager.postTargetHistory(conversation)
-      }, 500)
+      if (userStore.value.token) {
+        setTimeout(() => {
+          chatManager.postTargetHistory(conversation)
+        }, 500)
+      }
     },
     onFrequentLimit() {
       chatManager.cancelCurrentReq()
@@ -148,8 +153,7 @@ provide('pageOptions', pageOptions)
       />
       <ThInput
         :status="chatManager.messages.value?.status ?? Status.AVAILABLE"
-        :hide="pageOptions.share.enable || roundLimit"
-        @send="handleSend"
+        :hide="pageOptions.share.enable || roundLimit" @send="handleSend"
       />
 
       <ShareSection
@@ -158,14 +162,30 @@ provide('pageOptions', pageOptions)
       />
 
       <div class="copyright">
-        ThisAI. 可能会犯错，生成的内容仅供参考。v24.07.30
+        ThisAI. 可能会犯错，生成的内容仅供参考。v24.08.08
         <span class="business">四川科塔锐行科技有限公司</span>
       </div>
+
+      <ChorePersonalDialog v-if="userStore.token" v-model="pageOptions.settingDialog" />
     </div>
   </div>
 </template>
 
 <style lang="scss">
+.mobile .copyright {
+  .business {
+    display: none;
+  }
+
+  position: absolute;
+
+  left: 50%;
+
+  bottom: 1rem;
+
+  transform: translateX(-50%) scale(0.75);
+}
+
 .PageContainer {
   &-Main {
     z-index: 2;
@@ -209,6 +229,7 @@ provide('pageOptions', pageOptions)
       filter: blur(18px);
       background-color: var(--el-bg-color);
     }
+
     z-index: 3;
   }
 
@@ -237,6 +258,8 @@ provide('pageOptions', pageOptions)
   font-size: 14px;
   text-align: center;
   transform: translateX(-50%);
+
+  mix-blend-mode: difference;
   // background: var(--el-bg-color-page);
 }
 </style>

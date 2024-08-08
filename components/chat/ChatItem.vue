@@ -160,8 +160,7 @@ function filterTools(item: any, total: number, ind: number) {
         </div>
         <div v-else ref="dom" :class="{ completed, display: !!item.content.length }" class="ChatItem-Content-Inner">
           <span v-if="item.role === 'user'">
-            {{ item.content }}
-            <!-- <pre></pre> -->
+            <pre v-text="item.content" />
           </span>
           <RenderContent v-else :render="settingMode.render" readonly :data="item.content" />
           <!-- v-if="generating && !!item.content.length" -->
@@ -372,6 +371,20 @@ function filterTools(item: any, total: number, ind: number) {
       border-radius: 16px;
     }
 
+    pre {
+      max-width: 100%;
+      overflow-wrap: break-word;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      word-break: break-all;
+
+      font-variant-ligatures: no-common-ligatures;
+      font-family: 'Helvetica Neue', 'Luxi Sans', 'DejaVu Sans',
+        'Hiragino Sans GB', 'Microsoft Yahei', sans-serif, 'Apple Color Emoji',
+        'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', 'Android Emoji',
+        'EmojiSymbols';
+    }
+
     position: relative;
     margin-top: 20px;
     padding: 0.5rem 1rem;
@@ -452,17 +465,21 @@ function filterTools(item: any, total: number, ind: number) {
     background-color: var(--el-bg-color-page);
     transition: 0.25s;
   }
-
   position: relative;
 
   width: max-content;
   max-width: 70%;
   min-width: 48px;
   height: max-content;
+
+  .mobile & {
+    max-width: 80%;
+  }
 }
 
 .ChatItem {
   &.user {
+    z-index: 2;
     .ChatItem-Avatar {
       display: none;
     }
@@ -474,7 +491,7 @@ function filterTools(item: any, total: number, ind: number) {
     width: 48px;
   }
 
-  z-index: 2;
+  z-index: 3;
   position: relative;
   display: flex;
   margin: 1rem 0;

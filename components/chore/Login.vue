@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import LoginCore from './login/LoginCore.vue'
-import { doAccountExist, sendSMSCode, useSMSLogin } from '~/composables/api/auth'
+import { Platform, getQrCodeStatus, postQrCodeReq, qrCodeLogin, sendSMSCode, useSMSLogin } from '~/composables/api/auth'
 import ThCheckBox from '~/components/checkbox/ThCheckBox.vue'
-
-
 
 const props = defineProps<{
   show: boolean
@@ -12,6 +10,9 @@ const props = defineProps<{
 const emits = defineEmits<{
   (e: 'modelValue:show'): void
 }>()
+
+const codeStatus = ref(0)
+let startTime = Date.now()
 
 function formatter(value: string) {
   // 移除所有非数字字符
@@ -64,6 +65,11 @@ function parser(input: string) {
 }
 
 const show = useVModel(props, 'show', emits)
+const codeData = useLocalStorage('code-data', {
+  expired: true,
+  lastFetch: -1,
+  data: {},
+})
 const data = reactive({
   mode: 'code',
   account: '',
@@ -107,7 +113,7 @@ async function handleLogin() {
   }
 
   // Internal Test
-  const res = await doAccountExist(phone)
+  // const res = await doAccountExist(phone)
   // if (!res.data) {
   //   ElMessage.error('请先通过内测资格后再登录使用！')
   //   return
@@ -137,7 +143,14 @@ function refreshSmsTitle() {
   }
 }
 
-onMounted(() => {
+watch(() => show.value, (val) => {
+  if (val)
+    startTime = Date.now()
+})
+
+onMounted(async () => {
+  data.agreement = localStorage.getItem('user') != null
+
   newCaptcha(CaptchaSceneId.Auth, '#captcha-element', '#captcha-button', {
     captchaVerifyCallback: async (param: string) => {
       const _res = {
@@ -180,7 +193,9 @@ onMounted(() => {
       }
       else {
         try {
-          const res = await useSMSLogin(data.account.replaceAll(' ', ''), data.code, param)
+          const state = (codeStatus.value !== 4 || codeData.value.expired) ? undefined : (codeData.value.data as any)?.loginCode
+
+          const res = await useSMSLogin(data.account.replaceAll(' ', ''), data.code, param, state)
           const result = await res.json()
           if (result.code !== 1002)
             _res.captchaResult = true
@@ -191,17 +206,22 @@ onMounted(() => {
             _res.bizResult = true
 
           if (result.code === 200) {
-            setTimeout(() => {
-              userStore.value.token = (result.data.token)
-
-              ElMessage.info('登录成功！')
-
-              show.value = false
-
+            if (!result.data) {
+              ElMessage.error(result.message)
+            }
+            else {
               setTimeout(() => {
-                location.reload()
+                userStore.value.token = (result.data.token)
+
+                ElMessage.info('登录成功！')
+
+                show.value = false
+
+                setTimeout(() => {
+                  location.reload()
+                }, 200)
               }, 200)
-            }, 200)
+            }
           }
 
           console.error(result)
@@ -217,7 +237,88 @@ onMounted(() => {
     },
     onBizResultCallback: () => void 0,
   })
+
+  if (document.body.classList.contains('mobile'))
+    return
+
+  await fetchCode()
+
+  codeStatusTimer()
 })
+
+async function fetchCode() {
+  let { lastFetch, data: _data, expired } = codeData.value
+
+  if (Date.now() - lastFetch >= 280000 || expired) {
+    codeData.value.lastFetch = Date.now()
+
+    const res: any = await postQrCodeReq(Platform.WECHAT)
+
+    if (res.code === 200) {
+      codeData.value.data = _data = res.data
+      codeData.value.expired = false
+    }
+  }
+}
+
+async function codeStatusTimer() {
+  if (userStore.value.token)
+    return
+
+  // 如果超过2分钟用户啥也没做就不要她登陆了 免得一直ddos后台
+  if (Date.now() - startTime >= 120000)
+    show.value = false
+
+  if (props.show)
+    await _codeStatusTimer()
+
+  setTimeout(codeStatusTimer, 2000)
+}
+
+async function _codeStatusTimer() {
+  const _codeData: any = codeData.value.data
+  if (!_codeData || !_codeData.loginCode)
+    return await fetchCode()
+
+  if (codeData.value.expired)
+    return
+
+  const { lastFetch, data: _data } = codeData.value
+  const res = await getQrCodeStatus(Platform.WECHAT, _codeData.loginCode)
+  if (res.data === null || Date.now() - lastFetch >= 280000) {
+    codeData.value.expired = true
+    codeStatus.value = 0
+    return
+  }
+
+  codeStatus.value = res.data
+}
+
+watch(() => codeStatus.value, async (status) => {
+  if (status !== 3)
+    return
+
+  const _codeData: any = codeData.value.data
+
+  const res: any = await qrCodeLogin(_codeData.loginCode)
+
+  localStorage.removeItem('code-data')
+
+  setTimeout(() => {
+    userStore.value.token = (res.data.token)
+
+    ElMessage.info('登录成功！')
+
+    show.value = false
+
+    setTimeout(() => {
+      location.reload()
+    }, 200)
+  }, 200)
+})
+
+// @ts-expect-error force exist
+const codeUrl = computed(() => `https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=${codeData.value.data?.ticket}`)
 </script>
 
 <template>
@@ -233,11 +334,13 @@ onMounted(() => {
       </div>
 
       <div class="Login-Main">
-        <div class="Login-Main-Major">
+        <div :class="{ bind: codeStatus === 4 }" class="Login-Main-Major">
           <p>手机登录</p>
 
           <div id="captcha-element" absolute />
           <button id="captcha-button" absolute />
+
+          <div class="indicator" />
 
           <el-form>
             <el-input v-model="data.account" maxlength="13" :parser="parser" :formatter="formatter" size="large">
@@ -247,7 +350,10 @@ onMounted(() => {
             </el-input>
             <el-input v-model="data.code" maxlength="6" size="large">
               <template #append>
-                <el-button v-wave :loading="smsOptions.loading" :disabled="smsOptions.disabled || data.account.length !== 13" @click="handleSendCode">
+                <el-button
+                  v-wave :loading="smsOptions.loading"
+                  :disabled="smsOptions.disabled || data.account.length !== 13" @click="handleSendCode"
+                >
                   {{ smsOptions.title }}
                 </el-button>
               </template>
@@ -257,10 +363,38 @@ onMounted(() => {
             </el-button>
           </el-form>
         </div>
-        <div class="Login-Main-Vice">
+        <div class="Login-Main-Vice only-pc-display">
           <p>微信扫码登录</p>
 
-          <el-image />
+          <div class="Login-Main-Vice-Wrapper">
+            <div v-if="!data.agreement" class="scanned">
+              <div i-carbon:list-checked />
+              <p>协议</p>
+              <span>你需要同意协议</span>
+            </div>
+            <div v-else-if="codeData.expired" cursor-pointer class="scanned" @click="fetchCode">
+              <div i-carbon:ibm-cloud-direct-link-1-dedicated />
+              <p>已过期</p>
+              <span>点击刷新验证码</span>
+            </div>
+            <div v-else-if="codeStatus === 4" class="scanned">
+              <div i-carbon:notification />
+              <p>需要绑定</p>
+              <span>请输入手机号进行绑定</span>
+            </div>
+            <div v-else-if="codeStatus === 3" class="scanned">
+              <div i-carbon:devices />
+              <p>正在登录</p>
+              <span>请稍等，正在登录...</span>
+            </div>
+            <div v-else-if="codeStatus !== 0" class="scanned">
+              <div i-carbon:checkmark-filled />
+              <p>已扫码</p>
+              <span>请在手机上确认登录</span>
+            </div>
+
+            <el-image style=" border-radius: 12px;" :src="codeUrl" />
+          </div>
         </div>
       </div>
 
@@ -272,6 +406,46 @@ onMounted(() => {
 </template>
 
 <style lang="scss">
+.Login-Main-Vice-Wrapper {
+  position: relative;
+
+  .scanned {
+    & > div {
+      width: 32px;
+      height: 32px;
+
+      // color: var(--el-color-success);
+    }
+
+    z-index: 1;
+    position: absolute;
+    padding: 1rem;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+
+    border-radius: 12px;
+    background: var(--el-overlay-color-lighter);
+    backdrop-filter: blur(5px);
+    color: white;
+    font-size: 14px;
+
+    & > div {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  }
+}
+
 .Login-Main-Major {
   .el-form {
     display: flex;
@@ -282,6 +456,98 @@ onMounted(() => {
   }
 
   width: 60%;
+}
+
+@keyframes arrow_shaving {
+  0%,
+  100% {
+    width: 60px;
+    transform: translateX(10px);
+  }
+
+  50% {
+    width: 50px;
+    transform: translateX(0px);
+  }
+}
+
+@keyframes arrow_shaving_before {
+  0%,
+  100% {
+    width: 30px;
+    transform: translate(-1px, 0px) rotate(45deg);
+  }
+
+  50% {
+    width: 25px;
+    transform: translate(-1px, 0px) rotate(30deg);
+  }
+}
+
+@keyframes arrow_shaving_after {
+  0%,
+  100% {
+    width: 30px;
+    transform: translate(-2px, 1px) rotate(-45deg);
+    filter: drop-shadow(0 0 2px var(--el-color-primary));
+  }
+
+  50% {
+    width: 25px;
+    transform: translate(-2px, 1px) rotate(-30deg);
+    filter: drop-shadow(0 0 16px var(--el-color-primary));
+  }
+}
+
+.indicator {
+  .bind & {
+    opacity: 1;
+  }
+
+  &::before,
+  &::after {
+    z-index: 1;
+    content: '';
+    position: absolute;
+
+    top: 0;
+    left: 2px;
+
+    width: 30px;
+    height: 4px;
+
+    border-radius: 8px;
+    transition: cubic-bezier(0.165, 0.84, 0.44, 1);
+    background-color: var(--el-color-primary);
+  }
+
+  &::before {
+    transform: translate(-1px, 0px) rotate(45deg);
+    animation: arrow_shaving_before 1s infinite;
+    transform-origin: left top;
+  }
+
+  &::after {
+    transform: translate(-2px, 1px) rotate(-45deg);
+    animation: arrow_shaving_after 1s infinite;
+    transform-origin: left top;
+  }
+
+  z-index: 10;
+  position: absolute;
+
+  top: 102px;
+  left: 350px;
+
+  width: 60px;
+  height: 5px;
+
+  opacity: 0;
+  transition: 0.25s;
+  border-radius: 8px;
+  animation: arrow_shaving 1s infinite;
+  background-color: var(--el-color-primary);
+  filter: drop-shadow(0 0 4px var(--el-color-primary));
 }
 
 .Login-Main-Vice {
@@ -414,5 +680,13 @@ onMounted(() => {
   background: var(--el-overlay-color-lighter);
   backdrop-filter: blur(18px) saturate(180%);
   transition: 0.25s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+}
+
+.mobile .Login-Container {
+  .Login-Main-Major {
+    width: 100%;
+  }
+  width: 95%;
+  height: 60%;
 }
 </style>

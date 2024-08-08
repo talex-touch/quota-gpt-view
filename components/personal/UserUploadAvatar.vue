@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Plus } from '@element-plus/icons-vue'
 import type { UploadProps } from 'element-plus'
-import { EndNormalUrl } from '~/constants'
+import { globalOptions } from '~/constants'
 
 const props = defineProps<{
   modelValue: string
@@ -16,7 +16,7 @@ const avatarUrl = computed(() => {
   if (props.modelValue.startsWith('http'))
     return props.modelValue
 
-  return `${EndNormalUrl}${avatarForm.value}`
+  return `${globalOptions.getEndsUrl()}${avatarForm.value}`
 })
 
 const handleAvatarSuccess: UploadProps['onSuccess'] = (
@@ -45,7 +45,7 @@ const headers = {
 <template>
   <el-upload
     :class="{ disabled }"
-    class="UserUploadAvatar" :action="`${EndNormalUrl}api/tools/upload`" :show-file-list="false"
+    class="UserUploadAvatar" :action="`${globalOptions.getEndsUrl()}api/tools/upload`" :show-file-list="false"
     :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload" :headers="headers"
   >
     <template v-if="avatarForm">

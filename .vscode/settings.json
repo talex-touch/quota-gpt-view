@@ -43,10 +43,13 @@
     "yaml"
   ],
   "cSpell.words": [
+    "composables",
     "depts",
     "echarts",
     "kwargs",
+    "Omni",
     "Tavily",
-    "Volc"
+    "Volc",
+    "WECHAT"
   ]
 }

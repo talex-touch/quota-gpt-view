@@ -24,7 +24,7 @@ function handleClick() {
     router.push(props.path)
 
   if (props.query)
-    router.push({ params: { data: props.query } })
+    router.push({ query: { data: props.query } })
 }
 </script>
 
@@ -43,6 +43,8 @@ function handleClick() {
     }
     color: var(--el-color-primary);
     background-color: var(--el-border-color-extra-light);
+
+    filter: drop-shadow(0 0 2px var(--el-border-color));
   }
 
   position: relative;
@@ -68,7 +70,10 @@ function handleClick() {
   &.select {
     color: var(--el-color-success);
 
-    background-color: var(--el-border-color);
+    // background-color: var(
+    //   --wallpaper-color-light,
+    //   var(--el-border-color-extra-light)
+    // );
   }
 }
 </style>

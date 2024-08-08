@@ -39,6 +39,7 @@ watch(() => share.selected, (val) => {
     height: 80px;
   }
   &.show {
+    visibility: unset;
     transform: translate(-50%, 0);
   }
 
@@ -71,6 +72,8 @@ watch(() => share.selected, (val) => {
   box-sizing: border-box;
   box-shadow: var(--el-box-shadow);
   background-color: var(--el-bg-color);
+
+  visibility: hidden;
   transform: translate(-50%, 200%);
   transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
 }

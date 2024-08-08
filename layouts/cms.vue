@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { TabPaneName } from 'element-plus'
 import Logo from '../components/chore/Logo.vue'
 import AccountAvatar from '../components/personal/AccountAvatar.vue'
 import CmsMenu from '~/components/cms/CmsMenu.vue'
+import { ENDS_URL, globalOptions } from '~/constants'
 
-import { getAccountMenuList, getMenuList } from '~/composables/api/account'
+import { getAccountMenuList } from '~/composables/api/account'
 
 const route = useRoute()
 
@@ -55,6 +55,25 @@ watch(
     immediate: true,
   },
 )
+
+const endUrl = ref(globalOptions.getEndsUrl())
+
+watch(() => endUrl.value, (val) => {
+  globalOptions.setEndsUrl(val)
+
+  setTimeout(() => location.reload(), 500)
+})
+
+/* computed({
+  get() {
+    return globalOptions.getEndsUrl()
+  },
+  set(val: string) {
+    console.log('a', val)
+
+    globalOptions.setEndsUrl(val)
+  },
+}) */
 </script>
 
 <template>
@@ -77,11 +96,13 @@ watch(
       </span>
 
       <div class="head-end">
-        <el-input placeholder="搜索功能...">
-          <template #append>
-            Ctrl+K
-          </template>
-        </el-input>
+        <!-- 设置全局环境地址 -->
+        <el-select v-model="endUrl" placeholder="选择系统环境" style="width: 200px">
+          <el-option
+            v-for="item in Object.values(ENDS_URL)" :key="item.value" :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
 
         <AccountAvatar />
       </div>
@@ -108,7 +129,7 @@ watch(
         </template>
       </el-aside>
       <el-main class="CmsMain">
-        <el-watermark :font="font" :z-index="10" class="watermark" :content="[userStore.nickname!, 'ThisAI CMS']">
+        <el-watermark :font="font" :z-index="100" class="watermark" :content="[userStore.nickname!, 'ThisAI CMS']">
           <slot />
         </el-watermark>
       </el-main>
@@ -128,20 +149,24 @@ watch(
 }
 
 .rotate-enter-active {
+  z-index: 10;
+
   transition: 0.5s 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
 }
 
-.rotate-enter-active {
-  z-index: 10;
-}
-
 .rotate-enter-from {
+  position: absolute !important;
+
   opacity: 0;
+
+  width: 100%;
 
   transform: translateX(-1%);
 }
 
 .rotate-leave-to {
+  position: absolute !important;
+
   opacity: 0;
 
   transform: translateX(1%);
@@ -161,6 +186,7 @@ watch(
 .CmsMain {
   position: relative;
 
+  flex: 1;
   width: 100%;
   height: 100%;
 
@@ -191,28 +217,28 @@ watch(
     }
 
     .head-end {
-      .el-input {
+      .el-select {
         &__wrapper {
           box-shadow: none;
-          border-radius: 8px 0 0 8px;
+          border-radius: 8px;
           background: var(--el-fill-color);
         }
 
-        &-group__append {
-          position: relative;
-          padding: 0 10px;
-          margin: auto 0;
-          margin-right: 0.5rem;
+        // &-group__append {
+        //   position: relative;
+        //   padding: 0 10px;
+        //   margin: auto 0;
+        //   margin-right: 0.5rem;
 
-          height: 20px;
+        //   height: 20px;
 
-          font-size: 12px;
-          box-shadow: none;
-          // background: var(--el-bg-color);
-          border-radius: 4px;
+        //   font-size: 12px;
+        //   box-shadow: none;
+        //   // background: var(--el-bg-color);
+        //   border-radius: 4px;
 
-          box-sizing: border-box;
-        }
+        //   box-sizing: border-box;
+        // }
 
         right: 50px;
 

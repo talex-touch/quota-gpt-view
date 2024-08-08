@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Vditor from 'vditor'
 import 'vditor/dist/index.css'
-import { EndNormalUrl } from '~/constants'
+import { globalOptions } from '~/constants'
 
 const props = defineProps<{
   modelValue: string
@@ -73,7 +73,7 @@ onMounted(() => {
       position: 'right',
     },
     upload: {
-      url: `${EndNormalUrl}api/tools/upload`,
+      url: `${globalOptions.getEndsUrl()}api/tools/upload`,
       linkToImgCallback(responseText) {
         console.log('response text', responseText)
       },
@@ -96,7 +96,7 @@ onMounted(() => {
           result.data.errFiles[0] = files[0].name
 
         else
-          result.data.succMap[files[0].name] = `${EndNormalUrl}${res.data.filename}`
+          result.data.succMap[files[0].name] = `${globalOptions.getEndsUrl()}${res.data.filename}`
 
         return JSON.stringify(result)
       },

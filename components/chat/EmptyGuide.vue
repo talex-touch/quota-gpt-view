@@ -69,7 +69,7 @@ const sections = reactive([
 
       opacity: 0.5;
       border-radius: 16px;
-      background-color: var(--el-bg-color-page);
+      background-color: var(--el-bg-color);
     }
     position: relative;
     padding: 0.75rem;
@@ -138,6 +138,20 @@ const sections = reactive([
 
       top: -5px;
       font-size: 3.75rem;
+    }
+
+    .mobile & {
+      .ai-underline {
+        &::before {
+          height: 3px;
+          bottom: 5px;
+        }
+
+        top: 0;
+
+        font-size: 40px;
+      }
+      font-size: 40px;
     }
 
     transition: 0.25s;

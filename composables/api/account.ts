@@ -33,7 +33,7 @@ export function getUsers(data?: Partial<UserGetQuery>) {
   return endHttp.get('system/users', data)
 }
 
-export interface RoleGetQuery {
+export interface RoleEditQuery {
   /**
    * 序号
    */
@@ -68,12 +68,22 @@ export interface RoleGetQuery {
    */
   updater: string
 }
-export function getRoleList() {
-  return endHttp.get('system/roles')
+
+export interface RoleGetQuery {
+  page: number
+  pageSize: number
+  name: string
+  value: string
+  remark: string
+  status: number
+}
+
+export function getRoleList(query?: Partial<UserGetQuery>) {
+  return endHttp.get('system/roles', query)
 }
 
 // 新增角色
-export function addRole(data: RoleGetQuery) {
+export function addRole(data: RoleEditQuery) {
   return endHttp.get('system/roles', data)
 }
 // 获取角色信息
@@ -101,7 +111,7 @@ export interface UserQuery {
   remark: string
   status: number
   roleIds: number[]
-  dept: string
+  dept: any
   password: string
 }
 
@@ -225,4 +235,137 @@ export function updateDict(Header: any) {
 
 export function delDict(Path: any) {
   return endHttp.post('system/param-config/{id}', Path)
+}
+
+export function getOrderPlanPrice(type: 'STANDARD' | 'ULTIMATE', time: string) {
+  return endHttp.get(`order/price?_time=${Date.now()}`, {
+    type,
+    time,
+    payMethod: 2,
+  })
+}
+
+export function orderPlanPrice(type: 'STANDARD' | 'ULTIMATE', time: string, couponCode: string) {
+  return endHttp.post('order/subscribe', {
+    type,
+    time,
+    payMethod: 2,
+    couponCode,
+  })
+}
+
+export function getUserNearestUnPayOrder() {
+  return endHttp.get(`order/target?now=${Date.now()}`)
+}
+
+export function getOrderStatus(id: string) {
+  return endHttp.get(`order/status/target?time=${Date.now()}`, { id })
+}
+
+export function getUserSubscription() {
+  return endHttp.get('order/subscribe')
+}
+
+export function getCouponList() {
+  return endHttp.get('coupon/list')
+}
+
+export function userBindCoupon(code: string) {
+  return endHttp.post('coupon/add', {
+    couponId: code,
+  })
+}
+
+export interface CreateCouponDto extends Record<string, string | number | boolean | undefined> {
+  prefix?: string // 优惠码前缀（必须是6位）
+  quantity: number // 优惠码数量，一次性最多不超过1000个
+  discountAmount: number // 优惠金额（正数表示优惠金额[单位：分]，负数表示优惠百分比）
+  startDate?: string // 有效期开始时间（没有表示通用）
+  endDate?: string // 有效期结束时间（没有表示通用）
+  maxUsage: number // 最大使用次数
+  minimumSpend: number // 最小消费金额（单位：分）
+  maximumDiscount?: number // 最大抵扣消费（正数表示消费金额[单位：分]，负数表示消费百分比）
+  stackable?: boolean // 是否可叠加使用，默认为false
+  newUserOnly?: boolean // 是否仅限新用户使用，默认为false
+
+  code?: string
+  user_id?: number
+  updater_id?: number
+  creator_id?: number
+}
+
+export interface CouponListQueryDto extends Partial<CreateCouponDto> {
+  page: number
+  pageSize: number
+}
+
+export function getAllCoupon(query: CouponListQueryDto) {
+  return endHttp.post('coupon/all', query)
+}
+
+export interface ICouponCode {
+  applicableCategories?: null
+  code?: string
+  createdAt?: string
+  creator?: any
+  discountAmount?: number
+  endDate?: null
+  id?: number
+  info?: null
+  mainCode?: string
+  maximumDiscount?: null
+  maxUsage?: number
+  minimumSpend?: number
+  newUserOnly?: boolean
+  stackable?: boolean
+  startDate?: null
+  updatedAt?: string
+  usedCount?: number
+}
+
+export function createBatchesCodeList(dto: CreateCouponDto) {
+  return endHttp.post('coupon/create_batches', dto)
+}
+
+export function assignCouponCode(code: string, userId: number) {
+  return endHttp.post('coupon/assign', { couponId: code, uid: userId })
+}
+
+export function invalidateCouponCode(couponId: string) {
+  return endHttp.post('coupon/invalidate', { couponId })
+}
+
+export interface IAdminOrderQuery extends Record<string, any> {
+  /**
+   * 支付时间范围(max)
+   */
+  maxPayTime?: Date
+  /**
+   * 购买金额范围(max)
+   */
+  maxPrice?: number
+  /**
+   * 支付时间范围(min)
+   */
+  minPayTime?: Date
+  /**
+   * 购买金额范围(min)
+   */
+  minPrice?: number
+  page: number
+  pageSize: number
+  payMethod?: number
+  status?: number
+  /**
+   * 购买用户
+   */
+  userid?: number
+}
+
+export function getAdminOrders(query: IAdminOrderQuery) {
+  return endHttp.post('order/admin/list', query)
+}
+
+export function getAdminOrderStatistics() {
+  return endHttp.get('order/admin/statistics')
 }

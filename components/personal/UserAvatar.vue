@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { EndNormalUrl } from '~/constants'
+import { globalOptions } from '~/constants'
 
 const props = defineProps<{
   avatar: string
@@ -12,7 +12,7 @@ const _avatar = computed(() => {
   if (props.avatar.startsWith('http'))
     return props.avatar
 
-  return EndNormalUrl + props.avatar
+  return globalOptions.getEndsUrl() + props.avatar
 })
 </script>
 

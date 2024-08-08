@@ -1,6 +1,5 @@
-import { getAccountDetail, getPermissionList } from './api/account'
+import { getAccountDetail, getPermissionList, getUserSubscription } from './api/account'
 import { endHttp } from './api/axios'
-import { EndNormalUrl } from '~/constants'
 
 export interface AccountDetail {
   id: number
@@ -18,6 +17,7 @@ export interface AccountDetail {
   roles: string[]
   permissions: string[]
   isAdmin: boolean
+  subscription: any
 }
 
 export const userStore = useLocalStorage<Partial<AccountDetail>>('user', {})
@@ -36,7 +36,16 @@ watch(() => userStore.value.token, async () => {
     return
 
   await refreshCurrentUserRPM()
+  await refreshUserSubscription()
 }, { deep: true, immediate: true })
+
+export async function refreshUserSubscription() {
+  const { data } = await getUserSubscription()
+  if (!data)
+    return
+
+  userStore.value.subscription = data
+}
 
 /**
  * RPM: Role Permission Menu

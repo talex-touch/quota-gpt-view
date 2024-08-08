@@ -1,9 +1,10 @@
 import JSON5 from 'json5'
 import { getConversations, postHistory } from './api/chat'
 import { endHttp } from './api/axios'
-import { EndNormalUrl } from '~/constants'
+import { globalOptions } from '~/constants'
 
 import type { ThHistory } from '~/components/history/history-types'
+import { inputProperty } from '~/components/input/input'
 
 export enum QuotaModel {
   // 普通版本，纯问答（类豆包，普通联网）
@@ -228,6 +229,18 @@ async function handleExecutorItem(item: string, callback: (data: any) => void) {
         return
       }
 
+      if (item.includes('message content must be less than 1024 tokens')) {
+        ElMessage.error(`未登录时不允许发送长token！`)
+
+        callback({
+          done: true,
+          error: true,
+          frequentLimit: true,
+        })
+
+        return
+      }
+
       console.error('@error', item)
       console.error(e)
 
@@ -259,22 +272,32 @@ async function handleExecutorResult(reader: ReadableStreamDefaultReader<string>,
     if (value.includes('data: 请求超时'))
       continue
 
-    const _value = /* lastData + */ value
-
-    // if (!_value.endsWith(' ') && !_value.endsWith('}') && !_value.endsWith('\n')) {
-    //   lastData = _value
-
-    //   continue
-    // }
-
-    // console.log('v', _value)
+    const _value = value
 
     const arr = _value.split('\n')
+
     for (let i = 0; i < arr.length; i++) {
       const item = arr[i]
 
-      if (item.startsWith('data: '))
-        handleExecutorItem(item.slice(6), callback)
+      if (item.startsWith('data: ')) { handleExecutorItem(item.slice(6), callback) }
+      else {
+        try {
+          const data = JSON.parse(item)
+
+          if (data.code === 1101) {
+            userStore.value.token = ''
+            userStore.value.subscription = null
+
+            location.reload()
+          }
+
+          if (data?.message && !data?.data)
+            ElMessage.error(data.message)
+        }
+        catch (_ignored) {
+          console.error('error in chat', _ignored)
+        }
+      }
     }
   }
 }
@@ -309,7 +332,7 @@ export async function useChatExecutor(context: ChatCompletion, callback: (data: 
 
   async function _func() {
     try {
-      const res = await $fetch<ReadableStream>(`${EndNormalUrl}api/aigc/executor${userStore.value.token ? `/authorized?uid=${userStore.value.id}` : ''}`, {
+      const res = await $fetch<ReadableStream>(`${globalOptions.getEndsUrl()}api/aigc/executor${userStore.value.token ? `/authorized?uid=${userStore.value.id}` : ''}`, {
         method: 'POST',
         responseType: 'stream',
         headers: {
@@ -446,7 +469,7 @@ export class ChatManager {
     })
 
     const res: any = await postHistory({
-      uid: data.id || (`${Date.now()}DJLASKFJOEJ-INTERNAL_TEST`),
+      uid: data.id || (`${Date.now()}THIS_AI_STANDARD_QUOTA_WISH`),
       topic: data.topic,
       value: `${btoa(encodeURIComponent(JSON.stringify(data.messages)))}`,
       meta: JSON.stringify(meta),
@@ -549,7 +572,8 @@ export class ChatManager {
 
   async sendMessage(obj: any, conversation: ThHistory, options: Partial<ChatCompletionDto>, callback: IMessageHandler) {
     function complete() {
-      obj.agent.actions = obj.agent.actions.filter((item: string) => typeof item !== 'string')
+      if (obj.agent?.actions?.length)
+        obj.agent.actions = obj.agent.actions.filter((item: string) => typeof item !== 'string')
 
       setTimeout(() => {
         callback.onTriggerUpdate()
@@ -731,7 +755,10 @@ export class ChatManager {
           console.log('tool end', res)
         }
       },
-      options,
+      {
+        ...options,
+        temperature: inputProperty.temperature / 100,
+      },
     )
   }
 
