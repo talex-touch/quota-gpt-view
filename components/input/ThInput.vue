@@ -16,6 +16,7 @@ const emits = defineEmits<{
 
 const input = ref('')
 const template = ref<any>({})
+const pageOptions: any = inject('pageOptions')
 const nonPlusMode = computed(() => props.templateEnable && !template.value?.title && (input.value.startsWith('/') || input.value.startsWith('@')))
 
 const inputHistories = useLocalStorage<string[]>('inputHistories', [])
@@ -47,6 +48,7 @@ function handleSend(event: Event) {
   })
 
   input.value = ''
+  template.value = {}
 }
 
 function handleInputKeydown(event: KeyboardEvent) {
@@ -136,7 +138,7 @@ onMounted(() => {
 })
 
 function handleTemplateSelect(data: any) {
-  template.value = data
+  pageOptions.template = template.value = data
 
   input.value = ''
 }

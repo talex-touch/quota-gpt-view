@@ -174,7 +174,7 @@ export function useChatTitle(context: ChatCompletion) {
       return
 
     for (; i < text.length; ++i) {
-      if (i >= 28)
+      if (i >= 14)
         break
       const code = text[i]
 
@@ -302,7 +302,7 @@ async function handleExecutorResult(reader: ReadableStreamDefaultReader<string>,
             ElMessage.error(data.message)
         }
         catch (_ignored) {
-          console.error('error in chat', _ignored)
+          // console.error('error in chat', _ignored)
         }
       }
     }
@@ -594,9 +594,6 @@ export class ChatManager {
         callback?.onReqCompleted?.()
       }, 200)
     }
-
-    if (!conversation.templateId && options.templateId !== -1)
-      conversation.templateId = options.templateId
 
     // TODO: abort
     await useChatExecutor(

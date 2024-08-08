@@ -24,3 +24,7 @@ export function getConversations(query: Partial<HistoryQuery>) {
 export function getPromptTemplate(keyword: string) {
   return endHttp.get('aigc/prompts/search', { keyword })
 }
+
+export function getTargetPrompt(id: number) {
+  return endHttp.get(`aigc/prompts/${id}`)
+}

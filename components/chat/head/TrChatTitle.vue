@@ -9,13 +9,18 @@ const _title = computed(() => {
 
 const mobile = ref(false)
 
-const pageOptions = inject('appOptions')
-onMounted(() => setTimeout(() => mobile.value = pageOptions.mobile, 200))
+const appOptions = inject('appOptions')
+const pageOptions = inject('pageOptions')
+onMounted(() => setTimeout(() => mobile.value = appOptions.mobile, 200))
+watchEffect(() => {
+  mobile.value = appOptions.mobile
+})
 </script>
 
 <template>
   <teleport to=".PageContainer" :disabled="!mobile">
     <div class="TrChatTitle">
+      <span v-if="pageOptions.template?.title" class="template">@{{ pageOptions.template?.title }}</span>
       {{ _title }}
     </div>
   </teleport>
@@ -23,6 +28,30 @@ onMounted(() => setTimeout(() => mobile.value = pageOptions.mobile, 200))
 
 <style style="">
 .TrChatTitle {
+  .template {
+    &::before {
+      z-index: -1;
+      content: '';
+      position: absolute;
+
+      top: 0;
+      left: 0;
+
+      width: 100%;
+      height: 100%;
+
+      opacity: 0.85;
+      border-radius: 12px;
+      background-color: var(--theme-color);
+    }
+    position: relative;
+    padding: 0.25rem 0.5rem;
+
+    opacity: 0.75;
+    font-size: 12px;
+    border-radius: 10px;
+  }
+
   &::before {
     z-index: -1;
     content: '';

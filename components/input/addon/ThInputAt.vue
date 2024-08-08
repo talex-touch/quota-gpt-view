@@ -43,7 +43,12 @@ function handleSelect(ind: number) {
   emits('select', roles.value[index.value])
 }
 
-watch(() => props.input, fetchData)
+let timer: any
+watch(() => props.input, () => {
+  clearTimeout(timer)
+
+  setTimeout(fetchData, 200)
+})
 watch(() => index.value, (ind) => {
   const id = `at-prompt-role-${ind}`
   const el = document.getElementById(id)

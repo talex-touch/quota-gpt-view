@@ -6,12 +6,14 @@ import type { ThHistory } from '~/components/history/history'
 import { chatManager } from '~/composables/chat'
 import ShareSection from '~/components/chat/ShareSection.vue'
 import { inputProperty } from '~/components/input/input'
+import { getTargetPrompt } from '~/composables/api/chat'
 
 const chatRef = ref()
 const pageOptions = reactive<any>({
   settingDialog: false,
   expand: true,
   select: -1,
+  template: null,
   share: {
     enable: false,
     selected: new Array<number>(),
@@ -34,6 +36,8 @@ function handleDelete(index: number) {
 watch(
   () => pageOptions.select,
   (ind) => {
+    pageOptions.template = null
+
     if (ind < 0 || ind >= chatManager.history.value.length) {
       chatManager.messages.value = JSON.parse(JSON.stringify(chatManager.originObj))
       return
@@ -41,7 +45,15 @@ watch(
 
     const conversation = chatManager.history.value[ind]
 
-    setTimeout(() => {
+    setTimeout(async () => {
+      // get template
+      // pageOptions.template
+      if (conversation.templateId !== undefined && conversation.templateId !== -1) {
+        const res: any = await getTargetPrompt(conversation.templateId)
+
+        pageOptions.template = res.data
+      }
+
       chatManager.messages.value = conversation
       if (!chatManager.messages.value!.status)
         chatManager.messages.value!.status = Status.AVAILABLE
@@ -87,8 +99,11 @@ async function handleSend(query: string, _meta: any) {
   const meta = {
     model: chatManager.messages.value.model,
     tools: inputProperty.internet,
-    templateId: _meta?.template,
+    templateId: conversation.templateId || _meta?.template,
   }
+
+  if ((!conversation.templateId || conversation.templateId === -1) && (meta.templateId !== undefined && meta.templateId !== -1))
+    conversation.templateId = meta.templateId
 
   conversation.messages.push({
     date: format,
@@ -159,8 +174,8 @@ provide('pageOptions', pageOptions)
       />
       <ThInput
         :template-enable="!chatManager.messages.value.messages.length"
-        :status="chatManager.messages.value?.status ?? Status.AVAILABLE"
-        :hide="pageOptions.share.enable || roundLimit" @send="handleSend"
+        :status="chatManager.messages.value?.status ?? Status.AVAILABLE" :hide="pageOptions.share.enable || roundLimit"
+        @send="handleSend"
       />
 
       <ShareSection
