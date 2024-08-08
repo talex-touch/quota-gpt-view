@@ -14,7 +14,8 @@ const emits = defineEmits<{
 }>()
 
 const input = ref('')
-const nonPlusMode = computed(() => input.value.startsWith('/') || input.value.startsWith('@'))
+const template = ref<any>({})
+const nonPlusMode = computed(() => !template.value?.title && (input.value.startsWith('/') || input.value.startsWith('@')))
 
 const inputHistories = useLocalStorage<string[]>('inputHistories', [])
 const inputHistoryIndex = ref(inputHistories.value.length - 1)
@@ -24,6 +25,9 @@ function handleSend(event: Event) {
   if (!showSend.value)
     return
   if (props.status !== Status.AVAILABLE)
+    return
+
+  if (input.value.startsWith('@'))
     return
 
   event.preventDefault()
@@ -43,6 +47,14 @@ function handleSend(event: Event) {
 }
 
 function handleInputKeydown(event: KeyboardEvent) {
+  if (!template.value?.title && input.value.startsWith('@'))
+    return
+
+  if (event.key === 'Backspace') {
+    if (template.value && !input.value)
+      template.value = {}
+  }
+
   if (event.key === 'Enter') {
     event.preventDefault()
 
@@ -119,6 +131,12 @@ onMounted(() => {
     el?.focus()
   })
 })
+
+function handleTemplateSelect(data: any) {
+  template.value = data
+
+  input.value = ''
+}
 </script>
 
 <template>
@@ -145,13 +163,27 @@ onMounted(() => {
       </div>
     </div>
 
-    <ThInputPlus v-model="inputProperty" />
+    <InputAddonThInputAt
+      :input="input" :show="!template?.title && input.startsWith('@')"
+      @select="handleTemplateSelect"
+    />
 
-    <div class="ThInput-Input">
-      <textarea
-        id="main-input" v-model="input" :maxlength="userStore.token ? 10000 : 256" autofocus autocomplete="off"
-        placeholder="Shift + Enter换行" @keydown="handleInputKeydown"
-      />
+    <ThInputPlus v-if="!template?.title" v-model="inputProperty" />
+
+    <div flex class="ThInput-Input">
+      <div v-if="template.content" class="ThInput-InputHeader">
+        {{ template.content }}
+      </div>
+
+      <div flex items-center class="ThInput-InputMain">
+        <template v-if="template?.title">
+          <span flex class="template-tag">@{{ template.title }}</span>
+        </template>
+        <textarea
+          id="main-input" v-model="input" :maxlength="userStore.token ? 10000 : 256" autofocus
+          autocomplete="off" placeholder="Shift + Enter换行" @keydown="handleInputKeydown"
+        />
+      </div>
     </div>
 
     <div class="ThInput-Send" @click="handleSend">
@@ -163,6 +195,20 @@ onMounted(() => {
 </template>
 
 <style lang="scss" scoped>
+.template-tag {
+  margin-right: 0.5rem;
+  padding: 0.25rem 0.5rem;
+
+  width: max-content;
+
+  opacity: 0.75;
+  flex-shrink: 0;
+  font-size: 14px;
+  border-radius: 8px;
+  align-self: flex-end;
+  background-color: var(--theme-color);
+}
+
 .ThInput-Float {
   span.tag {
     position: relative;
@@ -311,8 +357,9 @@ onMounted(() => {
 
     width: calc(100% - 20px - 1.5rem);
     max-height: 330px;
-    height: 22px;
-    min-height: 22px;
+    height: 32px;
+    line-height: 32px;
+    min-height: 32px;
     overflow: visible;
 
     resize: none;
@@ -321,7 +368,40 @@ onMounted(() => {
     background-color: transparent;
   }
 
+  .ThInput-InputHeader {
+    &::before {
+      z-index: -1;
+      content: '';
+      position: absolute;
+
+      top: 0;
+      left: 0;
+
+      width: 100%;
+      height: 100%;
+
+      opacity: 0.35;
+      border-radius: 12px 12px 8px 8px;
+      background: var(--el-bg-color);
+      border: 1px solid var(--el-border-color);
+    }
+    position: relative;
+    padding: 0.5rem 0.5rem;
+
+    width: 100%;
+
+    overflow: hidden;
+    // border-radius: 12px 12px 0 0;
+  }
+
+  .ThInput-InputMain {
+    width: calc(100% - 40px);
+  }
+
   flex: 1;
+  flex-direction: column;
+
+  align-items: flex-start;
 
   overflow: hidden;
 }

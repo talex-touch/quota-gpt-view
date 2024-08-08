@@ -20,3 +20,7 @@ export interface HistoryQuery {
 export function getConversations(query: Partial<HistoryQuery>) {
   return endHttp.get('aigc/conversations', query)
 }
+
+export function getPromptTemplate(keyword: string) {
+  return endHttp.get('aigc/prompts/search', { keyword })
+}
