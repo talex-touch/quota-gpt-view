@@ -54,6 +54,8 @@ function handleReset() {
 
 onMounted(fetchData)
 
+const roles = ref()
+
 async function fetchData() {
   formLoading.value = true
 
@@ -175,7 +177,7 @@ function handleDeleteUser(id: number, data: any) {
     .then(() => {
       ElMessage({
         type: 'success',
-        message: '已取消删除用户！',
+        message: '已取消删除！',
       })
     })
     .catch(async () => {
@@ -240,18 +242,8 @@ function filterNode(value: string, data: any) {
 
       <ClientOnly>
         <el-table v-if="depts?.items" :data="depts.items" style="width: 100%">
-          <el-table-column prop="名字" label="name" width="180" />
-          <el-table-column prop="密钥" label="key" width="180" />
-          <el-table-column prop="value" label="value" width="180" />
-          <el-table-column prop="创建时间" label="createdAt" width="180" />
-          <el-table-column prop="修改时间" label="updatedAt" width="180" />
-          <el-table>
-            <el-pagination
-              v-if="depts?.meta" v-model:current-page="depts.meta.currentPage"
-              v-model:page-size="depts.meta.itemsPerPage" float-right my-4 :page-sizes="[10, 30, 50, 100]"
-              layout="total, sizes, prev, pager, next, jumper" :total="depts.meta.totalItems" @change="fetchData"
-            />
-          </el-table>
+    <el-table-column prop="date" label="Date" width="180" />
+    <el-table-column prop="name" label="Name" width="180" />
         </el-table>
       </ClientOnly>
     </el-main>
@@ -280,28 +272,12 @@ function filterNode(value: string, data: any) {
           <el-form-item label="用户名称" prop="username">
             <el-input v-model="dialogOptions.data.username" :disabled="dialogOptions.mode !== 'new'" />
           </el-form-item>
-          <el-form-item label="用户昵称" prop="nickname">
-            <el-input v-model="dialogOptions.data.nickname" />
-          </el-form-item>
-          <el-form-item label="用户密码" prop="nickname">
-            <el-input v-model="dialogOptions.data.password" :disabled="dialogOptions.mode !== 'new'" type="password" />
-          </el-form-item>
-          <el-form-item label="用户邮箱" prop="email">
-            <el-input v-model="dialogOptions.data.email" />
-          </el-form-item>
-          <el-form-item label="QQ" prop="qq">
-            <el-input v-model="dialogOptions.data.qq" />
-          </el-form-item>
-          <el-form-item label="用户手机号" prop="phone">
-            <el-input v-model="dialogOptions.data.phone" />
-          </el-form-item>
-          <el-form-item label="用户部门" prop="dept">
+
             <el-tree-select
               v-model="dialogOptions.data.deptId" :default-expand-all="true" :highlight-current="true"
               node-key="id" :check-on-click-node="true" :props="defaultProps" :data="depts"
               :render-after-expand="false"
             />
-          </el-form-item>
           <el-form-item label="用户状态" prop="status">
             <el-radio-group v-model="dialogOptions.data.status">
               <el-radio-button :value="0">
@@ -329,7 +305,7 @@ function filterNode(value: string, data: any) {
               取消
             </el-button>
             <el-button @click="resetForm(ruleFormRef)">
-              重置
+              重置系统监控
             </el-button>
             <el-button :loading="dialogOptions.loading" type="primary" @click="submitForm(ruleFormRef)">
               {{ dialogOptions.mode !== 'new' ? "修改" : "新增" }}

@@ -369,3 +369,35 @@ export function getAdminOrders(query: IAdminOrderQuery) {
 export function getAdminOrderStatistics() {
   return endHttp.get('order/admin/statistics')
 }
+
+export function getScheduleList(Query : any) {
+  return endHttp.get('system/tasks',Query)
+}
+
+export function addSchedule(Header : any) {
+  return endHttp.post('system/tasks',Header)
+}
+
+export function updateSchedule(Path : any) {
+  return endHttp.put('system/tasks/{id}',Path)
+}
+
+export function inquireScheduleInfprmation(Path : any) {
+  return endHttp.get('system/tasks/{id}',Path)
+}
+
+export function delSchedule(Path : any) {
+  return endHttp.del('system/tasks/{id}',Path)
+}
+
+export function runScheduleOnce(Path : any) {
+  return endHttp.put('system/tasks/{id}/once',Path)
+}
+
+export function stopSchedule(Path : any) {
+  return endHttp.put('system/tasks/{id}/stop',Path)
+}
+
+export function startSchedule(Path : any) {
+  return endHttp.put('system/tasks/{id}/stop',Path)
+}
