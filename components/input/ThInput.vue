@@ -147,13 +147,14 @@ function handleTemplateSelect(data: any) {
 </script>
 
 <template>
+  <!-- error: status === Status.ERROR, -->
   <div
     :class="{
       disabled: hide,
       collapse: nonPlusMode,
       showSend,
       generating: status === Status.GENERATING,
-      error: status === Status.ERROR,
+
     }" class="ThInput" @keydown.enter="handleSend"
   >
     <div class="ThInput-Float">
@@ -201,7 +202,6 @@ function handleTemplateSelect(data: any) {
     <div class="ThInput-Send" @click="handleSend">
       <div i-carbon:send-alt />
       <span v-if="status === Status.GENERATING">生成中</span>
-      <span v-else-if="status === Status.ERROR">出现错误，请刷新页面。</span>
     </div>
   </div>
 </template>

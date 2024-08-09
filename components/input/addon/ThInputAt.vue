@@ -46,6 +46,8 @@ function handleSelect(ind: number) {
 let timer: any
 watch(() => props.input, () => {
   clearTimeout(timer)
+  if (!props.show)
+    return
 
   setTimeout(fetchData, 200)
 })

@@ -111,10 +111,11 @@ export interface ChatItem {
   id?: string
   date: string
   role: string
-  content: string
+  content: string | string[]
   streaming?: boolean
   model?: string
   hide?: boolean
+  status: Status
 }
 
 export interface ChatMessage { role: 'system' | 'user' | 'assistant', content: string }
@@ -138,7 +139,6 @@ export function useChatTitle(context: ChatCompletion) {
   const options = reactive({
     status: Status.GENERATING,
     streaming: true,
-    generating: true,
     title: '',
   })
 
@@ -167,7 +167,7 @@ export function useChatTitle(context: ChatCompletion) {
       return
 
     if (!res.data?.output?.length)
-      return (options.generating = false)
+      return (options.status = Status.AVAILABLE)
 
     const text: string = res.data?.output
     if (!text)
@@ -366,6 +366,7 @@ export async function useChatExecutor(context: ChatCompletion, callback: (data: 
       wrappedCallback({
         done: true,
         error: true,
+        e,
       })
     }
 
@@ -382,6 +383,7 @@ export interface IMessageHandler {
   onTriggerUpdate: () => void
   onReqCompleted?: () => void
   onFrequentLimit?: () => void
+  onErrorHandler?: (error: Error) => void
 }
 
 export class ChatManager {
@@ -605,6 +607,7 @@ export class ChatManager {
 
           if (res.frequentLimit)
             callback?.onFrequentLimit?.()
+          else callback?.onErrorHandler?.(res.e)
 
           return
         }
@@ -628,7 +631,7 @@ export class ChatManager {
         const { event, name } = res
         if (event === 'on_chain_start') {
           if (name === 'Agent') {
-            obj.generating = false
+            obj.status = Status.AVAILABLE
 
             return (obj.agent = reactive({
               actions: ['正在分析信息...'],
