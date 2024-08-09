@@ -233,12 +233,14 @@ function filterNode(value: string, data: any) {
 
       <ClientOnly>
         <el-table v-if="users?.items" :data="users.items" style="width: 100%">
-          <el-table-column prop="创建者" label="creator" width="180" />
-          <el-table-column prop="更新者" label="Name" width="180" />
-          <el-table-column prop="name" label="Name" width="180" />
-          <el-table-column prop="name" label="Name" width="180" />
-          <el-table-column prop="name" label="Name" width="180" />
-          <el-table-column prop="name" label="Name" width="180" />
+          <el-table-column prop="创建者" label="creator" />
+          <el-table-column prop="更新者" label="updater" />
+          <el-table-column prop="名字" label="Name" />
+          <el-table-column prop="代码" label="code" />
+          <el-table-column prop="status" label="status" />
+          <el-table-column prop="remark" label="remark" />
+          <el-table-column prop="创建时间" label="createdAt" />
+          <el-table-column prop="更改时间" label="updatedAt" />
         </el-table>
         <el-pagination
           v-if="users?.meta" v-model:current-page="users.meta.currentPage"
