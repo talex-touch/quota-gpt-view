@@ -178,5 +178,24 @@ onMounted(() => {
     color: var(--el-text-color-primary);
     background-color: var(--el-bg-color-page);
   }
+
+  table {
+    th {
+      background-color: var(--el-bg-color-page);
+    }
+    tr {
+      border-top: 1px solid var(--el-border-color);
+      background-color: var(--el-fill-color-light);
+    }
+
+    td,
+    th {
+      border: 1px solid var(--el-border-color);
+    }
+
+    tbody tr:nth-child(2n) {
+      background-color: var(--el-fill-color-lighter);
+    }
+  }
 }
 </style>

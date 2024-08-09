@@ -1,20 +1,24 @@
 import { endHttp } from './axios'
 
-export function getAccountDetail() {
-  return endHttp.get('account/profile')
+
+//---------------------用户管理
+
+//获取用户列表
+export interface UserQuery {
+  id: string
+  username: string
+  nickname: string
+  avatar: string
+  qq: string
+  email: string
+  phone: string
+  remark: string
+  status: number
+  roleIds: number[]
+  dept: any
+  password: string
 }
 
-export function getPermissionList() {
-  return endHttp.get('account/permissions')
-}
-
-export function getAccountMenuList() {
-  return endHttp.get('account/menus')
-}
-
-export function getDepartmentList() {
-  return endHttp.get('system/depts')
-}
 
 export interface UserGetQuery {
   page: number
@@ -29,9 +33,52 @@ export interface UserGetQuery {
   status: number
 }
 
+/**
+ * 获取用户列表
+ * @param data 
+ * @returns 
+ */
 export function getUsers(data?: Partial<UserGetQuery>) {
   return endHttp.get('system/users', data)
 }
+/**
+ * 新增用户
+ * @param query 
+ * @returns 
+ */
+export function addUser(query: UserQuery) {
+  return endHttp.post('system/users', query)
+
+  // axios({
+  //   method: "POST",
+  //   data: query
+  // })
+}
+
+
+
+/**
+ * 更新用户
+ * @param id 
+ * @param query 
+ * @returns 
+ */
+export function updateUser(id: string, query: UserQuery) {
+  return endHttp.put(`system/users/${id}`, query)
+}
+
+/**
+ * 删除用户
+ * @param id 
+ * @returns 
+ */
+export function deleteUser(id: string) {
+  return endHttp.del(`system/users/${id}`)
+}
+
+
+//--------------------角色管理
+
 
 export interface RoleEditQuery {
   /**
@@ -58,7 +105,7 @@ export interface RoleEditQuery {
   /**
    * 菜单id
    */
-  menuIds: number[]
+  menuIds: number[] |undefined
   /**
    * 创建时间
    */
@@ -70,67 +117,67 @@ export interface RoleEditQuery {
 }
 
 export interface RoleGetQuery {
-  page: number
-  pageSize: number
+
+  id?:  number
+  page?: number
+  pageSize?: number
   name: string
   value: string
   remark: string
-  status: number
+  status: number,
+  menuIds?:number[] | undefined
+  createdAt?: string,
+  updater?: string
 }
 
+
+/**
+ * 获取角色列表
+ * @param query 
+ * @returns 
+ */
 export function getRoleList(query?: Partial<UserGetQuery>) {
   return endHttp.get('system/roles', query)
 }
 
-// 新增角色
+/**
+ * 新增角色
+ * @param data 
+ * @returns 
+ */
 export function addRole(data: RoleEditQuery) {
   return endHttp.get('system/roles', data)
 }
-// 获取角色信息
 
+
+/**
+ * 获取角色信息
+ * @param id 
+ * @returns 
+ */ 
 export function getRoleInfo(id: number) {
   return endHttp.get(`system/roles/${id}`)
 }
-// 更新角色
+/**
+ * 更新角色
+ * @param id 
+ * @param body 
+ * @returns 
+ */ 
 export function updateRole(id: number, body: any) {
   return endHttp.put(`system/roles/${id}`, body)
 }
-// 删除角色
+/**
+ * 删除角色
+ * @param id 
+ * @returns 
+ */ 
 export function deleteRole(id: number) {
   return endHttp.del(`system/roles/${id}`)
 }
 
-export interface UserQuery {
-  id: string
-  username: string
-  nickname: string
-  avatar: string
-  qq: string
-  email: string
-  phone: string
-  remark: string
-  status: number
-  roleIds: number[]
-  dept: any
-  password: string
-}
 
-export function addUser(query: UserQuery) {
-  return endHttp.post('system/users', query)
-
-  // axios({
-  //   method: "POST",
-  //   data: query
-  // })
-}
-
-export function updateUser(id: string, query: UserQuery) {
-  return endHttp.put(`system/users/${id}`, query)
-}
-
-export function deleteUser(id: string) {
-  return endHttp.del(`system/users/${id}`)
-}
+//----------------------菜单管理
 
 export interface MenuGetQuery {
   /**
@@ -167,32 +214,162 @@ export interface MenuGetQuery {
   type?: number
 }
 
+/**
+ * 获取所有菜单列表
+ * @param query 
+ * @returns 
+ */
 export function getMenuList(query: MenuGetQuery) {
   return endHttp.get('system/menus', {
     query,
   })
 }
-
+/**
+ * 更新菜单或权限
+ * @param id 
+ * @param query 
+ * @returns 
+ */
 export function updateMenu(id: number, query: MenuGetQuery) {
   return endHttp.put(`system/menus/${id}`, query)
 }
-
+/**
+ * 新增菜单或权限
+ * @param query 
+ * @returns 
+ */
 export function addMenu(query: MenuGetQuery) {
   return endHttp.post('system/menus', query)
 }
-
+/**
+ * 删除菜单或权限
+ * @param id 
+ * @returns 
+ */
 export function delMenu(id: number) {
   return endHttp.del(`system/menus/${id}`)
 }
+
+//-------------------------部门
+
+/**
+ * 获取部门列表
+ * @returns 
+ */
+export function getDepartmentList() {
+  return endHttp.get('system/depts')
+}
+
+
+/**
+ * 新增部门
+ * @param body 
+ * @returns 
+ */
+export function addDept(body: any) {
+  return endHttp.post('system/depts', body)
+}
+/**
+ * 删除部门
+ * @param id 
+ * @returns 
+ */
+export function delDept(id:number) {
+  return endHttp.del('/system/depts/'+id)
+}
+
+/**
+ * 更新部门
+ * @param id 
+ * @returns 
+ */
+export function UpdateDept(id:number) {
+  return endHttp.put('/system/depts/'+id)
+}
+
+// ---------------------------------------字典管理
+
+/**
+ * 获取字典列表
+ * @param Query 
+ * @returns 
+ */
+export function getDictList(Query: any) {
+  return endHttp.get('system/dict-type', Query)
+}
+/**
+ * 新增字典
+ * @param Header 
+ * @returns 
+ */
+export function addDict(Header: any) {
+  return endHttp.post('system/dict-type', Header)
+}
+/**
+ * 获取字典列表
+ * @param Header 
+ * @returns 
+ */
+export function getAllDictList(Header: any) {
+  return endHttp.get('system/dict-type/select-options', Header)
+}
+/**
+ * 查询字典类型信息
+ * @param Path 
+ * @returns 
+ */
+export function inquireDictInformation(Path: any) {
+  return endHttp.get('system/dict-type/{id}', Path)
+}
+/**
+ * 修改字典
+ * @param Header 
+ * @returns 
+ */
+export function updateDict(Header: any) {
+  return endHttp.post('system/dict-type/{id}', Header)
+}
+/**
+ * 删除字典
+ * @param Path 
+ * @returns 
+ */
+export function delDict(Path: any) {
+  return endHttp.post('system/param-config/{id}', Path)
+}
+
+
+
+
+
+export function getAccountDetail() {
+  return endHttp.get('account/profile')
+}
+
+export function getPermissionList() {
+  return endHttp.get('account/permissions')
+}
+
+export function getAccountMenuList() {
+  return endHttp.get('account/menus')
+}
+
+
+
+
+
+
+
+
+
+
+
 
 export function getHistoryList() {
   return endHttp.get('account/login_histories')
 }
 
-export function addDept(body: any) {
-  return endHttp.post('system/depts', body)
-}
-
+// 获取参数列表
 export function getParamList(Query: any) {
   return endHttp.get('system/param-config', Query)
 }
@@ -213,30 +390,7 @@ export function delParam(Path: any) {
   return endHttp.post('system/param-config/{id}', Path)
 }
 
-export function getDictList(Query: any) {
-  return endHttp.get('system/dict-type', Query)
-}
-
-export function addDict(Header: any) {
-  return endHttp.post('system/dict-type', Header)
-}
-
-export function getAllDictList(Header: any) {
-  return endHttp.get('system/dict-type/select-options', Header)
-}
-
-export function inquireDictInformation(Path: any) {
-  return endHttp.get('system/dict-type/{id}', Path)
-}
-
-export function updateDict(Header: any) {
-  return endHttp.post('system/dict-type/{id}', Header)
-}
-
-export function delDict(Path: any) {
-  return endHttp.post('system/param-config/{id}', Path)
-}
-
+// 订单
 export function getOrderPlanPrice(type: 'STANDARD' | 'ULTIMATE', time: string) {
   return endHttp.get(`order/price?_time=${Date.now()}`, {
     type,
@@ -369,6 +523,7 @@ export function getAdminOrders(query: IAdminOrderQuery) {
 export function getAdminOrderStatistics() {
   return endHttp.get('order/admin/statistics')
 }
+<<<<<<< HEAD
 
 export function getScheduleList(Query : any) {
   return endHttp.get('system/tasks',Query)
@@ -401,3 +556,5 @@ export function stopSchedule(Path : any) {
 export function startSchedule(Path : any) {
   return endHttp.put('system/tasks/{id}/stop',Path)
 }
+=======
+>>>>>>> 5a41396f5b3a0bb99676e293623856b53d0667e5

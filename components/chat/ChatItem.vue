@@ -28,11 +28,14 @@ function handleGeneratingDotUpdate(rootEl: HTMLElement, cursor: HTMLElement) {
   if (props.ind !== props.total - 1)
     return
 
+  if (props.item.status !== 1)
+    return
+
   completed.value = false
   cursor.style.opacity = '1'
   timer && clearTimeout(timer)
   timer = setTimeout(() => {
-    if (props.item.generating)
+    if (props.item.status !== 1)
       return
 
     cursor.style.opacity = '0'
@@ -87,6 +90,7 @@ const tools = reactive([
   {
     name: '复制',
     icon: 'i-carbon-copy',
+    errorHide: true,
     trigger: () => {
       if (!props.item.content || tools[0].icon !== 'i-carbon-copy')
         return
@@ -104,12 +108,13 @@ const tools = reactive([
     name: '属性',
     icon: 'i-carbon-settings-adjust',
     userIgnored: true,
+    errorHide: true,
     trigger: () => {
       settingMode.visible = !settingMode.visible
     },
   },
   // { name: '朗读', icon: 'i-carbon-user-speaker' },
-  { name: '重新生成', userIgnored: true, lastShow: true, icon: 'i-carbon-restart' },
+  { name: '重新生成', errorHide: false, userIgnored: true, lastShow: true, icon: 'i-carbon-restart' },
 ])
 
 const check = ref(false)
@@ -125,6 +130,9 @@ watch(() => props.select, (val) => {
 
 function filterTools(item: any, total: number, ind: number) {
   return tools.filter((tool) => {
+    if (item.status === 2 && tool.errorHide)
+      return false
+
     return item.role === 'user'
       ? !tool.userIgnored
       : tool.lastShow
@@ -143,7 +151,7 @@ function filterTools(item: any, total: number, ind: number) {
     <div class="ChatItem-Avatar">
       <img src="/logo.png">
     </div>
-    <div :class="{ agent: item.agent, settingVisible: settingMode.visible }" class="ChatItem-Wrapper">
+    <div :class="{ error: item.status === 2, agent: item.agent, settingVisible: settingMode.visible }" class="ChatItem-Wrapper">
       <div class="ChatItem-Agent">
         <template v-if="item.agent">
           <span v-for="action in item.agent.actions" :key="action" class="ChatItem-AgentList">
@@ -153,7 +161,7 @@ function filterTools(item: any, total: number, ind: number) {
       </div>
 
       <div class="ChatItem-Content">
-        <div v-if="item.generating" class="ChatItem-Generating">
+        <div v-if="item.status === 1" class="ChatItem-Generating">
           <div class="ChatItem-GeneratingWrapper">
             <RoundLoading />
           </div>
@@ -161,6 +169,9 @@ function filterTools(item: any, total: number, ind: number) {
         <div v-else ref="dom" :class="{ completed, display: !!item.content.length }" class="ChatItem-Content-Inner">
           <span v-if="item.role === 'user'">
             <pre v-text="item.content" />
+          </span>
+          <span v-else-if="item.status === 2">
+            错误 {{ item.content }}
           </span>
           <RenderContent v-else :render="settingMode.render" readonly :data="item.content" />
           <!-- v-if="generating && !!item.content.length" -->
@@ -182,7 +193,7 @@ function filterTools(item: any, total: number, ind: number) {
 
       <div
         v-if="
-          !item.generating
+          item.status !== 1
             && !!item.content.length
             && !item.streaming
         " class="ChatItem-Mention"
@@ -215,6 +226,12 @@ function filterTools(item: any, total: number, ind: number) {
 </template>
 
 <style lang="scss">
+div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
+  box-shadow: var(--el-box-shadow-light);
+  backdrop-filter: unset;
+  background-color: var(--el-color-danger);
+}
+
 .Generating-Dot {
   position: absolute;
 

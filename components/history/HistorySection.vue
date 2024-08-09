@@ -38,8 +38,11 @@ watch(() => route, () => {
     return
 
   const res = [..._history.value].find(item => item.index === +index! && item.id === id)
-  if (!res)
+  if (!res) {
+    router.push('/')
+
     return
+  }
 
   selectIndex.value = +index!
 }, { immediate: true })
