@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { reactive } from 'vue'
 import type { FormInstance, FormRules } from 'element-plus'
-import { addRole, deleteRole, getMenuList, getRoleInfo, getRoleList, updateRole } from '~/composables/api/account'
+import { addRole, deleteRole, getMenuList, getRoleInfo, getRoleList, updateRole, type RoleGetQuery } from '~/composables/api/account'
 
 definePageMeta({
   name: '角色管理',
@@ -34,7 +34,7 @@ const findRoleForm = reactive<any>({
 })
 
 const formLoading = ref(false)
-
+//获取角色列表
 async function fetchData() {
   formLoading.value = true
 
@@ -67,7 +67,7 @@ async function fetchData() {
 
   formLoading.value = false
 }
-
+//重置表单
 function handleResetFindRoleForm() {
   findRoleForm.name = ''
   findRoleForm.value = ''
@@ -75,6 +75,7 @@ function handleResetFindRoleForm() {
   findRoleForm.remark = ''
 }
 
+//弹窗类型
 const dialogOptions = reactive<{
   visible: boolean
   mode: 'edit' | 'read' | 'new'
@@ -184,7 +185,7 @@ async function submitForm(formEl: FormInstance | undefined) {
 
     const data = dialogOptions.data!
 
-    data.menuIds = treeRef.value.getCheckedNodes()
+    data.menuIds = treeRef.value.getCheckedNodes() || [];
 
     if (dialogOptions.mode !== 'new') {
       const res: any = await updateRole(data!.id!, data as RoleGetQuery)
@@ -343,10 +344,11 @@ function resetForm(formEl: FormInstance | undefined) {
             </el-form-item>
 
             <el-form-item label="角色值" inline>
-              <el-select v-model="dialogOptions.data.value" placeholder="请输入角色值" clearable>
+              <!-- <el-select v-model="dialogOptions.data.value" placeholder="请输入角色值" clearable>
                 <el-option label="admin" value="admin" />
                 <el-option label="user" value="user" />
-              </el-select>
+              </el-select> -->
+              <el-input v-model="dialogOptions.data.value" placeholder="请输入角色值..." clearable />
             </el-form-item>
           </div>
 

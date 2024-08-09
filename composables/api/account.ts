@@ -70,12 +70,16 @@ export interface RoleEditQuery {
 }
 
 export interface RoleGetQuery {
-  page: number
-  pageSize: number
+  menuIds?:number[]
+  id?:  number
+  page?: number
+  pageSize?: number
   name: string
   value: string
   remark: string
-  status: number
+  status: number,
+  createdAt?: string,
+  updater?: string
 }
 
 export function getRoleList(query?: Partial<UserGetQuery>) {
