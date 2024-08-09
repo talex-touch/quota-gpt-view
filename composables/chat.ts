@@ -248,7 +248,7 @@ async function handleExecutorItem(item: string, callback: (data: any) => void) {
         return
       }
 
-      console.error('@error', item)
+      console.log('item', item)
       console.error(e)
 
       callback({
@@ -340,7 +340,7 @@ export async function useChatExecutor(context: ChatCompletion, callback: (data: 
   async function _func() {
     try {
       let url = ''
-      if (userStore.value.token && options.generateSummary !== 0)
+      if (userStore.value.token && (options.generateSummary !== undefined && options.generateSummary !== 0))
         url = `${globalOptions.getEndsUrl()}api/aigc/executor/completion?uid=${userStore.value.id}`
       else url = `${globalOptions.getEndsUrl()}api/aigc/executor${userStore.value.token ? `/authorized?uid=${userStore.value.id}` : ''}`
 
@@ -645,10 +645,6 @@ export class ChatManager {
           || event === 'on_chat_model_start'
         ) {
           obj.streaming = false
-        }
-        else if (event === 'on_chain_end') {
-          if (name === 'Agent')
-            complete()
         }
         else if (event === 'on_tool_start') {
           if (name === 'TavilySearchResults')
