@@ -8,6 +8,7 @@ import empty from '~/components/chore/personal/profile/empty.vue'
 import History from '~/components/chore/personal/profile/History.vue'
 import Appearance from '~/components/chore/personal/profile/Appearance.vue'
 import Developer from '~/components/chore/personal/profile/Developer.vue'
+import Link from '~/components/chore/personal/profile/Link.vue'
 
 const props = defineProps<{
   modelValue: boolean
@@ -34,26 +35,31 @@ const expand = ref(false)
 const queryComponentMapper: Record<string, any> = {
   account: Account,
   plan: Plan,
-  link: empty,
+  link: Link,
   appearance: Appearance,
   history: History,
   developer: Developer,
+  notification: empty,
 }
 
-watch(() => route.fullPath, () => {
-  const data = route.query.data
+watch(
+  () => route.fullPath,
+  () => {
+    const data = route.query.data
 
-  if (data) {
-    show.value = true
-    expand.value = data === 'plan'
-  }
-  else {
-    show.value = false
-    return
-  }
+    if (data) {
+      show.value = true
+      expand.value = data === 'plan'
+    }
+    else {
+      show.value = false
+      return
+    }
 
-  comp.value = queryComponentMapper[data as string]
-}, { immediate: true })
+    comp.value = queryComponentMapper[data as string]
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
@@ -67,7 +73,7 @@ watch(() => route.fullPath, () => {
         <div class="PersonalWrapper-AsideHead">
           <AccountAvatar />
           <div class="head-text">
-            <p> {{ userStore.nickname }}</p>
+            <p>{{ userStore.nickname }}</p>
             <p op-75>
               +86 {{ privacyPhone }}
             </p>
@@ -76,34 +82,41 @@ watch(() => route.fullPath, () => {
 
         <div class="PersonalWrapper-AsideMenu">
           <CmsMenuItem query="account">
-            <div i-carbon-user />账号资料
+            <div i-carbon-user />
+            账号资料
           </CmsMenuItem>
           <CmsMenuItem emphasis query="plan">
-            <div i-carbon:document-multiple-01 />订阅计划
+            <div i-carbon:document-multiple-01 />
+            订阅计划
           </CmsMenuItem>
           <!-- <CmsMenuItem path="/profile/test">
             <div i-carbon-software-resource-cluster />我的内测
           </CmsMenuItem> -->
           <CmsMenuItem query="notification">
-            <div i-carbon-notification />通知设置
+            <div i-carbon-notification />
+            通知设置
           </CmsMenuItem>
           <CmsMenuItem query="appearance">
-            <div i-carbon-moon />外观设置
+            <div i-carbon-moon />
+            外观设置
           </CmsMenuItem>
           <CmsMenuItem query="link">
-            <div i-carbon-attachment />三方绑定
+            <div i-carbon-attachment />
+            三方绑定
           </CmsMenuItem>
           <!-- <CmsMenuItem danger path="/profile/password">
             <div i-carbon-password />修改密码
           </CmsMenuItem> -->
           <CmsMenuItem query="history">
-            <div i-carbon-data-table />登录历史
+            <div i-carbon-data-table />
+            登录历史
           </CmsMenuItem>
           <!-- <CmsMenuItem path="/profile/mf2a">
             <div i-carbon-tablet />MF2A
           </CmsMenuItem> -->
           <CmsMenuItem danger query="developer">
-            <div i-carbon-code />开发者设置
+            <div i-carbon-code />
+            开发者设置
           </CmsMenuItem>
         </div>
       </div>
