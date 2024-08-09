@@ -616,8 +616,9 @@ function getAuditType(status: number) {
               @confirm="submitForm(ruleFormRef)"
             >
               <template #reference>
+                <!-- !dialogOptions.meta.polish && dialogOptions.meta.translation -->
                 <el-button
-                  :disabled="dialogOptions.data.content!.length < 200 || !dialogOptions.meta.polish && dialogOptions.meta.translation"
+                  :disabled="dialogOptions.data.content!.length < 200"
                   :loading="dialogOptions.loading" type="primary"
                 >
                   {{ dialogOptions.mode !== 'new' ? "修改并提交审核" : "新建并提交审核" }}

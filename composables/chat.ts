@@ -829,6 +829,8 @@ export enum ChatMsgType {
   GENERATE_VIDEO,
   GENERATE_AUDIO,
   GENERATE_DOCUMENT,
+  COMPLETION_PROMPT_POLISH,
+  COMPLETION_PROMPT_TRANSLATION,
 }
 
 export function deserializeMsgType(type: number) {
@@ -845,6 +847,10 @@ export function deserializeMsgType(type: number) {
       return '生成音频'
     case ChatMsgType.GENERATE_DOCUMENT:
       return '生成文档'
+    case ChatMsgType.COMPLETION_PROMPT_POLISH:
+      return '润色提示词'
+    case ChatMsgType.COMPLETION_PROMPT_TRANSLATION:
+      return '翻译提示词'
     default:
       return '未知'
   }

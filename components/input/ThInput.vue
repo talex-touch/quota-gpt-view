@@ -418,7 +418,8 @@ function handleTemplateSelect(data: any) {
   .ThInput-InputMain {
     width: calc(100% - 40px);
   }
-
+  position: relative;
+  z-index: 10;
   flex: 1;
   flex-direction: column;
 
