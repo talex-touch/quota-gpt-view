@@ -99,7 +99,7 @@ async function handleSend(query: string, _meta: any) {
   const meta = {
     model: chatManager.messages.value.model,
     tools: inputProperty.internet,
-    templateId: conversation.templateId || _meta?.template,
+    templateId: conversation?.templateId || _meta?.template,
   }
 
   if ((!conversation.templateId || conversation.templateId === -1) && (meta.templateId !== undefined && meta.templateId !== -1))
@@ -119,6 +119,7 @@ async function handleSend(query: string, _meta: any) {
     content: '',
     generating: true,
     streaming: false,
+    status: Status.GENERATING,
   })
 
   conversation.messages.push(obj)
@@ -130,11 +131,16 @@ async function handleSend(query: string, _meta: any) {
   chatManager.messages.value = conversation
 
   await chatManager.sendMessage(obj, conversation, meta, {
+    onErrorHandler: (e) => {
+      console.log('error', JSON.stringify(e))
+      obj.content = JSON.stringify(e)
+    },
     onTriggerUpdate: () => {
       chatRef.value?.generateScroll()
     },
     onTriggerStatus(status) {
       chatManager.setStatus(status)
+      obj.status = status
     },
     async onReqCompleted() {
       await genTitle(pageOptions.select)
