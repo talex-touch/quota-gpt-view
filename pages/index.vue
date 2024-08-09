@@ -39,7 +39,7 @@ watch(
     pageOptions.template = null
 
     if (ind < 0 || ind >= chatManager.history.value.length) {
-      chatManager.messages.value = JSON.parse(JSON.stringify(chatManager.originObj))
+      // chatManager.messages.value = JSON.parse(JSON.stringify(chatManager.originObj))
       return
     }
 
@@ -71,6 +71,7 @@ function handleCreate() {
     return false
 
   pageOptions.select = chatManager.history.value.length - 1
+  chatManager.messages.value = JSON.parse(JSON.stringify(chatManager.originObj))
 
   return true
 }
