@@ -261,7 +261,6 @@ export function getDepartmentList() {
 }
 
 
-
 /**
  * 新增部门
  * @param body 
@@ -270,8 +269,23 @@ export function getDepartmentList() {
 export function addDept(body: any) {
   return endHttp.post('system/depts', body)
 }
+/**
+ * 删除部门
+ * @param id 
+ * @returns 
+ */
+export function delDept(id:number) {
+  return endHttp.del('/system/depts/'+id)
+}
 
-
+/**
+ * 更新部门
+ * @param id 
+ * @returns 
+ */
+export function UpdateDept(id:number) {
+  return endHttp.put('/system/depts/'+id)
+}
 
 // ---------------------------------------字典管理
 
