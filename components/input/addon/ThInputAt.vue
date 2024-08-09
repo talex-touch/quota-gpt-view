@@ -199,6 +199,7 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeyDown))
   &.show {
     transform: translateY(0) scale(1);
   }
+  z-index: 0;
   position: absolute;
   padding: 1rem;
 
