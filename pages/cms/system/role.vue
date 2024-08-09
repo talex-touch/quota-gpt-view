@@ -185,7 +185,7 @@ async function submitForm(formEl: FormInstance | undefined) {
 
     const data = dialogOptions.data!
 
-    data.menuIds = treeRef.value.getCheckedNodes() || [];
+    data.menuIds = treeRef.value.getCheckedNodes() ?? [] // 如果menuIds为undefined，则提供一个空数组;
 
     if (dialogOptions.mode !== 'new') {
       const res: any = await updateRole(data!.id!, data as RoleGetQuery)
@@ -349,6 +349,7 @@ function resetForm(formEl: FormInstance | undefined) {
                 <el-option label="user" value="user" />
               </el-select> -->
               <el-input v-model="dialogOptions.data.value" placeholder="请输入角色值..." clearable />
+
             </el-form-item>
           </div>
 
@@ -399,6 +400,5 @@ function resetForm(formEl: FormInstance | undefined) {
 </template>
 
 <style lang="scss">
-.CmsRole {
-}
+
 </style>
