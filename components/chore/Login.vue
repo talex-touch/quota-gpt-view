@@ -211,6 +211,8 @@ onMounted(async () => {
             }
             else {
               setTimeout(() => {
+                localStorage.removeItem('code-data')
+
                 userStore.value.token = (result.data.token)
 
                 ElMessage.info('登录成功！')
@@ -453,6 +455,10 @@ const codeUrl = computed(() => `https://mp.weixin.qq.com/cgi-bin/showqrcode?tick
     flex-direction: column;
 
     gap: 1.5rem;
+
+    .el-input {
+      --el-input-bg-color: #0000 !important;
+    }
   }
 
   width: 60%;

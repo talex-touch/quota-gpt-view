@@ -6,12 +6,14 @@ import type { ThHistory } from '~/components/history/history'
 import { chatManager } from '~/composables/chat'
 import ShareSection from '~/components/chat/ShareSection.vue'
 import { inputProperty } from '~/components/input/input'
+import { getTargetPrompt } from '~/composables/api/chat'
 
 const chatRef = ref()
 const pageOptions = reactive<any>({
   settingDialog: false,
   expand: true,
   select: -1,
+  template: null,
   share: {
     enable: false,
     selected: new Array<number>(),
@@ -34,6 +36,8 @@ function handleDelete(index: number) {
 watch(
   () => pageOptions.select,
   (ind) => {
+    pageOptions.template = null
+
     if (ind < 0 || ind >= chatManager.history.value.length) {
       chatManager.messages.value = JSON.parse(JSON.stringify(chatManager.originObj))
       return
@@ -41,7 +45,15 @@ watch(
 
     const conversation = chatManager.history.value[ind]
 
-    setTimeout(() => {
+    setTimeout(async () => {
+      // get template
+      // pageOptions.template
+      if (conversation.templateId !== undefined && conversation.templateId !== -1) {
+        const res: any = await getTargetPrompt(conversation.templateId)
+
+        pageOptions.template = res.data
+      }
+
       chatManager.messages.value = conversation
       if (!chatManager.messages.value!.status)
         chatManager.messages.value!.status = Status.AVAILABLE
@@ -63,7 +75,7 @@ function handleCreate() {
   return true
 }
 
-async function handleSend(query: string) {
+async function handleSend(query: string, _meta: any) {
   const format = genFormatNowDate()
 
   let genTitle: any = async (_index: number) => void 0
@@ -87,7 +99,11 @@ async function handleSend(query: string) {
   const meta = {
     model: chatManager.messages.value.model,
     tools: inputProperty.internet,
+    templateId: conversation.templateId || _meta?.template,
   }
+
+  if ((!conversation.templateId || conversation.templateId === -1) && (meta.templateId !== undefined && meta.templateId !== -1))
+    conversation.templateId = meta.templateId
 
   conversation.messages.push({
     date: format,
@@ -157,8 +173,9 @@ provide('pageOptions', pageOptions)
         @cancel="chatManager.cancelCurrentReq()"
       />
       <ThInput
-        :status="chatManager.messages.value?.status ?? Status.AVAILABLE"
-        :hide="pageOptions.share.enable || roundLimit" @send="handleSend"
+        :template-enable="!chatManager.messages.value.messages.length"
+        :status="chatManager.messages.value?.status ?? Status.AVAILABLE" :hide="pageOptions.share.enable || roundLimit"
+        @send="handleSend"
       />
 
       <ShareSection
@@ -167,7 +184,7 @@ provide('pageOptions', pageOptions)
       />
 
       <div class="copyright">
-        ThisAI. 可能会犯错，生成的内容仅供参考。v24.08.08
+        ThisAI. 可能会犯错，生成的内容仅供参考。v24.08.09
         <span class="business">四川科塔锐行科技有限公司</span>
       </div>
 

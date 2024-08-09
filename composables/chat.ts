@@ -34,6 +34,10 @@ export interface ChatCompletionDto {
   tools: boolean
 
   generateTitle: boolean
+
+  generateSummary: number
+
+  templateId: number
 }
 
 export interface CompletionItem {
@@ -76,6 +80,7 @@ export interface ChatCompletion {
     generating: boolean
   }
   status: Status
+  templateId?: number
 }
 
 export interface Mask {
@@ -169,7 +174,7 @@ export function useChatTitle(context: ChatCompletion) {
       return
 
     for (; i < text.length; ++i) {
-      if (i >= 28)
+      if (i >= 14)
         break
       const code = text[i]
 
@@ -297,7 +302,7 @@ async function handleExecutorResult(reader: ReadableStreamDefaultReader<string>,
             ElMessage.error(data.message)
         }
         catch (_ignored) {
-          console.error('error in chat', _ignored)
+          // console.error('error in chat', _ignored)
         }
       }
     }
@@ -334,7 +339,12 @@ export async function useChatExecutor(context: ChatCompletion, callback: (data: 
 
   async function _func() {
     try {
-      const res = await $fetch<ReadableStream>(`${globalOptions.getEndsUrl()}api/aigc/executor${userStore.value.token ? `/authorized?uid=${userStore.value.id}` : ''}`, {
+      let url = ''
+      if (userStore.value.token && options.generateSummary !== 0)
+        url = `${globalOptions.getEndsUrl()}api/aigc/executor/completion?uid=${userStore.value.id}`
+      else url = `${globalOptions.getEndsUrl()}api/aigc/executor${userStore.value.token ? `/authorized?uid=${userStore.value.id}` : ''}`
+
+      const res = await $fetch<ReadableStream>(url, {
         method: 'POST',
         responseType: 'stream',
         headers: {
@@ -403,7 +413,7 @@ export class ChatManager {
           this.history.value.push(...leftHistory)
 
           // 移除localHistory中所有sync true
-          this.history.value = this.history.value.filter((item: any) => !item.sync)
+          localHistory.value = this.history.value = this.history.value.filter((item: any) => !item.sync)
 
           console.warn('left histories', localHistory.value.length, this.history.value.length)
 
@@ -463,6 +473,7 @@ export class ChatManager {
       mask: data.mask,
       model: data.model,
       status: data.status,
+      templateId: data.templateId,
     }
 
     Object.entries(meta).forEach(([key, value]) => {
@@ -840,6 +851,48 @@ export function deserializeMsgType(type: number) {
   }
 }
 
+export interface PromptQueryDto extends Record<string, any> {
+  page?: number
+  pageSize?: number
+  /**
+   * 标题
+   */
+  title?: string
+}
+
+export interface PromptEntityDto {
+  /**
+   * 提示词头像
+   */
+  avatar?: string
+  /**
+   * 提示文本
+   */
+  content?: string
+  createdAt?: Date
+  /**
+   * 创建者
+   */
+  creator?: any
+  id?: number
+  /**
+   * 提示词标题
+   */
+  title?: string
+  updatedAt?: Date
+  /**
+   * 更新者
+   */
+  updater?: any
+  /**
+   * 使用记录
+   */
+  usages?: any[]
+  audits?: any[]
+
+  status?: number
+}
+
 export class ChatAdminManager {
   list(query: ChatLogQueryDto) {
     return endHttp.get('aigc/chat_log', query)
@@ -857,6 +910,25 @@ export class ChatAdminManager {
       startDate,
       endDate,
       userId,
+    })
+  }
+
+  async promptList(dto: PromptQueryDto) {
+    return endHttp.post('aigc/prompts/list', dto)
+  }
+
+  async createTemplate(dto: PromptEntityDto) {
+    return endHttp.post('aigc/prompts', dto)
+  }
+
+  async updateTemplate(id: string, dto: PromptEntityDto) {
+    return endHttp.put(`aigc/prompts/${id}`, dto)
+  }
+
+  async auditTemplate(id: number, dto: { status: number, reason?: string }) {
+    return endHttp.post(`aigc/prompts/audit/${id}`, {
+      status: dto.status,
+      reason: dto.reason,
     })
   }
 }

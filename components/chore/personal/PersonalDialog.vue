@@ -7,6 +7,7 @@ import Plan from '~/components/chore/personal/profile/Plan.vue'
 import empty from '~/components/chore/personal/profile/empty.vue'
 import History from '~/components/chore/personal/profile/History.vue'
 import Appearance from '~/components/chore/personal/profile/Appearance.vue'
+import Developer from '~/components/chore/personal/profile/Developer.vue'
 
 const props = defineProps<{
   modelValue: boolean
@@ -36,7 +37,7 @@ const queryComponentMapper: Record<string, any> = {
   link: empty,
   appearance: Appearance,
   history: History,
-  developer: empty,
+  developer: Developer,
 }
 
 watch(() => route.fullPath, () => {

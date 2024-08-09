@@ -2,10 +2,6 @@
 import dayjs from 'dayjs'
 import { getHistoryList } from '~/composables/api/account'
 
-definePageMeta({
-  layout: 'personal',
-})
-
 const historyList = ref()
 
 onMounted(async () => {

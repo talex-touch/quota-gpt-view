@@ -413,7 +413,7 @@ function filterNode(value: string, data: any) {
           <el-form-item label="用户昵称" prop="nickname">
             <el-input v-model="dialogOptions.data.nickname" />
           </el-form-item>
-          <el-form-item label="用户密码" prop="nickname">
+          <el-form-item label="用户密码" prop="password">
             <el-input v-model="dialogOptions.data.password" :disabled="dialogOptions.mode !== 'new'" type="password" />
           </el-form-item>
           <el-form-item label="用户邮箱" prop="email">

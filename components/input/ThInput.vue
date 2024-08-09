@@ -7,14 +7,17 @@ import { Status } from '~/composables/chat'
 const props = defineProps<{
   status: Status
   hide: boolean
+  templateEnable: boolean
 }>()
 const emits = defineEmits<{
-  (name: 'send', data: any): void
+  (name: 'send', data: any, meta: any): void
   (name: 'clear'): void
 }>()
 
 const input = ref('')
-const nonPlusMode = computed(() => input.value.startsWith('/') || input.value.startsWith('@'))
+const template = ref<any>({})
+const pageOptions: any = inject('pageOptions')
+const nonPlusMode = computed(() => props.templateEnable && !template.value?.title && (input.value.startsWith('/') || input.value.startsWith('@')))
 
 const inputHistories = useLocalStorage<string[]>('inputHistories', [])
 const inputHistoryIndex = ref(inputHistories.value.length - 1)
@@ -24,6 +27,9 @@ function handleSend(event: Event) {
   if (!showSend.value)
     return
   if (props.status !== Status.AVAILABLE)
+    return
+
+  if (input.value.startsWith('@'))
     return
 
   event.preventDefault()
@@ -37,12 +43,25 @@ function handleSend(event: Event) {
 
   inputHistoryIndex.value = inputHistories.value.length - 1
 
-  emits('send', input.value)
+  emits('send', input.value, {
+    template: template.value?.id || -1,
+  })
 
   input.value = ''
+  template.value = {}
 }
 
 function handleInputKeydown(event: KeyboardEvent) {
+  if (!template.value?.title && input.value.startsWith('@'))
+    return
+
+  if (event.key === 'Backspace') {
+    if (template.value && !input.value) {
+      template.value = {}
+      pageOptions.template = null
+    }
+  }
+
   if (event.key === 'Enter') {
     event.preventDefault()
 
@@ -119,6 +138,12 @@ onMounted(() => {
     el?.focus()
   })
 })
+
+function handleTemplateSelect(data: any) {
+  pageOptions.template = template.value = data
+
+  input.value = ''
+}
 </script>
 
 <template>
@@ -145,13 +170,32 @@ onMounted(() => {
       </div>
     </div>
 
-    <ThInputPlus v-model="inputProperty" />
+    <InputAddonThInputAt
+      v-if="templateEnable"
+      :input="input" :show="!template?.title && input.startsWith('@')"
+      @select="handleTemplateSelect"
+    />
 
-    <div class="ThInput-Input">
-      <textarea
-        id="main-input" v-model="input" :maxlength="userStore.token ? 10000 : 256" autofocus autocomplete="off"
-        placeholder="Shift + Enter换行" @keydown="handleInputKeydown"
-      />
+    <ThInputPlus v-if="!template?.title" v-model="inputProperty" />
+
+    <div flex class="ThInput-Input">
+      <div v-if="template.content" class="ThInput-InputHeader">
+        <el-scrollbar>
+          <div class="ThInput-InputHeader-Main">
+            {{ template.content }}
+          </div>
+        </el-scrollbar>
+      </div>
+
+      <div flex items-center class="ThInput-InputMain">
+        <template v-if="template?.title">
+          <span flex class="template-tag">@{{ template.title }}</span>
+        </template>
+        <textarea
+          id="main-input" v-model="input" :maxlength="userStore.token ? 10000 : 256" autofocus
+          autocomplete="off" placeholder="Shift + Enter换行" @keydown="handleInputKeydown"
+        />
+      </div>
     </div>
 
     <div class="ThInput-Send" @click="handleSend">
@@ -163,8 +207,23 @@ onMounted(() => {
 </template>
 
 <style lang="scss" scoped>
+.template-tag {
+  margin-right: 0.5rem;
+  padding: 0.25rem 0.5rem;
+
+  width: max-content;
+
+  opacity: 0.75;
+  flex-shrink: 0;
+  font-size: 14px;
+  border-radius: 8px;
+  align-self: flex-end;
+  background-color: var(--theme-color);
+}
+
 .ThInput-Float {
   span.tag {
+    z-index: -1;
     position: relative;
     padding: 0.25rem 0.5rem;
 
@@ -174,8 +233,8 @@ onMounted(() => {
     font-size: 14px;
 
     border-radius: 8px;
-    box-shadow: var(--el-box-shadow-dark);
-    background: var(--el-mask-color-extra-light);
+    box-shadow: var(--el-box-shadow);
+    background: var(--el-bg-color);
   }
 
   & > div {
@@ -195,7 +254,7 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
 
-  top: -50px;
+  bottom: -35px;
   left: 0;
 
   width: 100%;
@@ -311,8 +370,9 @@ onMounted(() => {
 
     width: calc(100% - 20px - 1.5rem);
     max-height: 330px;
-    height: 22px;
-    min-height: 22px;
+    height: 32px;
+    line-height: 32px;
+    min-height: 32px;
     overflow: visible;
 
     resize: none;
@@ -321,7 +381,48 @@ onMounted(() => {
     background-color: transparent;
   }
 
+  .ThInput-InputHeader {
+    &::before {
+      z-index: -1;
+      content: '';
+      position: absolute;
+
+      top: 0;
+      left: 0;
+
+      width: 100%;
+      height: 100%;
+
+      opacity: 0.35;
+      border-radius: 12px 12px 8px 8px;
+      background: var(--el-bg-color);
+      border: 1px solid var(--el-border-color);
+    }
+    :deep(.el-scrollbar__bar.is-vertical) {
+      width: 3px;
+    }
+    .ThInput-InputHeader-Main {
+      padding-right: 0.5rem;
+
+      max-height: 100px;
+    }
+    position: relative;
+    padding: 0.5rem 0.5rem;
+
+    width: 100%;
+
+    // overflow: hidden;
+    // border-radius: 12px 12px 0 0;
+  }
+
+  .ThInput-InputMain {
+    width: calc(100% - 40px);
+  }
+
   flex: 1;
+  flex-direction: column;
+
+  align-items: flex-start;
 
   overflow: hidden;
 }
