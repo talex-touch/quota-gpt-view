@@ -297,45 +297,116 @@ export function UpdateDept(id:number) {
 export function getDictList(Query: any) {
   return endHttp.get('system/dict-type', Query)
 }
+
+
+/**
+ * DictTypeDto 新增字典
+ */
+export interface DictRequest {
+  /**
+   * 字典类型code
+   */
+  code?: string;
+  createdAt?: Date;
+  /**
+   * 创建者
+   */
+  creator?: string;
+  id?: number;
+  /**
+   * 字典类型名称
+   */
+  name?: string;
+  /**
+   * 备注
+   */
+  remark?: string;
+  /**
+   * 状态
+   */
+  status?: number;
+  updatedAt?: Date;
+  /**
+   * 更新者
+   */
+  updater?: string;
+  [property: string]: any;
+}
 /**
  * 新增字典
  * @param Header 
  * @returns 
  */
-export function addDict(Header: any) {
-  return endHttp.post('system/dict-type', Header)
+export function addDict(Body: DictRequest) {
+  return endHttp.post('system/dict-type', Body)
 }
 /**
- * 获取字典列表
+ * 获取一次性所有字典列表
  * @param Header 
  * @returns 
  */
-export function getAllDictList(Header: any) {
-  return endHttp.get('system/dict-type/select-options', Header)
+export function getAllDictList() {
+  return endHttp.get('system/dict-type/select-options')
 }
 /**
  * 查询字典类型信息
  * @param Path 
  * @returns 
  */
-export function inquireDictInformation(Path: any) {
-  return endHttp.get('system/dict-type/{id}', Path)
+export function queryDictInfo(Path: any) {
+  return endHttp.get('system/dict-type/'+ Path)
 }
 /**
- * 修改字典
- * @param Header 
+ * 更新字典
+ * @param Path  id
+ * @param Body  
  * @returns 
  */
-export function updateDict(Header: any) {
-  return endHttp.post('system/dict-type/{id}', Header)
+export function updateDict(Path:number,Body: any) {
+  return endHttp.post(`system/dict-type/${Path}`, Body)
 }
 /**
  * 删除字典
- * @param Path 
+ * @param Path  --id
  * @returns 
  */
 export function delDict(Path: any) {
-  return endHttp.post('system/param-config/{id}', Path)
+  return endHttp.post(`system/dict-type/${Path}`)
+}
+
+
+//------------------------------任务调度
+
+export function getScheduleList(Query : any) {
+  return endHttp.get('system/tasks',Query)
+}
+
+export function addSchedule(Header : any) {
+  return endHttp.post('system/tasks',Header)
+}
+
+export function updateSchedule(Path : any) {
+  return endHttp.put('system/tasks/{id}',Path)
+}
+
+export function inquireScheduleInfprmation(Path : any) {
+  return endHttp.get('system/tasks/{id}',Path)
+}
+
+export function delSchedule(Path : any) {
+  return endHttp.del('system/tasks/{id}',Path)
+}
+
+export function runScheduleOnce(Path : any) {
+  return endHttp.put('system/tasks/{id}/once',Path)
+}
+
+export function stopSchedule(Path : any) {
+  return endHttp.put('system/tasks/{id}/stop',Path)
+}
+
+export function startSchedule(Path : any) {
+  return endHttp.put('system/tasks/{id}/stop',Path)
 }
 
 
@@ -523,38 +594,5 @@ export function getAdminOrders(query: IAdminOrderQuery) {
 export function getAdminOrderStatistics() {
   return endHttp.get('order/admin/statistics')
 }
-<<<<<<< HEAD
 
-export function getScheduleList(Query : any) {
-  return endHttp.get('system/tasks',Query)
-}
 
-export function addSchedule(Header : any) {
-  return endHttp.post('system/tasks',Header)
-}
-
-export function updateSchedule(Path : any) {
-  return endHttp.put('system/tasks/{id}',Path)
-}
-
-export function inquireScheduleInfprmation(Path : any) {
-  return endHttp.get('system/tasks/{id}',Path)
-}
-
-export function delSchedule(Path : any) {
-  return endHttp.del('system/tasks/{id}',Path)
-}
-
-export function runScheduleOnce(Path : any) {
-  return endHttp.put('system/tasks/{id}/once',Path)
-}
-
-export function stopSchedule(Path : any) {
-  return endHttp.put('system/tasks/{id}/stop',Path)
-}
-
-export function startSchedule(Path : any) {
-  return endHttp.put('system/tasks/{id}/stop',Path)
-}
-=======
->>>>>>> 5a41396f5b3a0bb99676e293623856b53d0667e5
