@@ -1,9 +1,10 @@
 <script lang="ts" setup>
 import dayjs from 'dayjs'
 import type { ComponentSize, FormInstance, FormRules } from 'element-plus'
-import { type UserQuery, addUser, deleteUser, getDepartmentList, getRoleList, getUsers, updateUser } from '~/composables/api/account'
+import { type DictItemsListReq, type DictItemsRequest, type DictTypeEntity, type UserQuery, addDictItems, addUser, deleteUser, getAllDictList, getDepartmentList, getDictItemsList, getRoleList, queryDictItemsInfo, updateDictItems, updateUser } from '~/composables/api/account'
 import UserAvatar from '~/components/personal/UserAvatar.vue'
 import UserUploadAvatar from '~/components/personal/UserUploadAvatar.vue'
+import { isTemplateSpan } from 'typescript'
 
 definePageMeta({
   name: '字典项管理',
@@ -13,18 +14,51 @@ definePageMeta({
   },
 })
 
-const defaultProps = {
-  children: 'children',
-  label: 'name',
-}
 
-const treeDom = ref()
-const treeFilterQuery = ref()
-const depts = ref()
+const route:Record<string,any> = useRoute()
+console.log("======= route =======\n", route);
+let id :number= Number(route.params.id)
+const codeType:string = route.query.code
+console.log("======= codeType =======\n", codeType);
+
+
+
+
+
+onMounted(()=>{
+  // initData()
+  fetchData(),
+  getType()
+})
+
+
+/**
+ * 根据id获取字典项
+ * dictItems：字典项列表
+ */
+// async function initData(){
+
+//   formLoading.value = true
+
+//   const res:any =  await queryDictItemsInfo(id)
+
+//   if (!res) {
+//     ElMessage.warning('参数错误，查询失败！')
+//   }
+//   else {
+//     if (res.code === 200) {
+//       dictItems.value.items = res.data
+
+//     }
+//   }
+
+//   formLoading.value = false
+// }
+
 
 const formLoading = ref(false)
-const users = ref({
-  items: [],
+const dictItems = ref({
+  items: [] as DictTypeEntity[],
   meta: {
     currentPage: 0,
     perPage: 0,
@@ -36,38 +70,55 @@ const users = ref({
 })
 
 const formInline = reactive({
-  user: '',
-  email: '',
-  phone: '',
-  remark: '',
-  deptId: 0,
+  id: null,
+
 })
 
 function handleReset() {
-  formInline.user = ''
-  formInline.email = ''
-  formInline.phone = ''
-  formInline.remark = ''
-  formInline.deptId = 0
-
-  treeDom.value?.setCurrentKey(null)
+  formInline.id = null
 }
 
 const roles = ref()
 
-onMounted(fetchData)
+
+
+async function searchData() {
+  formLoading.value = true
+  if(formInline.id!){
+    const res: any = (await queryDictItemsInfo(formInline.id ))
+
+    if (!res) {
+    ElMessage.warning('参数错误，查询失败！')
+    }
+     else {
+
+    if (res.code === 200)
+    console.log("======= ressearchData =======\n", res);
+      dictItems.value = res.data
+      if(res.data===null){
+        ElMessage.warning('查询为空！')
+      }
+  }
+
+  formLoading.value = false
+  }else{
+
+
+    fetchData();
+    formLoading.value = false
+
+  }
+
+}
+
 
 async function fetchData() {
   formLoading.value = true
 
-  const query: Record<string, any> = {
-    page: users.value.meta.currentPage,
-    pageSize: users.value.meta.itemsPerPage,
-    username: formInline.user,
-    email: formInline.email,
-    phone: formInline.phone,
-    remark: formInline.remark,
-    deptId: formInline.deptId,
+  const query: Record<string,any>= {
+    page: dictItems.value.meta.currentPage | 1,
+    pageSize: dictItems.value.meta.itemsPerPage | 10,
+    typeId:id,
   }
 
   // 过滤掉为空的值
@@ -76,39 +127,36 @@ async function fetchData() {
       delete query[key]
   })
 
-  const res: any = (await getUsers(query))
+  const res: any = (await getDictItemsList(query))
   if (!res) {
     ElMessage.warning('参数错误，查询失败！')
   }
   else {
+    console.log("======= res.cod1e =======\n", res);
     if (res.code === 200) {
-      depts.value = (await getDepartmentList()).data
-      roles.value = (await getRoleList()).data
 
-      users.value = res.data
+      dictItems.value = res.data
+
     }
   }
 
   formLoading.value = false
 }
 
-watch(() => formInline.deptId, () => {
-  fetchData()
-})
+// watch(() => formInline.deptId, () => {
+//   fetchData()
+// })
 
 function formatDate(date: string) {
   return dayjs(date).format('YYYY-MM-DD HH:mm:ss')
 }
 
-interface UserForm extends UserQuery {
-  roles?: any[]
-  deptId: number
-}
+
 
 const dialogOptions = reactive<{
   visible: boolean
   mode: 'edit' | 'read' | 'new'
-  data: UserForm | null
+  data:   Partial<DictItemsRequest> | null
   loading: boolean
 }>({
   visible: false,
@@ -117,57 +165,76 @@ const dialogOptions = reactive<{
   loading: false,
 })
 
-function handleDialog(data: UserForm | null, mode: 'edit' | 'read' | 'new') {
+
+const typeSList =ref<any[]>([])
+
+/**
+ * 获取字典类型，code，名称，id，为选择器服务
+ */
+async function getType(){
+  const res: any = (await getAllDictList())
+  if (!res) {
+    ElMessage.warning('参数错误，查询失败！')
+  }
+  else {
+
+    console.log("======= res.code11 =======\n", res);
+    if (res.code === 200)
+    
+     res.data.map((item:any)=>{
+       console.log("======= item =======\n", item);
+        typeSList.value.push({
+        name: item.name,
+        id: item.id,
+        code:item.code
+      })
+
+
+     })
+  }
+}
+
+function handleDialog(data: DictItemsRequest | null, mode: 'edit' | 'read' | 'new') {
   dialogOptions.mode = mode
   dialogOptions.visible = true
   dialogOptions.data = (mode === 'new'
     ? {
-        id: '',
-        email: '',
-        username: '',
-        nickname: '',
-        avatar: '',
-        qq: '',
-        phone: '',
-        status: 1,
-        remark: '',
-        roles: [],
-      }
-    : { ...data }) as UserForm
 
-  dialogOptions.data.roleIds = dialogOptions.data.roles!.map((item: any) => item.id)
-  dialogOptions.data.deptId = dialogOptions.data.dept?.id ?? 0
+      }
+    : { ...data }) as DictItemsRequest
+
+ 
 }
 
 const ruleFormRef = ref<FormInstance>()
 
-const rules = reactive<FormRules<UserForm>>({
-  username: [
-    { required: true, message: '请输入用户名称', trigger: 'blur' },
-    { min: 5, max: 24, message: '用户名需要在 5-24 位之间', trigger: 'blur' },
-  ],
-  nickname: [
-    { required: true, message: '请输入用户昵称', trigger: 'blur' },
-    { min: 5, max: 24, message: '用户名需要在 5-24 位之间', trigger: 'blur' },
-  ],
-  password: [
-    { required: true, message: '请输入用户密码', trigger: 'blur' },
-    { min: 6, max: 16, message: '用户密码需要在 6-16 位之间', trigger: 'blur' },
-    { pattern: /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{6,16}$/, message: '用户密码必须包含数字和字母', trigger: 'blur' },
-  ],
-  avatar: [
-    { required: true, message: '请上传头像', trigger: 'blur' },
-  ],
-  // qq: [
-  //   { required: true, message: '请输入QQ号', trigger: 'blur' },
-  // ],
-  phone: [
-    { required: true, message: '请输入手机号', trigger: 'blur' },
-  ],
-  status: [
-    { required: true, message: '请选择状态', trigger: 'blur' },
-  ],
-})
+// const rules = reactive<FormRules<UserForm>>({
+//   username: [
+//     { required: true, message: '请输入用户名称', trigger: 'blur' },
+//     { min: 5, max: 24, message: '用户名需要在 5-24 位之间', trigger: 'blur' },
+//   ],
+//   nickname: [
+//     { required: true, message: '请输入用户昵称', trigger: 'blur' },
+//     { min: 5, max: 24, message: '用户名需要在 5-24 位之间', trigger: 'blur' },
+//   ],
+//   password: [
+//     { required: true, message: '请输入用户密码', trigger: 'blur' },
+//     { min: 6, max: 16, message: '用户密码需要在 6-16 位之间', trigger: 'blur' },
+//     { pattern: /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{6,16}$/, message: '用户密码必须包含数字和字母', trigger: 'blur' },
+//   ],
+//   avatar: [
+//     { required: true, message: '请上传头像', trigger: 'blur' },
+//   ],
+//   // qq: [
+//   //   { required: true, message: '请输入QQ号', trigger: 'blur' },
+//   // ],
+//   phone: [
+//     { required: true, message: '请输入手机号', trigger: 'blur' },
+//   ],
+//   status: [
+//     { required: true, message: '请选择状态', trigger: 'blur' },
+//   ],
+// })
 
 async function submitForm(formEl: FormInstance | undefined) {
   if (!formEl)
@@ -179,7 +246,7 @@ async function submitForm(formEl: FormInstance | undefined) {
     dialogOptions.loading = true
 
     if (dialogOptions.mode !== 'new') {
-      const res: any = await updateUser(dialogOptions.data!.id!, dialogOptions.data as UserForm)
+      const res: any = await updateDictItems(dialogOptions.data!.id!, dialogOptions.data as DictItemsRequest)
 
       if (res.code === 200) {
         ElMessage.success('修改成功！')
@@ -191,7 +258,7 @@ async function submitForm(formEl: FormInstance | undefined) {
       }
     }
     else {
-      const res: any = await addUser(dialogOptions.data as UserForm)
+      const res: any = await addDictItems(dialogOptions.data as DictItemsRequest)
 
       if (res.code === 200) {
         ElMessage.success('添加成功！')
@@ -213,9 +280,9 @@ function resetForm(formEl: FormInstance | undefined) {
   formEl.resetFields()
 }
 
-function handleDeleteUser(id: number, data: UserForm) {
+function handleDeleteUser(id: number, data: DictItemsRequest) {
   ElMessageBox.confirm(
-    `你确定要删除用户 ${data.username}(${data.nickname}) #${id} 吗？删除后这个账户永久无法找回。`,
+    `你确定要删除字典项 ${data.label}(${data.value}) #${id} 吗？删除后这个字典项永久无法找回。`,
     '确认删除',
     {
       confirmButtonText: '取消',
@@ -245,106 +312,37 @@ function handleDeleteUser(id: number, data: UserForm) {
       })
     })
 }
-
-function handleNodeClick(node: any, treeNode: any) {
-  if (treeNode.checked) {
-    treeDom.value?.setCurrentKey(null)
-    formInline.deptId = 0
-  }
-  else { formInline.deptId = node.id }
-}
-
-watch(treeFilterQuery, (val) => {
-  nextTick(() => treeDom.value!.filter(val))
-}, { immediate: true })
-
-function filterNode(value: string, data: any) {
-  if (!value)
-    return true
-
-  if (data.id === +value)
-    return true
-
-  return data.name.includes(value)
-}
 </script>
 
 <template>
   <el-container class="CmsUser">
-    <el-aside width="320px">
-      <el-header>
-        <p font-bold>
-          组织架构
-        </p>
-        <el-input v-model="treeFilterQuery" style="width: 200px" placeholder="搜索部门" />
-      </el-header>
-
-      <el-tree
-        ref="treeDom" :filter-node-method="filterNode" :default-expand-all="true" :highlight-current="true"
-        :current-node-key="formInline.deptId" node-key="id" :check-on-click-node="true" style="max-width: 600px"
-        :data="depts" :props="defaultProps" @node-click="handleNodeClick"
-      />
-    </el-aside>
-
     <el-main>
       <el-form :disabled="formLoading" :inline="true" :model="formInline">
-        <el-form-item label="用户名">
-          <el-input v-model="formInline.user" minlength="4" placeholder="搜索用户名" clearable />
+        <el-form-item label="所属字典类型id">
+          <el-input v-model="formInline.id" minlength="4" placeholder="根据id查字典项" clearable />
         </el-form-item>
-        <el-form-item label="邮箱">
-          <el-input v-model="formInline.email" placeholder="搜索邮箱" clearable />
-        </el-form-item>
-        <el-form-item label="手机号">
-          <el-input v-model="formInline.phone" placeholder="搜索手机号" clearable />
-        </el-form-item>
-        <el-form-item label="备注">
-          <el-input v-model="formInline.remark" placeholder="搜索备注" clearable />
-        </el-form-item>
-
-        <el-form-item style="margin-right: 0" float-right>
+        <el-form-item style="margin-right: 0;" float-right>
           <el-button @click="handleReset">
             重置
           </el-button>
-          <el-button :loading="formLoading" type="primary" @click="fetchData">
+          <el-button :loading="formLoading" type="primary" @click="searchData">
             查询
           </el-button>
           <el-button type="success" @click="handleDialog(null, 'new')">
-            新建用户
+            新建字典项
           </el-button>
         </el-form-item>
       </el-form>
 
       <ClientOnly>
-        <el-table v-if="users?.items" :data="users.items" style="width: 100%">
-          <el-table-column type="index" label="序号" width="60" />
-          <el-table-column prop="date" label="头像" width="80">
-            <template #default="scope">
-              <UserAvatar :avatar="scope.row.avatar" />
-            </template>
+        <el-table v-if="dictItems?.items" :data="dictItems.items" style="width: 100%;">
+          <el-table-column prop="id" label="所属字典类型" width="240">
+            <template #default="{ row }"> {{ row.id }}- {{ codeType }} </template>
           </el-table-column>
-          <el-table-column prop="username" label="用户名(昵称)" width="240">
-            <template #default="{ row }">
-              {{ row.username }}<span op-50>({{ row.nickname }})</span>
-            </template>
-          </el-table-column>
-          <el-table-column prop="email" label="邮箱" width="180" />
-          <el-table-column prop="department" label="部门" width="180">
-            <template #default="{ row }">
-              <el-tag v-if="row.dept">
-                {{ row.dept.name }}
-              </el-tag>
-              <span v-else>无</span>
-            </template>
-          </el-table-column>
-          <el-table-column prop="phone" label="手机号" width="180" />
-          <el-table-column prop="role" label="角色" width="180">
-            <template #default="{ row }">
-              <span v-if="row.roles?.length">
-                <el-tag v-for="role in row.roles" :key="role.id"> {{ role.name }}</el-tag>
-              </span>
-              <span v-else>无</span>
-            </template>
-          </el-table-column>
+          <el-table-column prop="label" label="字典项名称" width="240"> </el-table-column>
+          <el-table-column prop="value" label="字典项值" width="240"> </el-table-column>
+          <el-table-column prop="orderNo" label="排序" width="240"> </el-table-column>
+
           <el-table-column prop="status" label="状态" width="180">
             <template #default="scope">
               <el-tag :type="scope.row.status === 1 ? 'success' : 'danger'">
@@ -353,6 +351,7 @@ function filterNode(value: string, data: any) {
             </template>
           </el-table-column>
           <el-table-column prop="remark" label="备注" width="180" />
+
           <el-table-column prop="createdAt" label="创建时间" width="180">
             <template #default="scope">
               {{ formatDate(scope.row.createdAt) }}
@@ -363,6 +362,7 @@ function filterNode(value: string, data: any) {
               {{ formatDate(scope.row.updatedAt) }}
             </template>
           </el-table-column>
+
           <el-table-column fixed="right" label="操作" width="200">
             <template #default="{ row }">
               <el-button plain text size="small" @click="handleDialog(row, 'read')">
@@ -379,9 +379,15 @@ function filterNode(value: string, data: any) {
         </el-table>
 
         <el-pagination
-          v-if="users?.meta" v-model:current-page="users.meta.currentPage"
-          v-model:page-size="users.meta.itemsPerPage" float-right my-4 :page-sizes="[10, 30, 50, 100]"
-          layout="total, sizes, prev, pager, next, jumper" :total="users.meta.totalItems" @change="fetchData"
+          v-if="dictItems?.meta"
+          v-model:current-page="dictItems.meta.currentPage"
+          v-model:page-size="dictItems.meta.itemsPerPage"
+          float-right
+          my-4
+          :page-sizes="[10, 30, 50, 100]"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="dictItems.meta.totalItems"
+          @change="fetchData"
         />
       </ClientOnly>
     </el-main>
@@ -391,53 +397,36 @@ function filterNode(value: string, data: any) {
         <h4>
           <span v-if="dialogOptions.mode === 'new'">新建</span>
           <span v-else-if="dialogOptions.mode === 'edit'">编辑</span>
-          <span v-else-if="dialogOptions.mode === 'read'">查看</span>用户信息<span v-if="dialogOptions.data" mx-4 op-50>#{{
-            dialogOptions.data.id }}</span>
+          <span v-else-if="dialogOptions.mode === 'read'">查看</span>用户信息<span v-if="dialogOptions.data" mx-4 op-50>#{{ dialogOptions.data.id }}</span>
         </h4>
       </template>
+
       <template #default>
         <el-form
-          v-if="dialogOptions.data" ref="ruleFormRef"
-          :disabled="dialogOptions.loading || dialogOptions.mode === 'read'" style="max-width: 600px"
-          :model="dialogOptions.data" :rules="rules" label-width="auto" status-icon
+          v-if="dialogOptions.data"
+          ref="ruleFormRef"
+          :disabled="dialogOptions.loading || dialogOptions.mode === 'read'"
+          style="max-width: 600px;"
+          :model="dialogOptions.data"
+          label-width="auto"
+          status-icon
         >
-          <el-form-item label="用户头像" prop="avatar">
-            <UserUploadAvatar
-              v-model="dialogOptions.data.avatar"
-              :disabled="dialogOptions.loading || dialogOptions.mode === 'read'"
-            />
-          </el-form-item>
-          <el-form-item label="用户名称" prop="username">
-            <el-input v-model="dialogOptions.data.username" :disabled="dialogOptions.mode !== 'new'" />
-          </el-form-item>
-          <el-form-item label="用户昵称" prop="nickname">
-            <el-input v-model="dialogOptions.data.nickname" />
-          </el-form-item>
-          <el-form-item label="用户密码" prop="password">
-            <el-input v-model="dialogOptions.data.password" :disabled="dialogOptions.mode !== 'new'" type="password" />
-          </el-form-item>
-          <el-form-item label="用户邮箱" prop="email">
-            <el-input v-model="dialogOptions.data.email" />
-          </el-form-item>
-          <el-form-item label="QQ" prop="qq">
-            <el-input v-model="dialogOptions.data.qq" />
-          </el-form-item>
-          <el-form-item label="用户手机号" prop="phone">
-            <el-input v-model="dialogOptions.data.phone" />
-          </el-form-item>
-          <el-form-item label="用户部门" prop="dept">
-            <el-tree-select
-              v-model="dialogOptions.data.deptId" :default-expand-all="true" :highlight-current="true"
-              node-key="id" :check-on-click-node="true" :props="defaultProps" :data="depts"
-              :render-after-expand="false"
-            />
-          </el-form-item>
-          <el-form-item label="用户角色" prop="roles">
-            <el-select v-model="dialogOptions.data.roleIds" multiple placeholder="请选择角色">
-              <el-option v-for="item in roles.items" :key="item.id" :label="item.name" :value="item.id" />
+          <el-form-item label="所属字典类型" prop="typeId">
+
+
+            <el-select v-model="dialogOptions.data.typeId"  placeholder="请选择所属字典类型">
+              <el-option v-for="item in typeSList" :key="item.id" :label="item.name" :value="item.id" />
             </el-select>
           </el-form-item>
-          <el-form-item label="用户状态" prop="status">
+
+          <el-form-item label="字典项名称" prop="label">
+            <el-input v-model="dialogOptions.data.label" />
+          </el-form-item>
+          <el-form-item label="字典项值" prop="value">
+            <el-input v-model="dialogOptions.data.value" :disabled="dialogOptions.mode !== 'new'" type="password" />
+          </el-form-item>
+
+          <el-form-item label="状态" prop="status">
             <el-radio-group v-model="dialogOptions.data.status">
               <el-radio-button :value="0">
                 已禁用
@@ -447,13 +436,13 @@ function filterNode(value: string, data: any) {
               </el-radio-button>
             </el-radio-group>
           </el-form-item>
-          <el-form-item label="用户备注" prop="remark">
+          <el-form-item label="备注" prop="remark">
             <el-input v-model="dialogOptions.data.remark" placeholder="请输入备注..." type="textarea" />
           </el-form-item>
         </el-form>
       </template>
       <template #footer>
-        <div style="flex: auto">
+        <div style="flex: auto;">
           <template v-if="dialogOptions.mode === 'read'">
             <el-button @click="dialogOptions.visible = false">
               关闭
@@ -467,7 +456,7 @@ function filterNode(value: string, data: any) {
               重置
             </el-button>
             <el-button :loading="dialogOptions.loading" type="primary" @click="submitForm(ruleFormRef)">
-              {{ dialogOptions.mode !== 'new' ? "修改" : "新增" }}
+              {{ dialogOptions.mode !== 'new' ? '修改' : '新增' }}
             </el-button>
           </template>
         </div>

@@ -78,7 +78,7 @@ export interface RoleEditQuery {
   /**
    * 序号
    */
-  id?: number
+  id: number
 
   /**
    * 角色名称
@@ -138,7 +138,7 @@ export function getRoleList(query?: Partial<UserGetQuery>) {
  * @param data
  * @returns
  */
-export function addRole(data: RoleEditQuery) {
+export function addRole(data: Partial<RoleEditQuery>) {
   return endHttp.get('system/roles', data)
 }
 
@@ -368,13 +368,41 @@ export function delDict(Path: any) {
 
 //-------------------------------------------------字典项管理
 
+
+
+
+export interface DictItemsListReq {
+  _t?: number;
+  field?: string;
+  /**
+   * 字典项键名
+   */
+  label?: string;
+  order?: string;
+  page?: number;
+  pageSize?: number;
+  /**
+   * 字典类型 ID
+   */
+  typeId: number;
+  /**
+   * 字典项值
+   */
+  value?: string;
+  [property: string]: any;
+}
+export function getDictItemsList(Query : Partial<DictItemsListReq>) {
+  return endHttp.get('system/dict-item',Query )
+}
+
+
 /**
  * 查询字典项信息
  * @param Path 
  * @returns 
  */
 export function queryDictItemsInfo(Path: number) {
-  return endHttp.get('system/dict-type/'+ Path)
+  return endHttp.get('system/dict-item/'+ Path)
 }
 
 
@@ -463,7 +491,7 @@ export function addDictItems(Body: DictItemsRequest) {
 
 
 /**
- * 更新字典
+ * 更新字典项
  * @param Path  id
  * @param Body  
  * @returns 
@@ -473,7 +501,7 @@ export function updateDictItems(Path:number,Body: any) {
 }
 
 /**
- * 删除字典
+ * 删除字典项
  * @param Path  --id
  * @returns 
  */
