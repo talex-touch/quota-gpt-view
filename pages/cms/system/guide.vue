@@ -62,7 +62,7 @@ async function fetchData() {
       delete query[key]
   })
 
-  const res: any = (await getDocList(query))
+  const res: any = await getDocList(query)
   if (!res) {
     ElMessage.warning('参数错误，查询失败！')
   }
@@ -85,10 +85,6 @@ async function fetchData() {
   formLoading.value = false
 }
 
-function formatDate(date: string) {
-  return dayjs(date).format('YYYY-MM-DD HH:mm:ss')
-}
-
 interface DocForm extends IDocDataQuery {
   metaOptions: any
 }
@@ -108,15 +104,16 @@ const dialogOptions = reactive<{
 function handleDialog(data: Partial<DocForm>, mode: 'edit' | 'read' | 'new') {
   dialogOptions.mode = mode
   dialogOptions.visible = true
-  dialogOptions.data = mode === 'new'
-    ? {
-        title: '',
-        value: '',
-        meta: '',
-        status: 0,
-        permission: '',
-      }
-    : { ...data }
+  dialogOptions.data
+    = mode === 'new'
+      ? {
+          title: '',
+          value: '',
+          meta: '',
+          status: 0,
+          permission: '',
+        }
+      : { ...data }
 
   if (!dialogOptions.data.metaOptions) {
     if (dialogOptions.data.meta) {
@@ -138,9 +135,7 @@ const rules = reactive<FormRules<DocForm>>({
     { required: true, message: '请输入文档名称', trigger: 'blur' },
     { min: 5, max: 24, message: '文档名需要在 5-24 位之间', trigger: 'blur' },
   ],
-  status: [
-    { required: true, message: '请选择状态', trigger: 'blur' },
-  ],
+  status: [{ required: true, message: '请选择状态', trigger: 'blur' }],
 })
 
 async function submitForm(formEl: FormInstance | undefined) {
@@ -231,7 +226,12 @@ function handleDeleteUser(id: number, data: DocForm) {
     <el-main>
       <el-form :disabled="formLoading" :inline="true" :model="formInline">
         <el-form-item label="文档标题">
-          <el-input v-model="formInline.title" minlength="4" placeholder="搜索文档标题" clearable />
+          <el-input
+            v-model="formInline.title"
+            minlength="4"
+            placeholder="搜索文档标题"
+            clearable
+          />
         </el-form-item>
         <el-form-item label="状态">
           <el-input v-model="formInline.status" placeholder="搜索文档状态" clearable />
@@ -251,7 +251,13 @@ function handleDeleteUser(id: number, data: DocForm) {
       </el-form>
 
       <ClientOnly>
-        <el-table v-if="docs?.items" table-layout="auto" fit :data="docs.items" style="width: 100%">
+        <el-table
+          v-if="docs?.items"
+          table-layout="auto"
+          fit
+          :data="docs.items"
+          style="width: 100%"
+        >
           <el-table-column type="index" label="序号" width="80" />
           <el-table-column label="文档名">
             <template #default="{ row }">
@@ -281,7 +287,7 @@ function handleDeleteUser(id: number, data: DocForm) {
           <el-table-column prop="status" label="状态">
             <template #default="scope">
               <el-tag :type="scope.row.status === 1 ? 'success' : 'danger'">
-                {{ scope.row.status === 1 ? '启用' : '禁用' }}
+                {{ scope.row.status === 1 ? "启用" : "禁用" }}
               </el-tag>
             </template>
           </el-table-column>
@@ -300,10 +306,22 @@ function handleDeleteUser(id: number, data: DocForm) {
               <el-button plain text size="small" @click="handleDialog(row, 'read')">
                 详情
               </el-button>
-              <el-button plain text size="small" type="warning" @click="handleDialog(row, 'edit')">
+              <el-button
+                plain
+                text
+                size="small"
+                type="warning"
+                @click="handleDialog(row, 'edit')"
+              >
                 编辑
               </el-button>
-              <el-button plain text size="small" type="danger" @click="handleDeleteUser(row.id, row)">
+              <el-button
+                plain
+                text
+                size="small"
+                type="danger"
+                @click="handleDeleteUser(row.id, row)"
+              >
                 删除
               </el-button>
             </template>
@@ -311,9 +329,15 @@ function handleDeleteUser(id: number, data: DocForm) {
         </el-table>
 
         <el-pagination
-          v-if="docs?.meta" v-model:current-page="docs.meta.currentPage"
-          v-model:page-size="docs.meta.itemsPerPage" class="1" float-right my-4 :page-sizes="[10, 200, 300, 400]"
-          layout="total, sizes, prev, pager, next, jumper" :total="docs.meta.totalItems"
+          v-if="docs?.meta"
+          v-model:current-page="docs.meta.currentPage"
+          v-model:page-size="docs.meta.itemsPerPage"
+          class="1"
+          float-right
+          my-4
+          :page-sizes="[10, 200, 300, 400]"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="docs.meta.totalItems"
         />
       </ClientOnly>
     </el-main>
@@ -327,9 +351,9 @@ function handleDeleteUser(id: number, data: DocForm) {
               <span v-else-if="dialogOptions.mode === 'edit'">编辑</span>
               <span v-else-if="dialogOptions.mode === 'read'">查看</span>文档信息<span
                 v-if="dialogOptions.mode !== 'new'"
-                mx-4 op-50
-              >#{{
-                dialogOptions.data.id }}</span>
+                mx-4
+                op-50
+              >#{{ dialogOptions.data.id }}</span>
             </h4>
 
             <div class="Header-Footer">
@@ -345,15 +369,27 @@ function handleDeleteUser(id: number, data: DocForm) {
                 <el-button @click="resetForm(ruleFormRef)">
                   重置
                 </el-button>
-                <el-button :loading="dialogOptions.loading" type="primary" @click="submitForm(ruleFormRef)">
-                  {{ dialogOptions.mode !== 'new' ? "修改" : "新增" }}
+                <el-button
+                  :loading="dialogOptions.loading"
+                  type="primary"
+                  @click="submitForm(ruleFormRef)"
+                >
+                  {{ dialogOptions.mode !== "new" ? "修改" : "新增" }}
                 </el-button>
               </template>
             </div>
           </div>
 
-          <div v-if="dialogOptions.data.value !== null && dialogOptions.data.value !== undefined" class="GuideContent">
-            <RenderEditor v-model="dialogOptions.data.value" :readonly="dialogOptions.mode === 'read'" />
+          <div
+            v-if="
+              dialogOptions.data.value !== null && dialogOptions.data.value !== undefined
+            "
+            class="GuideContent"
+          >
+            <RenderEditor
+              v-model="dialogOptions.data.value"
+              :readonly="dialogOptions.mode === 'read'"
+            />
             <!-- <el-scrollbar v-else>
               <RenderContent readonly style="background: var(--el-bg-color)" :data="dialogOptions.data.value" />
             </el-scrollbar> -->
@@ -365,23 +401,44 @@ function handleDeleteUser(id: number, data: DocForm) {
             </div>
 
             <el-form
-              ref="ruleFormRef" :disabled="dialogOptions.loading || dialogOptions.mode === 'read'"
-              :model="dialogOptions.data" :rules="rules" label-width="auto" class="demo-ruleForm" status-icon inline
+              ref="ruleFormRef"
+              :disabled="dialogOptions.loading || dialogOptions.mode === 'read'"
+              :model="dialogOptions.data"
+              :rules="rules"
+              label-width="auto"
+              class="demo-ruleForm"
+              status-icon
+              inline
             >
               <el-form-item label="文档名称" prop="title">
-                <el-input v-model="dialogOptions.data.title" :disabled="dialogOptions.mode === 'read'" />
+                <el-input
+                  v-model="dialogOptions.data.title"
+                  :disabled="dialogOptions.mode === 'read'"
+                />
               </el-form-item>
               <el-form-item label="文档权限" prop="permission">
-                <el-input v-model="dialogOptions.data.permission" :disabled="dialogOptions.mode === 'read'" />
-              </el-form-item>
-              <el-form-item v-if="dialogOptions.data.metaOptions" label="文档密码" prop="password">
                 <el-input
-                  v-model="dialogOptions.data.metaOptions!.password" :disabled="dialogOptions.mode === 'read'"
+                  v-model="dialogOptions.data.permission"
+                  :disabled="dialogOptions.mode === 'read'"
+                />
+              </el-form-item>
+              <el-form-item
+                v-if="dialogOptions.data.metaOptions"
+                label="文档密码"
+                prop="password"
+              >
+                <el-input
+                  v-model="dialogOptions.data.metaOptions!.password"
+                  :disabled="dialogOptions.mode === 'read'"
                   type="password"
                 />
               </el-form-item>
               <el-form-item label="文档状态" prop="status">
-                <el-select v-model="dialogOptions.data.status" style="width: 180px" placeholder="请选择状态">
+                <el-select
+                  v-model="dialogOptions.data.status"
+                  style="width: 180px"
+                  placeholder="请选择状态"
+                >
                   <el-option label="启用" value="1" />
                   <el-option label="禁用" value="0" />
                 </el-select>

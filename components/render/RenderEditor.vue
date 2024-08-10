@@ -1,43 +1,47 @@
 <script setup lang="ts">
-import Vditor from 'vditor'
-import 'vditor/dist/index.css'
-import { globalOptions } from '~/constants'
+import Vditor from "vditor";
+import "vditor/dist/index.css";
+import { globalOptions } from "~/constants";
 
 const props = defineProps<{
-  modelValue: string
-  readonly?: boolean
-}>()
+  modelValue: string;
+  readonly?: boolean;
+}>();
 
-const emits = defineEmits(['update:modelValue'])
+const emits = defineEmits(["update:modelValue"]);
 
-const value = useVModel(props, 'modelValue', emits)
+const value = useVModel(props, "modelValue", emits);
 
-const color = useColorMode()
-const inner = ref()
+const color = useColorMode();
+const inner = ref();
 onMounted(() => {
   const vditor = new Vditor(inner.value, {
     after() {
-      vditor.setValue(value.value)
+      vditor.setValue(value.value);
 
       watch(
         () => [color.value],
         () => {
           nextTick(() => {
-            vditor.setTheme(color.value !== 'dark' ? 'classic' : 'dark')
-          })
+            vditor.setTheme(color.value !== "dark" ? "classic" : "dark");
+          });
         },
         {
           immediate: true,
           deep: true,
-        },
-      )
+        }
+      );
 
-      watch(() => props.readonly, (readonly) => {
-        readonly ? vditor.disabled() : vditor.enable()
-      }, { immediate: true })
+      watch(
+        () => props.readonly,
+        (readonly) => {
+          readonly ? vditor.disabled() : vditor.enable();
+        },
+        { immediate: true }
+      );
     },
     input(content: string) {
-      value.value = content
+      value.value = content;
     },
     toolbarConfig: {
       pin: true,
@@ -46,10 +50,10 @@ onMounted(() => {
       hljs: {
         enable: true,
         lineNumber: true,
-        defaultLang: 'bash',
+        defaultLang: "bash",
       },
       theme: {
-        current: 'Ant Design',
+        current: "Ant Design",
       },
       math: {
         inlineDigit: true,
@@ -62,43 +66,42 @@ onMounted(() => {
     },
     cache: {
       enable: true,
-      id: 'guide-editor',
+      id: "guide-editor",
     },
     counter: {
       enable: true,
-      type: 'text',
+      type: "text",
     },
     outline: {
       enable: true,
-      position: 'right',
+      position: "right",
     },
     upload: {
       url: `${globalOptions.getEndsUrl()}api/tools/upload`,
       linkToImgCallback(responseText) {
-        console.log('response text', responseText)
+        console.log("response text", responseText);
       },
       linkToImgFormat(responseText) {
-        console.log('format response text', responseText)
+        console.log("format response text", responseText);
       },
       format(files, responseText) {
         const result: any = {
-          msg: '',
+          msg: "",
           code: 0,
           data: {
             errFiles: [],
-            succMap: {
-            },
+            succMap: {},
           },
-        }
+        };
 
-        const res = JSON.parse(responseText)
-        if (res.code !== 200)
-          result.data.errFiles[0] = files[0].name
-
+        const res = JSON.parse(responseText);
+        if (res.code !== 200) result.data.errFiles[0] = files[0].name;
         else
-          result.data.succMap[files[0].name] = `${globalOptions.getEndsUrl()}${res.data.filename}`
+          result.data.succMap[files[0].name] = `${globalOptions.getEndsUrl()}${
+            res.data.filename
+          }`;
 
-        return JSON.stringify(result)
+        return JSON.stringify(result);
       },
       headers: {
         Authorization: `Bearer ${userStore.value.token}`,
@@ -106,8 +109,8 @@ onMounted(() => {
       multiple: false,
       // withCredentials: true
     },
-  })
-})
+  });
+});
 </script>
 
 <template>
