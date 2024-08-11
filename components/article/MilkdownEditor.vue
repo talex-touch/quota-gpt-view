@@ -2,7 +2,7 @@
 import { Milkdown, useEditor } from '@milkdown/vue'
 import { Editor, defaultValueCtx, editorViewOptionsCtx, rootCtx } from '@milkdown/core'
 import { nord } from '@milkdown/theme-nord'
-import { codeBlockSchema, commonmark, blockquoteSchema } from '@milkdown/preset-commonmark'
+import { blockquoteSchema, codeBlockSchema, commonmark } from '@milkdown/preset-commonmark'
 
 import { gfm } from '@milkdown/preset-gfm'
 import { listener, listenerCtx } from '@milkdown/plugin-listener'
@@ -279,10 +279,86 @@ const editor = useEditor((root) => {
       }
     }
   }
+
   position: relative;
 
   flex: 1;
   width: 100%;
   min-height: 100%;
+
+  padding: 0.5rem 1.5rem;
+
+  color: var(--text-color);
+
+  --text-color: var(--el-text-color-primary);
+  --text-color-light: var(--el-text-color-regular);
+  --major-color: var(--theme-color);
+}
+
+.MilkContent h1 {
+  position: relative;
+  margin: 1rem 0;
+
+  font-size: 30px;
+  font-weight: 600;
+
+  background: radial-gradient(
+    circle at 0%,
+    #3d33f3aa 0.0125%,
+    var(--theme-color) 1.25%,
+    var(--text-color-light) 10%,
+    var(--major-color) 100%
+  );
+}
+
+.MilkContent h2 {
+  opacity: 0.95;
+  font-size: 24px;
+
+  background: radial-gradient(
+    circle at 0%,
+    #3d33f3aa 0.0125%,
+    var(--theme-color) 0.25%,
+    var(--text-color-light) 5%,
+    var(--major-color) 100%
+  );
+}
+
+.MilkContent h3 {
+  opacity: 0.9;
+  font-size: 20px;
+  background: radial-gradient(
+    circle at 0%,
+    #3d33f3aa 0.0125%,
+    var(--theme-color) 0.125%,
+    var(--text-color-light) 2.5%,
+    var(--major-color) 100%
+  );
+}
+
+.MilkContent h4 {
+  opacity: 0.85;
+  font-size: 18px;
+}
+
+.MilkContent h5 {
+  opacity: 0.8;
+  font-size: 16px;
+}
+
+.MilkContent h6 {
+  opacity: 0.75;
+  font-size: 14px;
+}
+
+.MilkContent h1,
+.MilkContent h2,
+.MilkContent h3,
+.MilkContent h4,
+.MilkContent h5,
+.MilkContent h6 {
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 </style>
