@@ -2,7 +2,7 @@
 import dayjs from 'dayjs'
 import type { ComponentSize, FormInstance, FormRules } from 'element-plus'
 import { type UserQuery, addDict, addUser, delDict, deleteUser, getAllDictList, getDepartmentList, getDictList, getRoleList, getUsers, queryDictInfo, updateDict, updateUser } from '~/composables/api/account'
-import UserUploadAvatar from '~/components/personal/UserUploadAvatar.vue'
+
 
 definePageMeta({
   name: '字典管理',
@@ -237,10 +237,23 @@ function handleDeleteDict(id: number) {
 }
 
 
-watch(treeFilterQuery, (val) => {
-  nextTick(() => treeDom.value!.filter(val))
-}, { immediate: true })
+// watch(treeFilterQuery, (val) => {
+//   nextTick(() => treeDom.value!.filter(val))
+// }, { immediate: true })
 
+
+
+
+const router = useRouter()
+ function handleCellClick(column:any ) {
+   console.log("======= column =======\n", column);
+    
+      if(column.property=='code'){
+        router.push({ path: '/cms/system/dict-type/'+column.id })
+      }
+      
+      // 在这里处理单元格被点击的逻辑
+    }
 </script>
 
 <template>
@@ -265,11 +278,23 @@ watch(treeFilterQuery, (val) => {
       </el-form>
 
       <ClientOnly>
-        <el-table v-if="dicts?.items" :data="dicts.items" style="width: 100%;">
+        <el-table v-if="dicts?.items" :data="dicts.items" style="width: 100%;"  >
           <el-table-column prop="id" label="ID" />
           <el-table-column prop="name" label="字典名称" />
-          <el-table-column prop="code" label="字典编码" />
-          <el-table-column prop="status" label="状态" />
+          <el-table-column prop="code" label="字典编码">
+            <template #default="{ row }">
+              <!-- <NuxtLink :to="`/cms/system/dict-type/${row.id}`"> {{ row.id }}</NuxtLink> -->
+              <!-- <NuxtLink :to="'/cms/system/dict-type/'+row.id"> {{ row.code }}</NuxtLink> -->
+              <NuxtLink :to="{name:'字典项管理',params:{id:row.id, } ,query: { code: row.code }}"> {{ row.code }}</NuxtLink>
+            </template>
+          </el-table-column>
+          <el-table-column prop="status" label="状态" >
+            <template #default="scope">
+              <el-tag :type="scope.row.status === 1 ? 'success' : 'danger'">
+                {{ scope.row.status === 1 ? '启用' : '禁用' }}
+              </el-tag>
+            </template>
+          </el-table-column>
           <el-table-column prop="remark" label="备注" />
           <el-table-column prop="creator" label="创建者" />
           <el-table-column prop="createdAt" label="创建时间" />
