@@ -2,7 +2,7 @@
 import { Milkdown, useEditor } from '@milkdown/vue'
 import { Editor, defaultValueCtx, editorViewOptionsCtx, rootCtx } from '@milkdown/core'
 import { nord } from '@milkdown/theme-nord'
-import { codeBlockSchema, commonmark } from '@milkdown/preset-commonmark'
+import { codeBlockSchema, commonmark, blockquoteSchema } from '@milkdown/preset-commonmark'
 
 import { gfm } from '@milkdown/preset-gfm'
 import { listener, listenerCtx } from '@milkdown/plugin-listener'
@@ -30,6 +30,7 @@ import python from 'refractor/lang/python'
 import java from 'refractor/lang/java'
 import { useNodeViewFactory } from '@prosemirror-adapter/vue'
 import EditorCodeBlock from '~/components/article/components/EditorCodeBlock.vue'
+import EditorBlockQuote from '~/components/article/components/EditorBlockQuote.vue'
 
 const props = defineProps<{
   modelValue: string
@@ -169,6 +170,9 @@ const editor = useEditor((root) => {
     .use(listener)
     .use(
       $view(codeBlockSchema.node, () => nodeViewFactory({ component: EditorCodeBlock })),
+    )
+    .use(
+      $view(blockquoteSchema.node, () => nodeViewFactory({ component: EditorBlockQuote })),
     )
 })
 </script>

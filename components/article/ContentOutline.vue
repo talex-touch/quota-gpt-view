@@ -201,7 +201,7 @@ ul li::before {
 }
 
 .Outline-Item.active::before {
-  width: 100%;
+  width: 102%;
 }
 
 .OutlinePointer {
