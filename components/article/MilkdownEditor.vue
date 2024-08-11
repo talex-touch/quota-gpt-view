@@ -13,7 +13,7 @@ import { trailing } from '@milkdown/plugin-trailing'
 import { TooltipProvider, tooltipFactory } from '@milkdown/plugin-tooltip'
 import { SlashProvider, slashFactory } from '@milkdown/plugin-slash'
 import { prism, prismConfig } from '@milkdown/plugin-prism'
-import { $view, outline, replaceAll } from '@milkdown/utils'
+import { $view, getMarkdown, outline, replaceAll } from '@milkdown/utils'
 import '@milkdown/theme-nord/style.css'
 
 import 'prism-themes/themes/prism-nord.css'
@@ -38,10 +38,10 @@ const props = defineProps<{
 const emits = defineEmits<{
   (event: 'update:modelValue', data: string): void
   (event: 'outline', data: any): void
+  (event: 'onScroll', data: any): void
 }>()
 
 const model = useVModel(props, 'modelValue', emits)
-const content = ref('')
 
 function useSlashPluginView(view: any) {
   const contentDom = document.createElement('div')
@@ -116,6 +116,46 @@ const editor = useEditor((root) => {
           refractor.register(java)
         },
       })
+
+      const listener = ctx.get(listenerCtx)
+
+      let _updating = false
+      watch(() => model.value, () => {
+        if (_updating || !editor.get())
+          return
+
+        editor.get()?.action(replaceAll(model.value))
+      })
+
+      // watchEffect(() => {
+
+      //   // get current markdown
+      //   const markdown = editor.get()!.action(getMarkdown())
+
+      //   console.log('editor', markdown, model.value, markdown === model.value, JSON.stringify(markdown), JSON.stringify(model.value))
+
+      //   editor.get()?.action(replaceAll(model.value))
+      // })
+
+      let timer: any
+      function _updateModelValue(markdown: string) {
+        _updating = true
+        model.value = markdown
+
+        const _outline = editor.get()!.action(outline)(ctx)
+
+        emits('outline', _outline)
+
+        setTimeout(() => _updating = false, 100)
+      }
+
+      listener.markdownUpdated((ctx, markdown, prevMarkdown) => {
+        if (markdown === prevMarkdown)
+          return
+
+        clearTimeout(timer)
+        timer = setTimeout(() => _updateModelValue(markdown), 100)
+      })
     })
     .use(commonmark)
     .use(slash)
@@ -131,44 +171,15 @@ const editor = useEditor((root) => {
       $view(codeBlockSchema.node, () => nodeViewFactory({ component: EditorCodeBlock })),
     )
 })
-
-onMounted(() => {
-  const editorObject = editor.get()
-  if (!editorObject)
-    return
-
-  const ctx = editorObject.ctx
-
-  const listener = ctx.get(listenerCtx)
-
-  listener.markdownUpdated((ctx, markdown, prevMarkdown) => {
-    if (markdown === prevMarkdown || markdown === model.value)
-      return
-
-    model.value = markdown
-
-    const _outline = editorObject.action(outline)(editorObject.ctx)
-
-    emits('outline', _outline)
-
-    console.log('outline updated', _outline)
-  })
-})
-
-watchEffect(() => {
-  if (model.value === content.value)
-    return
-
-  content.value = model.value
-  editor.get()?.action(replaceAll(model.value))
-})
 </script>
 
 <template>
   <div class="GuideEditorContainer">
     <div class="GuideEditorContainer-Main">
-      <el-scrollbar>
-        <Milkdown class="MilkContent" />
+      <el-scrollbar @scroll="emits('onScroll', $event)">
+        <div class="GuideEditorContainer-MainWrapper">
+          <Milkdown id="MilkEditor" class="MilkContent" />
+        </div>
       </el-scrollbar>
     </div>
   </div>
@@ -176,7 +187,26 @@ watchEffect(() => {
 
 <style lang="scss">
 .GuideEditorContainer {
-  .el-scrollbar__view {
+  &-MainWrapper {
+    position: relative;
+    display: flex;
+    padding: 1rem 1.25rem;
+
+    left: 50%;
+
+    width: 80%;
+    max-width: 1280px;
+    min-height: 100%;
+
+    transform: translateX(-50%);
+  }
+
+  // .el-scrollbar__bar.is-vertical {
+  //   width: 4px;
+  // }
+
+  .el-scrollbar__view,
+  .el-scrollbar {
     position: relative;
 
     width: 100%;
@@ -185,9 +215,19 @@ watchEffect(() => {
   }
 
   &-Main {
-    padding: 0.25rem 0.5rem;
+    padding: absolute;
+    padding: 1rem 0.25rem;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
     height: 100%;
+
+    overflow: hidden;
+    background-color: var(--el-bg-color-page);
   }
+  padding: relative;
 
   width: 100%;
   height: 100%;
@@ -237,9 +277,8 @@ watchEffect(() => {
   }
   position: relative;
 
-  height: 100%;
+  flex: 1;
+  width: 100%;
   min-height: 100%;
-
-  background-color: var(--el-bg-color-page);
 }
 </style>

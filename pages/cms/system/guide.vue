@@ -317,30 +317,6 @@ function handleDeleteUser(id: number, data: DocForm) {
       <teleport to="body">
         <div class="GuideEditor" :class="{ visible: dialogOptions.visible }">
           <div class="Header">
-            <el-form
-              ref="ruleFormRef" :disabled="dialogOptions.loading || dialogOptions.mode === 'read'"
-              :model="dialogOptions.data" :rules="rules" label-width="auto" class="demo-ruleForm" status-icon inline
-            >
-              <el-form-item label="文档名称" prop="title">
-                <el-input v-model="dialogOptions.data.title" :disabled="dialogOptions.mode === 'read'" />
-              </el-form-item>
-              <el-form-item label="文档权限" prop="permission">
-                <el-input v-model="dialogOptions.data.permission" :disabled="dialogOptions.mode === 'read'" />
-              </el-form-item>
-              <el-form-item v-if="dialogOptions.data.metaOptions" label="文档密码" prop="password">
-                <el-input
-                  v-model="dialogOptions.data.metaOptions!.password" :disabled="dialogOptions.mode === 'read'"
-                  type="password"
-                />
-              </el-form-item>
-              <el-form-item label="文档状态" prop="status">
-                <el-select v-model="dialogOptions.data.status" style="width: 180px" placeholder="请选择状态">
-                  <el-option label="启用" value="1" />
-                  <el-option label="禁用" value="0" />
-                </el-select>
-              </el-form-item>
-            </el-form>
-
             <h4>
               <span v-if="dialogOptions.mode === 'new'">新建</span>
               <span v-else-if="dialogOptions.mode === 'edit'">编辑</span>
@@ -371,8 +347,34 @@ function handleDeleteUser(id: number, data: DocForm) {
           </div>
 
           <div v-if="dialogOptions.data.value !== null && dialogOptions.data.value !== undefined" class="GuideContent">
-            <ArticleThEditor v-model="dialogOptions.data.value!" />
-            <!-- <ChoreDocGuideEditor v-model="dialogOptions.data.value!" /> -->
+            <ArticleThEditor v-model="dialogOptions.data.value!">
+              <template #property>
+                <el-form
+                  ref="ruleFormRef" :disabled="dialogOptions.loading || dialogOptions.mode === 'read'"
+                  :model="dialogOptions.data" :rules="rules" label-width="auto"
+                  status-icon my-4 inline
+                >
+                  <el-form-item label="文档名称" prop="title">
+                    <el-input v-model="dialogOptions.data.title" :disabled="dialogOptions.mode === 'read'" />
+                  </el-form-item>
+                  <el-form-item label="文档权限" prop="permission">
+                    <el-input v-model="dialogOptions.data.permission" :disabled="dialogOptions.mode === 'read'" />
+                  </el-form-item>
+                  <el-form-item v-if="dialogOptions.data.metaOptions" label="文档密码" prop="password">
+                    <el-input
+                      v-model="dialogOptions.data.metaOptions!.password"
+                      :disabled="dialogOptions.mode === 'read'" type="password"
+                    />
+                  </el-form-item>
+                  <el-form-item label="文档状态" prop="status">
+                    <el-select v-model="dialogOptions.data.status" style="width: 180px" placeholder="请选择状态">
+                      <el-option label="启用" value="1" />
+                      <el-option label="禁用" value="0" />
+                    </el-select>
+                  </el-form-item>
+                </el-form>
+              </template>
+            </ArticleThEditor>
           </div>
 
           <div v-if="false" class="GuideEditor-Footer">
@@ -399,10 +401,12 @@ function handleDeleteUser(id: number, data: DocForm) {
 
 .GuideEditor {
   .Header {
-    position: absolute;
+    z-index: 1;
+    position: sticky;
     display: flex;
 
     top: 0;
+    left: 0;
 
     width: 100%;
     height: 100px;
@@ -413,63 +417,33 @@ function handleDeleteUser(id: number, data: DocForm) {
     font-size: 20px;
     font-weight: 600;
 
-    box-shadow: var(--el-box-shadow);
-    background-color: var(--el-bg-color);
-  }
-
-  .GuideEditor-Footer {
-    .GuideEditor-Func {
-      position: absolute;
-      margin-top: 0.25rem;
-
-      top: 50%;
-      left: 1rem;
-
-      transform: translateY(-50%);
-    }
-
-    .el-form-item {
-      margin-bottom: 0;
-    }
-
-    position: absolute;
-    display: flex;
-
-    bottom: 0;
-
-    width: 100%;
-    height: 50px;
-
-    align-items: center;
-    justify-content: center;
-
-    font-size: 20px;
-    font-weight: 600;
-
-    box-shadow: var(--el-box-shadow);
+    flex-shrink: 0;
+    // border-bottom: 1px solid var(--el-border-color);
+    // box-shadow: var(--el-box-shadow);
     background-color: var(--el-bg-color);
   }
 
   .Header-Footer {
     position: absolute;
 
-    right: 1rem;
+    right: 2rem;
   }
 
   .GuideContent {
     position: relative;
 
-    top: 100px;
-    left: 50%;
+    top: 0;
+    left: 0;
 
-    width: 1080px;
-    height: calc(100% - 100px);
+    height: 100%;
+    width: 100%;
+    // height: calc(100% - 84px);
 
-    transform: translateX(-50%);
+    overflow: hidden;
   }
-
   z-index: 100;
   position: absolute;
+  display: flex;
   padding: 0;
   margin: 0;
 
@@ -481,6 +455,7 @@ function handleDeleteUser(id: number, data: DocForm) {
 
   overflow: hidden;
   border-radius: 0;
+  flex-direction: column;
   background-color: var(--el-bg-color);
 
   opacity: 0;
