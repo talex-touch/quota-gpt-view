@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import dayjs from 'dayjs'
+import IconButton from '../button/IconButton.vue'
+import Logo from '../chore/Logo.vue'
 import type { ThHistory } from './history'
 
 const props = defineProps<{
@@ -159,16 +161,22 @@ async function mobileSlideProcess() {
     </teleport>
 
     <div class="History-Title">
-      <h1>科塔智AI</h1>
+      <div flex items-center gap-2>
+        <Logo />
+        <h1>科塔智爱</h1>
+      </div>
+      <IconButton @click="emits('create')">
+        +
+      </IconButton>
     </div>
 
     <div class="History-Wrapper">
       <el-scrollbar>
         <div class="History-Content">
-          <div style="margin: 0 0.5rem" class="History-Content-Item active" @click="emits('create')">
+          <!-- <div style="margin: 0 0.5rem" class="History-Content-Item active" @click="emits('create')">
             新建聊天
           </div>
-          <br>
+          <br> -->
 
           <HistorySection
             v-for="(section, index) in historyList" :key="index" v-model:selectIndex="selectIndex"
@@ -231,7 +239,7 @@ div.History {
       #0000 100%
     );
   }
-
+  z-index: 2;
   position: relative;
 
   width: 100%;
@@ -332,9 +340,10 @@ div.History {
 
 .History {
   &-Title {
-    z-index: 2;
+    z-index: 3;
     position: absolute;
-    padding: 1rem 0;
+    display: flex;
+    padding: 1rem 1rem;
     font-size: 24px;
 
     width: 100%;
@@ -342,6 +351,8 @@ div.History {
 
     font-weight: 600;
     text-align: center;
+    align-items: center;
+    justify-content: space-between;
 
     .wallpaper & {
       background-image: none;

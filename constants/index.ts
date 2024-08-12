@@ -61,12 +61,10 @@ export class GlobalOptions {
     })
   }
 
-  // getEndsUrl() {
-  //   return _ENDS_URL
-  // }
   getEndsUrl() {
-    return "https://api.quotawish.com/"
+    return _ENDS_URL
   }
+
   /**
    * 存储需要通知的URL变更回调函数
    */

@@ -1,3 +1,5 @@
+import './font_sans.css'
+
 import Mountain from '/backgrounds/mountain.jpg'
 import NightMountain from '/backgrounds/night-mountain.jpg'
 import Grass from '/backgrounds/grass.jpg'
@@ -174,10 +176,10 @@ export function detectWallpaper() {
 
 export function viewTransition(e: { clientX: number, clientY: number }, theme?: 'auto' | 'light' | 'dark') {
   const color = useColorMode()
- // 用于颜色模式的获取和设置
+  // 用于颜色模式的获取和设置
   const compColorMode = computed({
     get() {
-      return color.preference  //用户选择的颜色
+      return color.preference // 用户选择的颜色
     },
     set(val: string) {
       color.preference = val
@@ -198,12 +200,12 @@ export function viewTransition(e: { clientX: number, clientY: number }, theme?: 
   transition.ready.then(() => {
     // 从事件对象中解构出客户端的X和Y坐标
     const { clientX, clientY } = e
-// 计算剪裁路径的半径，求 直角三角形的斜边长度  
+    // 计算剪裁路径的半径，求 直角三角形的斜边长度
     const radius = Math.hypot(
       Math.max(clientX, innerWidth - clientX),
       Math.max(clientY, innerHeight - clientY),
     )
-     // 定义剪裁路径的动画，从零到计算出的半径
+    // 定义剪裁路径的动画，从零到计算出的半径
     const clipPath = [
       `circle(0% at ${clientX}px ${clientY}px)`,
       `circle(${radius}px at ${clientX}px ${clientY}px)`,
@@ -211,14 +213,14 @@ export function viewTransition(e: { clientX: number, clientY: number }, theme?: 
     // 获取当前页面是否为暗色模式
     const isDark = document.documentElement.classList.contains('dark')
 
-      // 动画文档元素的剪裁路径，动画时长为500毫秒
+    // 动画文档元素的剪裁路径，动画时长为500毫秒
     document.documentElement.animate(
       {
         clipPath: isDark ? clipPath.reverse() : clipPath,
       },
       {
         duration: 500,
-           // 根据暗黑模式与否选择不同的伪元素进行动画
+        // 根据暗黑模式与否选择不同的伪元素进行动画
         pseudoElement: isDark
           ? '::view-transition-old(root)'
           : '::view-transition-new(root)',

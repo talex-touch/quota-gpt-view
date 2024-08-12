@@ -5,6 +5,7 @@ import CmsMenu from '~/components/cms/CmsMenu.vue'
 import { ENDS_URL, globalOptions } from '~/constants'
 
 import { getAccountMenuList } from '~/composables/api/account'
+import { $endApi } from '~/composables/api/base'
 
 const route = useRoute()
 
@@ -58,8 +59,21 @@ watch(
 
 const endUrl = ref(globalOptions.getEndsUrl())
 
-watch(() => endUrl.value, (val) => {
+watch(() => endUrl.value, async (val) => {
   globalOptions.setEndsUrl(val)
+
+  const res = await $endApi.v1.auth.serverStatus()
+
+  if (res.code !== 200 || res.message !== 'success') {
+    const result = await ElMessageBox.confirm('当前环境地址异常，仍然切换吗？', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    })
+
+    if (result !== 'confirm')
+      return
+  }
 
   setTimeout(() => location.reload(), 500)
 })
