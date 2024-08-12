@@ -28,3 +28,7 @@ export function getPromptTemplate(keyword: string) {
 export function getTargetPrompt(id: number) {
   return endHttp.get(`aigc/prompts/${id}`)
 }
+
+export function getPromptDailyStatistics() {
+  return endHttp.get('aigc/prompts/statistics')
+}

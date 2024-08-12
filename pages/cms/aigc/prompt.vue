@@ -5,6 +5,7 @@ import UserUploadAvatar from '~/components/personal/UserUploadAvatar.vue'
 import { $completion } from '~/composables/completion/init'
 import StandardPrompt from '~/composables/completion/standard-prompt.txt?raw'
 import RenderContentOld from '~/components/render/RenderContentOld.vue'
+import { getPromptDailyStatistics } from '~/composables/api/chat'
 
 definePageMeta({
   name: 'PromptTemplate管理',
@@ -27,6 +28,10 @@ const prompts = ref({
   },
 })
 
+const statistics = ref<{
+  status: number
+  count: string
+}[]>([])
 const PromptEngineer = ref(`\`\`\`markdown\n${StandardPrompt} \n\`\`\``)
 const formInline = reactive({
   title: '',
@@ -54,11 +59,13 @@ async function fetchData() {
   })
 
   const res: any = await chatAdminManager.promptList(query)
-  if (!res)
-    ElMessage.warning('参数错误，查询失败！')
+  if (!res) { ElMessage.warning('参数错误，查询失败！') }
   else
-    if (res.code === 200)
+    if (res.code === 200) {
       prompts.value = res.data
+
+      statistics.value = (await getPromptDailyStatistics()).data
+    }
 
   formLoading.value = false
 }
@@ -309,15 +316,25 @@ function getAuditType(status: number) {
     return 'success'
   else return 'danger'
 }
+
+function formateTitle(status: number) {
+  switch (status) {
+    case 0:
+      return '待审核'
+    case 1:
+      return '审核通过'
+    case 2:
+      return '审核不通过'
+    default:
+      return '未知'
+  }
+}
 </script>
 
 <template>
   <el-container class="CmsPrompt">
     <el-dialog
-      v-model="auditOptions.dialog"
-      :close-on-press-escape="false"
-      :close-on-click-modal="false"
-      width="60%"
+      v-model="auditOptions.dialog" :close-on-press-escape="false" :close-on-click-modal="false" width="60%"
       title="PromptTemplate 审核"
     >
       <el-form v-if="auditOptions.data" :model="auditOptions.data" label-width="auto">
@@ -329,12 +346,8 @@ function getAuditType(status: number) {
         </el-form-item>
         <el-form-item label="模板内容" prop="content">
           <el-input
-            v-model="auditOptions.data.content"
-            show-word-limit
-            :maxlength="1024"
-            disabled
-            :autosize="{ minRows: 5, maxRows: 30 }"
-            type="textarea"
+            v-model="auditOptions.data.content" show-word-limit :maxlength="1024" disabled
+            :autosize="{ minRows: 5, maxRows: 30 }" type="textarea"
           />
         </el-form-item>
         <el-form-item label="参考Prompt" prop="agreement">
@@ -350,8 +363,7 @@ function getAuditType(status: number) {
             according to the title I gave. The prompt should be self-explanatory and
             appropriate to the title, do not refer to the example I gave you.). My first
             title is "提示词功能" (Give me prompt only)<el-link
-              mx-2
-              type="primary"
+              mx-2 type="primary"
               @click="dialogOptions.meta.dialog = true"
             >Prompt工程师参考</el-link>
           </span>
@@ -366,26 +378,13 @@ function getAuditType(status: number) {
             <el-radio-button label="拒绝驳回" value="reject" />
           </el-radio-group>
         </el-form-item>
-        <el-form-item
-          v-if="auditOptions.result.status === 'reject'"
-          label="拒绝原因"
-          prop="reason"
-        >
+        <el-form-item v-if="auditOptions.result.status === 'reject'" label="拒绝原因" prop="reason">
           <el-select v-model="auditOptions.result.reason">
-            <el-option
-              v-for="item in rejectReason"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
+            <el-option v-for="item in rejectReason" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
           {{ auditOptions.result.reason }}
         </el-form-item>
-        <el-form-item
-          v-if="auditOptions.result.status === 'pass'"
-          label="审核承诺"
-          prop="agreement"
-        >
+        <el-form-item v-if="auditOptions.result.status === 'pass'" label="审核承诺" prop="agreement">
           <el-checkbox v-model="auditOptions.result.agreement">
             通过模板审核代表我对该模板造成的任何后果负责，包括但不限于民事责任，刑事责任。若因该模板自身缺陷所表达不佳所造成的后果由模板创建者承担。
           </el-checkbox>
@@ -398,15 +397,18 @@ function getAuditType(status: number) {
       </el-form>
     </el-dialog>
 
+    <div class="CmsPrompt-Header">
+      <el-row>
+        <el-col v-for="item in statistics" :key="item.status" :span="6">
+          <el-statistic :title="`今日${formateTitle(item.status)}`" :value="+item.count" />
+        </el-col>
+      </el-row>
+    </div>
+
     <el-main>
       <el-form :disabled="formLoading" :inline="true" :model="formInline">
         <el-form-item label="标题">
-          <el-input
-            v-model="formInline.title"
-            minlength="4"
-            placeholder="搜索模板名称"
-            clearable
-          />
+          <el-input v-model="formInline.title" minlength="4" placeholder="搜索模板名称" clearable />
         </el-form-item>
 
         <el-form-item style="margin-right: 0" float-right>
@@ -446,14 +448,7 @@ function getAuditType(status: number) {
                 <el-tag type="warning">
                   等待审核
                 </el-tag>
-                <el-button
-                  v-permission="`aigc:audit`"
-                  type="primary"
-                  size="small"
-                  plain
-                  mx-2
-                  @click="handleAudit(row)"
-                >
+                <el-button v-permission="`aigc:audit`" type="primary" size="small" plain mx-2 @click="handleAudit(row)">
                   立即审核
                 </el-button>
               </template>
@@ -491,22 +486,13 @@ function getAuditType(status: number) {
                 详情
               </el-button>
               <el-button
-                v-if="row.status !== 0"
-                plain
-                text
-                size="small"
-                type="warning"
+                v-if="row.status !== 0" plain text size="small" type="warning"
                 @click="handleDialog(row, 'edit')"
               >
                 编辑
               </el-button>
               <el-button
-                v-if="row.status === 1"
-                :disabled="true"
-                plain
-                text
-                size="small"
-                type="danger"
+                v-if="row.status === 1" :disabled="true" plain text size="small" type="danger"
                 @click="handleDeleteUser(row.id, row)"
               >
                 删除
@@ -516,46 +502,27 @@ function getAuditType(status: number) {
         </el-table>
 
         <el-pagination
-          v-if="prompts?.meta"
-          v-model:current-page="prompts.meta.currentPage"
-          v-model:page-size="prompts.meta.itemsPerPage"
-          float-right
-          my-4
-          :page-sizes="[15, 30, 50, 100]"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="prompts.meta.totalItems"
-          @change="fetchData"
+          v-if="prompts?.meta" v-model:current-page="prompts.meta.currentPage"
+          v-model:page-size="prompts.meta.itemsPerPage" float-right my-4 :page-sizes="[15, 30, 50, 100]"
+          layout="total, sizes, prev, pager, next, jumper" :total="prompts.meta.totalItems" @change="fetchData"
         />
       </ClientOnly>
     </el-main>
 
-    <el-drawer
-      v-model="dialogOptions.visible"
-      size="50%"
-      :close-on-click-modal="false"
-      :close-on-press-escape="false"
-    >
+    <el-drawer v-model="dialogOptions.visible" size="50%" :close-on-click-modal="false" :close-on-press-escape="false">
       <template #header>
         <h4>
           <span v-if="dialogOptions.mode === 'new'">新建</span>
           <span v-else-if="dialogOptions.mode === 'edit'">编辑</span>
-          <span v-else-if="dialogOptions.mode === 'read'">查看</span>模板信息<span
-            v-if="dialogOptions.data"
-            mx-4
-            op-50
-          >#{{ dialogOptions.data.id }}</span>
+          <span v-else-if="dialogOptions.mode === 'read'">查看</span>模板信息<span v-if="dialogOptions.data" mx-4 op-50>#{{
+            dialogOptions.data.id }}</span>
         </h4>
       </template>
       <template #default>
         <el-form
-          v-if="dialogOptions.data"
-          ref="ruleFormRef"
-          :disabled="dialogOptions.loading || dialogOptions.mode === 'read'"
-          style="max-width: 1280px"
-          :model="dialogOptions.data"
-          :rules="rules"
-          label-width="auto"
-          status-icon
+          v-if="dialogOptions.data" ref="ruleFormRef"
+          :disabled="dialogOptions.loading || dialogOptions.mode === 'read'" style="max-width: 1280px"
+          :model="dialogOptions.data" :rules="rules" label-width="auto" status-icon
         >
           <el-form-item label="模板头像" prop="avatar">
             <UserUploadAvatar
@@ -563,10 +530,7 @@ function getAuditType(status: number) {
               :disabled="dialogOptions.loading || dialogOptions.mode === 'read'"
             />
           </el-form-item>
-          <el-form-item
-            v-if="dialogOptions.data && dialogOptions.mode === 'read'"
-            label="模板状态"
-          >
+          <el-form-item v-if="dialogOptions.data && dialogOptions.mode === 'read'" label="模板状态">
             <el-tag v-if="dialogOptions.data.status === 0" type="warning">
               等待审核
             </el-tag>
@@ -578,29 +542,18 @@ function getAuditType(status: number) {
             </el-tag>
           </el-form-item>
           <el-form-item label="模板标题" prop="title">
-            <el-input
-              v-model="dialogOptions.data.title"
-              :maxlength="255"
-              :disabled="dialogOptions.mode !== 'new'"
-            />
+            <el-input v-model="dialogOptions.data.title" :maxlength="255" :disabled="dialogOptions.mode !== 'new'" />
           </el-form-item>
           <el-form-item label="模板内容" prop="content">
             <el-input
-              v-model="dialogOptions.data.content"
-              show-word-limit
-              :maxlength="1024"
-              :autosize="{ minRows: 5, maxRows: 30 }"
-              type="textarea"
+              v-model="dialogOptions.data.content" show-word-limit :maxlength="1024"
+              :autosize="{ minRows: 5, maxRows: 30 }" type="textarea"
             />
           </el-form-item>
           <el-form-item label="创建者" prop="content">
             <PersonalNormalUser :data="dialogOptions.data.creator" />
           </el-form-item>
-          <el-form-item
-            v-if="dialogOptions.mode !== 'read'"
-            label="模板须知"
-            prop="agreement"
-          >
+          <el-form-item v-if="dialogOptions.mode !== 'read'" label="模板须知" prop="agreement">
             <ul>
               <li>1.当您完成攥写后请依次点击"润色"，"翻译"按钮</li>
               <li>2.系统AI会自动将您的模板进行润色翻译调整</li>
@@ -616,11 +569,8 @@ function getAuditType(status: number) {
           <el-form-item v-if="dialogOptions.mode === 'read'" label="审核记录">
             <el-timeline style="max-width: 600px">
               <el-timeline-item
-                v-for="(audit, index) in dialogOptions.data.audits"
-                :key="index"
-                :type="getAuditType(audit.status)"
-                size="large"
-                :timestamp="audit.createdAt"
+                v-for="(audit, index) in dialogOptions.data.audits" :key="index"
+                :type="getAuditType(audit.status)" size="large" :timestamp="audit.createdAt"
               >
                 <span v-if="audit.status === 2" flex items-center>
                   <PersonalNormalUser :data="audit.auditor" />: {{ audit.reason }}
@@ -639,47 +589,32 @@ function getAuditType(status: number) {
           </el-form-item>
           <el-form-item v-if="dialogOptions.mode !== 'read'" label="操作按钮">
             <el-button
-              :loading="dialogOptions.loading"
-              :disabled="dialogOptions.data.content!.length < 200"
+              :loading="dialogOptions.loading" :disabled="dialogOptions.data.content!.length < 200"
               @click="polishContent(0)"
             >
               润色
             </el-button>
             <el-button
-              :loading="dialogOptions.loading"
-              :disabled="dialogOptions.data.content!.length < 200"
+              :loading="dialogOptions.loading" :disabled="dialogOptions.data.content!.length < 200"
               @click="polishContent(1)"
             >
               翻译
             </el-button>
             <el-button
-              :loading="dialogOptions.loading"
-              :disabled="!dialogOptions.meta.stashContent!.length"
+              :loading="dialogOptions.loading" :disabled="!dialogOptions.meta.stashContent!.length"
               @click="dialogOptions.data.content = dialogOptions.meta.stashContent!"
             >
               接受
             </el-button>
           </el-form-item>
-          <el-form-item
-            v-if="dialogOptions.mode !== 'read'"
-            label="翻译润色"
-            prop="content"
-          >
+          <el-form-item v-if="dialogOptions.mode !== 'read'" label="翻译润色" prop="content">
             <el-input
-              v-model="dialogOptions.meta.stashContent"
-              :disabled="true"
-              show-word-limit
-              :maxlength="1024"
-              :autosize="{ minRows: 5, maxRows: 30 }"
-              type="textarea"
+              v-model="dialogOptions.meta.stashContent" :disabled="true" show-word-limit :maxlength="1024"
+              :autosize="{ minRows: 5, maxRows: 30 }" type="textarea"
             />
           </el-form-item>
 
-          <el-form-item
-            v-if="dialogOptions.mode !== 'read'"
-            label="提交须知"
-            prop="agreement"
-          >
+          <el-form-item v-if="dialogOptions.mode !== 'read'" label="提交须知" prop="agreement">
             <ul>
               <li>1.您的提示词需要为英文格式</li>
               <li>2.您的提示词需要保证清晰明了，不能包含任何恶意内容</li>
@@ -691,11 +626,7 @@ function getAuditType(status: number) {
             </ul>
           </el-form-item>
 
-          <el-form-item
-            v-if="dialogOptions.mode !== 'read'"
-            label="参考Prompt"
-            prop="agreement"
-          >
+          <el-form-item v-if="dialogOptions.mode !== 'read'" label="参考Prompt" prop="agreement">
             <span>
               I want you to act as a prompt generator. Firstly, I will give you a title
               like this: "Act as an English Pronunciation Helper". Then you give me a
@@ -735,8 +666,7 @@ function getAuditType(status: number) {
               <template #reference>
                 <!-- !dialogOptions.meta.polish && dialogOptions.meta.translation -->
                 <el-button
-                  :disabled="dialogOptions.data.content!.length < 200"
-                  :loading="dialogOptions.loading"
+                  :disabled="dialogOptions.data.content!.length < 200" :loading="dialogOptions.loading"
                   type="primary"
                 >
                   {{ dialogOptions.mode !== "new" ? "修改并提交审核" : "新建并提交审核" }}
@@ -749,11 +679,8 @@ function getAuditType(status: number) {
     </el-drawer>
 
     <el-drawer
-      v-model="dialogOptions.meta.dialog"
-      size="50%"
-      :close-on-click-modal="false"
-      :close-on-press-escape="false"
-      direction="ltr"
+      v-model="dialogOptions.meta.dialog" size="50%" :close-on-click-modal="false"
+      :close-on-press-escape="false" direction="ltr"
     >
       <template #header>
         <h4>标准 PromptEngineer 格式参考</h4>
@@ -773,16 +700,10 @@ function getAuditType(status: number) {
             <el-link target="_blank" href="https://gpt.candobear.com/prompt">
               CandoBear Prompts
             </el-link>
-            <el-link
-              target="_blank"
-              href="https://github.com/langgptai/wonderful-prompts"
-            >
+            <el-link target="_blank" href="https://github.com/langgptai/wonderful-prompts">
               Wonderful Prompts(GitHub)
             </el-link>
-            <el-link
-              target="_blank"
-              href="https://huggingface.co/spaces/merve/ChatGPT-prompt-generator"
-            >
+            <el-link target="_blank" href="https://huggingface.co/spaces/merve/ChatGPT-prompt-generator">
               Auto Prompt Generator(HuggingFace)
             </el-link>
           </div>
@@ -794,5 +715,11 @@ function getAuditType(status: number) {
 
 <style lang="scss">
 .CmsPrompt {
+  display: flex;
+
+  flex-direction: column;
+
+  &-Header {
+  }
 }
 </style>
