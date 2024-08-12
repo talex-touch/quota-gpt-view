@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const props = defineProps(['outline'])
+const props = defineProps(['outline', 'editMode'])
 
 const pointer = ref<HTMLElement>()
 const eleArr = ref<HTMLElement[]>([])
@@ -22,7 +22,7 @@ watchEffect(() => {
     // 获取url中的state
     const { hash } = location
 
-    if (hash) {
+    if (props.editMode && hash) {
       const state = decodeURI(hash.substring(1))
 
       for (let i = 0; i < eleArr.value.length; ++i) {
@@ -30,7 +30,7 @@ watchEffect(() => {
 
         const ele = eleArr.value[i]
 
-        if (ele.innerText === state)
+        if (ele.textContent === state)
           return
       }
     }
@@ -153,6 +153,7 @@ async function handleClick(index: number) {
 
 <style scoped>
 ul {
+  z-index: 1;
   position: relative;
   margin: 0.5rem 0;
   padding: 0.5rem 0.25rem;

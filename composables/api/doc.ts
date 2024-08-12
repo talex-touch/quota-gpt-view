@@ -5,7 +5,7 @@ export interface IDocGetQuery {
   page?: number
   pageSize?: number
   title?: string
-  status?: number
+  status?: boolean
 }
 
 export function getDocList(_query?: IDocGetQuery) {

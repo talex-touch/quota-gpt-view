@@ -31,7 +31,7 @@ provide('onScroll', (func: any) => _func = func)
     <div class="ThEditor-Aside">
       <el-scrollbar>
         <h1>页面大纲</h1>
-        <ArticleContentOutline :outline="outline" />
+        <ArticleContentOutline :edit-mode="false" :outline="outline" />
       </el-scrollbar>
     </div>
 

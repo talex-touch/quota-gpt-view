@@ -110,7 +110,7 @@ function handleDialog(data: Partial<DocForm>, mode: 'edit' | 'read' | 'new') {
           title: '',
           value: '',
           meta: '',
-          status: 0,
+          status: true,
           permission: '',
         }
       : { ...data }
@@ -351,8 +351,7 @@ function handleDeleteUser(id: number, data: DocForm) {
               <template #property>
                 <el-form
                   ref="ruleFormRef" :disabled="dialogOptions.loading || dialogOptions.mode === 'read'"
-                  :model="dialogOptions.data" :rules="rules" label-width="auto"
-                  status-icon my-4 inline
+                  :model="dialogOptions.data" :rules="rules" label-width="auto" status-icon my-4 inline
                 >
                   <el-form-item label="文档名称" prop="title">
                     <el-input v-model="dialogOptions.data.title" :disabled="dialogOptions.mode === 'read'" />
@@ -367,10 +366,14 @@ function handleDeleteUser(id: number, data: DocForm) {
                     />
                   </el-form-item>
                   <el-form-item label="文档状态" prop="status">
-                    <el-select v-model="dialogOptions.data.status" style="width: 180px" placeholder="请选择状态">
-                      <el-option label="启用" value="1" />
-                      <el-option label="禁用" value="0" />
-                    </el-select>
+                    <el-radio-group v-model="dialogOptions.data.status">
+                      <el-radio-button :value="false">
+                        已禁用
+                      </el-radio-button>
+                      <el-radio-button :value="true">
+                        未禁用
+                      </el-radio-button>
+                    </el-radio-group>
                   </el-form-item>
                 </el-form>
               </template>

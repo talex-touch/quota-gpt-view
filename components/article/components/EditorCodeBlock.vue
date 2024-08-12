@@ -41,14 +41,12 @@ function handleCopy() {
       </div>
     </div>
     <div class="EditorCodeBlock-Content">
-      <pre :spellcheck="false">
-          <code :ref="contentRef" />
-        </pre>
+      <pre :spellcheck="false"><code :ref="contentRef" /></pre>
     </div>
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .selected {
   outline: blue solid 1px;
 }
@@ -70,6 +68,9 @@ function handleCopy() {
   }
 
   &-Content {
+    pre {
+      height: 100%;
+    }
     position: relative;
     padding: 0.5rem 1rem;
 
