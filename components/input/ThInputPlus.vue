@@ -210,7 +210,7 @@ watch(() => chatManager.messages.value.model, (val) => {
     transform: scale(0.75);
     transition: 0.25s;
   }
-
+  z-index: 10;
   position: relative;
   display: flex;
 

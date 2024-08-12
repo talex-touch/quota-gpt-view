@@ -32,3 +32,53 @@ export function getTargetPrompt(id: number) {
 export function getPromptDailyStatistics() {
   return endHttp.get('aigc/prompts/statistics')
 }
+
+export interface PromptTagDto extends Record<string, any> {
+  /**
+   * 标签颜色
+   */
+  color: null | string
+  createdAt: Date
+  /**
+   * 标签描述
+   */
+  description: string
+  /**
+   * 标签图标
+   */
+  icon: null | string
+  /**
+   * 标签名称
+   */
+  name: string
+  /**
+   * 父级标签 ID
+   */
+  parentTagId: number | null
+  /**
+   * 关联的提示词
+   */
+  prompts: any[]
+  /**
+   * 标签状态
+   */
+  status: number | null
+  updatedAt: Date
+  /**
+   * 标签权重
+   */
+  weight: number | null
+}
+
+export function createPromptTag(dto: PromptTagDto) {
+  return endHttp.post('aigc/prompts/tags/create', dto)
+}
+
+export interface PromptTagQueryDto extends Partial<PromptTagDto> {
+  page: number
+  pageSize: number
+}
+
+export function getPromptTagList(dto: Partial<PromptTagQueryDto>) {
+  return endHttp.post('aigc/prompts/tags/list', dto)
+}

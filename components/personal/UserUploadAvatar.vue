@@ -147,7 +147,8 @@ const headers = {
     }
   }
 
-  img {
+  img,
+  .el-upload {
     width: 100%;
     height: 100%;
 

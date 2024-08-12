@@ -524,7 +524,7 @@ function handleTemplateSelect(data: any) {
   &:active {
     transform: scale(0.95);
   }
-
+  z-index: 12;
   position: absolute;
   display: flex;
 

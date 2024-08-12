@@ -49,6 +49,7 @@
     "echarts",
     "kwargs",
     "Omni",
+    "popconfirm",
     "Tavily",
     "Volc",
     "WECHAT"

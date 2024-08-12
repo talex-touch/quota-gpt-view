@@ -768,8 +768,6 @@ export function getParamList(Query: Partial<ParamsListReq>) {
   return endHttp.get('system/param-config', Query)
 }
 
-
-
 export interface ParamConfigEntity {
   createdAt: Date;
   id: number;
@@ -793,8 +791,6 @@ export interface ParamConfigEntity {
   [property: string]: any;
 }
 
-
-
 /**
  * 新增参数配置
  * @param Body  
@@ -817,7 +813,7 @@ export function queryParamInformation(Path: number) {
  * @param Path 
  * @returns 
  */
-export function updateParam(Path: number,Body:Partial<ParamConfigEntity> ) {
+export function updateParam(Path: number, Body:Partial<ParamConfigEntity> ) {
   return endHttp.post('system/param-config/'+Path, Body)
 }
 /**
@@ -828,9 +824,6 @@ export function updateParam(Path: number,Body:Partial<ParamConfigEntity> ) {
 export function delParam(Path: number) {
   return endHttp.post('system/param-config/{id}', Path)
 }
-
-
-
 
 // 订单
 export function getOrderPlanPrice(type: 'STANDARD' | 'ULTIMATE', time: string) {
