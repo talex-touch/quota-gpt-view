@@ -424,7 +424,7 @@ function getAuditType(status: number) {
 
       <ClientOnly>
         <el-table v-if="prompts?.items" :data="prompts.items" height="90%" style="width: 100%">
-          <el-table-column type="id" label="编号" />
+          <el-table-column prop="id" label="编号" />
           <el-table-column label="头像">
             <template #default="scope">
               <UserAvatar :avatar="scope.row.avatar" />
