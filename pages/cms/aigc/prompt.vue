@@ -424,7 +424,7 @@ function getAuditType(status: number) {
 
       <ClientOnly>
         <el-table v-if="prompts?.items" :data="prompts.items" style="width: 100%">
-          <el-table-column type="index" label="序号" />
+          <el-table-column type="id" label="编号" />
           <el-table-column label="头像">
             <template #default="scope">
               <UserAvatar :avatar="scope.row.avatar" />
@@ -521,7 +521,7 @@ function getAuditType(status: number) {
           v-model:page-size="prompts.meta.itemsPerPage"
           float-right
           my-4
-          :page-sizes="[10, 30, 50, 100]"
+          :page-sizes="[15, 30, 50, 100]"
           layout="total, sizes, prev, pager, next, jumper"
           :total="prompts.meta.totalItems"
           @change="fetchData"
