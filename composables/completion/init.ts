@@ -58,6 +58,7 @@ export const $completion = {
             date: formatDate(Date.now()),
             role: 'user',
             content: input,
+            status: Status.AVAILABLE,
           },
         ],
       }

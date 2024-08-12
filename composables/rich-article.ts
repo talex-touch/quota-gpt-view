@@ -157,7 +157,7 @@ const funcs = new Array<IRichFunc>()
 
 funcs.push(preRich)
 
-export async function useRichArticle(editorDom: HTMLElement) {
+export function useRichArticle(editorDom: HTMLElement) {
   [...funcs].forEach(func => func.init(editorDom))
 
   editorDom.addEventListener('click', e => [...funcs].forEach(func => func?.onClick?.(e)))

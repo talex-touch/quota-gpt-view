@@ -4,7 +4,12 @@ const props = defineProps(['outline'])
 const pointer = ref<HTMLElement>()
 const eleArr = ref<HTMLElement[]>([])
 watchEffect(() => {
+  // eslint-disable-next-line no-restricted-syntax, no-labels, no-unused-expressions
+  $_ignored: [props.outline]
+
   setTimeout(() => {
+    eleArr.value.length = 0
+
     const editor = document.querySelector('#MilkEditor')!
 
     ;[...editor.children[0].children[0].children]
@@ -103,7 +108,7 @@ function fixPointerPos(index: number) {
   target.classList.add('active')
 
   // 为页面url设置
-  history.pushState({}, '', `#${encodeURI(target.innerText)}`)
+  history.pushState({}, '', `#${encodeURI(target.textContent!)}`)
 
   style.opacity = '.75'
   style.transform = 'scaleY(.6)'
@@ -149,6 +154,7 @@ async function handleClick(index: number) {
 <style scoped>
 ul {
   position: relative;
+  margin: 0.5rem 0;
   padding: 0.5rem 0.25rem;
 
   height: 100%;
@@ -156,8 +162,10 @@ ul {
 
 ul li {
   position: relative;
-  padding: 0.25em;
+  margin: 0.5rem;
+  padding: 0.5rem 0.25rem;
 
+  font-size: 18px;
   opacity: 0.85;
   cursor: pointer;
   text-indent: 1rem;
@@ -175,15 +183,15 @@ ul li::before {
   left: 0;
   top: 0;
 
-  border-radius: 8px;
+  border-radius: 0 8px 8px 0;
   transition: width 0.5s;
   filter: invert(5%) brightness(120%);
-  background-color: var(--major-color-light);
+  background-color: var(--theme-color-light);
 }
 
 .dark ul li::before {
   filter: invert(0);
-  background-color: var(--major-color-lightest);
+  background-color: var(--theme-color-light);
 }
 
 .Outline-Item.active {
@@ -193,7 +201,7 @@ ul li::before {
 }
 
 .Outline-Item.active::before {
-  width: 100%;
+  width: 102%;
 }
 
 .OutlinePointer {
@@ -206,7 +214,7 @@ ul li::before {
   background-color: var(--theme-color);
 
   top: 0;
-  left: 0;
+  left: 8px;
 
   width: 5px;
   height: 0;
