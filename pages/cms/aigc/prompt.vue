@@ -423,7 +423,7 @@ function getAuditType(status: number) {
       </el-form>
 
       <ClientOnly>
-        <el-table v-if="prompts?.items" :data="prompts.items" style="width: 100%">
+        <el-table v-if="prompts?.items" :data="prompts.items" height="90%" style="width: 100%">
           <el-table-column type="id" label="编号" />
           <el-table-column label="头像">
             <template #default="scope">
@@ -592,6 +592,9 @@ function getAuditType(status: number) {
               :autosize="{ minRows: 5, maxRows: 30 }"
               type="textarea"
             />
+          </el-form-item>
+          <el-form-item label="创建者" prop="content">
+            <PersonalNormalUser :data="dialogOptions.data.creator" />
           </el-form-item>
           <el-form-item
             v-if="dialogOptions.mode !== 'read'"
