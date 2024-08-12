@@ -78,7 +78,7 @@ function handleReset() {
   formInline.id = null
 }
 
-const roles = ref()
+
 
 
 
@@ -280,7 +280,7 @@ function resetForm(formEl: FormInstance | undefined) {
   formEl.resetFields()
 }
 
-function handleDeleteUser(id: number, data: DictItemsRequest) {
+function  handleDeleteDictItems(id: number, data: DictItemsRequest) {
   ElMessageBox.confirm(
     `你确定要删除字典项 ${data.label}(${data.value}) #${id} 吗？删除后这个字典项永久无法找回。`,
     '确认删除',
@@ -371,7 +371,7 @@ function handleDeleteUser(id: number, data: DictItemsRequest) {
               <el-button plain text size="small" type="warning" @click="handleDialog(row, 'edit')">
                 编辑
               </el-button>
-              <el-button plain text size="small" type="danger" @click="handleDeleteUser(row.id, row)">
+              <el-button plain text size="small" type="danger" @click=" handleDeleteDictItems(row.id, row)">
                 删除
               </el-button>
             </template>

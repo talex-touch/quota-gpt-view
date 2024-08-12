@@ -523,13 +523,122 @@ export function delDictItems(Path: any) {
 
 //-------------------------------------------------任务调度
 
+
+export interface TaskEntity {
+  createdAt: Date;
+  /**
+   * cron表达式
+   */
+  cron: string;
+  /**
+   * 任务参数
+   */
+  data: string;
+  /**
+   * 结束时间
+   */
+  endTime: Date;
+  /**
+   * 执行次数
+   */
+  every: number;
+  id: number;
+  /**
+   * 任务配置
+   */
+  jobOpts: string;
+  /**
+   * 间隔时间
+   */
+  limit: number;
+  /**
+   * 任务名
+   */
+  name: string;
+  /**
+   * 任务描述
+   */
+  remark: string;
+  /**
+   * 任务标识
+   */
+  service: string;
+  /**
+   * 开始时间
+   */
+  startTime: Date;
+  /**
+   * 任务状态 0禁用 1启用
+   */
+  status: number;
+  /**
+   * 任务类型 0cron 1间隔
+   */
+  type: number;
+  updatedAt: Date;
+  [property: string]: any;
+}
+
+
+export interface TaskReq {
+  _t?: number;
+  /**
+   * cron表达式
+   */
+  cron?: string;
+  /**
+   * 执行参数
+   */
+  data?: string;
+  /**
+   * 结束时间
+   */
+  endTime?: string;
+  /**
+   * 执行间隔，毫秒单位
+   */
+  every?: number;
+  field?: string;
+  /**
+   * 限制执行次数，负数则无限制
+   */
+  limit?: number;
+  /**
+   * 任务名称
+   */
+  name?: string;
+  order?: string;
+  page?: number;
+  pageSize?: number;
+  /**
+   * 任务备注
+   */
+  remark?: string;
+  /**
+   * 调用的服务
+   */
+  service?: string;
+  /**
+   * 开始时间
+   */
+  startTime?: string;
+  /**
+   * 任务状态
+   */
+  status?: number;
+  /**
+   * 任务类别：cron | interval
+   */
+  type?: number;
+  [property: string]: any;
+}
 /**
  * 获取任务调度列表
  * 
  * @param Query 查询参数，用于筛选和定制返回的任务列表
  * @returns 返回一个Promise对象，包含任务调度列表的数据
  */
-export function getScheduleList(Query : any) {
+export function getScheduleList(Query :Partial<TaskReq>) {
   return endHttp.get('system/tasks',Query)
 }
 /**
@@ -548,8 +657,8 @@ export function addSchedule(Header : any) {
  * @param Path - 包含更新任务所需信息的对象，如任务ID等。这个参数被用作请求的路径参数。
  * @returns 返回一个Promise，该Promise在API请求完成后解析为API响应。
  */
-export function updateSchedule(Path : any) {
-  return endHttp.put('system/tasks/{id}',Path)
+export function updateSchedule(Path : any,Body :TaskEntity) {
+  return endHttp.put(`system/tasks/${Path}`,Body)
 }
 
 /**
@@ -637,20 +746,61 @@ export function getHistoryList() {
 // ---------------------------------------------参数配置模块
 
 
+export interface ParamsListReq {
+  _t?: number;
+  field?: string;
+  /**
+   * 参数名称
+   */
+  name: string;
+  order?: string;
+  page?: number;
+  pageSize?: number;
+  [property: string]: any;
+}
+
 /**
  * 获取参数配置列表
  * @param Query 
  * @returns 
  */
-export function getParamList(Query: any) {
+export function getParamList(Query: Partial<ParamsListReq>) {
   return endHttp.get('system/param-config', Query)
 }
+
+
+
+export interface ParamConfigEntity {
+  createdAt: Date;
+  id: number;
+  /**
+   * 配置键名
+   */
+  key: string;
+  /**
+   * 配置名
+   */
+  name: string;
+  /**
+   * 配置描述
+   */
+  remark: string;
+  updatedAt: Date;
+  /**
+   * 配置值
+   */
+  value: string;
+  [property: string]: any;
+}
+
+
+
 /**
  * 新增参数配置
  * @param Body  
  * @returns 
  */
-export function addParam(Body : any) {
+export function addParam(Body : Partial<ParamConfigEntity>) {
   return endHttp.post('system/param-config', Body )
 }
 
@@ -659,7 +809,7 @@ export function addParam(Body : any) {
  * @param Path 
  * @returns 
  */
-export function queryParamInformation(Path: any) {
+export function queryParamInformation(Path: number) {
   return endHttp.get('system/param-config/{id}', Path)
 }
 /**
@@ -667,7 +817,7 @@ export function queryParamInformation(Path: any) {
  * @param Path 
  * @returns 
  */
-export function updateParam(Path: any,Body:any ) {
+export function updateParam(Path: number,Body:Partial<ParamConfigEntity> ) {
   return endHttp.post('system/param-config/'+Path, Body)
 }
 /**
@@ -675,7 +825,7 @@ export function updateParam(Path: any,Body:any ) {
  * @param Path 
  * @returns 
  */
-export function delParam(Path: any) {
+export function delParam(Path: number) {
   return endHttp.post('system/param-config/{id}', Path)
 }
 
