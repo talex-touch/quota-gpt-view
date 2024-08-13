@@ -905,6 +905,7 @@ export interface PromptEntityDto {
   audits?: any[]
 
   status?: number
+  tags?: number[]
 }
 
 export class ChatAdminManager {

@@ -5,7 +5,7 @@ import UserUploadAvatar from '~/components/personal/UserUploadAvatar.vue'
 import { $completion } from '~/composables/completion/init'
 import StandardPrompt from '~/composables/completion/standard-prompt.txt?raw'
 import RenderContentOld from '~/components/render/RenderContentOld.vue'
-import { getPromptDailyStatistics } from '~/composables/api/chat'
+import { getPromptDailyStatistics, searchPromptTag } from '~/composables/api/chat'
 
 definePageMeta({
   name: 'PromptTemplate管理',
@@ -329,10 +329,84 @@ function formateTitle(status: number) {
       return '未知'
   }
 }
+
+const auditAssignOptions = reactive<{
+  loading: boolean
+  dialog: boolean
+  data: {
+    id: number
+    tags: number[]
+  } | null
+  options: any[]
+}>({
+  dialog: false,
+  data: null,
+  loading: false,
+  options: [],
+})
+
+function handleAuditAssign(data: PromptEntityDto) {
+  auditAssignOptions.data = {
+    id: data.id!,
+    tags: data.tags || [],
+  }
+  auditAssignOptions.dialog = true
+}
+
+async function remoteMethod(query: string) {
+  if (query) {
+    auditAssignOptions.loading = true
+
+    const res: any = await searchPromptTag(query)
+
+    if (res.code !== 200)
+      ElMessage.error(res.message || '获取失败！')
+    else
+      auditAssignOptions.options = res.data
+
+    auditAssignOptions.loading = false
+  }
+  else {
+    auditAssignOptions.options = []
+  }
+}
 </script>
 
 <template>
   <el-container class="CmsPrompt">
+    <el-drawer
+      v-model="auditAssignOptions.dialog" direction="btt" :close-on-press-escape="false"
+      :close-on-click-modal="false" size="60%" title="PromptTemplate 分配"
+    >
+      <el-form
+        v-if="auditAssignOptions.data" v-loading="auditAssignOptions.loading" :model="auditOptions.data"
+        label-width="auto"
+      >
+        <el-form-item label="模板标题" prop="title">
+          <el-select
+            v-model="auditAssignOptions.data!.tags" multiple filterable remote reserve-keyword
+            placeholder="输入文本进行搜索" :remote-method="remoteMethod" :loading="auditAssignOptions.loading"
+            style="width: 240px"
+          >
+            <el-option v-for="item in auditAssignOptions.options" :key="item.id" :label="item.name" :value="item.id">
+              <div flex items-center justify-between gap-4>
+                <div flex items-center gap-2>
+                  <div :class="item.icon" />
+                  {{ item.name }}
+                </div>
+                <div float-right class="color-box" :style="`--c: ${item.color}`" />
+              </div>
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="审核操作" prop="action">
+          <el-button type="warning" @click="submitAudit">
+            提交
+          </el-button>
+        </el-form-item>
+      </el-form>
+    </el-drawer>
+
     <el-dialog
       v-model="auditOptions.dialog" :close-on-press-escape="false" :close-on-click-modal="false" width="60%"
       title="PromptTemplate 审核"
@@ -448,13 +522,25 @@ function formateTitle(status: number) {
                 <el-tag type="warning">
                   等待审核
                 </el-tag>
+
                 <el-button v-permission="`aigc:audit`" type="primary" size="small" plain mx-2 @click="handleAudit(row)">
                   立即审核
                 </el-button>
               </template>
-              <el-tag v-else-if="row.status === 1" type="success">
-                已通过
-              </el-tag>
+              <div v-else-if="row.status === 1" flex items-center gap-2>
+                <el-tag type="success">
+                  已通过
+                </el-tag>
+                <el-tooltip effect="dark" content="要想模板被发现，你还需要配置Prompt的分类!" placement="top">
+                  <div i-carbon:warning />
+                </el-tooltip>
+                <el-button
+                  v-permission="`aigc:audit`" type="primary" size="small" plain
+                  @click="handleAuditAssign(row)"
+                >
+                  立即分配
+                </el-button>
+              </div>
               <el-tag v-else-if="row.status === 2" type="danger">
                 未通过
               </el-tag>
@@ -721,5 +807,16 @@ function formateTitle(status: number) {
 
   &-Header {
   }
+}
+
+.color-box {
+  position: relative;
+  margin: 0 0.25rem;
+
+  width: 12px;
+  height: 12px;
+
+  border-radius: 4px;
+  background-color: var(--c);
 }
 </style>

@@ -87,3 +87,7 @@ export interface PromptTagQueryDto extends Partial<PromptTagDto> {
 export function getPromptTagList(dto: Partial<PromptTagQueryDto>) {
   return endHttp.post('aigc/prompts/tags/list', dto)
 }
+
+export function searchPromptTag(keyword: string) {
+  return endHttp.get('aigc/prompts/tags/search', { keyword })
+}
