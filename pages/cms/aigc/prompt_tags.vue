@@ -203,7 +203,7 @@ function resetForm(formEl: FormInstance | undefined) {
           <el-table-column prop="id" label="编号" />
           <el-table-column label="图标">
             <template #default="{ row }">
-              {{ row.icon }}
+              <div :class="row.icon" />
             </template>
           </el-table-column>
           <el-table-column label="颜色">
