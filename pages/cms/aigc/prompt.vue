@@ -34,11 +34,13 @@ const statistics = ref<{
 }[]>([])
 const PromptEngineer = ref(`\`\`\`markdown\n${StandardPrompt} \n\`\`\``)
 const formInline = reactive({
-  title: '',
+  keyword: '',
+  status: -1,
 })
 
 function handleReset() {
-  formInline.title = ''
+  formInline.keyword = ''
+  formInline.status = -1
 }
 
 onMounted(fetchData)
@@ -49,12 +51,13 @@ async function fetchData() {
   const query: Record<string, any> = {
     page: prompts.value.meta.currentPage,
     pageSize: prompts.value.meta.itemsPerPage,
-    title: formInline.title,
+    keyword: formInline.keyword,
+    status: formInline.status === -1 ? undefined : formInline.status,
   }
 
   // 过滤掉为空的值
   Object.entries(query).forEach(([key, value]) => {
-    if (!value)
+    if (value === null || value === undefined)
       delete query[key]
   })
 
@@ -281,6 +284,10 @@ async function submitAudit() {
   }
 }
 
+function handleFilterTableTagStatus(value: string, row: any) {
+  return row.status === +value
+}
+
 const rejectReason = reactive([
   { label: '内容违规', value: '您提交的内容违反了相关规定，不能通过审核哦。' },
   { label: '内容涉黄', value: '您的内容包含了不适当的色情信息，这是不被允许的哟。' },
@@ -331,6 +338,10 @@ function formateTitle(status: number) {
       return '审核通过'
     case 2:
       return '审核不通过'
+    case 3:
+      return '已发布'
+    case 4:
+      return '已下线'
     default:
       return '未知'
   }
@@ -413,6 +424,15 @@ function handleTableRowClass(data: any) {
 
   return ''
 }
+
+const statusOptions = [
+  { label: '无', value: -1 },
+  { label: '待审核', value: 0 },
+  { label: '审核通过', value: 1 },
+  { label: '审核不通过', value: 2 },
+  { label: '已发布', value: 3 },
+  { label: '已下线', value: 4 },
+]
 </script>
 
 <template>
@@ -525,7 +545,12 @@ function handleTableRowClass(data: any) {
     <el-main>
       <el-form :disabled="formLoading" :inline="true" :model="formInline">
         <el-form-item label="标题">
-          <el-input v-model="formInline.title" minlength="4" placeholder="搜索模板名称" clearable />
+          <el-input v-model="formInline.keyword" minlength="4" placeholder="搜索模板..." clearable />
+        </el-form-item>
+        <el-form-item label="状态">
+          <el-select v-model="formInline.status" placeholder="状态" style="width: 120px">
+            <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
 
         <el-form-item style="margin-right: 0" float-right>
@@ -542,7 +567,10 @@ function handleTableRowClass(data: any) {
       </el-form>
 
       <ClientOnly>
-        <el-table v-if="prompts?.items" :row-class-name="handleTableRowClass" :data="prompts.items" height="90%" style="width: 100%">
+        <el-table
+          v-if="prompts?.items" :row-class-name="handleTableRowClass" :data="prompts.items" height="90%"
+          table-layout="auto"
+        >
           <el-table-column prop="id" label="编号" />
           <el-table-column label="头像">
             <template #default="scope">
@@ -554,12 +582,20 @@ function handleTableRowClass(data: any) {
               {{ row.title }}
             </template>
           </el-table-column>
-          <el-table-column label="正文字数">
+          <el-table-column label="正文字数" width="100px">
             <template #default="{ row }">
               {{ row.content?.length }}字
             </template>
           </el-table-column>
-          <el-table-column prop="status" label="状态">
+          <el-table-column
+            :filters="[
+              { text: '待审核', value: '0' },
+              { text: '已通过', value: '1' },
+              { text: '未通过', value: '2' },
+              { text: '已发布', value: '3' },
+              { text: '未发布', value: '4' },
+            ]" prop="status" label="状态" :filter-method="handleFilterTableTagStatus" filter-placement="bottom-end"
+          >
             <template #default="{ row }">
               <template v-if="row.status === 0">
                 <el-tag type="warning">
