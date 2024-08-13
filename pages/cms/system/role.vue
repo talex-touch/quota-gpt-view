@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { reactive } from 'vue'
 import type { FormInstance, FormRules } from 'element-plus'
-import { addRole, deleteRole, getMenuList, getRoleInfo, getRoleList, updateRole, type RoleGetQuery } from '~/composables/api/account'
+import { addRole, deleteRole, getMenuList, getRoleInfo, getRoleList, updateRole, type RoleGetReq } from '~/composables/api/account'
 
 definePageMeta({
   name: '角色管理',
@@ -79,7 +79,7 @@ function handleResetFindRoleForm() {
 const dialogOptions = reactive<{
   visible: boolean
   mode: 'edit' | 'read' | 'new'
-  data: RoleGetQuery | null
+  data: RoleGetReq | null
   loading: boolean
 }>({
   visible: false,
@@ -98,7 +98,7 @@ const dialogOptions = reactive<{
 })
 
 // 编辑 详细
-async function handleDialog(data: RoleGetQuery | null, mode: 'edit' | 'read' | 'new') {
+async function handleDialog(data: RoleGetReq | null, mode: 'edit' | 'read' | 'new') {
   dialogOptions.mode = mode
 
   dialogOptions.data = mode === 'new'
@@ -112,15 +112,15 @@ async function handleDialog(data: RoleGetQuery | null, mode: 'edit' | 'read' | '
         createdAt: '',
         updater: '',
       }
-    : { ...data } as RoleGetQuery
+    : { ...data } as RoleGetReq
 
-  if (mode === 'edit') {
-    const res = await getRoleInfo(data!.id!)
+  // if (mode === 'edit') {
+  //   const res = await getRoleInfo(data!.id!)
 
-    Object.assign(dialogOptions.data, {
-      ...res.data,
-    })
-  }
+  //   Object.assign(dialogOptions.data, {
+  //     ...res.data,
+  //   })
+  // }
 
   dialogOptions.visible = true
 }
@@ -128,7 +128,7 @@ async function handleDialog(data: RoleGetQuery | null, mode: 'edit' | 'read' | '
 const treeRef = ref()
 const ruleFormRef = ref<FormInstance>()
 
-const rules = reactive<FormRules<RoleGetQuery>>({
+const rules = reactive<FormRules<RoleGetReq>>({
   name: [
     { required: true, message: '请输入角色名称', trigger: 'blur' },
     { min: 5, max: 24, message: '角色名称需要在 5-24 位之间', trigger: 'blur' },
@@ -188,7 +188,7 @@ async function submitForm(formEl: FormInstance | undefined) {
     data.menuIds = treeRef.value.getCheckedNodes() ?? [] // 如果menuIds为undefined，则提供一个空数组;
 
     if (dialogOptions.mode !== 'new') {
-      const res: any = await updateRole(data!.id!, data as RoleGetQuery)
+      const res: any = await updateRole(data!.id!, data as RoleGetReq)
 
       if (res.code === 200) {
         ElMessage.success('修改成功！')
