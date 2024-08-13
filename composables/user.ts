@@ -3,7 +3,12 @@ import { endHttp } from './api/axios'
 
 export interface AccountDetail {
   id: number
-  token: string
+
+  token: {
+    accessToken: string
+    refreshToken: string
+  }
+
   createdAt: string
   updatedAt: string
   username: string
@@ -16,28 +21,58 @@ export interface AccountDetail {
   status: number
   roles: string[]
   permissions: string[]
-  isAdmin: boolean
   subscription: any
+
+  isAdmin: boolean
+  isLogin: boolean
 }
 
 export const userStore = useLocalStorage<Partial<AccountDetail>>('user', {})
 
+Object.defineProperty(userStore.value, 'isLogin', {
+  get() {
+    return !!userStore.value.token
+  },
+})
+
 Object.defineProperty(userStore.value, 'isAdmin', {
   get() {
-    if (!userStore.value.token)
+    if (!userStore.value.isLogin)
       return false
 
     return !!userStore.value.roles?.find((item: any) => item.id === 1)
   },
 })
 
-watch(() => userStore.value.token, async () => {
-  if (!userStore.value.token)
-    return
+// watch(() => userStore.value.token, async () => {
+//   if (!userStore.value.isLogin)
+//     return
+
+//   await refreshCurrentUserRPM()
+//   await refreshUserSubscription()
+// }, { deep: true, immediate: true })
+
+export async function $handleUserLogin(token: { accessToken: string, refreshToken: string }) {
+  userStore.value.token = token
 
   await refreshCurrentUserRPM()
   await refreshUserSubscription()
-}, { deep: true, immediate: true })
+
+  $event.emit('USER_LOGIN_SUCCESS')
+}
+
+export async function $handleUserLogout() {
+  const router = useRouter()
+
+  await router.push('/')
+
+  if (!userStore.value.isLogin)
+    console.warn(`User not login now.`)
+
+  userStore.value = {}
+
+  $event.emit('USER_LOGOUT_SUCCESS')
+}
 
 export async function refreshUserSubscription() {
   const { data } = await getUserSubscription()

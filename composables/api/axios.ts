@@ -50,8 +50,8 @@ export function genAxios(options: CreateAxiosDefaults) {
         })(reqConfig.data)
       }
 
-      if (userStore.value.token)
-        reqConfig.headers.Authorization = `Bearer ${userStore.value.token}`
+      if (userStore.value.isLogin)
+        reqConfig.headers.Authorization = `Bearer ${userStore.value.token?.accessToken}`
 
       return reqConfig
     },
@@ -59,7 +59,7 @@ export function genAxios(options: CreateAxiosDefaults) {
   )
 
   async function timeoutLogout() {
-    userStore.value.token = ''
+    $handleUserLogout()
 
     const { origin } = window.location
     window.location.href = origin

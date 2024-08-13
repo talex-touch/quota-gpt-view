@@ -11,7 +11,7 @@ onMounted(() => {
     <ChoreLogo />
 
     <h1>
-      <span v-if="userStore.token">
+      <span v-if="userStore.isLogin">
         <OtherTextShaving :text="`${$route.query.code ? ('请稍后') : '无法完成邀请'}`" />
       </span>
       <span v-else>

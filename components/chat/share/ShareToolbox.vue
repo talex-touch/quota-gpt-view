@@ -127,7 +127,7 @@ async function duplicatingShearsClick() {
         <div class="Share-Image-Head">
           <img alt="Logo" src="/public/logo.png">
           {{ shareOptions.title }}
-          <p v-if="userStore.token" style="margin: 0">
+          <p v-if="userStore.isLogin" style="margin: 0">
             由 {{ userStore.nickname }}分享
           </p>
           <!-- <img alt="Logo" src="/public/logo.png"> -->

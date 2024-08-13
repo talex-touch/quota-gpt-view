@@ -38,7 +38,7 @@ const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
 }
 
 const headers = {
-  Authorization: `Bearer ${userStore.value.token}`,
+  Authorization: `Bearer ${userStore.value.token?.accessToken}`,
 }
 </script>
 

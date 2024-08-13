@@ -23,7 +23,7 @@ const pageOptions = reactive<any>({
   },
 })
 
-const roundLimit = computed(() => (!userStore.value?.token && ((chatManager.messages.value?.messages?.length) ?? 1) >= 10))
+const roundLimit = computed(() => (!userStore.value?.isLogin && ((chatManager.messages.value?.messages?.length) ?? 1) >= 10))
 
 function handleDelete(index: number) {
   chatManager.deleteMessage(index)
@@ -146,7 +146,7 @@ async function handleSend(query: string, _meta: any) {
     async onReqCompleted() {
       await genTitle(pageOptions.select)
 
-      if (userStore.value.token) {
+      if (userStore.value.isLogin) {
         setTimeout(() => {
           chatManager.postTargetHistory(conversation)
         }, 500)
@@ -195,7 +195,7 @@ provide('pageOptions', pageOptions)
         <span class="business">四川科塔锐行科技有限公司</span>
       </div>
 
-      <ChorePersonalDialog v-if="userStore.token" v-model="pageOptions.settingDialog" />
+      <ChorePersonalDialog v-if="userStore.isLogin" v-model="pageOptions.settingDialog" />
     </div>
   </div>
 </template>

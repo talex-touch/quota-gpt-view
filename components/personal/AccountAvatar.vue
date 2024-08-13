@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import dayjs from 'dayjs'
 import { formatDate } from '~/composables/common'
+import { $handleUserLogout } from '~/composables/user'
 import { globalOptions } from '~/constants'
 
 const router = useRouter()
@@ -46,12 +47,7 @@ const menus = reactive([
     label: '退出登录',
     show: true,
     click: async () => {
-      userStore.value.token = ''
-      userStore.value.subscription = null
-
-      await router.push('/')
-
-      location.reload()
+      $handleUserLogout()
     },
   },
 ])
@@ -117,7 +113,7 @@ const planProgress = computed(() => {
 <template>
   <div class="AccountAvatar">
     <div
-      v-if="!userStore.token?.length" class="AccountAvatar-Wrapper"
+      v-if="!userStore.isLogin" class="AccountAvatar-Wrapper"
       @click="appOptions.model.login = !appOptions.model.login"
     >
       <el-avatar>

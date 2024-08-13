@@ -14,7 +14,7 @@ onMounted(async () => {
     <div v-v-else class="ProfileWrapper-Main">
       <div flex items-center gap-2>
         当前token:
-        <div v-copy="userStore.token" i-carbon:copy cursor-pointer />
+        <div v-copy="userStore.token?.accessToken" i-carbon:copy cursor-pointer />
       </div>
     </div>
   </div>
