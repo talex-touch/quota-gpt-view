@@ -321,7 +321,7 @@ span.premium-end {
 .el-input,
 .el-textarea {
   --el-input-border-radius: 8px !important;
-  --el-input-bg-color: var(--el-border-color-lighter) !important;
+  /* --el-input-bg-color: var(--el-border-color-lighter) !important; */
 }
 
 .el-cascader {

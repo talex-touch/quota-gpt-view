@@ -18,7 +18,17 @@ definePageMeta({
 })
 
 const formLoading = ref(false)
-const promptTags = ref({
+const promptTags = ref<{
+  items: PromptTagDto[]
+  meta: {
+    currentPage: number
+    perPage: number
+    total: number
+    totalPages: number
+    itemsPerPage: number
+    totalItems: number
+  }
+}>({
   items: [],
   meta: {
     currentPage: 0,
@@ -98,6 +108,19 @@ const rules = reactive<FormRules<PromptTagDto>>({
   name: [
     { required: true, message: '请输入标签标题', trigger: 'blur' },
     { min: 2, max: 255, message: '标签标题需要在 2-255 位之间', trigger: 'blur' },
+  ],
+  icon: [
+    { required: true, message: '请选择图标', trigger: 'blur' },
+  ],
+  color: [
+    { required: true, message: '请选择颜色', trigger: 'blur' },
+  ],
+  weight: [
+    { required: true, message: '请输入权重', trigger: 'blur' },
+  ],
+  description: [
+    { required: true, message: '请输入标签介绍', trigger: 'blur' },
+    { min: 20, max: 255, message: '标签介绍需要在 20-255 位之间', trigger: 'blur' },
   ],
 })
 
@@ -268,10 +291,10 @@ function resetForm(formEl: FormInstance | undefined) {
           :disabled="dialogOptions.loading || dialogOptions.mode === 'read'" style="max-width: 1280px"
           :model="dialogOptions.data" :rules="rules" label-width="auto" status-icon
         >
-          <el-form-item label="标签标题" prop="title">
+          <el-form-item label="标签标题" prop="name">
             <el-input v-model="dialogOptions.data.name" :maxlength="255" />
           </el-form-item>
-          <el-form-item label="模板内容" prop="content">
+          <el-form-item label="模板内容" prop="description">
             <el-input
               v-model="dialogOptions.data.content" show-word-limit :maxlength="1024"
               :autosize="{ minRows: 5, maxRows: 30 }" type="textarea"
@@ -285,6 +308,11 @@ function resetForm(formEl: FormInstance | undefined) {
           </el-form-item>
           <el-form-item label="标签权重" prop="weight">
             <el-input v-model="dialogOptions.data.weight" />
+          </el-form-item>
+          <el-form-item label="父级标签" prop="parentTagId">
+            <el-select v-model="dialogOptions.data.parentTagId!">
+              <el-option v-for="item in promptTags.items" :key="item.id" :label="item.name" :value="item.id!" />
+            </el-select>
           </el-form-item>
           <el-form-item label="标签状态">
             <el-radio-group v-model="dialogOptions.data.status!">
