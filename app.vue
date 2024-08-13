@@ -63,7 +63,7 @@ provide('appOptions', pageOptions)
   <Login v-if="!userStore.isLogin" v-model:show="pageOptions.model.login" />
 </template>
 
-<style>
+<style style="scss">
 .watermark {
   position: absolute;
 

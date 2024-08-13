@@ -206,7 +206,7 @@ function resetForm(formEl: FormInstance | undefined) {
               <div :class="row.icon" />
             </template>
           </el-table-column>
-          <el-table-column label="颜色">
+          <el-table-column label="颜色" width="200px">
             <template #default="{ row }">
               <div flex items-center>
                 <div class="color-box" :style="`--c: ${row.color}`" />
@@ -356,12 +356,13 @@ function resetForm(formEl: FormInstance | undefined) {
 <style lang="scss">
 .CmsPromptTags {
   .color-box {
+    position: relative;
     margin: 0 0.25rem;
 
     width: 12px;
     height: 12px;
 
-    border-radius: 12px;
+    border-radius: 4px;
     background-color: var(--c);
   }
 }

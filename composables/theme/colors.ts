@@ -1,5 +1,3 @@
-import './font_sans.css'
-
 import Mountain from '/backgrounds/mountain.jpg'
 import NightMountain from '/backgrounds/night-mountain.jpg'
 import Grass from '/backgrounds/grass.jpg'
