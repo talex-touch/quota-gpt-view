@@ -401,6 +401,18 @@ async function publishPrompt(id: number, doPublish: boolean) {
     ElMessage.error(res.message || '发布失败！')
   }
 }
+
+function handleTableRowClass(data: any) {
+  const { row } = data
+
+  // 如果这条记录未审核则标黄 如果未通过则标红
+  if (row.status === 0)
+    return 'warning-row'
+  else if (row.status === 2)
+    return 'error-row'
+
+  return ''
+}
 </script>
 
 <template>
@@ -530,7 +542,7 @@ async function publishPrompt(id: number, doPublish: boolean) {
       </el-form>
 
       <ClientOnly>
-        <el-table v-if="prompts?.items" :data="prompts.items" height="90%" style="width: 100%">
+        <el-table v-if="prompts?.items" :row-class-name="handleTableRowClass" :data="prompts.items" height="90%" style="width: 100%">
           <el-table-column prop="id" label="编号" />
           <el-table-column label="头像">
             <template #default="scope">
@@ -886,6 +898,14 @@ async function publishPrompt(id: number, doPublish: boolean) {
   flex-direction: column;
 
   &-Header {
+  }
+
+  .el-table .warning-row {
+    --el-table-tr-bg-color: var(--el-color-warning-light-9);
+  }
+
+  .el-table .error-row {
+    --el-table-tr-bg-color: var(--el-color-error-light-9);
   }
 }
 
