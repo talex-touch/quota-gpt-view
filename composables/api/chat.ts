@@ -91,3 +91,9 @@ export function getPromptTagList(dto: Partial<PromptTagQueryDto>) {
 export function searchPromptTag(keyword: string) {
   return endHttp.get('aigc/prompts/tags/search', { keyword })
 }
+
+export function assignPromptTags(id: number, tags: number[]) {
+  return endHttp.post(`aigc/prompts/audit/assign_tags/${id}`, {
+    tags,
+  })
+}

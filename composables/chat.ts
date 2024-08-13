@@ -905,7 +905,7 @@ export interface PromptEntityDto {
   audits?: any[]
 
   status?: number
-  tags?: number[]
+  tags?: any[]
 }
 
 export class ChatAdminManager {
@@ -944,6 +944,12 @@ export class ChatAdminManager {
     return endHttp.post(`aigc/prompts/audit/${id}`, {
       status: dto.status,
       reason: dto.reason,
+    })
+  }
+
+  async publishTemplate(id: number, doPublish: boolean) {
+    return endHttp.put(`aigc/prompts/status/${id}`, {
+      online: doPublish,
     })
   }
 }

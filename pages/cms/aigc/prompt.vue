@@ -5,7 +5,7 @@ import UserUploadAvatar from '~/components/personal/UserUploadAvatar.vue'
 import { $completion } from '~/composables/completion/init'
 import StandardPrompt from '~/composables/completion/standard-prompt.txt?raw'
 import RenderContentOld from '~/components/render/RenderContentOld.vue'
-import { getPromptDailyStatistics, searchPromptTag } from '~/composables/api/chat'
+import { assignPromptTags, getPromptDailyStatistics, searchPromptTag } from '~/composables/api/chat'
 
 definePageMeta({
   name: 'PromptTemplate管理',
@@ -314,6 +314,12 @@ function getAuditType(status: number) {
     return 'primary'
   else if (status === 1)
     return 'success'
+  else if (status === 2)
+    return 'warning'
+  else if (status === 4)
+    return 'primary'
+  else if (status === 3)
+    return 'info'
   else return 'danger'
 }
 
@@ -370,6 +376,31 @@ async function remoteMethod(query: string) {
     auditAssignOptions.options = []
   }
 }
+
+async function submitAuditAssign() {
+  const res: any = await assignPromptTags(auditAssignOptions.data!.id, auditAssignOptions.data!.tags)
+
+  if (res.code === 200) {
+    ElMessage.success('分配成功！')
+    fetchData()
+    auditAssignOptions.dialog = false
+  }
+  else {
+    ElMessage.error(res.message || '分配失败！')
+  }
+}
+
+async function publishPrompt(id: number, doPublish: boolean) {
+  const res: any = await chatAdminManager.publishTemplate(id, doPublish)
+
+  if (res.code === 200) {
+    ElMessage.success('发布成功！')
+    fetchData()
+  }
+  else {
+    ElMessage.error(res.message || '发布失败！')
+  }
+}
 </script>
 
 <template>
@@ -399,9 +430,9 @@ async function remoteMethod(query: string) {
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="审核操作" prop="action">
-          <el-button type="warning" @click="submitAudit">
-            提交
+        <el-form-item label="操作" prop="action">
+          <el-button type="warning" @click="submitAuditAssign">
+            保存提交
           </el-button>
         </el-form-item>
       </el-form>
@@ -528,7 +559,7 @@ async function remoteMethod(query: string) {
                 </el-button>
               </template>
               <div v-else-if="row.status === 1" flex items-center gap-2>
-                <el-tag type="success">
+                <el-tag type="primary">
                   已通过
                 </el-tag>
                 <el-tooltip effect="dark" content="要想模板被发现，你还需要配置Prompt的分类!" placement="top">
@@ -543,6 +574,12 @@ async function remoteMethod(query: string) {
               </div>
               <el-tag v-else-if="row.status === 2" type="danger">
                 未通过
+              </el-tag>
+              <el-tag v-else-if="row.status === 4" type="info">
+                未发布
+              </el-tag>
+              <el-tag v-else-if="row.status === 3" type="success">
+                已发布
               </el-tag>
             </template>
           </el-table-column>
@@ -576,6 +613,18 @@ async function remoteMethod(query: string) {
                 @click="handleDialog(row, 'edit')"
               >
                 编辑
+              </el-button>
+              <el-button
+                v-if="row.status === 4" plain text size="small" type="primary"
+                @click="publishPrompt(row.id, true)"
+              >
+                发布
+              </el-button>
+              <el-button
+                v-if="row.status === 3" plain text size="small" type="warning"
+                @click="publishPrompt(row.id, false)"
+              >
+                下线
               </el-button>
               <el-button
                 v-if="row.status === 1" :disabled="true" plain text size="small" type="danger"
@@ -626,9 +675,32 @@ async function remoteMethod(query: string) {
             <el-tag v-else-if="dialogOptions.data.status === 2" type="danger">
               未通过
             </el-tag>
+            <el-tag v-else-if="dialogOptions.data.status === 4" type="info">
+              未发布
+            </el-tag>
+            <el-tag v-else-if="dialogOptions.data.status === 3" type="success">
+              已发布
+            </el-tag>
           </el-form-item>
           <el-form-item label="模板标题" prop="title">
             <el-input v-model="dialogOptions.data.title" :maxlength="255" :disabled="dialogOptions.mode !== 'new'" />
+          </el-form-item>
+          <el-form-item label="模板标签" prop="tags">
+            <span v-for="item in dialogOptions.data.tags" :key="item.id">
+              <el-tooltip>
+                <template #default>
+                  <el-tag type="primary">
+                    <div flex items-center gap-2>
+                      #{{ item.id }} {{ item.name }}
+                      <div class="color-box" :style="`--c: ${item.color}`" />
+                    </div>
+                  </el-tag>
+                </template>
+                <template #content>
+                  <div>{{ item.description }}</div>
+                </template>
+              </el-tooltip>
+            </span>
           </el-form-item>
           <el-form-item label="模板内容" prop="content">
             <el-input
@@ -645,14 +717,14 @@ async function remoteMethod(query: string) {
               <li>2.系统AI会自动将您的模板进行润色翻译调整</li>
               <li>3.如果您不满意效果可以进行微调</li>
               <li>4.请您仔细核验AI生成的内容，如果存在违规会自动审核失败</li>
-              <li>5.如果您发现AI生成的内容违规，请及时联系管理员</li>
+              <li>5.如果您发现A生成的内容违规，请及时联系管理员</li>
               <li>
                 6.您可以在模板中穿插以下变量：{{ `\{\{ history \}\}` }},
                 {{ `\{\{ input \}\}` }}, {{ `\{\{ memory \}\}` }}
               </li>
             </ul>
           </el-form-item>
-          <el-form-item v-if="dialogOptions.mode === 'read'" label="审核记录">
+          <el-form-item v-if="dialogOptions.mode === 'read'" label="操作记录">
             <el-timeline style="max-width: 600px">
               <el-timeline-item
                 v-for="(audit, index) in dialogOptions.data.audits" :key="index"
@@ -662,13 +734,21 @@ async function remoteMethod(query: string) {
                   <PersonalNormalUser :data="audit.auditor" />: {{ audit.reason }}
                 </span>
                 <span v-else-if="audit.status === 1" flex items-center>
-                  已经
+                  已由
                   <PersonalNormalUser :data="audit.auditor" /> 审核通过
                 </span>
                 <span v-else-if="audit.status === 0" flex items-center>
                   <PersonalNormalUser :data="audit.auditor" />: 正在审核中({{
                     audit.reason
                   }})
+                </span>
+                <span v-else-if="audit.status === 3" flex items-center>
+                  <PersonalNormalUser :data="audit.auditor" />: 已发布上线
+                </span>
+                <span v-else-if="audit.status === 4" flex items-center>
+                  <PersonalNormalUser :data="audit.auditor" />: {{
+                    audit.reason
+                  }}
                 </span>
               </el-timeline-item>
             </el-timeline>
