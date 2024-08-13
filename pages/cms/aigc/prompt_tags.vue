@@ -196,7 +196,10 @@ function resetForm(formEl: FormInstance | undefined) {
       </el-form>
 
       <ClientOnly>
-        <el-table v-if="promptTags?.items" :data="promptTags.items" height="90%" style="width: 100%">
+        <el-table
+          v-if="promptTags?.items" table-layout="auto" :data="promptTags.items" height="90%"
+          style="width: 100%"
+        >
           <el-table-column prop="id" label="编号" />
           <el-table-column label="图标">
             <template #default="{ row }">
