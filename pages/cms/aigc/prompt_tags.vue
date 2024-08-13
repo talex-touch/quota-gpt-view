@@ -294,9 +294,9 @@ function resetForm(formEl: FormInstance | undefined) {
           <el-form-item label="标签标题" prop="name">
             <el-input v-model="dialogOptions.data.name" :maxlength="255" />
           </el-form-item>
-          <el-form-item label="模板内容" prop="description">
+          <el-form-item label="标签介绍" prop="description">
             <el-input
-              v-model="dialogOptions.data.content" show-word-limit :maxlength="1024"
+              v-model="dialogOptions.data.description" show-word-limit :maxlength="1024"
               :autosize="{ minRows: 5, maxRows: 30 }" type="textarea"
             />
           </el-form-item>
