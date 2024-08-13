@@ -734,7 +734,7 @@ const statusOptions = [
             <el-input v-model="dialogOptions.data.title" :maxlength="255" :disabled="dialogOptions.mode !== 'new'" />
           </el-form-item>
           <el-form-item label="模板标签" prop="tags">
-            <span v-for="item in dialogOptions.data.tags" :key="item.id">
+            <span v-for="item in dialogOptions.data.tags" :key="item.id" flex items-center gap-2>
               <el-tooltip>
                 <template #default>
                   <el-tag type="primary">
