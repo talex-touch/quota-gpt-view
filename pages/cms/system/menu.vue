@@ -420,7 +420,7 @@ const menuWithRoot = computed(() => ([{ id: -1, name: '根目录', children: [..
             <el-input v-model="dialogOptions.data.permission" placeholder="请输入权限..." />
           </el-form-item>
           <el-form-item v-show="dialogOptions.data.type !== 2" label="节点图标" prop="icon">
-            <IconSelector v-model="dialogOptions.data.icon as string" />
+            <IconSelector v-model="dialogOptions.data.icon!" />
           </el-form-item>
           <el-form-item label="排序优先级" prop="orderNo">
             <el-input v-model="dialogOptions.data.orderNo" placeholder="请输入排序优先级..." />

@@ -34,6 +34,7 @@ export function getPromptDailyStatistics() {
 }
 
 export interface PromptTagDto extends Record<string, any> {
+  id?: number
   /**
    * 标签颜色
    */
@@ -72,6 +73,10 @@ export interface PromptTagDto extends Record<string, any> {
 
 export function createPromptTag(dto: PromptTagDto) {
   return endHttp.post('aigc/prompts/tags/create', dto)
+}
+
+export function updatePromptTag(id: number, dto: PromptTagDto) {
+  return endHttp.put(`aigc/prompts/tags/${id}`, dto)
 }
 
 export interface PromptTagQueryDto extends Partial<PromptTagDto> {

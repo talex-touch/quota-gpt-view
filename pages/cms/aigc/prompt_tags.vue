@@ -6,7 +6,7 @@ import { $completion } from '~/composables/completion/init'
 import StandardPrompt from '~/composables/completion/standard-prompt.txt?raw'
 import RenderContentOld from '~/components/render/RenderContentOld.vue'
 import type { PromptTagDto } from '~/composables/api/chat'
-import { createPromptTag, getPromptDailyStatistics, getPromptTagList } from '~/composables/api/chat'
+import { createPromptTag, getPromptDailyStatistics, getPromptTagList, updatePromptTag } from '~/composables/api/chat'
 import IconSelector from '~/components/selector/IconSelector.vue'
 
 definePageMeta({
@@ -111,18 +111,19 @@ async function submitForm(formEl: FormInstance | undefined) {
     dialogOptions.loading = true
 
     if (dialogOptions.mode !== 'new') {
-      // const res: any = await createPromptTag(
-      //   dialogOptions.data as PromptTagDto,
-      // )
+      const res: any = await updatePromptTag(
+        dialogOptions.data!.id!,
+        dialogOptions.data as PromptTagDto,
+      )
 
-      // if (res.code === 200) {
-      //   ElMessage.success('修改成功！')
-      //   dialogOptions.visible = false
-      //   fetchData()
-      // }
-      // else {
-      //   ElMessage.error(res.message ?? '修改失败！')
-      // }
+      if (res.code === 200) {
+        ElMessage.success('修改成功！')
+        dialogOptions.visible = false
+        fetchData()
+      }
+      else {
+        ElMessage.error(res.message ?? '修改失败！')
+      }
     }
     else {
       const res: any = await createPromptTag(
@@ -166,7 +167,7 @@ function resetForm(formEl: FormInstance | undefined) {
             查询
           </el-button>
           <el-button type="success" @click="handleDialog(null, 'new')">
-            新建模板
+            新建模板标签
           </el-button>
         </el-form-item>
       </el-form>
@@ -207,6 +208,16 @@ function resetForm(formEl: FormInstance | undefined) {
               <el-tag v-else-if="row.status === 1" type="success">
                 已启用
               </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="最后更新">
+            <template #default="{ row }">
+              <PersonalNormalUser :data="row.updater" />
+            </template>
+          </el-table-column>
+          <el-table-column label="创建者">
+            <template #default="{ row }">
+              <PersonalNormalUser :data="row.creator" />
             </template>
           </el-table-column>
           <el-table-column prop="createdAt" label="创建时间">
@@ -258,7 +269,7 @@ function resetForm(formEl: FormInstance | undefined) {
           :model="dialogOptions.data" :rules="rules" label-width="auto" status-icon
         >
           <el-form-item label="标签标题" prop="title">
-            <el-input v-model="dialogOptions.data.name" :maxlength="255" :disabled="dialogOptions.mode !== 'new'" />
+            <el-input v-model="dialogOptions.data.name" :maxlength="255" />
           </el-form-item>
           <el-form-item label="模板内容" prop="content">
             <el-input
@@ -267,7 +278,7 @@ function resetForm(formEl: FormInstance | undefined) {
             />
           </el-form-item>
           <el-form-item label="标签颜色" prop="color">
-            <el-color-picker v-model="dialogOptions.data.color!" show-alpha :disabled="dialogOptions.mode !== 'new'" />
+            <el-color-picker v-model="dialogOptions.data.color!" show-alpha />
           </el-form-item>
           <el-form-item label="标签图标" prop="icon">
             <IconSelector v-model="dialogOptions.data.icon!" />
@@ -275,16 +286,15 @@ function resetForm(formEl: FormInstance | undefined) {
           <el-form-item label="标签权重" prop="weight">
             <el-input v-model="dialogOptions.data.weight" />
           </el-form-item>
-          <el-form-item v-if="dialogOptions.data && dialogOptions.mode === 'read'" label="模板状态">
-            <el-tag v-if="dialogOptions.data.status === 0" type="warning">
-              等待审核
-            </el-tag>
-            <el-tag v-else-if="dialogOptions.data.status === 1" type="success">
-              已通过
-            </el-tag>
-            <el-tag v-else-if="dialogOptions.data.status === 2" type="danger">
-              未通过
-            </el-tag>
+          <el-form-item label="标签状态">
+            <el-radio-group v-model="dialogOptions.data.status!">
+              <el-radio-button :value="0">
+                禁用
+              </el-radio-button>
+              <el-radio-button :value="1">
+                启用
+              </el-radio-button>
+            </el-radio-group>
           </el-form-item>
         </el-form>
       </template>
