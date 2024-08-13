@@ -74,43 +74,9 @@ export function deleteUser(id: string) {
 
 // --------------------------------------角色管理
 
-export interface RoleEditQuery {
-  /**
-   * 序号
-   */
-  id: number
 
-  /**
-   * 角色名称
-   */
-  name: string
-  /**
-   * 角色值
-   */
-  value: string
-  /**
-   * 状态
-   */
-  status: number
-  /**
-   * 备注
-   */
-  remark: string
-  /**
-   * 菜单id
-   */
-  menuIds: number[] | undefined
-  /**
-   * 创建时间
-   */
-  createdAt: string
-  /**
-   * 更新
-   */
-  updater: string
-}
 
-export interface RoleGetQuery {
+export interface RoleGetReq {
 
   id?: number
   page?: number
@@ -129,7 +95,7 @@ export interface RoleGetQuery {
  * @param query
  * @returns
  */
-export function getRoleList(query?: Partial<UserGetQuery>) {
+export function getRoleList(query?: Partial<RoleGetReq>) {
   return endHttp.get('system/roles', query)
 }
 
@@ -138,8 +104,8 @@ export function getRoleList(query?: Partial<UserGetQuery>) {
  * @param data
  * @returns
  */
-export function addRole(data: Partial<RoleEditQuery>) {
-  return endHttp.get('system/roles', data)
+export function addRole(data: Partial<RoleGetReq>) {
+  return endHttp.post('system/roles', data)
 }
 
 /**
@@ -150,13 +116,17 @@ export function addRole(data: Partial<RoleEditQuery>) {
 export function getRoleInfo(id: number) {
   return endHttp.get(`system/roles/${id}`)
 }
+
+
+
+
 /**
  * 更新角色
  * @param id
  * @param body
  * @returns
  */
-export function updateRole(id: number, body: any) {
+export function updateRole(id: number, body: Partial<RoleGetReq>) {
   return endHttp.put(`system/roles/${id}`, body)
 }
 /**
