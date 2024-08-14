@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import FontCarbon from '~/constants/carbon.json'
+import FontRemix from '~/constants/ri.json'
+import FontLineMd from '~/constants/line-md.json'
 
 const props = defineProps<{
   modelValue: string
@@ -12,19 +14,34 @@ const model = useVModel(props, 'modelValue', emit)
 
 const icons = [
   {
+    label: 'All',
+    type: 'all',
+    value: [...FontCarbon, ...FontRemix, ...FontLineMd],
+  },
+  {
     label: 'Carbon',
     type: 'carbon',
     value: FontCarbon,
   },
+  {
+    label: 'Remix',
+    type: 'remix',
+    value: FontRemix,
+  },
+  {
+    label: 'Line Md',
+    type: 'line-md',
+    value: FontLineMd,
+  },
 ]
 
 const searchQuery = ref('')
-const activeTab = ref('carbon')
+const activeTab = ref('all')
 
-const loadedIndex = ref(100)
+const loadedIndex = ref(50)
 
 function loadMoreIcon() {
-  loadedIndex.value += 100
+  loadedIndex.value += 50
 }
 
 onMounted(() => {
@@ -44,7 +61,7 @@ onMounted(() => {
   })
 })
 
-watch(() => activeTab.value, () => loadedIndex.value = 100)
+watch(() => activeTab.value, () => loadedIndex.value = 50)
 
 const filteredIcons = computed(() => {
   const icon = (icons.find(item => item.type === activeTab.value)!.value)
@@ -71,7 +88,9 @@ const filteredIcons = computed(() => {
                   v-for="item in filteredIcons" :key="item" :active="{ 'bg-primary-light-9': model === item }"
                   :alt="item" class="IconSelector-Item" @click="model = item"
                 >
-                  <div :class="item" />
+                  <el-tooltip placement="top" :content="item">
+                    <div :class="item" />
+                  </el-tooltip>
                 </div>
 
                 <div id="load-more" op-0 class="load-more">
@@ -108,7 +127,7 @@ const filteredIcons = computed(() => {
     flex-wrap: wrap;
     gap: 8px;
 
-    height: 300px;
+    height: 200px;
     justify-content: flex-start;
   }
 
