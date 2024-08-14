@@ -22,7 +22,7 @@ definePageMeta({
 
 type TemplateType = IRoleModel
 
-const { crudDialogOptions, listForm, formLoading, fetchData, resetQueryForm, handleCrudDialog, handleDeleteData, submitForm } = props.templateData
+const { list: mutableList, crudDialogOptions, listForm, formLoading, fetchData, resetQueryForm, handleCrudDialog, handleDeleteData, submitForm } = props.templateData
 
 onMounted(fetchData)
 
@@ -87,8 +87,8 @@ function getData(data: any) {
           </el-row>
 
           <el-pagination
-            v-if="list?.meta" v-model:current-page="list.meta.currentPage"
-            v-model:page-size="list.meta.itemsPerPage" float-right my-4 :page-sizes="[15, 30, 50, 100]"
+            v-if="list?.meta" v-model:current-page="mutableList.meta.currentPage"
+            v-model:page-size="mutableList.meta.itemsPerPage" float-right my-4 :page-sizes="[15, 30, 50, 100]"
             layout="total, sizes, prev, pager, next, jumper" :total="list.meta.totalItems" @change="fetchData"
           />
         </el-main>
