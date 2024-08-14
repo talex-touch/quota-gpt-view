@@ -34,13 +34,9 @@ function authLogin() {
 
       const result = await feishuLogin(code)
 
-      userStore.value.token = (result.data.token)
+      $handleUserLogin(result.data)
 
       ElMessage.info('登录成功！')
-
-      setTimeout(() => {
-        location.reload()
-      }, 200)
     },
     fail: (error: any) => {
       // 需要额外根据errno判断是否为 客户端不支持requestAccess导致的失败
@@ -57,7 +53,7 @@ export default (router: RouterTyped) => {
   const vConsole = new window.VConsole()
 
   window.h5sdk.ready(async () => {
-    if (userStore.value.token) {
+    if (userStore.value.isLogin) {
       await router.push('/cms')
 
       ElMessage.success('已通过风险环境异常检测')

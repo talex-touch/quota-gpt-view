@@ -100,7 +100,7 @@ const lastEditTime = computed(() => dayjs(userStore.value.updatedAt).format('DD 
         </el-form-item>
 
         <el-form-item label="手机号" prop="phone">
-          <el-input v-model="ruleForm.phone" size="large" />
+          <el-input v-model="ruleForm.phone" disabled size="large" />
         </el-form-item>
 
         <el-form-item label="QQ" prop="qq">

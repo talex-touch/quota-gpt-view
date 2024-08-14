@@ -1,9 +1,8 @@
 import { endHttp } from './axios'
 
+// -----------------------------------------------用户管理
 
-//---------------------用户管理
-
-//获取用户列表
+// 获取用户列表
 export interface UserQuery {
   id: string
   username: string
@@ -18,7 +17,6 @@ export interface UserQuery {
   dept: any
   password: string
 }
-
 
 export interface UserGetQuery {
   page: number
@@ -35,16 +33,16 @@ export interface UserGetQuery {
 
 /**
  * 获取用户列表
- * @param data 
- * @returns 
+ * @param data
+ * @returns
  */
 export function getUsers(data?: Partial<UserGetQuery>) {
   return endHttp.get('system/users', data)
 }
 /**
  * 新增用户
- * @param query 
- * @returns 
+ * @param query
+ * @returns
  */
 export function addUser(query: UserQuery) {
   return endHttp.post('system/users', query)
@@ -55,13 +53,11 @@ export function addUser(query: UserQuery) {
   // })
 }
 
-
-
 /**
  * 更新用户
- * @param id 
- * @param query 
- * @returns 
+ * @param id
+ * @param query
+ * @returns
  */
 export function updateUser(id: string, query: UserQuery) {
   return endHttp.put(`system/users/${id}`, query)
@@ -69,115 +65,75 @@ export function updateUser(id: string, query: UserQuery) {
 
 /**
  * 删除用户
- * @param id 
- * @returns 
+ * @param id
+ * @returns
  */
 export function deleteUser(id: string) {
   return endHttp.del(`system/users/${id}`)
 }
 
+// --------------------------------------角色管理
 
-//--------------------角色管理
+export interface RoleGetReq {
 
-
-export interface RoleEditQuery {
-  /**
-   * 序号
-   */
   id?: number
-
-  /**
-   * 角色名称
-   */
-  name: string
-  /**
-   * 角色值
-   */
-  value: string
-  /**
-   * 状态
-   */
-  status: number
-  /**
-   * 备注
-   */
-  remark: string
-  /**
-   * 菜单id
-   */
-  menuIds: number[] |undefined
-  /**
-   * 创建时间
-   */
-  createdAt: string
-  /**
-   * 更新
-   */
-  updater: string
-}
-
-export interface RoleGetQuery {
-
-  id?:  number
   page?: number
   pageSize?: number
   name: string
   value: string
   remark: string
-  status: number,
-  menuIds?:number[] | undefined
-  createdAt?: string,
+  status: number
+  menuIds?: number[] | undefined
+  createdAt?: string
   updater?: string
 }
 
-
 /**
  * 获取角色列表
- * @param query 
- * @returns 
+ * @param query
+ * @returns
  */
-export function getRoleList(query?: Partial<UserGetQuery>) {
+export function getRoleList(query?: Partial<RoleGetReq>) {
   return endHttp.get('system/roles', query)
 }
 
 /**
  * 新增角色
- * @param data 
- * @returns 
+ * @param data
+ * @returns
  */
-export function addRole(data: RoleEditQuery) {
-  return endHttp.get('system/roles', data)
+export function addRole(data: Partial<RoleGetReq>) {
+  return endHttp.post('system/roles', data)
 }
-
 
 /**
  * 获取角色信息
- * @param id 
- * @returns 
- */ 
+ * @param id
+ * @returns
+ */
 export function getRoleInfo(id: number) {
   return endHttp.get(`system/roles/${id}`)
 }
+
 /**
  * 更新角色
- * @param id 
- * @param body 
- * @returns 
- */ 
-export function updateRole(id: number, body: any) {
+ * @param id
+ * @param body
+ * @returns
+ */
+export function updateRole(id: number, body: Partial<RoleGetReq>) {
   return endHttp.put(`system/roles/${id}`, body)
 }
 /**
  * 删除角色
- * @param id 
- * @returns 
- */ 
+ * @param id
+ * @returns
+ */
 export function deleteRole(id: number) {
   return endHttp.del(`system/roles/${id}`)
 }
 
-
-//----------------------菜单管理
+// ---------------------------------------------菜单管理
 
 export interface MenuGetQuery {
   /**
@@ -216,8 +172,8 @@ export interface MenuGetQuery {
 
 /**
  * 获取所有菜单列表
- * @param query 
- * @returns 
+ * @param query
+ * @returns
  */
 export function getMenuList(query: MenuGetQuery) {
   return endHttp.get('system/menus', {
@@ -226,167 +182,581 @@ export function getMenuList(query: MenuGetQuery) {
 }
 /**
  * 更新菜单或权限
- * @param id 
- * @param query 
- * @returns 
+ * @param id
+ * @param query
+ * @returns
  */
 export function updateMenu(id: number, query: MenuGetQuery) {
   return endHttp.put(`system/menus/${id}`, query)
 }
 /**
  * 新增菜单或权限
- * @param query 
- * @returns 
+ * @param query
+ * @returns
  */
 export function addMenu(query: MenuGetQuery) {
   return endHttp.post('system/menus', query)
 }
 /**
  * 删除菜单或权限
- * @param id 
- * @returns 
+ * @param id
+ * @returns
  */
 export function delMenu(id: number) {
   return endHttp.del(`system/menus/${id}`)
 }
 
-//-------------------------部门
+// -------------------------部门
 
 /**
  * 获取部门列表
- * @returns 
+ * @returns
  */
 export function getDepartmentList() {
   return endHttp.get('system/depts')
 }
 
-
 /**
  * 新增部门
- * @param body 
- * @returns 
+ * @param body
+ * @returns
  */
 export function addDept(body: any) {
   return endHttp.post('system/depts', body)
 }
 /**
  * 删除部门
- * @param id 
- * @returns 
+ * @param id
+ * @returns
  */
-export function delDept(id:number) {
-  return endHttp.del('/system/depts/'+id)
+export function delDept(id: number) {
+  return endHttp.del(`/system/depts/${id}`)
 }
 
 /**
  * 更新部门
- * @param id 
- * @returns 
+ * @param id
+ * @returns
  */
-export function UpdateDept(id:number) {
-  return endHttp.put('/system/depts/'+id)
+export function UpdateDept(id: number) {
+  return endHttp.put(`/system/depts/${id}`)
 }
 
-// ---------------------------------------字典管理
+// ----------------------------------------------字典管理
 
 /**
  * 获取字典列表
- * @param Query 
- * @returns 
+ * @param Query
+ * @returns
  */
 export function getDictList(Query: any) {
   return endHttp.get('system/dict-type', Query)
 }
+
 /**
- * 新增字典
- * @param Header 
- * @returns 
+ * DictTypeDto 新增字典
  */
-export function addDict(Header: any) {
-  return endHttp.post('system/dict-type', Header)
+export interface DictRequest {
+  /**
+   * 字典类型code
+   */
+  code?: string
+  createdAt?: Date
+  /**
+   * 创建者
+   */
+  creator?: string
+  id?: number
+  /**
+   * 字典类型名称
+   */
+  name?: string
+  /**
+   * 备注
+   */
+  remark?: string
+  /**
+   * 状态
+   */
+  status?: number
+  updatedAt?: Date
+  /**
+   * 更新者
+   */
+  updater?: string
+  [property: string]: any
 }
 /**
- * 获取字典列表
- * @param Header 
- * @returns 
+ * 新增字典
+ * @param Header
+ * @returns
  */
-export function getAllDictList(Header: any) {
-  return endHttp.get('system/dict-type/select-options', Header)
+export function addDict(Body: DictRequest) {
+  return endHttp.post('system/dict-type', Body)
+}
+/**
+ * 获取一次性所有字典列表
+ *
+ * @returns
+ */
+export function getAllDictList() {
+  return endHttp.get('system/dict-type/select-options')
 }
 /**
  * 查询字典类型信息
- * @param Path 
- * @returns 
+ * @param Path
+ * @returns
  */
-export function inquireDictInformation(Path: any) {
-  return endHttp.get('system/dict-type/{id}', Path)
+export function queryDictInfo(Path: any) {
+  return endHttp.get(`system/dict-type/${Path}`)
 }
 /**
- * 修改字典
- * @param Header 
- * @returns 
+ * 更新字典
+ * @param Path  id
+ * @param Body
+ * @returns
  */
-export function updateDict(Header: any) {
-  return endHttp.post('system/dict-type/{id}', Header)
+export function updateDict(Path: number, Body: any) {
+  return endHttp.post(`system/dict-type/${Path}`, Body)
 }
 /**
  * 删除字典
- * @param Path 
- * @returns 
+ * @param Path  --id
+ * @returns
  */
 export function delDict(Path: any) {
-  return endHttp.post('system/param-config/{id}', Path)
+  return endHttp.del(`system/dict-type/${Path}`)
 }
 
+// -------------------------------------------------字典项管理
 
+export interface DictItemsListReq {
+  _t?: number
+  field?: string
+  /**
+   * 字典项键名
+   */
+  label?: string
+  order?: string
+  page?: number
+  pageSize?: number
+  /**
+   * 字典类型 ID
+   */
+  typeId: number
+  /**
+   * 字典项值
+   */
+  value?: string
+  [property: string]: any
+}
+export function getDictItemsList(Query: Partial<DictItemsListReq>) {
+  return endHttp.get('system/dict-item', Query)
+}
 
+/**
+ * 查询字典项信息
+ * @param Path
+ * @returns
+ */
+export function queryDictItemsInfo(Path: number) {
+  return endHttp.get(`system/dict-item/${Path}`)
+}
 
+/**
+ * DictItemsRequest
+ */
+export interface DictItemsRequest {
+  createdAt?: Date
+  /**
+   * 创建者
+   */
+  creator?: string
+  id?: number
+  /**
+   * 字典项键名
+   */
+  label?: string
+  orderNo?: number
+  /**
+   * 备注
+   */
+  remark?: string
+  /**
+   * 状态
+   */
+  status?: number
+  type?: DictTypeEntity
+  /**
+   * 字典类型 ID
+   */
+  typeId: number
+  updatedAt?: Date
+  /**
+   * 更新者
+   */
+  updater?: string
+  /**
+   * 字典项值
+   */
+  value?: string
+  [property: string]: any
+}
 
+/**
+ * DictTypeEntity
+ */
+export interface DictTypeEntity {
+  /**
+   * 字典编码
+   */
+  code: string
+  createdAt: Date
+  /**
+   * 创建者
+   */
+  creator: string
+  id: number
+  /**
+   * 字典名称
+   */
+  name: string
+  /**
+   * 备注
+   */
+  remark: string
+  /**
+   * 状态
+   */
+  status: number
+  updatedAt: Date
+  /**
+   * 更新者
+   */
+  updater: string
+  [property: string]: any
+}
+
+/**
+ * 新增字典项
+ * @param Header
+ * @returns
+ */
+export function addDictItems(Body: DictItemsRequest) {
+  return endHttp.post('system/dict-type', Body)
+}
+
+/**
+ * 更新字典项
+ * @param Path  id
+ * @param Body
+ * @returns
+ */
+export function updateDictItems(Path: number, Body: any) {
+  return endHttp.post(`system/dict-type/${Path}`, Body)
+}
+
+/**
+ * 删除字典项
+ * @param Path  --id
+ * @returns
+ */
+export function delDictItems(Path: any) {
+  return endHttp.del(`system/dict-type/${Path}`)
+}
+
+// -------------------------------------------------任务调度
+
+export interface TaskEntity {
+  createdAt: Date
+  /**
+   * cron表达式
+   */
+  cron: string
+  /**
+   * 任务参数
+   */
+  data: string
+  /**
+   * 结束时间
+   */
+  endTime: Date
+  /**
+   * 执行次数
+   */
+  every: number
+  id: number
+  /**
+   * 任务配置
+   */
+  jobOpts: string
+  /**
+   * 间隔时间
+   */
+  limit: number
+  /**
+   * 任务名
+   */
+  name: string
+  /**
+   * 任务描述
+   */
+  remark: string
+  /**
+   * 任务标识
+   */
+  service: string
+  /**
+   * 开始时间
+   */
+  startTime: Date
+  /**
+   * 任务状态 0禁用 1启用
+   */
+  status: number
+  /**
+   * 任务类型 0cron 1间隔
+   */
+  type: number
+  updatedAt: Date
+  [property: string]: any
+}
+
+export interface TaskReq {
+  _t?: number
+  /**
+   * cron表达式
+   */
+  cron?: string
+  /**
+   * 执行参数
+   */
+  data?: string
+  /**
+   * 结束时间
+   */
+  endTime?: string
+  /**
+   * 执行间隔，毫秒单位
+   */
+  every?: number
+  field?: string
+  /**
+   * 限制执行次数，负数则无限制
+   */
+  limit?: number
+  /**
+   * 任务名称
+   */
+  name?: string
+  order?: string
+  page?: number
+  pageSize?: number
+  /**
+   * 任务备注
+   */
+  remark?: string
+  /**
+   * 调用的服务
+   */
+  service?: string
+  /**
+   * 开始时间
+   */
+  startTime?: string
+  /**
+   * 任务状态
+   */
+  status?: number
+  /**
+   * 任务类别：cron | interval
+   */
+  type?: number
+  [property: string]: any
+}
+/**
+ * 获取任务调度列表
+ *
+ * @param Query 查询参数，用于筛选和定制返回的任务列表
+ * @returns 返回一个Promise对象，包含任务调度列表的数据
+ */
+export function getScheduleList(Query: Partial<TaskReq>) {
+  return endHttp.get('system/tasks', Query)
+}
+/**
+ * 添加任务计划
+ *
+ * @param Header 请求体，包含要添加的任务计划的详细信息
+ * @returns 返回POST请求的响应结果，通常包含添加任务计划的结果信息
+ */
+export function addSchedule(Header: any) {
+  return endHttp.post('system/tasks', Header)
+}
+
+/**
+ * 更新任务调度
+ *
+ * @param Path - 包含更新任务所需信息的对象，如任务ID等。这个参数被用作请求的路径参数。
+ * @returns 返回一个Promise，该Promise在API请求完成后解析为API响应。
+ */
+export function updateSchedule(Path: any, Body: TaskEntity) {
+  return endHttp.put(`system/tasks/${Path}`, Body)
+}
+
+/**
+ * 查询任务调度信息
+ *
+ * @param Path - 包含路径参数的对象，应至少包含一个与{id}对应的值
+ * @returns 返回一个Promise，解析为包含任务调度信息的对象
+ */
+export function queryScheduleInfo(Path: any) {
+  return endHttp.get('system/tasks/{id}', Path)
+}
+/**
+ * 删除任务
+ * @param Path
+ * @returns
+ */
+export function delSchedule(Path: any) {
+  return endHttp.del('system/tasks/{id}', Path)
+}
+/**
+ * 手动执行一次任务
+ * @param Path
+ * @returns
+ */
+export function runScheduleOnce(Path: any) {
+  return endHttp.put('system/tasks/{id}/once', Path)
+}
+/**
+ * 停止任务
+ * @param Path
+ * @returns
+ */
+export function stopSchedule(Path: any) {
+  return endHttp.put('system/tasks/{id}/stop', Path)
+}
+/**
+ * 启动任务
+ * @param Path
+ * @returns
+ */
+export function startSchedule(Path: any) {
+  return endHttp.put('system/tasks/{id}/stop', Path)
+}
+
+// ---------------------------------------账户模块
+
+/**
+ * 获取账户资料
+ * @returns
+ */
 export function getAccountDetail() {
   return endHttp.get('account/profile')
 }
 
+/**
+ * 获取权限列表
+ * @returns
+ */
 export function getPermissionList() {
   return endHttp.get('account/permissions')
 }
 
+/**
+ * 获取菜单列表
+ * @returns
+ */
 export function getAccountMenuList() {
   return endHttp.get('account/menus')
 }
 
-
-
-
-
-
-
-
-
-
-
-
+/**
+ * 查询登录日志列表
+ * @returns
+ */
 export function getHistoryList() {
   return endHttp.get('account/login_histories')
 }
 
-// 获取参数列表
-export function getParamList(Query: any) {
+// ---------------------------------------------参数配置模块
+
+export interface ParamsListReq {
+  _t?: number
+  field?: string
+  /**
+   * 参数名称
+   */
+  name: string
+  order?: string
+  page?: number
+  pageSize?: number
+  [property: string]: any
+}
+
+/**
+ * 获取参数配置列表
+ * @param Query
+ * @returns
+ */
+export function getParamList(Query: Partial<ParamsListReq>) {
   return endHttp.get('system/param-config', Query)
 }
 
-export function addParam(Header: any) {
-  return endHttp.post('system/param-config', Header)
+export interface ParamConfigEntity {
+  createdAt: Date
+  id: number
+  /**
+   * 配置键名
+   */
+  key: string
+  /**
+   * 配置名
+   */
+  name: string
+  /**
+   * 配置描述
+   */
+  remark: string
+  updatedAt: Date
+  /**
+   * 配置值
+   */
+  value: string
+  [property: string]: any
 }
 
-export function inquireParamInformation(Path: any) {
+/**
+ * 新增参数配置
+ * @param Body
+ * @returns
+ */
+export function addParam(Body: Partial<ParamConfigEntity>) {
+  return endHttp.post('system/param-config', Body)
+}
+
+/**
+ * 查询参数配置信息
+ * @param Path
+ * @returns
+ */
+export function queryParamInformation(Path: number) {
   return endHttp.get('system/param-config/{id}', Path)
 }
-
-export function updateParam(Path: any) {
-  return endHttp.post('system/param-config/{id}', Path)
+/**
+ * 更新参数配置
+ * @param Path
+ * @returns
+ */
+export function updateParam(Path: number, Body: Partial<ParamConfigEntity>) {
+  return endHttp.post(`system/param-config/${Path}`, Body)
 }
-
-export function delParam(Path: any) {
+/**
+ * 删除指定的参数配置
+ * @param Path
+ * @returns
+ */
+export function delParam(Path: number) {
   return endHttp.post('system/param-config/{id}', Path)
 }
 
@@ -428,6 +798,10 @@ export function userBindCoupon(code: string) {
   return endHttp.post('coupon/add', {
     couponId: code,
   })
+}
+
+export function getUserBindingPlatforms() {
+  return endHttp.get('platform/list')
 }
 
 export interface CreateCouponDto extends Record<string, string | number | boolean | undefined> {
@@ -524,34 +898,34 @@ export function getAdminOrderStatistics() {
   return endHttp.get('order/admin/statistics')
 }
 
-export function getScheduleList(Query : any) {
-  return endHttp.get('system/tasks',Query)
+export function getScheduleList(Query: any) {
+  return endHttp.get('system/tasks', Query)
 }
 
-export function addSchedule(Header : any) {
-  return endHttp.post('system/tasks',Header)
+export function addSchedule(Header: any) {
+  return endHttp.post('system/tasks', Header)
 }
 
-export function updateSchedule(Path : any) {
-  return endHttp.put('system/tasks/{id}',Path)
+export function updateSchedule(Path: any) {
+  return endHttp.put('system/tasks/{id}', Path)
 }
 
-export function inquireScheduleInfprmation(Path : any) {
-  return endHttp.get('system/tasks/{id}',Path)
+export function inquireScheduleInfprmation(Path: any) {
+  return endHttp.get('system/tasks/{id}', Path)
 }
 
-export function delSchedule(Path : any) {
-  return endHttp.del('system/tasks/{id}',Path)
+export function delSchedule(Path: any) {
+  return endHttp.del('system/tasks/{id}', Path)
 }
 
-export function runScheduleOnce(Path : any) {
-  return endHttp.put('system/tasks/{id}/once',Path)
+export function runScheduleOnce(Path: any) {
+  return endHttp.put('system/tasks/{id}/once', Path)
 }
 
-export function stopSchedule(Path : any) {
-  return endHttp.put('system/tasks/{id}/stop',Path)
+export function stopSchedule(Path: any) {
+  return endHttp.put('system/tasks/{id}/stop', Path)
 }
 
-export function startSchedule(Path : any) {
-  return endHttp.put('system/tasks/{id}/stop',Path)
+export function startSchedule(Path: any) {
+  return endHttp.put('system/tasks/{id}/stop', Path)
 }

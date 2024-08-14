@@ -17,6 +17,18 @@
 import axios, { type CreateAxiosDefaults } from 'axios'
 import { globalOptions } from '~/constants'
 
+const refreshOptions: {
+  pending: boolean
+  queue: {
+    resolve: (value: any) => void
+    reject: (value: any) => void
+    reqConfig: any
+  }[]
+} = {
+  pending: false,
+  queue: [],
+}
+
 export function genAxios(options: CreateAxiosDefaults) {
   const $http = axios.create(options)
 
@@ -50,8 +62,24 @@ export function genAxios(options: CreateAxiosDefaults) {
         })(reqConfig.data)
       }
 
-      if (userStore.value.token)
-        reqConfig.headers.Authorization = `Bearer ${userStore.value.token}`
+      if (userStore.value.isLogin)
+        reqConfig.headers.Authorization = `Bearer ${userStore.value.token?.accessToken}`
+
+      // if (refreshOptions.pending) {
+      //   return new Promise((resolve, reject) => {
+      //     refreshOptions.queue.push({ resolve, reject, reqConfig })
+      //   })
+      // }
+      if (!refreshOptions.pending) {
+        if (refreshOptions.queue.length > 0) {
+          console.log('process queue', refreshOptions)
+          refreshOptions.queue.forEach((item) => {
+            $http(item.reqConfig).then(item.resolve).catch(item.reject)
+          })
+
+          refreshOptions.queue.length = 0
+        }
+      }
 
       return reqConfig
     },
@@ -59,7 +87,7 @@ export function genAxios(options: CreateAxiosDefaults) {
   )
 
   async function timeoutLogout() {
-    userStore.value.token = ''
+    $handleUserLogout()
 
     const { origin } = window.location
     window.location.href = origin
@@ -72,23 +100,67 @@ export function genAxios(options: CreateAxiosDefaults) {
 
   $http.interceptors.response.use(
     async (res: any) => {
-      if (res.data?.code === 1101 || res.data?.code === 401)
+      if (res.data?.code === 1101)
         return timeoutLogout()
 
       return res.data
     },
     async (res) => {
-      if (!res.response || res.code === 'ERR_INTERNET_DISCONNECTED')
-        return ElMessage.error('请检查您的网络!')
+      console.error(res)
+
+      if (!res.response || res.code === 'ERR_INTERNET_DISCONNECTED') {
+        return ElMessage.error({
+          message: '无法连接至远程服务器!',
+          grouping: true,
+        })
+      }
 
       if (res.code === 'ERR_NETWORK' && (res.message.includes('timeout') || res.message === 'Network Error'))
-        return ElMessage.error('无法连接至远程服务器!')
+        return ElMessage.error('请检查您的网络!')
 
       if (res.response.data.code === 429)
         return ElMessage.error(res.response.data.message)
 
-      if (res.response.status === 401)
-        return timeoutLogout()
+      if (res.response.data?.code === 401) {
+        // refresh
+        const { config } = res
+
+        // url不包含 renew_token
+        if (!config.url.includes('renew_token')) {
+          if (!refreshOptions.pending) {
+            console.log('renew token')
+
+            refreshOptions.pending = true
+
+            const res: any = await $http({
+              method: 'GET',
+              url: 'auth/renew_token',
+              data: {
+                refresh_token: userStore.value.token?.refreshToken,
+              },
+            })
+
+            console.log('renew', res.data)
+            refreshOptions.pending = false
+            if (res.code === 200) {
+              userStore.value.token = res.data
+
+              return $http(config)
+            }
+            else {
+              return timeoutLogout()
+            }
+          }
+          else {
+            return new Promise((resolve, reject) => {
+              refreshOptions.queue.push({ resolve, reject, reqConfig: config })
+            })
+          }
+        }
+        else {
+          return timeoutLogout()
+        }
+      }
 
       return res.response.data
     },
@@ -115,7 +187,7 @@ export function genAxios(options: CreateAxiosDefaults) {
       method: 'GET',
       url,
       params,
-    })
+    }) as any
   }
 
   function put(url: string, data = {}, params = {}) {

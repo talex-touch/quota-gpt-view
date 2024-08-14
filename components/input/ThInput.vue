@@ -123,7 +123,7 @@ watch(
 
       len.value = encode(input.value).length
 
-      const limit = userStore.value.token ? 8192 : 256
+      const limit = userStore.value.isLogin ? 8192 : 256
       if (len.value > limit)
         input.value = oldVal!
     })
@@ -165,7 +165,7 @@ function handleTemplateSelect(data: any) {
 
       <div class="ThInput-Float-End">
         <span class="tag">{{ len }}/
-          <span v-if="userStore.token">8192</span>
+          <span v-if="userStore.isLogin">8192</span>
           <span v-else>256</span>
         </span>
       </div>
@@ -193,7 +193,7 @@ function handleTemplateSelect(data: any) {
           <span flex class="template-tag">@{{ template.title }}</span>
         </template>
         <textarea
-          id="main-input" v-model="input" :maxlength="userStore.token ? 10000 : 256" autofocus
+          id="main-input" v-model="input" :maxlength="userStore.isLogin ? 10000 : 256" autofocus
           autocomplete="off" placeholder="Shift + Enter换行" @keydown="handleInputKeydown"
         />
       </div>
@@ -418,7 +418,8 @@ function handleTemplateSelect(data: any) {
   .ThInput-InputMain {
     width: calc(100% - 40px);
   }
-
+  position: relative;
+  z-index: 10;
   flex: 1;
   flex-direction: column;
 
@@ -523,7 +524,7 @@ function handleTemplateSelect(data: any) {
   &:active {
     transform: scale(0.95);
   }
-
+  z-index: 12;
   position: absolute;
   display: flex;
 

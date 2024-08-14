@@ -62,7 +62,7 @@ async function fetchData() {
       delete query[key]
   })
 
-  const res: any = (await getDocList(query))
+  const res: any = await getDocList(query)
   if (!res) {
     ElMessage.warning('参数错误，查询失败！')
   }
@@ -85,10 +85,6 @@ async function fetchData() {
   formLoading.value = false
 }
 
-function formatDate(date: string) {
-  return dayjs(date).format('YYYY-MM-DD HH:mm:ss')
-}
-
 interface DocForm extends IDocDataQuery {
   metaOptions: any
 }
@@ -108,15 +104,16 @@ const dialogOptions = reactive<{
 function handleDialog(data: Partial<DocForm>, mode: 'edit' | 'read' | 'new') {
   dialogOptions.mode = mode
   dialogOptions.visible = true
-  dialogOptions.data = mode === 'new'
-    ? {
-        title: '',
-        value: '',
-        meta: '',
-        status: 0,
-        permission: '',
-      }
-    : { ...data }
+  dialogOptions.data
+    = mode === 'new'
+      ? {
+          title: '',
+          value: '',
+          meta: '',
+          status: true,
+          permission: '',
+        }
+      : { ...data }
 
   if (!dialogOptions.data.metaOptions) {
     if (dialogOptions.data.meta) {
@@ -138,9 +135,7 @@ const rules = reactive<FormRules<DocForm>>({
     { required: true, message: '请输入文档名称', trigger: 'blur' },
     { min: 5, max: 24, message: '文档名需要在 5-24 位之间', trigger: 'blur' },
   ],
-  status: [
-    { required: true, message: '请选择状态', trigger: 'blur' },
-  ],
+  status: [{ required: true, message: '请选择状态', trigger: 'blur' }],
 })
 
 async function submitForm(formEl: FormInstance | undefined) {
@@ -281,7 +276,7 @@ function handleDeleteUser(id: number, data: DocForm) {
           <el-table-column prop="status" label="状态">
             <template #default="scope">
               <el-tag :type="scope.row.status === 1 ? 'success' : 'danger'">
-                {{ scope.row.status === 1 ? '启用' : '禁用' }}
+                {{ scope.row.status === 1 ? "启用" : "禁用" }}
               </el-tag>
             </template>
           </el-table-column>
@@ -319,7 +314,7 @@ function handleDeleteUser(id: number, data: DocForm) {
     </el-main>
 
     <ClientOnly>
-      <teleport to=".CmsTemplate">
+      <teleport to="body">
         <div class="GuideEditor" :class="{ visible: dialogOptions.visible }">
           <div class="Header">
             <h4>
@@ -328,8 +323,7 @@ function handleDeleteUser(id: number, data: DocForm) {
               <span v-else-if="dialogOptions.mode === 'read'">查看</span>文档信息<span
                 v-if="dialogOptions.mode !== 'new'"
                 mx-4 op-50
-              >#{{
-                dialogOptions.data.id }}</span>
+              >#{{ dialogOptions.data.id }}</span>
             </h4>
 
             <div class="Header-Footer">
@@ -346,47 +340,50 @@ function handleDeleteUser(id: number, data: DocForm) {
                   重置
                 </el-button>
                 <el-button :loading="dialogOptions.loading" type="primary" @click="submitForm(ruleFormRef)">
-                  {{ dialogOptions.mode !== 'new' ? "修改" : "新增" }}
+                  {{ dialogOptions.mode !== "new" ? "修改" : "新增" }}
                 </el-button>
               </template>
             </div>
           </div>
 
           <div v-if="dialogOptions.data.value !== null && dialogOptions.data.value !== undefined" class="GuideContent">
-            <RenderEditor v-model="dialogOptions.data.value" :readonly="dialogOptions.mode === 'read'" />
-            <!-- <el-scrollbar v-else>
-              <RenderContent readonly style="background: var(--el-bg-color)" :data="dialogOptions.data.value" />
-            </el-scrollbar> -->
+            <ArticleThEditor v-model="dialogOptions.data.value!">
+              <template #property>
+                <el-form
+                  ref="ruleFormRef" :disabled="dialogOptions.loading || dialogOptions.mode === 'read'"
+                  :model="dialogOptions.data" :rules="rules" label-width="auto" status-icon my-4 inline
+                >
+                  <el-form-item label="文档名称" prop="title">
+                    <el-input v-model="dialogOptions.data.title" :disabled="dialogOptions.mode === 'read'" />
+                  </el-form-item>
+                  <el-form-item label="文档权限" prop="permission">
+                    <el-input v-model="dialogOptions.data.permission" :disabled="dialogOptions.mode === 'read'" />
+                  </el-form-item>
+                  <el-form-item v-if="dialogOptions.data.metaOptions" label="文档密码" prop="password">
+                    <el-input
+                      v-model="dialogOptions.data.metaOptions!.password"
+                      :disabled="dialogOptions.mode === 'read'" type="password"
+                    />
+                  </el-form-item>
+                  <el-form-item label="文档状态" prop="status">
+                    <el-radio-group v-model="dialogOptions.data.status">
+                      <el-radio-button :value="false">
+                        已禁用
+                      </el-radio-button>
+                      <el-radio-button :value="true">
+                        未禁用
+                      </el-radio-button>
+                    </el-radio-group>
+                  </el-form-item>
+                </el-form>
+              </template>
+            </ArticleThEditor>
           </div>
 
-          <div class="GuideEditor-Footer">
+          <div v-if="false" class="GuideEditor-Footer">
             <div class="GuideEditor-Func">
               <DarkToggle />
             </div>
-
-            <el-form
-              ref="ruleFormRef" :disabled="dialogOptions.loading || dialogOptions.mode === 'read'"
-              :model="dialogOptions.data" :rules="rules" label-width="auto" class="demo-ruleForm" status-icon inline
-            >
-              <el-form-item label="文档名称" prop="title">
-                <el-input v-model="dialogOptions.data.title" :disabled="dialogOptions.mode === 'read'" />
-              </el-form-item>
-              <el-form-item label="文档权限" prop="permission">
-                <el-input v-model="dialogOptions.data.permission" :disabled="dialogOptions.mode === 'read'" />
-              </el-form-item>
-              <el-form-item v-if="dialogOptions.data.metaOptions" label="文档密码" prop="password">
-                <el-input
-                  v-model="dialogOptions.data.metaOptions!.password" :disabled="dialogOptions.mode === 'read'"
-                  type="password"
-                />
-              </el-form-item>
-              <el-form-item label="文档状态" prop="status">
-                <el-select v-model="dialogOptions.data.status" style="width: 180px" placeholder="请选择状态">
-                  <el-option label="启用" value="1" />
-                  <el-option label="禁用" value="0" />
-                </el-select>
-              </el-form-item>
-            </el-form>
           </div>
         </div>
       </teleport>
@@ -407,13 +404,15 @@ function handleDeleteUser(id: number, data: DocForm) {
 
 .GuideEditor {
   .Header {
-    position: absolute;
+    z-index: 1;
+    position: sticky;
     display: flex;
 
     top: 0;
+    left: 0;
 
     width: 100%;
-    height: 50px;
+    height: 100px;
 
     align-items: center;
     justify-content: center;
@@ -421,74 +420,33 @@ function handleDeleteUser(id: number, data: DocForm) {
     font-size: 20px;
     font-weight: 600;
 
-    box-shadow: var(--el-box-shadow);
-    background-color: var(--el-bg-color);
-  }
-
-  .GuideEditor-Footer {
-    .GuideEditor-Func {
-      position: absolute;
-      margin-top: 0.25rem;
-
-      top: 50%;
-      left: 1rem;
-
-      transform: translateY(-50%);
-    }
-
-    .el-form-item {
-      margin-bottom: 0;
-    }
-
-    position: absolute;
-    display: flex;
-
-    bottom: 0;
-
-    width: 100%;
-    height: 50px;
-
-    align-items: center;
-    justify-content: center;
-
-    font-size: 20px;
-    font-weight: 600;
-
-    box-shadow: var(--el-box-shadow);
+    flex-shrink: 0;
+    // border-bottom: 1px solid var(--el-border-color);
+    // box-shadow: var(--el-box-shadow);
     background-color: var(--el-bg-color);
   }
 
   .Header-Footer {
     position: absolute;
 
-    right: 1rem;
+    right: 2rem;
   }
 
   .GuideContent {
-    .RenderEditor,
-    .RenderContent,
-    .vditor {
-      height: 100% !important;
-    }
+    position: relative;
 
-    .RenderContent {
-      padding: 0 1rem;
-    }
+    top: 0;
+    left: 0;
 
-    position: absolute;
+    height: 100%;
+    width: 100%;
+    // height: calc(100% - 84px);
 
-    top: 50px;
-    left: 50%;
-
-    width: 1080px;
-    height: calc(100% - 100px);
-
-    transform: translateX(-50%);
-    border: 1px solid var(--el-border-color);
+    overflow: hidden;
   }
-
-  z-index: 10;
+  z-index: 100;
   position: absolute;
+  display: flex;
   padding: 0;
   margin: 0;
 
@@ -500,7 +458,8 @@ function handleDeleteUser(id: number, data: DocForm) {
 
   overflow: hidden;
   border-radius: 0;
-  background-color: var(--el-bg-color-page);
+  flex-direction: column;
+  background-color: var(--el-bg-color);
 
   opacity: 0;
   pointer-events: none;

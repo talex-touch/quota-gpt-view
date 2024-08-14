@@ -60,10 +60,10 @@ provide('appOptions', pageOptions)
     <NuxtPage />
   </NuxtLayout>
 
-  <Login v-if="!userStore.token" v-model:show="pageOptions.model.login" />
+  <Login v-if="!userStore.isLogin" v-model:show="pageOptions.model.login" />
 </template>
 
-<style>
+<style style="scss">
 .watermark {
   position: absolute;
 
@@ -321,7 +321,7 @@ span.premium-end {
 .el-input,
 .el-textarea {
   --el-input-border-radius: 8px !important;
-  --el-input-bg-color: var(--el-border-color-lighter) !important;
+  /* --el-input-bg-color: var(--el-border-color-lighter) !important; */
 }
 
 .el-cascader {

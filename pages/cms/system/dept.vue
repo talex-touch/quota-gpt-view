@@ -13,7 +13,7 @@ definePageMeta({
 })
 
 interface AddDept {
-    id: number;
+  id: number;
     name: string;
     parentId: number;
     orderNo: number;
@@ -329,7 +329,7 @@ function handleDeleteDept(id: number) {
        
 
           <el-form-item label="上级部门" prop="parentId">
-            <el-select v-model="dialogOptions.data.parent"    placeholder="请选择上级部门">
+            <el-select v-model="dialogOptions.data.parentId"    placeholder="请选择上级部门">
               <el-option v-for="item in depts.items" :key="item.id" :label="item.name" :value="item.id" />
             </el-select>
           </el-form-item>

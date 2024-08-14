@@ -291,12 +291,8 @@ async function handleExecutorResult(reader: ReadableStreamDefaultReader<string>,
         try {
           const data = JSON.parse(item)
 
-          if (data.code === 1101) {
-            userStore.value.token = ''
-            userStore.value.subscription = null
-
-            location.reload()
-          }
+          if (data.code === 1101)
+            $handleUserLogout()
 
           if (data?.message && !data?.data)
             ElMessage.error(data.message)
@@ -340,16 +336,16 @@ export async function useChatExecutor(context: ChatCompletion, callback: (data: 
   async function _func() {
     try {
       let url = ''
-      if (userStore.value.token && (options.generateSummary !== undefined && options.generateSummary !== 0))
+      if (userStore.value.isLogin && (options.generateSummary !== undefined && options.generateSummary !== 0))
         url = `${globalOptions.getEndsUrl()}api/aigc/executor/completion?uid=${userStore.value.id}`
-      else url = `${globalOptions.getEndsUrl()}api/aigc/executor${userStore.value.token ? `/authorized?uid=${userStore.value.id}` : ''}`
+      else url = `${globalOptions.getEndsUrl()}api/aigc/executor${userStore.value.isLogin ? `/authorized?uid=${userStore.value.id}` : ''}`
 
       const res = await $fetch<ReadableStream>(url, {
         method: 'POST',
         responseType: 'stream',
         headers: {
           Accept: 'text/event-stream',
-          Authorization: userStore.value.token ? `Bearer ${userStore.value.token}` : '',
+          Authorization: userStore.value.isLogin ? `Bearer ${userStore.value.token!.accessToken}` : '',
         },
         body: {
           ...options,
@@ -406,9 +402,22 @@ export class ChatManager {
   currentLoadPage: number = 0
 
   constructor() {
+    this.init()
+
+    $event.on('USER_LOGOUT_SUCCESS', () => {
+      this.history.value.length = 0
+    })
+    $event.on('USER_LOGIN_SUCCESS', async () => {
+      await this.init()
+
+      this.loadHistories()
+    })
+  }
+
+  async init() {
     const localHistory = useLocalStorage<ThHistory[]>('chat-history', [])
 
-    if (userStore.value.token) {
+    if (userStore.value.isLogin) {
       this.history = ref([])
       if (localHistory.value) {
         this.postLocalHistory(localHistory.value).then((leftHistory) => {
@@ -427,7 +436,7 @@ export class ChatManager {
   }
 
   async loadHistories() {
-    if (!userStore.value.token)
+    if (!userStore.value.isLogin)
       return
 
     this.loadingHistory.value = true
@@ -790,7 +799,7 @@ export class ChatManager {
 
   // TODO 撤销删除
   async deleteMessage(index: number) {
-    if (userStore.value.token) {
+    if (userStore.value.isLogin) {
       const conversation: ThHistory = this.history.value[index]
       const res: any = await endHttp.del(`aigc/conversations/${conversation.id}`)
       if (res.code !== 200)
@@ -829,6 +838,8 @@ export enum ChatMsgType {
   GENERATE_VIDEO,
   GENERATE_AUDIO,
   GENERATE_DOCUMENT,
+  COMPLETION_PROMPT_POLISH,
+  COMPLETION_PROMPT_TRANSLATION,
 }
 
 export function deserializeMsgType(type: number) {
@@ -845,6 +856,10 @@ export function deserializeMsgType(type: number) {
       return '生成音频'
     case ChatMsgType.GENERATE_DOCUMENT:
       return '生成文档'
+    case ChatMsgType.COMPLETION_PROMPT_POLISH:
+      return '润色提示词'
+    case ChatMsgType.COMPLETION_PROMPT_TRANSLATION:
+      return '翻译提示词'
     default:
       return '未知'
   }
@@ -890,6 +905,7 @@ export interface PromptEntityDto {
   audits?: any[]
 
   status?: number
+  tags?: any[]
 }
 
 export class ChatAdminManager {
@@ -928,6 +944,12 @@ export class ChatAdminManager {
     return endHttp.post(`aigc/prompts/audit/${id}`, {
       status: dto.status,
       reason: dto.reason,
+    })
+  }
+
+  async publishTemplate(id: number, doPublish: boolean) {
+    return endHttp.put(`aigc/prompts/status/${id}`, {
+      online: doPublish,
     })
   }
 }

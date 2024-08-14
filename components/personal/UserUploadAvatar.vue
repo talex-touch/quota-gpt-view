@@ -38,7 +38,7 @@ const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
 }
 
 const headers = {
-  Authorization: `Bearer ${userStore.value.token}`,
+  Authorization: `Bearer ${userStore.value.token?.accessToken}`,
 }
 </script>
 
@@ -147,7 +147,11 @@ const headers = {
     }
   }
 
-  img {
+  img,
+  .el-upload {
+    width: 100%;
+    height: 100%;
+
     border-radius: 50%;
   }
 

@@ -5,6 +5,7 @@ import UserUploadAvatar from '~/components/personal/UserUploadAvatar.vue'
 import { $completion } from '~/composables/completion/init'
 import StandardPrompt from '~/composables/completion/standard-prompt.txt?raw'
 import RenderContentOld from '~/components/render/RenderContentOld.vue'
+import { assignPromptTags, getPromptDailyStatistics, searchPromptTag } from '~/composables/api/chat'
 
 definePageMeta({
   name: 'PromptTemplate管理',
@@ -27,13 +28,19 @@ const prompts = ref({
   },
 })
 
+const statistics = ref<{
+  status: number
+  count: string
+}[]>([])
 const PromptEngineer = ref(`\`\`\`markdown\n${StandardPrompt} \n\`\`\``)
 const formInline = reactive({
-  title: '',
+  keyword: '',
+  status: -1,
 })
 
 function handleReset() {
-  formInline.title = ''
+  formInline.keyword = ''
+  formInline.status = -1
 }
 
 onMounted(fetchData)
@@ -44,24 +51,24 @@ async function fetchData() {
   const query: Record<string, any> = {
     page: prompts.value.meta.currentPage,
     pageSize: prompts.value.meta.itemsPerPage,
-    title: formInline.title,
+    keyword: formInline.keyword,
+    status: formInline.status === -1 ? undefined : formInline.status,
   }
 
   // 过滤掉为空的值
   Object.entries(query).forEach(([key, value]) => {
-    if (!value)
+    if (value === null || value === undefined)
       delete query[key]
   })
 
-  const res: any = (await chatAdminManager.promptList(query))
-  if (!res) {
-    ElMessage.warning('参数错误，查询失败！')
-  }
-  else {
-    if (res.code === 200)
-
+  const res: any = await chatAdminManager.promptList(query)
+  if (!res) { ElMessage.warning('参数错误，查询失败！') }
+  else
+    if (res.code === 200) {
       prompts.value = res.data
-  }
+
+      statistics.value = (await getPromptDailyStatistics()).data
+    }
 
   formLoading.value = false
 }
@@ -93,7 +100,9 @@ async function polishContent(type: number) {
   if (!dialogOptions.data?.content)
     return
 
-  const completion = $completion.v1.createCompletion($completion.v1.createEmptyHistoryWithInput(dialogOptions.data?.content))
+  const completion = $completion.v1.createCompletion(
+    $completion.v1.createEmptyHistoryWithInput(dialogOptions.data?.content),
+  )
 
   completion.registerHandler({
     onCompletionStart() {
@@ -147,9 +156,7 @@ const rules = reactive<FormRules<PromptEntityDto>>({
     { required: true, message: '请输入模板内容', trigger: 'blur' },
     { min: 200, max: 1024, message: '模板内容需要在 200-1024 位之间', trigger: 'blur' },
   ],
-  avatar: [
-    { required: true, message: '请上传头像', trigger: 'blur' },
-  ],
+  avatar: [{ required: true, message: '请上传头像', trigger: 'blur' }],
 })
 
 async function submitForm(formEl: FormInstance | undefined) {
@@ -162,7 +169,10 @@ async function submitForm(formEl: FormInstance | undefined) {
     dialogOptions.loading = true
 
     if (dialogOptions.mode !== 'new') {
-      const res: any = await chatAdminManager.updateTemplate(`${dialogOptions.data!.id!}`, dialogOptions.data as PromptEntityDto)
+      const res: any = await chatAdminManager.updateTemplate(
+        `${dialogOptions.data!.id!}`,
+        dialogOptions.data as PromptEntityDto,
+      )
 
       if (res.code === 200) {
         ElMessage.success('修改成功！')
@@ -174,7 +184,9 @@ async function submitForm(formEl: FormInstance | undefined) {
       }
     }
     else {
-      const res: any = await chatAdminManager.createTemplate(dialogOptions.data as PromptEntityDto)
+      const res: any = await chatAdminManager.createTemplate(
+        dialogOptions.data as PromptEntityDto,
+      )
 
       if (res.code === 200) {
         ElMessage.success('添加成功！')
@@ -218,9 +230,7 @@ function handleDeleteUser(id: number, data: PromptEntityDto) {
   //       ElMessage.error('删除失败！')
   //       return
   //     }
-
   //     fetchData()
-
   //     ElNotification({
   //       title: 'Info',
   //       message: `你永久删除了用户 ${data.username}(${data.nickname}) #${id} 及其相关数据！`,
@@ -250,6 +260,8 @@ const auditOptions = reactive<{
 function handleAudit(data: any) {
   auditOptions.data = data
   auditOptions.dialog = true
+  auditOptions.result.status = 'reject'
+  auditOptions.result.reason = ''
 }
 
 async function submitAudit() {
@@ -262,7 +274,7 @@ async function submitAudit() {
     reason,
   })
 
-  if (res.code === 200) {
+  if (res.code === 200 && res.data) {
     ElMessage.success('审核提交成功！')
     auditOptions.dialog = false
     fetchData()
@@ -270,6 +282,10 @@ async function submitAudit() {
   else {
     ElMessage.error(res.message ?? '审核提交失败！')
   }
+}
+
+function handleFilterTableTagStatus(value: string, row: any) {
+  return row.status === +value
 }
 
 const rejectReason = reactive([
@@ -293,7 +309,10 @@ const rejectReason = reactive([
   { label: '内容重复', value: '亲，您的内容存在重复的情况，不能通过哟。' },
   { label: '内容格式错误', value: '哎呀，您的内容格式存在问题，不能予以通过呀。' },
   { label: '内容未经证实', value: '您的内容未经证实，是不可以通过审核的呢。' },
-  { label: '内容存在安全隐患', value: '亲，您的内容可能存在安全方面的隐患，不能通过哟。' },
+  {
+    label: '内容存在安全隐患',
+    value: '亲，您的内容可能存在安全方面的隐患，不能通过哟。',
+  },
   { label: '内容违反道德规范', value: '哎呀，您的内容违反了道德规范，不能通过审核哈。' },
 ])
 
@@ -302,13 +321,155 @@ function getAuditType(status: number) {
     return 'primary'
   else if (status === 1)
     return 'success'
-  else
-    return 'danger'
+  else if (status === 2)
+    return 'warning'
+  else if (status === 4)
+    return 'primary'
+  else if (status === 3)
+    return 'info'
+  else return 'danger'
 }
+
+function formateTitle(status: number) {
+  switch (status) {
+    case 0:
+      return '待审核'
+    case 1:
+      return '审核通过'
+    case 2:
+      return '审核不通过'
+    case 3:
+      return '已发布'
+    case 4:
+      return '已下线'
+    default:
+      return '未知'
+  }
+}
+
+const auditAssignOptions = reactive<{
+  loading: boolean
+  dialog: boolean
+  data: {
+    id: number
+    tags: number[]
+  } | null
+  options: any[]
+}>({
+  dialog: false,
+  data: null,
+  loading: false,
+  options: [],
+})
+
+function handleAuditAssign(data: PromptEntityDto) {
+  auditAssignOptions.data = {
+    id: data.id!,
+    tags: data.tags || [],
+  }
+  auditAssignOptions.dialog = true
+}
+
+async function remoteMethod(query: string) {
+  if (query) {
+    auditAssignOptions.loading = true
+
+    const res: any = await searchPromptTag(query)
+
+    if (res.code !== 200)
+      ElMessage.error(res.message || '获取失败！')
+    else
+      auditAssignOptions.options = res.data
+
+    auditAssignOptions.loading = false
+  }
+  else {
+    auditAssignOptions.options = []
+  }
+}
+
+async function submitAuditAssign() {
+  const res: any = await assignPromptTags(auditAssignOptions.data!.id, auditAssignOptions.data!.tags)
+
+  if (res.code === 200) {
+    ElMessage.success('分配成功！')
+    fetchData()
+    auditAssignOptions.dialog = false
+  }
+  else {
+    ElMessage.error(res.message || '分配失败！')
+  }
+}
+
+async function publishPrompt(id: number, doPublish: boolean) {
+  const res: any = await chatAdminManager.publishTemplate(id, doPublish)
+
+  if (res.code === 200) {
+    ElMessage.success('发布成功！')
+    fetchData()
+  }
+  else {
+    ElMessage.error(res.message || '发布失败！')
+  }
+}
+
+function handleTableRowClass(data: any) {
+  const { row } = data
+
+  // 如果这条记录未审核则标黄 如果未通过则标红
+  if (row.status === 0)
+    return 'warning-row'
+  else if (row.status === 2)
+    return 'error-row'
+
+  return ''
+}
+
+const statusOptions = [
+  { label: '无', value: -1 },
+  { label: '待审核', value: 0 },
+  { label: '审核通过', value: 1 },
+  { label: '审核不通过', value: 2 },
+  { label: '已发布', value: 3 },
+  { label: '已下线', value: 4 },
+]
 </script>
 
 <template>
   <el-container class="CmsPrompt">
+    <el-drawer
+      v-model="auditAssignOptions.dialog" direction="btt" :close-on-press-escape="false"
+      :close-on-click-modal="false" size="60%" title="PromptTemplate 分配"
+    >
+      <el-form
+        v-if="auditAssignOptions.data" v-loading="auditAssignOptions.loading" :model="auditOptions.data"
+        label-width="auto"
+      >
+        <el-form-item label="模板标题" prop="title">
+          <el-select
+            v-model="auditAssignOptions.data!.tags" multiple filterable remote reserve-keyword
+            placeholder="输入文本进行搜索" :remote-method="remoteMethod" :loading="auditAssignOptions.loading"
+            style="width: 240px"
+          >
+            <el-option v-for="item in auditAssignOptions.options" :key="item.id" :label="item.name" :value="item.id">
+              <div flex items-center justify-between gap-4>
+                <div flex items-center gap-2>
+                  <div :class="item.icon" />
+                  {{ item.name }}
+                </div>
+                <div float-right class="color-box" :style="`--c: ${item.color}`" />
+              </div>
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="操作" prop="action">
+          <el-button type="warning" @click="submitAuditAssign">
+            保存提交
+          </el-button>
+        </el-form-item>
+      </el-form>
+    </el-drawer>
+
     <el-dialog
       v-model="auditOptions.dialog" :close-on-press-escape="false" :close-on-click-modal="false" width="60%"
       title="PromptTemplate 审核"
@@ -328,16 +489,19 @@ function getAuditType(status: number) {
         </el-form-item>
         <el-form-item label="参考Prompt" prop="agreement">
           <span>
-            I want you to act as a prompt generator. Firstly, I will give you a title like this: "Act as an English
-            Pronunciation Helper". Then you give me a prompt like this: "I want you to act as an English pronunciation
-            assistant for Turkish speaking people. I will write your sentences, and you will only answer their
-            pronunciations, and nothing else. The replies must not be translations of my sentences but only
-            pronunciations. Pronunciations should use Turkish Latin letters for phonetics. Do not write explanations
-            on replies. My first sentence is "how the weather is in Istanbul?"." (You should adapt the sample prompt
-            according to the title I gave. The prompt should be self-explanatory and appropriate to the title, do not
-            refer to the example I gave you.). My first title is "提示词功能" (Give me prompt only)<el-link
-              mx-2
-              type="primary" @click="dialogOptions.meta.dialog = true"
+            I want you to act as a prompt generator. Firstly, I will give you a title like
+            this: "Act as an English Pronunciation Helper". Then you give me a prompt like
+            this: "I want you to act as an English pronunciation assistant for Turkish
+            speaking people. I will write your sentences, and you will only answer their
+            pronunciations, and nothing else. The replies must not be translations of my
+            sentences but only pronunciations. Pronunciations should use Turkish Latin
+            letters for phonetics. Do not write explanations on replies. My first sentence
+            is "how the weather is in Istanbul?"." (You should adapt the sample prompt
+            according to the title I gave. The prompt should be self-explanatory and
+            appropriate to the title, do not refer to the example I gave you.). My first
+            title is "提示词功能" (Give me prompt only)<el-link
+              mx-2 type="primary"
+              @click="dialogOptions.meta.dialog = true"
             >Prompt工程师参考</el-link>
           </span>
         </el-form-item>
@@ -370,10 +534,23 @@ function getAuditType(status: number) {
       </el-form>
     </el-dialog>
 
+    <div class="CmsPrompt-Header">
+      <el-row>
+        <el-col v-for="item in statistics" :key="item.status" :span="6">
+          <el-statistic :title="`今日${formateTitle(item.status)}`" :value="+item.count" />
+        </el-col>
+      </el-row>
+    </div>
+
     <el-main>
       <el-form :disabled="formLoading" :inline="true" :model="formInline">
         <el-form-item label="标题">
-          <el-input v-model="formInline.title" minlength="4" placeholder="搜索模板名称" clearable />
+          <el-input v-model="formInline.keyword" minlength="4" placeholder="搜索模板..." clearable />
+        </el-form-item>
+        <el-form-item label="状态">
+          <el-select v-model="formInline.status" placeholder="状态" style="width: 120px">
+            <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
 
         <el-form-item style="margin-right: 0" float-right>
@@ -390,8 +567,11 @@ function getAuditType(status: number) {
       </el-form>
 
       <ClientOnly>
-        <el-table v-if="prompts?.items" :data="prompts.items" style="width: 100%">
-          <el-table-column type="index" label="序号" />
+        <el-table
+          v-if="prompts?.items" :row-class-name="handleTableRowClass" :data="prompts.items" height="90%"
+          table-layout="auto"
+        >
+          <el-table-column prop="id" label="编号" />
           <el-table-column label="头像">
             <template #default="scope">
               <UserAvatar :avatar="scope.row.avatar" />
@@ -402,26 +582,52 @@ function getAuditType(status: number) {
               {{ row.title }}
             </template>
           </el-table-column>
-          <el-table-column label="正文字数">
+          <el-table-column label="正文字数" width="100px">
             <template #default="{ row }">
               {{ row.content?.length }}字
             </template>
           </el-table-column>
-          <el-table-column prop="status" label="状态">
+          <el-table-column
+            :filters="[
+              { text: '待审核', value: '0' },
+              { text: '已通过', value: '1' },
+              { text: '未通过', value: '2' },
+              { text: '已发布', value: '3' },
+              { text: '未发布', value: '4' },
+            ]" prop="status" label="状态" :filter-method="handleFilterTableTagStatus" filter-placement="bottom-end"
+          >
             <template #default="{ row }">
               <template v-if="row.status === 0">
                 <el-tag type="warning">
                   等待审核
                 </el-tag>
+
                 <el-button v-permission="`aigc:audit`" type="primary" size="small" plain mx-2 @click="handleAudit(row)">
                   立即审核
                 </el-button>
               </template>
-              <el-tag v-else-if="row.status === 1" type="success">
-                已通过
-              </el-tag>
+              <div v-else-if="row.status === 1" flex items-center gap-2>
+                <el-tag type="primary">
+                  已通过
+                </el-tag>
+                <el-tooltip effect="dark" content="要想模板被发现，你还需要配置Prompt的分类!" placement="top">
+                  <div i-carbon:warning />
+                </el-tooltip>
+                <el-button
+                  v-permission="`aigc:audit`" type="primary" size="small" plain
+                  @click="handleAuditAssign(row)"
+                >
+                  立即分配
+                </el-button>
+              </div>
               <el-tag v-else-if="row.status === 2" type="danger">
                 未通过
+              </el-tag>
+              <el-tag v-else-if="row.status === 4" type="info">
+                未发布
+              </el-tag>
+              <el-tag v-else-if="row.status === 3" type="success">
+                已发布
               </el-tag>
             </template>
           </el-table-column>
@@ -450,12 +656,26 @@ function getAuditType(status: number) {
               <el-button plain text size="small" @click="handleDialog(row, 'read')">
                 详情
               </el-button>
-              <el-button v-if="row.status !== 0" plain text size="small" type="warning" @click="handleDialog(row, 'edit')">
+              <el-button
+                v-if="row.status !== 0" plain text size="small" type="warning"
+                @click="handleDialog(row, 'edit')"
+              >
                 编辑
               </el-button>
               <el-button
-                v-if="row.status === 1"
-                :disabled="true" plain text size="small" type="danger"
+                v-if="row.status === 4" plain text size="small" type="primary"
+                @click="publishPrompt(row.id, true)"
+              >
+                发布
+              </el-button>
+              <el-button
+                v-if="row.status === 3" plain text size="small" type="warning"
+                @click="publishPrompt(row.id, false)"
+              >
+                下线
+              </el-button>
+              <el-button
+                v-if="row.status === 1" :disabled="true" plain text size="small" type="danger"
                 @click="handleDeleteUser(row.id, row)"
               >
                 删除
@@ -466,7 +686,7 @@ function getAuditType(status: number) {
 
         <el-pagination
           v-if="prompts?.meta" v-model:current-page="prompts.meta.currentPage"
-          v-model:page-size="prompts.meta.itemsPerPage" float-right my-4 :page-sizes="[10, 30, 50, 100]"
+          v-model:page-size="prompts.meta.itemsPerPage" float-right my-4 :page-sizes="[15, 30, 50, 100]"
           layout="total, sizes, prev, pager, next, jumper" :total="prompts.meta.totalItems" @change="fetchData"
         />
       </ClientOnly>
@@ -503,9 +723,32 @@ function getAuditType(status: number) {
             <el-tag v-else-if="dialogOptions.data.status === 2" type="danger">
               未通过
             </el-tag>
+            <el-tag v-else-if="dialogOptions.data.status === 4" type="info">
+              未发布
+            </el-tag>
+            <el-tag v-else-if="dialogOptions.data.status === 3" type="success">
+              已发布
+            </el-tag>
           </el-form-item>
           <el-form-item label="模板标题" prop="title">
             <el-input v-model="dialogOptions.data.title" :maxlength="255" :disabled="dialogOptions.mode !== 'new'" />
+          </el-form-item>
+          <el-form-item label="模板标签" prop="tags">
+            <span v-for="item in dialogOptions.data.tags" :key="item.id" flex items-center gap-2>
+              <el-tooltip>
+                <template #default>
+                  <el-tag type="primary">
+                    <div flex items-center gap-2>
+                      #{{ item.id }} {{ item.name }}
+                      <div class="color-box" :style="`--c: ${item.color}`" />
+                    </div>
+                  </el-tag>
+                </template>
+                <template #content>
+                  <div>{{ item.description }}</div>
+                </template>
+              </el-tooltip>
+            </span>
           </el-form-item>
           <el-form-item label="模板内容" prop="content">
             <el-input
@@ -513,17 +756,23 @@ function getAuditType(status: number) {
               :autosize="{ minRows: 5, maxRows: 30 }" type="textarea"
             />
           </el-form-item>
+          <el-form-item label="创建者" prop="content">
+            <PersonalNormalUser :data="dialogOptions.data.creator" />
+          </el-form-item>
           <el-form-item v-if="dialogOptions.mode !== 'read'" label="模板须知" prop="agreement">
             <ul>
               <li>1.当您完成攥写后请依次点击"润色"，"翻译"按钮</li>
               <li>2.系统AI会自动将您的模板进行润色翻译调整</li>
               <li>3.如果您不满意效果可以进行微调</li>
               <li>4.请您仔细核验AI生成的内容，如果存在违规会自动审核失败</li>
-              <li>5.如果您发现AI生成的内容违规，请及时联系管理员</li>
-              <li>6.您可以在模板中穿插以下变量：{{ `\{\{ history \}\}` }}, {{ `\{\{ input \}\}` }}, {{ `\{\{ memory \}\}` }}</li>
+              <li>5.如果您发现A生成的内容违规，请及时联系管理员</li>
+              <li>
+                6.您可以在模板中穿插以下变量：{{ `\{\{ history \}\}` }},
+                {{ `\{\{ input \}\}` }}, {{ `\{\{ memory \}\}` }}
+              </li>
             </ul>
           </el-form-item>
-          <el-form-item v-if="dialogOptions.mode === 'read'" label="审核记录">
+          <el-form-item v-if="dialogOptions.mode === 'read'" label="操作记录">
             <el-timeline style="max-width: 600px">
               <el-timeline-item
                 v-for="(audit, index) in dialogOptions.data.audits" :key="index"
@@ -533,11 +782,21 @@ function getAuditType(status: number) {
                   <PersonalNormalUser :data="audit.auditor" />: {{ audit.reason }}
                 </span>
                 <span v-else-if="audit.status === 1" flex items-center>
-                  已经
+                  已由
                   <PersonalNormalUser :data="audit.auditor" /> 审核通过
                 </span>
                 <span v-else-if="audit.status === 0" flex items-center>
-                  <PersonalNormalUser :data="audit.auditor" />: 正在审核中({{ audit.reason }})
+                  <PersonalNormalUser :data="audit.auditor" />: 正在审核中({{
+                    audit.reason
+                  }})
+                </span>
+                <span v-else-if="audit.status === 3" flex items-center>
+                  <PersonalNormalUser :data="audit.auditor" />: 已发布上线
+                </span>
+                <span v-else-if="audit.status === 4" flex items-center>
+                  <PersonalNormalUser :data="audit.auditor" />: {{
+                    audit.reason
+                  }}
                 </span>
               </el-timeline-item>
             </el-timeline>
@@ -575,23 +834,26 @@ function getAuditType(status: number) {
               <li>2.您的提示词需要保证清晰明了，不能包含任何恶意内容</li>
               <li>3.提示词必须至少200字以保证模板效果</li>
               <li>4.请您在提交之前仔细核验变量</li>
-              <li>5.提交后，您的模板将会进入审核流程，审核通过后，您的模板将会在模板市场中展示</li>
+              <li>
+                5.提交后，您的模板将会进入审核流程，审核通过后，您的模板将会在模板市场中展示
+              </li>
             </ul>
           </el-form-item>
 
           <el-form-item v-if="dialogOptions.mode !== 'read'" label="参考Prompt" prop="agreement">
             <span>
-              I want you to act as a prompt generator. Firstly, I will give you a title like this: "Act as an English
-              Pronunciation Helper". Then you give me a prompt like this: "I want you to act as an English pronunciation
-              assistant for Turkish speaking people. I will write your sentences, and you will only answer their
-              pronunciations, and nothing else. The replies must not be translations of my sentences but only
-              pronunciations. Pronunciations should use Turkish Latin letters for phonetics. Do not write explanations
-              on replies. My first sentence is "how the weather is in Istanbul?"." (You should adapt the sample prompt
-              according to the title I gave. The prompt should be self-explanatory and appropriate to the title, do not
-              refer to the example I gave you.). My first title is "提示词功能" (Give me prompt only)<el-link
-                mx-2
-                type="primary" @click="dialogOptions.meta.dialog = true"
-              >Prompt工程师参考</el-link>
+              I want you to act as a prompt generator. Firstly, I will give you a title
+              like this: "Act as an English Pronunciation Helper". Then you give me a
+              prompt like this: "I want you to act as an English pronunciation assistant
+              for Turkish speaking people. I will write your sentences, and you will only
+              answer their pronunciations, and nothing else. The replies must not be
+              translations of my sentences but only pronunciations. Pronunciations should
+              use Turkish Latin letters for phonetics. Do not write explanations on
+              replies. My first sentence is "how the weather is in Istanbul?"." (You
+              should adapt the sample prompt according to the title I gave. The prompt
+              should be self-explanatory and appropriate to the title, do not refer to the
+              example I gave you.). My first title is "提示词功能" (Give me prompt
+              only)<el-link mx-2 type="primary" @click="dialogOptions.meta.dialog = true">Prompt工程师参考</el-link>
             </span>
           </el-form-item>
         </el-form>
@@ -616,11 +878,12 @@ function getAuditType(status: number) {
               @confirm="submitForm(ruleFormRef)"
             >
               <template #reference>
+                <!-- !dialogOptions.meta.polish && dialogOptions.meta.translation -->
                 <el-button
-                  :disabled="dialogOptions.data.content!.length < 200 || !dialogOptions.meta.polish && dialogOptions.meta.translation"
-                  :loading="dialogOptions.loading" type="primary"
+                  :disabled="dialogOptions.data.content!.length < 200" :loading="dialogOptions.loading"
+                  type="primary"
                 >
-                  {{ dialogOptions.mode !== 'new' ? "修改并提交审核" : "新建并提交审核" }}
+                  {{ dialogOptions.mode !== "new" ? "修改并提交审核" : "新建并提交审核" }}
                 </el-button>
               </template>
             </el-popconfirm>
@@ -634,9 +897,7 @@ function getAuditType(status: number) {
       :close-on-press-escape="false" direction="ltr"
     >
       <template #header>
-        <h4>
-          标准 PromptEngineer 格式参考
-        </h4>
+        <h4>标准 PromptEngineer 格式参考</h4>
       </template>
       <el-tabs>
         <el-tab-pane label="PromptEngineer">
@@ -668,5 +929,30 @@ function getAuditType(status: number) {
 
 <style lang="scss">
 .CmsPrompt {
+  display: flex;
+
+  flex-direction: column;
+
+  &-Header {
+  }
+
+  .el-table .warning-row {
+    --el-table-tr-bg-color: var(--el-color-warning-light-9);
+  }
+
+  .el-table .error-row {
+    --el-table-tr-bg-color: var(--el-color-error-light-9);
+  }
+}
+
+.color-box {
+  position: relative;
+  margin: 0 0.25rem;
+
+  width: 12px;
+  height: 12px;
+
+  border-radius: 4px;
+  background-color: var(--c);
 }
 </style>

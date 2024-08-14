@@ -2,6 +2,7 @@
 import LoginCore from './login/LoginCore.vue'
 import { Platform, getQrCodeStatus, postQrCodeReq, qrCodeLogin, sendSMSCode, useSMSLogin } from '~/composables/api/auth'
 import ThCheckBox from '~/components/checkbox/ThCheckBox.vue'
+import { $handleUserLogin } from '~/composables/user'
 
 const props = defineProps<{
   show: boolean
@@ -213,15 +214,11 @@ onMounted(async () => {
               setTimeout(() => {
                 localStorage.removeItem('code-data')
 
-                userStore.value.token = (result.data.token)
+                $handleUserLogin(result.data)
 
                 ElMessage.info('登录成功！')
 
                 show.value = false
-
-                setTimeout(() => {
-                  location.reload()
-                }, 200)
               }, 200)
             }
           }
@@ -264,7 +261,7 @@ async function fetchCode() {
 }
 
 async function codeStatusTimer() {
-  if (userStore.value.token)
+  if (userStore.value.isLogin)
     return
 
   // 如果超过2分钟用户啥也没做就不要她登陆了 免得一直ddos后台
@@ -307,15 +304,12 @@ watch(() => codeStatus.value, async (status) => {
   localStorage.removeItem('code-data')
 
   setTimeout(() => {
-    userStore.value.token = (res.data.token)
+    $handleUserLogin(res.data)
+    // userStore.value.token = (res.data.token)
 
     ElMessage.info('登录成功！')
 
     show.value = false
-
-    setTimeout(() => {
-      location.reload()
-    }, 200)
   }, 200)
 })
 

@@ -32,9 +32,13 @@ onMounted(() => {
         },
       )
 
-      watch(() => props.readonly, (readonly) => {
-        readonly ? vditor.disabled() : vditor.enable()
-      }, { immediate: true })
+      watch(
+        () => props.readonly,
+        (readonly) => {
+          readonly ? vditor.disabled() : vditor.enable()
+        },
+        { immediate: true },
+      )
     },
     input(content: string) {
       value.value = content
@@ -86,22 +90,22 @@ onMounted(() => {
           code: 0,
           data: {
             errFiles: [],
-            succMap: {
-            },
+            succMap: {},
           },
         }
 
         const res = JSON.parse(responseText)
-        if (res.code !== 200)
-          result.data.errFiles[0] = files[0].name
-
-        else
-          result.data.succMap[files[0].name] = `${globalOptions.getEndsUrl()}${res.data.filename}`
+        if (res.code !== 200) { result.data.errFiles[0] = files[0].name }
+        else {
+          result.data.succMap[files[0].name] = `${globalOptions.getEndsUrl()}${
+            res.data.filename
+          }`
+        }
 
         return JSON.stringify(result)
       },
       headers: {
-        Authorization: `Bearer ${userStore.value.token}`,
+        Authorization: `Bearer ${userStore.value.token?.accessToken}`,
       },
       multiple: false,
       // withCredentials: true
