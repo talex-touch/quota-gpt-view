@@ -192,3 +192,147 @@ export interface IDictItemModelQuery extends IDictItemModel {
   page: number
   pageSize: number
 }
+
+
+// 系统监控
+/**
+ * ServeStatInfo
+ */
+export interface ServeStatInfo {
+  /**
+   * CPU信息
+   */
+  cpu: Cpu;
+  /**
+   * 磁盘信息
+   */
+  disk: Disk;
+  /**
+   * 内存信息
+   */
+  memory: Memory;
+  /**
+   * 运行环境
+   */
+  runtime: Runtime;
+  [property: string]: any;
+}
+
+/**
+* CPU信息
+*
+* Cpu
+*/
+export interface Cpu {
+  /**
+   * 品牌
+   */
+  brand: string;
+  /**
+   * cpu资源消耗
+   */
+  coresLoad: CoreLoad[];
+  /**
+   * 制造商
+   */
+  manufacturer: string;
+  /**
+   * 型号
+   */
+  model: string;
+  /**
+   * 物理核心数
+   */
+  physicalCores: number;
+  /**
+   * CPU资源消耗 原始滴答
+   */
+  rawCurrentLoad: number;
+  /**
+   * 空闲CPU资源 原始滴答
+   */
+  rawCurrentLoadIdle: number;
+  /**
+   * 速度 in GHz
+   */
+  speed: number;
+  [property: string]: any;
+}
+
+/**
+* CoreLoad
+*/
+export interface CoreLoad {
+  /**
+   * 当前CPU资源消耗
+   */
+  rawLoad: number;
+  /**
+   * 当前空闲CPU资源
+   */
+  rawLoadIdle: number;
+  [property: string]: any;
+}
+
+/**
+* 磁盘信息
+*
+* Disk
+*/
+export interface Disk {
+  /**
+   * 可用磁盘空间 (bytes)
+   */
+  available: number;
+  /**
+   * 磁盘空间大小 (bytes)
+   */
+  size: number;
+  /**
+   * 已使用磁盘空间 (bytes)
+   */
+  used: number;
+  [property: string]: any;
+}
+
+/**
+* 内存信息
+*
+* Memory
+*/
+export interface Memory {
+  /**
+   * 可用内存
+   */
+  available: number;
+  /**
+   * total memory in bytes
+   */
+  total: number;
+  [property: string]: any;
+}
+
+/**
+* 运行环境
+*
+* Runtime
+*/
+export interface Runtime {
+  /**
+   * 服务器架构
+   */
+  arch: string;
+  /**
+   * Node版本
+   */
+  nodeVersion: string;
+  /**
+   * Npm版本
+   */
+  npmVersion: string;
+  /**
+   * 系统
+   */
+  os: string;
+  [property: string]: any;
+}
