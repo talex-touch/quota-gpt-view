@@ -15,6 +15,7 @@
  */
 
 import axios, { type CreateAxiosDefaults } from 'axios'
+import type { IStandardResponse } from './base/index.type'
 import { globalOptions } from '~/constants'
 
 const refreshOptions: {
@@ -179,7 +180,7 @@ export function genAxios(options: CreateAxiosDefaults) {
       url,
       data,
       params,
-    })
+    }) as Promise<IStandardResponse>
   }
 
   function get(url: string, params = {}) {
@@ -187,7 +188,7 @@ export function genAxios(options: CreateAxiosDefaults) {
       method: 'GET',
       url,
       params,
-    }) as any
+    }) as Promise<IStandardResponse>
   }
 
   function put(url: string, data = {}, params = {}) {
@@ -196,7 +197,7 @@ export function genAxios(options: CreateAxiosDefaults) {
       url,
       data,
       params,
-    })
+    }) as Promise<IStandardResponse>
   }
 
   function del(url: string, data = {}, params = {}) {
@@ -205,7 +206,7 @@ export function genAxios(options: CreateAxiosDefaults) {
       url,
       data,
       params,
-    })
+    }) as Promise<IStandardResponse>
   }
 
   function patch(url: string, data = {}, params = {}) {
@@ -214,7 +215,7 @@ export function genAxios(options: CreateAxiosDefaults) {
       url,
       data,
       params,
-    })
+    }) as Promise<IStandardResponse>
   }
 
   // declare module 'axios' {
