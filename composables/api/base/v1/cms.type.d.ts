@@ -22,10 +22,36 @@ export interface IRoleModel extends Record<string, any> {
   value: string
 
   id?: number
+  updatedAt?: string
   createdAt?: string
 }
 
 export interface IRoleModelQuery extends IRoleModel {
+  page: number
+  pageSize: number
+}
+
+export interface IDictItemModel extends Record<string, any> {
+  /**
+   * 字典项键名
+   */
+  label?: string
+  order?: string
+  /**
+   * 字典类型 ID
+   */
+  typeId: number
+  /**
+   * 字典项值
+   */
+  value?: string
+
+  id?: number
+  updatedAt?: string
+  createdAt?: string
+}
+
+export interface IDictItemModelQuery extends IDictItemModel {
   page: number
   pageSize: number
 }

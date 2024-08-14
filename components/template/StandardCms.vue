@@ -9,14 +9,6 @@ const props = defineProps<{
   rules: FormRules<TemplateType>
 }>()
 
-definePageMeta({
-  name: `${props.name}管理`,
-  layout: 'cms',
-  pageTransition: {
-    name: 'rotate',
-  },
-})
-
 type TemplateType = IRoleModel
 
 const { list: mutableList, crudDialogOptions, listForm, formLoading, fetchData, resetQueryForm, handleCrudDialog, handleDeleteData, submitForm } = props.templateData
