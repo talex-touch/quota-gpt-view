@@ -88,6 +88,10 @@ watch(() => endUrl.value, async (val) => {
     globalOptions.setEndsUrl(val)
   },
 }) */
+
+function filterSubMenus(menu: any) {
+  return [...menu].filter(item => item.meta?.show)
+}
 </script>
 
 <template>
@@ -129,7 +133,7 @@ watch(() => endUrl.value, async (val) => {
               <div :class="item.meta.icon" />
               {{ item.name }}
             </template>
-            <CmsMenuItem v-for="subMenu in item.children" :key="subMenu.id" :path="`/cms${subMenu.path}`">
+            <CmsMenuItem v-for="subMenu in filterSubMenus(item.children)" :key="subMenu.id" :path="`/cms${subMenu.path}`">
               <div flex items-center gap-2>
                 <div :class="subMenu.meta.icon" />{{ subMenu.name }}
               </div>
