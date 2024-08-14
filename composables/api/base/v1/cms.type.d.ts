@@ -1,3 +1,69 @@
+export interface IUserModel extends Record<string, any> {
+
+     /**
+     * 头像
+     */
+     avatar?: string;
+     /**
+      * 归属大区
+      */
+     deptId?: number;
+     /**
+      * 邮箱
+      */
+     email?: string;
+   
+     /**
+      * 呢称
+      */
+     nickname?: string;
+  
+ 
+     /**
+      * 登录密码
+      */
+     password?: string;
+     /**
+      * 手机号
+      */
+     phone?: string;
+     /**
+      * QQ
+      */
+     qq?: string;
+     /**
+      * 备注
+      */
+     remark?: string;
+     /**
+      * 归属角色
+      */
+     roleIds?: string[];
+     /**
+      * 状态
+      */
+     status?: number;
+     /**
+      * 登录账号
+      */
+     username?: string;
+
+
+
+
+  id?: number
+  updatedAt?: string
+  createdAt?: string
+}
+export interface IUserModelQuery extends IUserModel {
+  page: number
+  pageSize: number
+}
+
+
+
+
+
 export interface IRoleModel extends Record<string, any> {
   /**
    * 关联菜单、权限编号
@@ -31,8 +97,83 @@ export interface IRoleModelQuery extends IRoleModel {
   pageSize: number
 }
 
+<<<<<<< HEAD
 export interface IParamConfigModel extends Record<string, any> {
 
+=======
+
+export interface IMenuModel extends Record<string, any> {
+      /**
+     * 设置当前路由高亮的菜单项，一般用于详情页
+     */
+      activeMenu?: string;
+      /**
+       * 菜单路由路径或外链
+       */
+      component?: string;
+      /**
+       * 外链打开方式
+       */
+      extOpenMode?: number;
+      /**
+       * 菜单图标
+       */
+      icon?: string;
+      /**
+       * 是否外链
+       */
+      isExt?: boolean;
+      /**
+       * 是否开启页面缓存
+       */
+      keepAlive?: number;
+      /**
+       * 菜单或权限名称
+       */
+      name?: string;
+      /**
+       * 排序
+       */
+      orderNo?: number;
+      /**
+       * 父级菜单
+       */
+      parentId?: number;
+      /**
+       * 前端路由地址
+       */
+      path?: string;
+      /**
+       * 对应权限
+       */
+      permission?: string;
+      /**
+       * 菜单是否显示
+       */
+      show?: number;
+      /**
+       * 状态
+       */
+      status?: number;
+      /**
+       * 菜单类型
+       */
+      type?: number;
+
+}
+//这里这个菜单疑惑有没有page,pagesize
+export interface IMenuModelQuery extends IMenuModel {
+  page: number
+  pageSize: number
+}
+
+
+
+
+
+
+export interface IDictItemModel extends Record<string, any> {
+>>>>>>> 2a0133309d0ca3d21566298f5fecc81ab9b4d092
   /**
    * 参数名称
    */
@@ -174,4 +315,148 @@ export interface ITasksModelQuery extends ITasksModel {
   page: number
   pageSize: number
 
+}
+
+
+// 系统监控
+/**
+ * ServeStatInfo
+ */
+export interface ServeStatInfo {
+  /**
+   * CPU信息
+   */
+  cpu: Cpu;
+  /**
+   * 磁盘信息
+   */
+  disk: Disk;
+  /**
+   * 内存信息
+   */
+  memory: Memory;
+  /**
+   * 运行环境
+   */
+  runtime: Runtime;
+  [property: string]: any;
+}
+
+/**
+* CPU信息
+*
+* Cpu
+*/
+export interface Cpu {
+  /**
+   * 品牌
+   */
+  brand: string;
+  /**
+   * cpu资源消耗
+   */
+  coresLoad: CoreLoad[];
+  /**
+   * 制造商
+   */
+  manufacturer: string;
+  /**
+   * 型号
+   */
+  model: string;
+  /**
+   * 物理核心数
+   */
+  physicalCores: number;
+  /**
+   * CPU资源消耗 原始滴答
+   */
+  rawCurrentLoad: number;
+  /**
+   * 空闲CPU资源 原始滴答
+   */
+  rawCurrentLoadIdle: number;
+  /**
+   * 速度 in GHz
+   */
+  speed: number;
+  [property: string]: any;
+}
+
+/**
+* CoreLoad
+*/
+export interface CoreLoad {
+  /**
+   * 当前CPU资源消耗
+   */
+  rawLoad: number;
+  /**
+   * 当前空闲CPU资源
+   */
+  rawLoadIdle: number;
+  [property: string]: any;
+}
+
+/**
+* 磁盘信息
+*
+* Disk
+*/
+export interface Disk {
+  /**
+   * 可用磁盘空间 (bytes)
+   */
+  available: number;
+  /**
+   * 磁盘空间大小 (bytes)
+   */
+  size: number;
+  /**
+   * 已使用磁盘空间 (bytes)
+   */
+  used: number;
+  [property: string]: any;
+}
+
+/**
+* 内存信息
+*
+* Memory
+*/
+export interface Memory {
+  /**
+   * 可用内存
+   */
+  available: number;
+  /**
+   * total memory in bytes
+   */
+  total: number;
+  [property: string]: any;
+}
+
+/**
+* 运行环境
+*
+* Runtime
+*/
+export interface Runtime {
+  /**
+   * 服务器架构
+   */
+  arch: string;
+  /**
+   * Node版本
+   */
+  nodeVersion: string;
+  /**
+   * Npm版本
+   */
+  npmVersion: string;
+  /**
+   * 系统
+   */
+  os: string;
+  [property: string]: any;
 }

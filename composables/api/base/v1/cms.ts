@@ -1,8 +1,27 @@
 import { endHttp } from '../../axios'
 import type { IDataResponse, IPageResponse, IStandardPageModel, IStandardResponse } from '../index.type'
-import type { IDictItemModel, IDictItemModelQuery, IDictTypeModel, IDictTypeModelQuery, IParamConfigModel, IParamConfigModelQuery, IRoleModel, IRoleModelQuery, ITasksModel, ITasksModelQuery } from './cms.type'
+import type { IDictItemModel, IDictItemModelQuery, IDictTypeModel, IDictTypeModelQuery, IParamConfigModel, IParamConfigModelQuery, IRoleModel, IRoleModelQuery, ITasksModel, ITasksModelQuery, IUserModel, IUserModelQuery, ServeStatInfo } from './cms.type'
 
 export default {
+
+  users: {
+    list(query: IUserModelQuery) {
+      return endHttp.get('system/roles', query) as Promise<IPageResponse<IUserModel>>
+    },
+    create(Body: IUserModel) {
+      return endHttp.post('system/roles', Body)
+    },
+    get(id: number | string) {
+      return endHttp.get(`system/roles/${id}`) as Promise<IDataResponse<IUserModel>>
+    },
+    update(id: number | string, Body: IUserModel) {
+      return endHttp.put(`system/roles/${id}`, Body) as Promise<IDataResponse<IUserModel>>
+    },
+    delete(id: number | string) {
+      return endHttp.del(`system/roles/${id}`) as Promise<IStandardResponse>
+    },
+  },
+
   role: {
     list(query: IRoleModelQuery) {
       return endHttp.get('system/roles', query) as Promise<IPageResponse<IRoleModel>>
@@ -91,5 +110,12 @@ export default {
     delete(id: number | string) {
       return endHttp.del(`system/dict-item/${id}`) as Promise<IStandardResponse>
     },
+  },
+
+  systemServer: {
+    list() {
+      return endHttp.get('system/serve/stat') as Promise<IPageResponse<ServeStatInfo>>
+    },
+
   },
 }
