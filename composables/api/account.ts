@@ -523,7 +523,6 @@ export function getAdminOrders(query: IAdminOrderQuery) {
 export function getAdminOrderStatistics() {
   return endHttp.get('order/admin/statistics')
 }
-<<<<<<< HEAD
 
 export function getScheduleList(Query : any) {
   return endHttp.get('system/tasks',Query)
@@ -556,5 +555,3 @@ export function stopSchedule(Path : any) {
 export function startSchedule(Path : any) {
   return endHttp.put('system/tasks/{id}/stop',Path)
 }
-=======
->>>>>>> 5a41396f5b3a0bb99676e293623856b53d0667e5

@@ -61,8 +61,11 @@ export class GlobalOptions {
     })
   }
 
+  // getEndsUrl() {
+  //   return _ENDS_URL
+  // }
   getEndsUrl() {
-    return _ENDS_URL
+    return "https://api.quotawish.com/"
   }
 
   /**
