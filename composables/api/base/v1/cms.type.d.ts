@@ -56,6 +56,8 @@ export interface IUserModelQuery extends IUserModel {
   pageSize: number
 }
 
+
+
 export interface IRoleModel extends Record<string, any> {
   /**
    * 关联菜单、权限编号
@@ -88,6 +90,9 @@ export interface IRoleModelQuery extends IRoleModel {
   page: number
   pageSize: number
 }
+
+
+
 
 export interface IMenuModel extends Record<string, any> {
   /**
@@ -154,6 +159,10 @@ export interface IMenuModelQuery extends IMenuModel {
   pageSize: number
 }
 
+
+
+
+
 export interface IParamConfigModel extends Record<string, any> {
 
   /**
@@ -171,14 +180,44 @@ export interface IParamConfigModelQuery extends IParamConfigModel {
   pageSize: number
 }
 
-export interface IDictTypeModel extends Record<string, any> {
-  code: string
 
-  /**
-   * 字典类型名称
-   */
-  name: string
-  order?: string
+
+
+
+
+export interface IDictTypeModel extends Record<string, any> {
+ 
+
+    /**
+     * 字典编码
+     */
+    code: string;
+  
+    /**
+     * 创建者
+     */
+    creator: string;
+    
+    /**
+     * 字典名称
+     */
+    name: string;
+    /**
+     * 备注
+     */
+    remark: string;
+    /**
+     * 状态
+     */
+    status: number;
+    
+    /**
+     * 更新者
+     */
+    updater: string;
+
+
+    id?: number;
   updatedAt?: string
   createdAt?: string
 }
@@ -187,6 +226,10 @@ export interface IDictTypeModelQuery extends IDictTypeModel {
   page: number
   pageSize: number
 }
+
+
+
+
 
 export interface IDictItemModel extends Record<string, any> {
 
@@ -218,8 +261,8 @@ export interface IDictItemModel extends Record<string, any> {
   updater: string
 
   id: number
-  updatedAt: Date
-  createdAt: Date
+  updatedAt:  string
+  createdAt:  string
 }
 
 export interface IDictItemModelQuery extends IDictItemModel {
@@ -238,6 +281,13 @@ export interface IDictItemModelQuery extends IDictItemModel {
    */
   label?: string
 }
+
+
+
+
+
+
+
 
 export interface ITasksModel extends Record<string, any> {
 
@@ -289,8 +339,8 @@ export interface ITasksModel extends Record<string, any> {
   type?: number
 
   id: number
-  updatedAt: Date
-  createdAt: Date
+  updatedAt: string
+  createdAt:  string
 }
 
 export interface ITasksModelQuery extends ITasksModel {
@@ -298,6 +348,14 @@ export interface ITasksModelQuery extends ITasksModel {
   pageSize: number
 
 }
+
+
+
+
+
+
+
+
 
 // 系统监控
 /**

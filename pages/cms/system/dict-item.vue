@@ -28,7 +28,7 @@ const templateData = genCmsTemplateData<TemplateType, IDictItemModelQuery, null>
     typeId: 0,
     remark: '',
     menuIds: [],
-    createdAt: '',
+    createdAt: '' ,
   }),
   onFetchSuccess: async () => {
 
