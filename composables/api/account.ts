@@ -574,34 +574,6 @@ export interface TaskReq {
   type?: number
   [property: string]: any
 }
-/**
- * 获取任务调度列表
- *
- * @param Query 查询参数，用于筛选和定制返回的任务列表
- * @returns 返回一个Promise对象，包含任务调度列表的数据
- */
-export function getScheduleList(Query: Partial<TaskReq>) {
-  return endHttp.get('system/tasks', Query)
-}
-/**
- * 添加任务计划
- *
- * @param Header 请求体，包含要添加的任务计划的详细信息
- * @returns 返回POST请求的响应结果，通常包含添加任务计划的结果信息
- */
-export function addSchedule(Header: any) {
-  return endHttp.post('system/tasks', Header)
-}
-
-/**
- * 更新任务调度
- *
- * @param Path - 包含更新任务所需信息的对象，如任务ID等。这个参数被用作请求的路径参数。
- * @returns 返回一个Promise，该Promise在API请求完成后解析为API响应。
- */
-export function updateSchedule(Path: any, Body: TaskEntity) {
-  return endHttp.put(`system/tasks/${Path}`, Body)
-}
 
 /**
  * 查询任务调度信息
@@ -612,40 +584,6 @@ export function updateSchedule(Path: any, Body: TaskEntity) {
 export function queryScheduleInfo(Path: any) {
   return endHttp.get('system/tasks/{id}', Path)
 }
-/**
- * 删除任务
- * @param Path
- * @returns
- */
-export function delSchedule(Path: any) {
-  return endHttp.del('system/tasks/{id}', Path)
-}
-/**
- * 手动执行一次任务
- * @param Path
- * @returns
- */
-export function runScheduleOnce(Path: any) {
-  return endHttp.put('system/tasks/{id}/once', Path)
-}
-/**
- * 停止任务
- * @param Path
- * @returns
- */
-export function stopSchedule(Path: any) {
-  return endHttp.put('system/tasks/{id}/stop', Path)
-}
-/**
- * 启动任务
- * @param Path
- * @returns
- */
-export function startSchedule(Path: any) {
-  return endHttp.put('system/tasks/{id}/stop', Path)
-}
-
-// ---------------------------------------账户模块
 
 /**
  * 获取账户资料
