@@ -1,9 +1,6 @@
 <script lang="ts" generic="T" setup>
-import { reactive } from 'vue'
 import type { FormInstance, FormRules } from 'element-plus'
-import { getMenuList } from '~/composables/api/account'
-import { $endApi } from '~/composables/api/base'
-import type { IRoleModel, IRoleModelQuery, IStandardPageModel } from '~/composables/api/base/index.type'
+import type { IRoleModel, IStandardPageModel } from '~/composables/api/base/index.type'
 
 const props = defineProps<{
   name: string
