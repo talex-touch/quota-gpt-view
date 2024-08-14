@@ -6,19 +6,19 @@ export default {
 
   users: {
     list(query: IUserModelQuery) {
-      return endHttp.get('system/roles', query) as Promise<IPageResponse<IUserModel>>
+      return endHttp.get('system/users', query) as Promise<IPageResponse<IUserModel>>
     },
     create(Body : IUserModel) {
-      return endHttp.post('system/roles', Body )
+      return endHttp.post('system/users', Body )
     },
     get(id: number | string) {
-      return endHttp.get(`system/roles/${id}`) as Promise<IDataResponse<IUserModel>>
+      return endHttp.get(`system/users/${id}`) as Promise<IDataResponse<IUserModel>>
     },
     update(id: number | string, Body : IUserModel) {
-      return endHttp.put(`system/roles/${id}`, Body ) as Promise<IDataResponse<IUserModel>>
+      return endHttp.put(`system/users/${id}`, Body ) as Promise<IDataResponse<IUserModel>>
     },
     delete(id: number | string) {
-      return endHttp.del(`system/roles/${id}`) as Promise<IStandardResponse>
+      return endHttp.del(`system/users/${id}`) as Promise<IStandardResponse>
     },
   },
 
