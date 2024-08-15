@@ -406,6 +406,7 @@ export class ChatManager {
 
     $event.on('USER_LOGOUT_SUCCESS', () => {
       this.history.value.length = 0
+      this.messages.value = JSON.parse(JSON.stringify(this.originObj))
     })
     $event.on('USER_LOGIN_SUCCESS', async () => {
       await this.init()
