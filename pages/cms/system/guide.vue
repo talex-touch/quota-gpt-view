@@ -1,7 +1,5 @@
 <script lang="ts" setup>
-import dayjs from 'dayjs'
 import type { FormInstance, FormRules } from 'element-plus'
-import { getRoleList } from '~/composables/api/account'
 import type { IDocDataQuery } from '~/composables/api/doc'
 import { addDoc, getDocList, updateDoc } from '~/composables/api/doc'
 
@@ -42,8 +40,6 @@ function handleReset() {
   formInline.status = ''
 }
 
-const roles = ref()
-
 onMounted(fetchData)
 
 async function fetchData() {
@@ -68,8 +64,6 @@ async function fetchData() {
   }
   else {
     if (res.code === 200) {
-      roles.value = (await getRoleList()).data
-
       docs.value = res.data
 
       docs.value.items.forEach((item: IDocDataQuery) => {
