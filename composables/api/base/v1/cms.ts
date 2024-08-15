@@ -40,7 +40,7 @@ export default {
     },
   },
 
-  DictType: {
+  dictType: {
     list(query: IDictTypeModelQuery) {
       return endHttp.get('system/dict-type', query) as Promise<IPageResponse<IDictTypeModel>>
     },
