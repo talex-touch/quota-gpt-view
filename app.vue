@@ -518,4 +518,12 @@ font.immersive-translate-target-wrapper {
   display: none !important;
   visibility: hidden !important;
 }
+
+.el-table .warning-row {
+  --el-table-tr-bg-color: var(--el-color-warning-light-9);
+}
+
+.el-table .error-row {
+  --el-table-tr-bg-color: var(--el-color-error-light-9);
+}
 </style>

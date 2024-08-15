@@ -928,21 +928,10 @@ const statusOptions = [
 </template>
 
 <style lang="scss">
-.CmsPrompt {
+div.CmsPrompt {
   display: flex;
 
   flex-direction: column;
-
-  &-Header {
-  }
-
-  .el-table .warning-row {
-    --el-table-tr-bg-color: var(--el-color-warning-light-9);
-  }
-
-  .el-table .error-row {
-    --el-table-tr-bg-color: var(--el-color-error-light-9);
-  }
 }
 
 .color-box {
