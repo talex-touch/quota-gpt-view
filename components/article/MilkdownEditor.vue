@@ -7,6 +7,8 @@ import { blockquoteSchema, codeBlockSchema, commonmark } from '@milkdown/preset-
 import { gfm } from '@milkdown/preset-gfm'
 import { listener, listenerCtx } from '@milkdown/plugin-listener'
 
+import type { Uploader } from '@milkdown/plugin-upload'
+import { upload, uploadConfig } from '@milkdown/plugin-upload'
 import { history } from '@milkdown/plugin-history'
 import { clipboard } from '@milkdown/plugin-clipboard'
 import { trailing } from '@milkdown/plugin-trailing'
@@ -31,6 +33,8 @@ import java from 'refractor/lang/java'
 import { useNodeViewFactory } from '@prosemirror-adapter/vue'
 import EditorCodeBlock from '~/components/article/components/EditorCodeBlock.vue'
 import EditorBlockQuote from '~/components/article/components/EditorBlockQuote.vue'
+import { $endApi } from '~/composables/api/base'
+import { globalOptions } from '~/constants'
 
 const props = defineProps<{
   modelValue: string
@@ -80,6 +84,38 @@ function tooltipPluginView(view: any) {
   }
 }
 
+const uploader: Uploader = async (files, schema) => {
+  const images: File[] = []
+
+  for (let i = 0; i < files.length; i++) {
+    const file = files.item(i)
+    if (!file)
+      continue
+
+    // You can handle whatever the file type you want, we handle image here.
+    if (!file.type.includes('image'))
+      continue
+
+    images.push(file)
+  }
+
+  const nodes: Node[] = await Promise.all(
+    images.map(async (image) => {
+      const result = await $endApi.v1.common.upload(image)
+
+      const alt = image.name
+      const src = `${globalOptions.getEndsUrl()}${result.data.filename}`
+
+      return schema.nodes.image.createAndFill({
+        src,
+        alt,
+      }) as any
+    }),
+  )
+
+  return nodes
+}
+
 const nodeViewFactory = useNodeViewFactory()
 
 const slash = slashFactory('my-slash')
@@ -117,6 +153,11 @@ const editor = useEditor((root) => {
           refractor.register(java)
         },
       })
+
+      ctx.update(uploadConfig.key, prev => ({
+        ...prev,
+        uploader,
+      }))
 
       const listener = ctx.get(listenerCtx)
 
@@ -168,6 +209,7 @@ const editor = useEditor((root) => {
     .use(prism)
     .use(trailing)
     .use(listener)
+    .use(upload)
     .use(
       $view(codeBlockSchema.node, () => nodeViewFactory({ component: EditorCodeBlock })),
     )

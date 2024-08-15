@@ -44,6 +44,9 @@ importers:
       '@milkdown/plugin-trailing':
         specifier: ^7.5.0
         version: 7.5.0(@milkdown/core@7.4.0(@milkdown/ctx@7.4.0)(@milkdown/prose@7.4.0)(@milkdown/transformer@7.4.0(@milkdown/prose@7.4.0)))(@milkdown/ctx@7.4.0)(@milkdown/prose@7.4.0)(@milkdown/transformer@7.4.0(@milkdown/prose@7.4.0))
+      '@milkdown/plugin-upload':
+        specifier: ^7.5.0
+        version: 7.5.0(@milkdown/core@7.4.0(@milkdown/ctx@7.4.0)(@milkdown/prose@7.4.0)(@milkdown/transformer@7.4.0(@milkdown/prose@7.4.0)))(@milkdown/ctx@7.4.0)(@milkdown/prose@7.4.0)(@milkdown/transformer@7.4.0(@milkdown/prose@7.4.0))
       '@milkdown/preset-commonmark':
         specifier: ^7.4.0
         version: 7.4.0(@milkdown/core@7.4.0(@milkdown/ctx@7.4.0)(@milkdown/prose@7.4.0)(@milkdown/transformer@7.4.0(@milkdown/prose@7.4.0)))(@milkdown/ctx@7.4.0)(@milkdown/prose@7.4.0)(@milkdown/transformer@7.4.0(@milkdown/prose@7.4.0))
@@ -1240,6 +1243,13 @@ packages:
 
   '@milkdown/plugin-trailing@7.5.0':
     resolution: {integrity: sha512-cUb7EKYEo+7TsVHrEtBFGqQtK09mzSUiHBvnuZIxN+/4vLyRK7Onnh3Ktgb/tnIJnz2J9oCTpP4aITBRfFd18Q==}
+    peerDependencies:
+      '@milkdown/core': ^7.2.0
+      '@milkdown/ctx': ^7.2.0
+      '@milkdown/prose': ^7.2.0
+
+  '@milkdown/plugin-upload@7.5.0':
+    resolution: {integrity: sha512-B3vqrXMpeH8fVLugtuZ1ElHpYVY2KSmT+JWstq/4dUEfHI0awUEyz8aErBMmuq/YXmqQDPdrvPz/5y25Q98mtQ==}
     peerDependencies:
       '@milkdown/core': ^7.2.0
       '@milkdown/ctx': ^7.2.0
@@ -8192,6 +8202,17 @@ snapshots:
     dependencies:
       '@milkdown/core': 7.4.0(@milkdown/ctx@7.4.0)(@milkdown/prose@7.4.0)(@milkdown/transformer@7.4.0(@milkdown/prose@7.4.0))
       '@milkdown/ctx': 7.4.0
+      '@milkdown/prose': 7.4.0
+      '@milkdown/utils': 7.5.0(@milkdown/core@7.4.0(@milkdown/ctx@7.4.0)(@milkdown/prose@7.4.0)(@milkdown/transformer@7.4.0(@milkdown/prose@7.4.0)))(@milkdown/ctx@7.4.0)(@milkdown/prose@7.4.0)(@milkdown/transformer@7.4.0(@milkdown/prose@7.4.0))
+      tslib: 2.6.2
+    transitivePeerDependencies:
+      - '@milkdown/transformer'
+
+  '@milkdown/plugin-upload@7.5.0(@milkdown/core@7.4.0(@milkdown/ctx@7.4.0)(@milkdown/prose@7.4.0)(@milkdown/transformer@7.4.0(@milkdown/prose@7.4.0)))(@milkdown/ctx@7.4.0)(@milkdown/prose@7.4.0)(@milkdown/transformer@7.4.0(@milkdown/prose@7.4.0))':
+    dependencies:
+      '@milkdown/core': 7.4.0(@milkdown/ctx@7.4.0)(@milkdown/prose@7.4.0)(@milkdown/transformer@7.4.0(@milkdown/prose@7.4.0))
+      '@milkdown/ctx': 7.4.0
+      '@milkdown/exception': 7.5.0
       '@milkdown/prose': 7.4.0
       '@milkdown/utils': 7.5.0(@milkdown/core@7.4.0(@milkdown/ctx@7.4.0)(@milkdown/prose@7.4.0)(@milkdown/transformer@7.4.0(@milkdown/prose@7.4.0)))(@milkdown/ctx@7.4.0)(@milkdown/prose@7.4.0)(@milkdown/transformer@7.4.0(@milkdown/prose@7.4.0))
       tslib: 2.6.2
