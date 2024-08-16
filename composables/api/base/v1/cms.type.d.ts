@@ -52,34 +52,32 @@ export interface IUserModel extends Record<string, any> {
   createdAt?: string
 }
 export interface IUserModelQuery extends IUserModel {
-  page: number
-  pageSize: number
+  page?: number
+  pageSize?: number
 }
-
-
 
 export interface IRoleModel extends Record<string, any> {
   /**
    * 关联菜单、权限编号
    */
-  menuIds: string[]
+  menuIds?: string[]
   /**
    * 角色名称
    */
-  name: string
-  order: string
+  name?: string
+  order?: string
   /**
    * 角色备注
    */
-  remark: string
+  remark?: string
   /**
    * 状态
    */
-  status: number
+  status?: number
   /**
    * 角色值
    */
-  value: string
+  value?: string
 
   id?: number
   updatedAt?: string
@@ -87,12 +85,9 @@ export interface IRoleModel extends Record<string, any> {
 }
 
 export interface IRoleModelQuery extends IRoleModel {
-  page: number
-  pageSize: number
+  page?: number
+  pageSize?: number
 }
-
-
-
 
 export interface IMenuModel extends Record<string, any> {
   /**
@@ -159,10 +154,6 @@ export interface IMenuModelQuery extends IMenuModel {
   pageSize: number
 }
 
-
-
-
-
 export interface IParamConfigModel extends Record<string, any> {
 
   /**
@@ -180,44 +171,37 @@ export interface IParamConfigModelQuery extends IParamConfigModel {
   pageSize: number
 }
 
-
-
-
-
-
 export interface IDictTypeModel extends Record<string, any> {
- 
 
-    /**
-     * 字典编码
-     */
-    code: string;
-  
-    /**
-     * 创建者
-     */
-    creator: string;
-    
-    /**
-     * 字典名称
-     */
-    name: string;
-    /**
-     * 备注
-     */
-    remark: string;
-    /**
-     * 状态
-     */
-    status: number;
-    
-    /**
-     * 更新者
-     */
-    updater: string;
+  /**
+   * 字典编码
+   */
+  code: string
 
+  /**
+   * 创建者
+   */
+  creator: string
 
-    id?: number;
+  /**
+   * 字典名称
+   */
+  name: string
+  /**
+   * 备注
+   */
+  remark: string
+  /**
+   * 状态
+   */
+  status: number
+
+  /**
+   * 更新者
+   */
+  updater: string
+
+  id?: number
   updatedAt?: string
   createdAt?: string
 }
@@ -226,10 +210,6 @@ export interface IDictTypeModelQuery extends IDictTypeModel {
   page: number
   pageSize: number
 }
-
-
-
-
 
 export interface IDictItemModel extends Record<string, any> {
 
@@ -261,8 +241,8 @@ export interface IDictItemModel extends Record<string, any> {
   updater: string
 
   id: number
-  updatedAt:  string
-  createdAt:  string
+  updatedAt: string
+  createdAt: string
 }
 
 export interface IDictItemModelQuery extends IDictItemModel {
@@ -281,13 +261,6 @@ export interface IDictItemModelQuery extends IDictItemModel {
    */
   label?: string
 }
-
-
-
-
-
-
-
 
 export interface ITasksModel extends Record<string, any> {
 
@@ -340,7 +313,7 @@ export interface ITasksModel extends Record<string, any> {
 
   id: number
   updatedAt: string
-  createdAt:  string
+  createdAt: string
 }
 
 export interface ITasksModelQuery extends ITasksModel {
@@ -348,14 +321,6 @@ export interface ITasksModelQuery extends ITasksModel {
   pageSize: number
 
 }
-
-
-
-
-
-
-
-
 
 // 系统监控
 /**
