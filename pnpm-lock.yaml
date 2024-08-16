@@ -114,9 +114,6 @@ importers:
       '@iconify-json/carbon':
         specifier: ^1.1.32
         version: 1.1.32
-      '@iconify-json/ri':
-        specifier: ^1.1.22
-        version: 1.1.22
       '@iconify-json/twemoji':
         specifier: ^1.1.15
         version: 1.1.15
@@ -1105,9 +1102,6 @@ packages:
 
   '@iconify-json/carbon@1.1.32':
     resolution: {integrity: sha512-9X8wVI7AmcnjTyOdDoCgyNwcFL9lb++nacDS2yLANTc27F4y9Q8pJIfUVsakR4KcGqSSBCyXwEmBDeopeTZFqA==}
-
-  '@iconify-json/ri@1.1.22':
-    resolution: {integrity: sha512-Pi0I54CFXYSfWlm4xIAGqyDvtibNEpSSyQvHrSrfxFgZgDtFum9tbtYmaTKK0wJWWzYzF3XIpIJTC9/KVYX3SQ==}
 
   '@iconify-json/twemoji@1.1.15':
     resolution: {integrity: sha512-ze2CAOwIWBKIP6ih6qMDItasVjRicktl2Qr3/ohZSMToAHm9z3Q6HCwE48eT0+D+uFpGBlNRQ22HHyE5izyhDg==}
@@ -7969,10 +7963,6 @@ snapshots:
   '@humanwhocodes/retry@0.2.4': {}
 
   '@iconify-json/carbon@1.1.32':
-    dependencies:
-      '@iconify/types': 2.0.0
-
-  '@iconify-json/ri@1.1.22':
     dependencies:
       '@iconify/types': 2.0.0
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import FontCarbon from '~/constants/carbon.json'
-import FontRemix from '~/constants/ri.json'
+// import FontRemix from '~/constants/ri.json'
 // import FontLineMd from '~/constants/line-md.json'
 
 const props = defineProps<{
@@ -16,18 +16,18 @@ const icons = [
   {
     label: 'All',
     type: 'all',
-    value: [...FontCarbon, ...FontRemix, ...FontLineMd],
+    value: [...FontCarbon],
   },
   {
     label: 'Carbon',
     type: 'carbon',
     value: FontCarbon,
   },
-  {
-    label: 'Remix',
-    type: 'remix',
-    value: FontRemix,
-  },
+  // {
+  //   label: 'Remix',
+  //   type: 'remix',
+  //   value: FontRemix,
+  // },
   // {
   //   label: 'Line Md',
   //   type: 'line-md',

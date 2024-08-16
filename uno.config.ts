@@ -10,7 +10,7 @@ import {
 } from 'unocss'
 
 import FontCarbon from './constants/carbon.json'
-import FontRemix from './constants/ri.json'
+// import FontRemix from './constants/ri.json'
 // import FontLineMd from './constants/line-md.json'
 
 export default defineConfig({
@@ -39,5 +39,5 @@ export default defineConfig({
     transformerDirectives(),
     transformerVariantGroup(),
   ],
-  safelist: [FontCarbon, FontRemix].flat(),
+  safelist: [FontCarbon].flat(),
 })
