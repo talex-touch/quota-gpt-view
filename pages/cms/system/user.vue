@@ -1,9 +1,10 @@
 <script lang="ts" setup>
 import dayjs from 'dayjs'
 import type { ComponentSize, FormInstance, FormRules } from 'element-plus'
-import { type UserQuery, addUser, deleteUser, getDepartmentList, getRoleList, getUsers, updateUser } from '~/composables/api/account'
+import { type UserQuery, addUser, deleteUser, getDepartmentList, getUsers, updateUser } from '~/composables/api/account'
 import UserAvatar from '~/components/personal/UserAvatar.vue'
 import UserUploadAvatar from '~/components/personal/UserUploadAvatar.vue'
+import { $endApi } from '~/composables/api/base'
 
 definePageMeta({
   name: '用户管理',
@@ -83,7 +84,7 @@ async function fetchData() {
   else {
     if (res.code === 200) {
       depts.value = (await getDepartmentList()).data
-      roles.value = (await getRoleList()).data
+      roles.value = (await $endApi.v1.cms.role.list({})).data
 
       users.value = res.data
     }
