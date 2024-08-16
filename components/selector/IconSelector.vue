@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import FontCarbon from '~/constants/carbon.json'
 import FontRemix from '~/constants/ri.json'
-import FontLineMd from '~/constants/line-md.json'
+// import FontLineMd from '~/constants/line-md.json'
 
 const props = defineProps<{
   modelValue: string
@@ -28,11 +28,11 @@ const icons = [
     type: 'remix',
     value: FontRemix,
   },
-  {
-    label: 'Line Md',
-    type: 'line-md',
-    value: FontLineMd,
-  },
+  // {
+  //   label: 'Line Md',
+  //   type: 'line-md',
+  //   value: FontLineMd,
+  // },
 ]
 
 const searchQuery = ref('')
