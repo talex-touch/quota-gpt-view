@@ -8,6 +8,7 @@ import { getAccountMenuList } from '~/composables/api/account'
 import { $endApi } from '~/composables/api/base'
 
 const route = useRoute()
+const router = useRouter()
 
 definePageMeta({
   layout: 'cms',
@@ -92,6 +93,14 @@ watch(() => endUrl.value, async (val) => {
 function filterSubMenus(menu: any) {
   return [...menu].filter(item => item.meta?.show)
 }
+
+router.beforeEach(() => {
+  if (!userStore.value.isAdmin) {
+    router.push('/')
+
+    return false
+  }
+})
 </script>
 
 <template>

@@ -7,7 +7,7 @@ defineProps<{
 </script>
 
 <template>
-  <el-popover placement="bottom-start" :width="240" trigger="hover">
+  <el-popover v-if="data" placement="bottom-start" :width="240" trigger="hover">
     <template #reference>
       <UserAvatar :avatar="data.avatar" />
     </template>

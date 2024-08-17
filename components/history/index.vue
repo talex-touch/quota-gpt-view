@@ -163,7 +163,9 @@ async function mobileSlideProcess() {
     <div class="History-Title">
       <div flex items-center gap-2>
         <Logo />
-        <h1>科塔智爱</h1>
+        <h1 my-4>
+          科塔智爱
+        </h1>
       </div>
       <IconButton @click="emits('create')">
         +
