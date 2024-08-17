@@ -129,6 +129,7 @@ const smsOptions = reactive({
   loading: false,
   title: '发送验证码',
   disabled: false,
+  smsLogin: false,
 })
 
 function refreshSmsTitle() {
@@ -194,6 +195,7 @@ onMounted(async () => {
       }
       else {
         try {
+          smsOptions.smsLogin = true
           const state = (codeStatus.value !== 4 || codeData.value.expired) ? undefined : (codeData.value.data as any)?.loginCode
 
           const res = await useSMSLogin(data.account.replaceAll(' ', ''), data.code, param, state)
@@ -209,6 +211,7 @@ onMounted(async () => {
           if (result.code === 200) {
             if (!result.data) {
               ElMessage.error(result.message)
+              smsOptions.smsLogin = false
             }
             else {
               setTimeout(() => {
@@ -295,6 +298,10 @@ async function _codeStatusTimer() {
 
 watch(() => codeStatus.value, async (status) => {
   if (status !== 3)
+    return
+
+  // 用户已经用短信验证码登录了就不要处理这个请求了 防止二次无效登录
+  if (smsOptions.smsLogin)
     return
 
   const _codeData: any = codeData.value.data
@@ -691,6 +698,7 @@ const codeUrl = computed(() => `https://mp.weixin.qq.com/cgi-bin/showqrcode?tick
   .Login-Main-Major {
     width: 100%;
   }
+
   width: 95%;
   height: 60%;
 }
