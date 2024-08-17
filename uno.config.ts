@@ -39,5 +39,5 @@ export default defineConfig({
     transformerDirectives(),
     transformerVariantGroup(),
   ],
-  safelist: [FontCarbon].flat(),
+  safelist: FontCarbon,
 })
