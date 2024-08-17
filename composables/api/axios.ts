@@ -88,10 +88,7 @@ export function genAxios(options: CreateAxiosDefaults) {
   )
 
   async function timeoutLogout() {
-    $handleUserLogout()
-
-    const { origin } = window.location
-    window.location.href = origin
+    await $handleUserLogout()
 
     ElMessage.info({
       message: '登录超时，请重新登录!',
