@@ -8,9 +8,10 @@ onMounted(async () => {
   // 邀请码就是用户id加密串
   const userId = `${userStore.value.id}`
 
-  invitationCode.value = btoa(userId)
+  invitationCode.value = btoa(userId).replaceAll('=', '')
 
-  url.value = await QrCode.toDataURL(`${location.origin}/invitation?code=${invitationCode.value}`, { margin: 2 })
+  // url.value = await QrCode.toDataURL(`${location.origin}/invitation?code=${invitationCode.value}&source=web`, { margin: 2 })
+  url.value = await QrCode.toDataURL(`https://ai.quotawish.com/invitation?code=Mjc&source=web`)
 })
 </script>
 
