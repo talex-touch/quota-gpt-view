@@ -151,11 +151,11 @@ const rules = reactive<FormRules<UserForm>>({
     { required: true, message: '请输入用户昵称', trigger: 'blur' },
     { min: 5, max: 24, message: '用户名需要在 5-24 位之间', trigger: 'blur' },
   ],
-  password: [
-    { required: true, message: '请输入用户密码', trigger: 'blur' },
-    { min: 6, max: 16, message: '用户密码需要在 6-16 位之间', trigger: 'blur' },
-    { pattern: /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{6,16}$/, message: '用户密码必须包含数字和字母', trigger: 'blur' },
-  ],
+  // password: [
+  //   { required: true, message: '请输入用户密码', trigger: 'blur' },
+  //   { min: 6, max: 16, message: '用户密码需要在 6-16 位之间', trigger: 'blur' },
+  //   { pattern: /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{6,16}$/, message: '用户密码必须包含数字和字母', trigger: 'blur' },
+  // ],
   avatar: [
     { required: true, message: '请上传头像', trigger: 'blur' },
   ],
