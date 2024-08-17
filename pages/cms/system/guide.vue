@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import type { FormInstance, FormRules } from 'element-plus'
-import type { IDocDataQuery } from '~/composables/api/doc'
-import { addDoc, getDocList, updateDoc } from '~/composables/api/doc'
+import { $endApi } from '~/composables/api/base'
+import type { IStandardPageModel } from '~/composables/api/base/index.type'
+import type { IDoc, IDocQuery } from '~/composables/api/base/v1/cms.type'
 
 definePageMeta({
   name: '文档管理',
@@ -12,12 +13,11 @@ definePageMeta({
 })
 
 const formLoading = ref(false)
-const docs = ref({
+const docs = shallowRef<IStandardPageModel<IDoc>>({
   items: [],
   meta: {
     currentPage: 0,
-    perPage: 0,
-    total: 0,
+    itemCount: 0,
     totalPages: 0,
     itemsPerPage: 0,
     totalItems: 0,
@@ -58,7 +58,7 @@ async function fetchData() {
       delete query[key]
   })
 
-  const res: any = await getDocList(query)
+  const res: any = await $endApi.v1.cms.doc.list(query as IDocQuery)
   if (!res) {
     ElMessage.warning('参数错误，查询失败！')
   }
@@ -66,7 +66,7 @@ async function fetchData() {
     if (res.code === 200) {
       docs.value = res.data
 
-      docs.value.items.forEach((item: IDocDataQuery) => {
+      docs.value.items.forEach((item: IDocQuery) => {
         if (item.value)
           item.value = JSON.parse(decodeURI(atob(item.value)))
 
@@ -79,14 +79,10 @@ async function fetchData() {
   formLoading.value = false
 }
 
-interface DocForm extends IDocDataQuery {
-  metaOptions: any
-}
-
 const dialogOptions = reactive<{
   visible: boolean
   mode: 'edit' | 'read' | 'new'
-  data: Partial<DocForm>
+  data: Partial<IDoc>
   loading: boolean
 }>({
   visible: false,
@@ -95,7 +91,7 @@ const dialogOptions = reactive<{
   loading: false,
 })
 
-function handleDialog(data: Partial<DocForm>, mode: 'edit' | 'read' | 'new') {
+function handleDialog(data: Partial<IDoc>, mode: 'edit' | 'read' | 'new') {
   dialogOptions.mode = mode
   dialogOptions.visible = true
   dialogOptions.data
@@ -124,7 +120,7 @@ function handleDialog(data: Partial<DocForm>, mode: 'edit' | 'read' | 'new') {
 
 const ruleFormRef = ref<FormInstance>()
 
-const rules = reactive<FormRules<DocForm>>({
+const rules = reactive<FormRules<IDoc>>({
   title: [
     { required: true, message: '请输入文档名称', trigger: 'blur' },
     { min: 5, max: 24, message: '文档名需要在 5-24 位之间', trigger: 'blur' },
@@ -147,7 +143,7 @@ async function submitForm(formEl: FormInstance | undefined) {
     data.value = btoa(encodeURI(JSON.stringify(data.value)))
 
     if (dialogOptions.mode !== 'new') {
-      const res: any = await updateDoc(dialogOptions.data.id!, data)
+      const res: any = await $endApi.v1.cms.doc.update(dialogOptions.data.id!, data as IDoc)
 
       if (res.code === 200) {
         ElMessage.success('修改成功！')
@@ -159,7 +155,7 @@ async function submitForm(formEl: FormInstance | undefined) {
       }
     }
     else {
-      const res: any = await addDoc(data)
+      const res: any = await $endApi.v1.cms.doc.create(data as IDoc)
 
       if (res.code === 200) {
         ElMessage.success('添加成功！')
@@ -181,7 +177,7 @@ function resetForm(formEl: FormInstance | undefined) {
   formEl.resetFields()
 }
 
-function handleDeleteUser(id: number, data: DocForm) {
+function handleDeleteUser(id: number, data: IDoc) {
   ElMessageBox.confirm(
     `你确定要删除文档 ${data.title} #${id} 吗？删除后这个文档永久无法找回。`,
     '确认删除',
@@ -372,12 +368,6 @@ function handleDeleteUser(id: number, data: DocForm) {
                 </el-form>
               </template>
             </ArticleThEditor>
-          </div>
-
-          <div v-if="false" class="GuideEditor-Footer">
-            <div class="GuideEditor-Func">
-              <DarkToggle />
-            </div>
           </div>
         </div>
       </teleport>

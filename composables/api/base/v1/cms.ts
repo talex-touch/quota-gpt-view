@@ -1,21 +1,35 @@
 import { endHttp } from '../../axios'
 import type { IDataResponse, IPageResponse, IStandardPageModel, IStandardResponse } from '../index.type'
-import type { IDictItemModel, IDictItemModelQuery, IDictTypeModel, IDictTypeModelQuery, IParamConfigModel, IParamConfigModelQuery, IRoleModel, IRoleModelQuery, ITasksModel, ITasksModelQuery, IUserModel, IUserModelQuery, ServeStatInfo } from './cms.type'
+import type { IDictItemModel, IDictItemModelQuery, IDictTypeModel, IDictTypeModelQuery, IDoc, IDocQuery, IParamConfigModel, IParamConfigModelQuery, IRoleModel, IRoleModelQuery, ITasksModel, ITasksModelQuery, IUserModel, IUserModelQuery, ServeStatInfo } from './cms.type'
 
 export default {
+  doc: {
+    list(query: IDocQuery) {
+      return endHttp.post('doc/list', query) as Promise<IPageResponse<IDoc>>
+    },
+    create(body: IDoc) {
+      return endHttp.post('doc', body) as Promise<IDataResponse<IDoc>>
+    },
+    tempSave(id: number, body: IDoc) {
+      return endHttp.post(`doc/temp_save?id=${id}`, body) as Promise<IDataResponse<IDoc>>
+    },
+    update(id: number, body: IDoc) {
+      return endHttp.put(`doc/${id}`, body) as Promise<IDataResponse<IDoc>>
+    },
+  },
 
   users: {
     list(query: IUserModelQuery) {
       return endHttp.get('system/users', query) as Promise<IPageResponse<IUserModel>>
     },
-    create(Body : IUserModel) {
-      return endHttp.post('system/users', Body )
+    create(Body: IUserModel) {
+      return endHttp.post('system/users', Body)
     },
     get(id: number | string) {
       return endHttp.get(`system/users/${id}`) as Promise<IDataResponse<IUserModel>>
     },
-    update(id: number | string, Body : IUserModel) {
-      return endHttp.put(`system/users/${id}`, Body ) as Promise<IDataResponse<IUserModel>>
+    update(id: number | string, Body: IUserModel) {
+      return endHttp.put(`system/users/${id}`, Body) as Promise<IDataResponse<IUserModel>>
     },
     delete(id: number | string) {
       return endHttp.del(`system/users/${id}`) as Promise<IStandardResponse>

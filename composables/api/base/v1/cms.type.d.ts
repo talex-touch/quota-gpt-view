@@ -343,7 +343,6 @@ export interface ServeStatInfo {
    * 运行环境
    */
   runtime: Runtime
-  [property: string]: any
 }
 
 /**
@@ -384,7 +383,6 @@ export interface Cpu {
    * 速度 in GHz
    */
   speed: number
-  [property: string]: any
 }
 
 /**
@@ -399,7 +397,6 @@ export interface CoreLoad {
    * 当前空闲CPU资源
    */
   rawLoadIdle: number
-  [property: string]: any
 }
 
 /**
@@ -420,7 +417,6 @@ export interface Disk {
    * 已使用磁盘空间 (bytes)
    */
   used: number
-  [property: string]: any
 }
 
 /**
@@ -437,7 +433,6 @@ export interface Memory {
    * total memory in bytes
    */
   total: number
-  [property: string]: any
 }
 
 /**
@@ -462,5 +457,34 @@ export interface Runtime {
    * 系统
    */
   os: string
-  [property: string]: any
+}
+
+export interface IDoc extends Record<string, any> {
+  /**
+   * 文档内容
+   */
+  content: string
+  field: string
+  /**
+   * 文档元数据
+   */
+  meta: string
+  order: 'ASC' | 'DESC'
+  /**
+   * 文档权限
+   */
+  permission: string
+  /**
+   * 文档标题
+   */
+  title: string
+
+  id?: number
+  updatedAt?: string
+  createdAt?: string
+}
+
+export interface IDocQuery extends IDoc {
+  page?: number
+  pageSize?: number
 }
