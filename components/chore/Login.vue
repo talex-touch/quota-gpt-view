@@ -303,6 +303,11 @@ watch(() => codeStatus.value, async (status) => {
 
   localStorage.removeItem('code-data')
 
+  if (res.code !== 200) {
+    ElMessage.error(res.message || '登录失败！')
+    return
+  }
+
   setTimeout(() => {
     $handleUserLogin(res.data)
     // userStore.value.token = (res.data.token)
