@@ -53,7 +53,16 @@ const menus = reactive([
 ])
 
 const appOptions: any = inject('appOptions')!
-const avatarUrl = computed(() => `${globalOptions.getEndsUrl()}${userStore.value.avatar}`)
+const avatarUrl = computed(() => {
+  const avatar = `${userStore.value.avatar}`
+  if (!avatar)
+    return ''
+
+  if (avatar.startsWith('http'))
+    return avatar
+
+  return globalOptions.getEndsUrl() + avatar
+})
 
 const planProgress = computed(() => {
   if (!userStore.value.subscription)
