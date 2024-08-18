@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { FormInstance, FormRules } from 'element-plus'
+import dayjs from 'dayjs'
 import { $endApi } from '~/composables/api/base'
 import type { IStandardPageModel } from '~/composables/api/base/index.type'
 import type { IDoc, IDocQuery } from '~/composables/api/base/v1/cms.type'
@@ -26,7 +27,6 @@ const docs = shallowRef<IStandardPageModel<IDoc>>({
 
 const formInline = reactive({
   title: '',
-  value: '',
   meta: '',
   permission: '',
   status: '',
@@ -34,7 +34,6 @@ const formInline = reactive({
 
 function handleReset() {
   formInline.title = ''
-  formInline.value = ''
   formInline.meta = ''
   formInline.permission = ''
   formInline.status = ''
@@ -82,13 +81,25 @@ async function fetchData() {
 const dialogOptions = reactive<{
   visible: boolean
   mode: 'edit' | 'read' | 'new'
-  data: Partial<IDoc>
+  data: Partial<IDoc & { content: string }>
   loading: boolean
+  save: {
+    cur: number
+    loading: boolean
+    lastSave: number
+    text: string
+  }
 }>({
   visible: false,
   mode: 'edit',
   data: {},
   loading: false,
+  save: {
+    cur: -1,
+    loading: false,
+    lastSave: -1,
+    text: '',
+  },
 })
 
 function handleDialog(data: Partial<IDoc>, mode: 'edit' | 'read' | 'new') {
@@ -98,12 +109,16 @@ function handleDialog(data: Partial<IDoc>, mode: 'edit' | 'read' | 'new') {
     = mode === 'new'
       ? {
           title: '',
-          value: '',
           meta: '',
-          status: true,
           permission: '',
+          content: '',
         }
-      : { ...data }
+      : {
+          ...data,
+          content: data.record?.content || '',
+        }
+
+  dialogOptions.save.text = '编辑后保存'
 
   if (!dialogOptions.data.metaOptions) {
     if (dialogOptions.data.meta) {
@@ -209,6 +224,89 @@ function handleDeleteUser(id: number, data: IDoc) {
       })
     })
 }
+
+function handleChangeName() {
+  // 要求 2 - 32 位之间，不能出现特殊符号 可以有中文
+  const namePattern = /^[\u4E00-\u9FA5a-zA-Z0-9]{2,32}$/
+
+  ElMessageBox.prompt('请输入修改后的文档名称', '修改文档名称', {
+    confirmButtonText: '修改',
+    cancelButtonText: '取消',
+    inputPattern: namePattern,
+    inputValue: dialogOptions.data.title,
+    inputErrorMessage: '不合规的文档名称',
+  })
+    .then(async ({ value }) => {
+      dialogOptions.data.title = value
+
+      const res = await $endApi.v1.cms.doc.create(dialogOptions.data as IDoc)
+
+      if (res.code !== 200) {
+        ElMessage({
+          type: 'error',
+          message: res.message || '修改失败！',
+        })
+
+        dialogOptions.data.title = ''
+
+        return
+      }
+
+      dialogOptions.data.id = res.data?.id
+
+      ElMessage({
+        type: 'success',
+        message: `修改成功`,
+      })
+    })
+    .catch(() => {
+    })
+}
+
+async function tryTempSave(content: string, callback: Function) {
+  dialogOptions.save.loading = true
+
+  const res = await $endApi.v1.cms.doc.tempSave(dialogOptions.data.id!, {
+    ...dialogOptions.data,
+    content,
+  } as IDoc)
+
+  dialogOptions.save.loading = false
+
+  if (res.code === 200) {
+    dialogOptions.save.lastSave = Date.now()
+    callback(true)
+  }
+  else {
+    callback(false)
+
+    ElMessageBox.alert(res.message || '保存失败！', '提示', {
+      confirmButtonText: '了解',
+      callback: () => dialogOptions.visible = false,
+    })
+  }
+}
+
+function timer() {
+  if (dialogOptions.visible) {
+    dialogOptions.save.cur = Date.now()
+
+    const diff = dialogOptions.save.cur - dialogOptions.save.lastSave
+    if (dialogOptions.save.lastSave === -1 || diff >= 15000)
+      dialogOptions.save.text = '编辑后保存'
+    else
+      dialogOptions.save.text = `${Number.parseInt(`${diff / 1000}`)} 秒前保存`
+  }
+
+  setTimeout(timer, 3000)
+}
+
+timer()
+
+watch(() => dialogOptions.visible, (visible) => {
+  if (!visible)
+    fetchData()
+})
 </script>
 
 <template>
@@ -241,11 +339,6 @@ function handleDeleteUser(id: number, data: IDoc) {
           <el-table-column label="文档名">
             <template #default="{ row }">
               {{ row.title }}
-            </template>
-          </el-table-column>
-          <el-table-column label="正文长度">
-            <template #default="{ row }">
-              {{ row.value.length }}
             </template>
           </el-table-column>
           <el-table-column label="属性">
@@ -307,45 +400,41 @@ function handleDeleteUser(id: number, data: IDoc) {
       <teleport to="body">
         <div class="GuideEditor" :class="{ visible: dialogOptions.visible }">
           <div class="Header">
-            <h4>
-              <span v-if="dialogOptions.mode === 'new'">新建</span>
-              <span v-else-if="dialogOptions.mode === 'edit'">编辑</span>
-              <span v-else-if="dialogOptions.mode === 'read'">查看</span>文档信息<span
-                v-if="dialogOptions.mode !== 'new'"
-                mx-4 op-50
-              >#{{ dialogOptions.data.id }}</span>
+            <div class="time-status">
+              <OtherTextView :text="dialogOptions.data.title ? dialogOptions.save.text : '无法保存'" />
+            </div>
+
+            <h4 flex items-center gap-2>
+              <span>
+                <span v-if="!dialogOptions.data.title" text-red>
+                  未编辑文档标题，修改不会被保存
+                </span>
+                {{ dialogOptions.data.title }}
+              </span>
+              <span v-if="dialogOptions.mode !== 'read'" flex items-center gap-2>
+                <div i-carbon:edit cursor-pointer op-75 @click="handleChangeName" />
+                <span v-if="dialogOptions.mode === 'edit'">#{{ dialogOptions.data.id }}</span>
+              </span>
             </h4>
 
             <div class="Header-Footer">
-              <template v-if="dialogOptions.mode === 'read'">
-                <el-button @click="dialogOptions.visible = false">
-                  关闭
-                </el-button>
-              </template>
-              <template v-else>
-                <el-button @click="dialogOptions.visible = false">
-                  取消
-                </el-button>
-                <el-button @click="resetForm(ruleFormRef)">
-                  重置
-                </el-button>
-                <el-button :loading="dialogOptions.loading" type="primary" @click="submitForm(ruleFormRef)">
-                  {{ dialogOptions.mode !== "new" ? "修改" : "新增" }}
-                </el-button>
-              </template>
+              <el-button :loading="dialogOptions.save.loading" @click="dialogOptions.visible = false">
+                关闭
+              </el-button>
             </div>
           </div>
 
-          <div v-if="dialogOptions.data.value !== null && dialogOptions.data.value !== undefined" class="GuideContent">
-            <ArticleThEditor v-model="dialogOptions.data.value!">
+          <div v-if="dialogOptions.data" class="GuideContent">
+            <div class="GuideEditor-Mask" :class="{ hide: dialogOptions.data.title }">
+              <span>请先编辑文档标题再编辑。</span>
+            </div>
+
+            <ArticleThEditor v-model="dialogOptions.data.content!" @save="tryTempSave">
               <template #property>
                 <el-form
                   ref="ruleFormRef" :disabled="dialogOptions.loading || dialogOptions.mode === 'read'"
                   :model="dialogOptions.data" :rules="rules" label-width="auto" status-icon my-4 inline
                 >
-                  <el-form-item label="文档名称" prop="title">
-                    <el-input v-model="dialogOptions.data.title" :disabled="dialogOptions.mode === 'read'" />
-                  </el-form-item>
                   <el-form-item label="文档权限" prop="permission">
                     <el-input v-model="dialogOptions.data.permission" :disabled="dialogOptions.mode === 'read'" />
                   </el-form-item>
@@ -354,16 +443,6 @@ function handleDeleteUser(id: number, data: IDoc) {
                       v-model="dialogOptions.data.metaOptions!.password"
                       :disabled="dialogOptions.mode === 'read'" type="password"
                     />
-                  </el-form-item>
-                  <el-form-item label="文档状态" prop="status">
-                    <el-radio-group v-model="dialogOptions.data.status">
-                      <el-radio-button :value="false">
-                        已禁用
-                      </el-radio-button>
-                      <el-radio-button :value="true">
-                        未禁用
-                      </el-radio-button>
-                    </el-radio-group>
                   </el-form-item>
                 </el-form>
               </template>
@@ -376,6 +455,35 @@ function handleDeleteUser(id: number, data: IDoc) {
 </template>
 
 <style lang="scss">
+.GuideEditor-Mask {
+  &.hide {
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(1.25);
+  }
+
+  z-index: 1;
+  position: absolute;
+  display: flex;
+
+  font-size: 2rem;
+  align-items: center;
+  justify-content: center;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  font-weight: 600;
+  transition: 0.25s;
+  cursor: not-allowed;
+  color: var(--el-color-danger);
+  background-color: var(--el-mask-color-extra-light);
+  backdrop-filter: blur(1px) saturate(180%) brightness(80%);
+}
+
 .CmsDoc {
   .el-table__cell .cell {
     text-align: center;
@@ -396,7 +504,7 @@ function handleDeleteUser(id: number, data: IDoc) {
     left: 0;
 
     width: 100%;
-    height: 100px;
+    height: 60px;
 
     align-items: center;
     justify-content: center;
@@ -416,6 +524,19 @@ function handleDeleteUser(id: number, data: IDoc) {
     right: 2rem;
   }
 
+  .time-status {
+    position: absolute;
+    padding: 0.25rem 0.5rem;
+
+    left: 2rem;
+
+    font-weight: 300;
+    font-size: 14px;
+
+    border-radius: 12px;
+    background-color: var(--el-color-info-light-9);
+  }
+
   .GuideContent {
     position: relative;
 
@@ -428,6 +549,7 @@ function handleDeleteUser(id: number, data: IDoc) {
 
     overflow: hidden;
   }
+
   z-index: 100;
   position: absolute;
   display: flex;

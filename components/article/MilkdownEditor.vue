@@ -379,26 +379,29 @@ const editor = useEditor((root) => {
 }
 
 .MilkContent h4 {
+  color: var(--el-text-color-primary);
+
   opacity: 0.85;
   font-size: 18px;
 }
 
 .MilkContent h5 {
+  color: var(--el-text-color-primary);
+
   opacity: 0.8;
   font-size: 16px;
 }
 
 .MilkContent h6 {
+  color: var(--el-text-color-primary);
+
   opacity: 0.75;
   font-size: 14px;
 }
 
 .MilkContent h1,
 .MilkContent h2,
-.MilkContent h3,
-.MilkContent h4,
-.MilkContent h5,
-.MilkContent h6 {
+.MilkContent h3 {
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;

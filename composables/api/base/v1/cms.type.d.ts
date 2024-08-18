@@ -460,10 +460,6 @@ export interface Runtime {
 }
 
 export interface IDoc extends Record<string, any> {
-  /**
-   * 文档内容
-   */
-  content: string
   field: string
   /**
    * 文档元数据
@@ -478,6 +474,16 @@ export interface IDoc extends Record<string, any> {
    * 文档标题
    */
   title: string
+
+  record?: {
+    id: number
+    updatedAt: string
+    createdAt: string
+    title: string
+    content: string
+    reason: string
+    status: number
+  }
 
   id?: number
   updatedAt?: string

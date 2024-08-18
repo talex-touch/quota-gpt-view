@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { MilkdownProvider } from '@milkdown/vue'
-import { ProsemirrorAdapterProvider, useNodeViewFactory } from '@prosemirror-adapter/vue'
+import { ProsemirrorAdapterProvider } from '@prosemirror-adapter/vue'
 import Milkdown from '~/components/article/MilkdownEditor.vue'
 
 const props = defineProps<{
@@ -9,6 +9,7 @@ const props = defineProps<{
 
 const emits = defineEmits<{
   (event: 'update:modelValue', data: string): void
+  (event: 'save', content: string, callback: Function): boolean
 }>()
 
 const model = useVModel(props, 'modelValue', emits)
@@ -22,6 +23,19 @@ let _func: any
 function handleOnScroll() {
   _func?.()
 }
+
+function _handleSave() {
+  emits('save', model.value, (res: boolean) => {
+    console.log('res', res)
+  })
+}
+
+const handleSave = useDebounceFn(_handleSave, 500)
+
+watch(() => model.value, (val) => {
+  if (val?.length)
+    handleSave()
+})
 
 provide('onScroll', (func: any) => _func = func)
 </script>
