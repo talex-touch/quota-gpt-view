@@ -965,6 +965,10 @@ section.CmsPrompt {
 
     flex-direction: column;
   }
+
+  display: flex;
+
+  flex-direction: column;
 }
 
 .color-box {
