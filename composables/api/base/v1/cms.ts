@@ -4,8 +4,8 @@ import type { IDictItemModel, IDictItemModelQuery, IDictTypeModel, IDictTypeMode
 
 export default {
   doc: {
-    deployedList() {
-
+    deployedList(query: Partial<IDocQuery>) {
+      return endHttp.post('doc/published/list', query) as Promise<IPageResponse<IDoc>>
     },
     list(query: Partial<IDocQuery>) {
       return endHttp.post('doc/list', query) as Promise<IPageResponse<IDoc>>

@@ -21,19 +21,21 @@ watchEffect(() => {
   if (!curDoc.value)
     return
 
+  const _content = curDoc.value.record?.content || ''
+
   outline.value = ''
-  content.value = JSON.parse(decodeURI(atob(curDoc.value.value)))
+  content.value = _content ? JSON.parse(decodeURI(atob(_content))) : ''
 })
 
 onMounted(async () => {
-  // const res: any = await $endApi.v1.cms.doc.deployedList()
+  const res: any = await $endApi.v1.cms.doc.deployedList({})
 
-  // if (res.code === 200) { documents.value = res.data.items }
-  // else { ElMessage.error(res.message); return }
+  if (res.code === 200) { documents.value = res.data.items }
+  else { ElMessage.error(res.message); return }
 
-  // const query = route.query.data
-  // if (query)
-  //   curDoc.value = documents.value.find((item: any) => item.title === query)
+  const query = route.query.data
+  if (query)
+    curDoc.value = documents.value.find((item: any) => item.title === query)
 })
 
 function handleOutLine(data: any) {

@@ -327,8 +327,22 @@ watch(() => dialogOptions.visible, async (visible) => {
   }
 })
 
-function handlePublishVersion(id: number) {
-  return $endApi.v1.cms.doc.public(id)
+async function handlePublishVersion(id: number) {
+  const res = await $endApi.v1.cms.doc.public(id)
+
+  if (res.code !== 200) {
+    ElMessage.error(res.message || '发版失败！')
+
+    return
+  }
+
+  ElNotification({
+    title: 'Info',
+    message: `你发版了文档 #${id} 及其相关数据！`,
+    type: 'info',
+  })
+
+  fetchData()
 }
 </script>
 
