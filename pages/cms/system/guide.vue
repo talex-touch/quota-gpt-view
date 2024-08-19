@@ -115,7 +115,7 @@ function handleDialog(data: Partial<IDoc>, mode: 'edit' | 'read' | 'new') {
         }
       : {
           ...data,
-          content: data.record?.content || '',
+          content: data.record?.content ? decodeURIComponent(atob(data.record?.content)) : '',
         }
 
   dialogOptions.save.text = '编辑后保存'
@@ -268,7 +268,7 @@ async function tryTempSave(content: string, callback: Function) {
 
   const res = await $endApi.v1.cms.doc.tempSave(dialogOptions.data.id!, {
     ...dialogOptions.data,
-    content,
+    content: btoa(encodeURIComponent(content)),
   } as IDoc)
 
   dialogOptions.save.loading = false
