@@ -191,7 +191,7 @@ provide('pageOptions', pageOptions)
       />
 
       <div class="copyright">
-        ThisAI. 可能会犯错，生成的内容仅供参考。v24.08.17
+        ThisAI. 可能会犯错，生成的内容仅供参考。v24.08.19
         <span class="business">四川科塔锐行科技有限公司</span>
       </div>
 
@@ -280,7 +280,7 @@ provide('pageOptions', pageOptions)
 
   left: 50%;
 
-  bottom: 0;
+  bottom: 0.5rem;
   width: 100%;
 
   color: var(--el-text-color-secondary);

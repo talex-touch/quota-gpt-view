@@ -268,7 +268,8 @@ function handleTemplateSelect(data: any) {
 }
 
 .ThInput {
-  &.collapse {
+  &.collapse,
+  &.generating {
     .ThInput-Plus {
       display: none;
     }
@@ -324,7 +325,7 @@ function handleTemplateSelect(data: any) {
   align-items: flex-end;
 
   left: 50%;
-  bottom: 2.5%;
+  bottom: 2.5rem;
 
   width: min(70%, 1080px);
   min-height: 50px;

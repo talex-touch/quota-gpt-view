@@ -168,7 +168,7 @@ function filterTools(item: any, total: number, ind: number) {
         </div>
         <div v-else ref="dom" :class="{ completed, display: !!item.content.length }" class="ChatItem-Content-Inner">
           <span v-if="item.role === 'user'">
-            <pre v-text="item.content" />
+            <pre class="inner" v-text="item.content" />
           </span>
           <span v-else-if="item.status === 2">
             错误 {{ item.content }}
@@ -389,11 +389,17 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
     }
 
     pre {
+      margin: 0;
+      padding: 0;
+
       max-width: 100%;
       overflow-wrap: break-word;
       white-space: pre-wrap;
       word-wrap: break-word;
       word-break: break-all;
+
+      border: none #000;
+      background-color: #0000;
 
       font-variant-ligatures: no-common-ligatures;
       font-family: 'Helvetica Neue', 'Luxi Sans', 'DejaVu Sans',
