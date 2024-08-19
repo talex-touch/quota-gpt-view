@@ -239,7 +239,10 @@ function handleChangeName() {
     .then(async ({ value }) => {
       dialogOptions.data.title = value
 
-      const res = await $endApi.v1.cms.doc.create(dialogOptions.data as IDoc)
+      const res = await $endApi.v1.cms.doc.create({
+        ...dialogOptions.data,
+        content: btoa(encodeURIComponent(dialogOptions.data.content || '')),
+      } as IDoc)
 
       if (res.code !== 200) {
         ElMessage({
