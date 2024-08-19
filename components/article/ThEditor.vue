@@ -5,6 +5,7 @@ import Milkdown from '~/components/article/MilkdownEditor.vue'
 
 const props = defineProps<{
   modelValue: string
+  readonly: boolean
 }>()
 
 const emits = defineEmits<{
@@ -33,7 +34,7 @@ function _handleSave() {
 const handleSave = useDebounceFn(_handleSave, 500)
 
 watch(() => model.value, (val) => {
-  if (val?.length)
+  if (!props.readonly && val?.length)
     handleSave()
 })
 
@@ -52,7 +53,7 @@ provide('onScroll', (func: any) => _func = func)
     <div class="ThEditor-Main">
       <ProsemirrorAdapterProvider>
         <MilkdownProvider>
-          <Milkdown v-model="model" @on-scroll="handleOnScroll" @outline="handleOutline" />
+          <Milkdown v-model="model" :readonly="readonly" @on-scroll="handleOnScroll" @outline="handleOutline" />
         </MilkdownProvider>
       </ProsemirrorAdapterProvider>
     </div>

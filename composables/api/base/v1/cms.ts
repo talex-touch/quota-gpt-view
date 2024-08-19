@@ -19,6 +19,12 @@ export default {
     update(id: number, body: IDoc) {
       return endHttp.put(`doc/${id}`, body) as Promise<IDataResponse<IDoc>>
     },
+    archived(id: number) {
+      return endHttp.del(`doc/${id}`) as Promise<IStandardResponse>
+    },
+    public(id: number) {
+      return endHttp.post(`doc/publish/${id}`) as Promise<IDataResponse<boolean>>
+    },
   },
 
   users: {
