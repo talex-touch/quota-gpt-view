@@ -4,7 +4,10 @@ import type { IDictItemModel, IDictItemModelQuery, IDictTypeModel, IDictTypeMode
 
 export default {
   doc: {
-    list(query: IDocQuery) {
+    deployedList() {
+
+    },
+    list(query: Partial<IDocQuery>) {
       return endHttp.post('doc/list', query) as Promise<IPageResponse<IDoc>>
     },
     create(body: IDoc) {

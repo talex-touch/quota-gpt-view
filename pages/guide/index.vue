@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import GuideAside from '~/components/guide/GuideAside.vue'
-import { getDocList } from '~/composables/api/doc'
+import { $endApi } from '~/composables/api/base'
 
 definePageMeta({
   layout: 'document',
@@ -26,14 +26,14 @@ watchEffect(() => {
 })
 
 onMounted(async () => {
-  const res: any = await getDocList()
+  // const res: any = await $endApi.v1.cms.doc.deployedList()
 
-  if (res.code === 200) { documents.value = res.data.items }
-  else { ElMessage.error(res.message); return }
+  // if (res.code === 200) { documents.value = res.data.items }
+  // else { ElMessage.error(res.message); return }
 
-  const query = route.query.data
-  if (query)
-    curDoc.value = documents.value.find((item: any) => item.title === query)
+  // const query = route.query.data
+  // if (query)
+  //   curDoc.value = documents.value.find((item: any) => item.title === query)
 })
 
 function handleOutLine(data: any) {
