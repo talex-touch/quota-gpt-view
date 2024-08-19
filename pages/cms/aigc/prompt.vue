@@ -539,7 +539,7 @@ const statusOptions = [
 
     <div class="CmsPrompt-Header">
       <el-row>
-        <el-col v-for="item in statistics" :key="item.status" :span="6">
+        <el-col v-for="item in statistics" :key="item.status" :span="4">
           <el-statistic :title="`今日${formateTitle(item.status)}`" :value="+item.count" />
         </el-col>
       </el-row>

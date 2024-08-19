@@ -45,6 +45,8 @@ onMounted(() => {
     if (deviceObj.device.type === 'mobile')
       pageOptions.mobile = true
   }
+
+  refreshCurrentUserRPM()
 })
 
 router.afterEach(() => {
