@@ -234,4 +234,5 @@ export function genAxios(options: CreateAxiosDefaults) {
 
 export const endHttp = genAxios({
   baseURL: `${globalOptions.getEndsUrl()}api`,
+  withCredentials: false,
 })

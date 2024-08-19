@@ -2,7 +2,7 @@
 import { Milkdown, useEditor } from '@milkdown/vue'
 import { Editor, defaultValueCtx, editorViewOptionsCtx, rootCtx } from '@milkdown/core'
 import { nord } from '@milkdown/theme-nord'
-import { blockquoteSchema, codeBlockSchema, commonmark } from '@milkdown/preset-commonmark'
+import { blockquoteKeymap, blockquoteSchema, codeBlockSchema, commonmark } from '@milkdown/preset-commonmark'
 
 import { gfm } from '@milkdown/preset-gfm'
 import { listener, listenerCtx } from '@milkdown/plugin-listener'
@@ -12,10 +12,12 @@ import { upload, uploadConfig } from '@milkdown/plugin-upload'
 import { history } from '@milkdown/plugin-history'
 import { clipboard } from '@milkdown/plugin-clipboard'
 import { trailing } from '@milkdown/plugin-trailing'
+import { keymap as createKeymap } from '@milkdown/prose/keymap'
 import { TooltipProvider, tooltipFactory } from '@milkdown/plugin-tooltip'
 import { SlashProvider, slashFactory } from '@milkdown/plugin-slash'
 import { prism, prismConfig } from '@milkdown/plugin-prism'
 import { $view, getMarkdown, outline, replaceAll } from '@milkdown/utils'
+import { undoInputRule } from '@milkdown/prose/inputrules'
 import '@milkdown/theme-nord/style.css'
 
 import 'prism-themes/themes/prism-nord.css'
@@ -116,6 +118,17 @@ const uploader: Uploader = async (files, schema) => {
   return nodes
 }
 
+// function overrideBaseKeymap(keymap: Record<string, Command>) {
+//   const handleBackspace = chainCommands(
+//     undoInputRule,
+//     deleteSelection,
+//     joinBackward,
+//     selectNodeBackward,
+//   )
+//   keymap.Backspace = handleBackspace
+//   return keymap
+// }
+
 const nodeViewFactory = useNodeViewFactory()
 
 const slash = slashFactory('my-slash')
@@ -138,6 +151,11 @@ const editor = useEditor((root) => {
       ctx.set(tooltip.key, {
         view: tooltipPluginView,
       })
+
+      // ctx.set(blockquoteKeymap.key, {
+      //   // undo
+
+      // })
 
       ctx.set(prismConfig.key, {
         configureRefractor: (refractor) => {
