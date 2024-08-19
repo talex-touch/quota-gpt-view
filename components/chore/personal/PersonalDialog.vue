@@ -184,6 +184,7 @@ watch(
 
 .PersonalWrapper {
   .el-scrollbar__view {
+    position: relative;
     display: flex;
 
     width: 100%;
@@ -245,6 +246,9 @@ watch(
 
     .ProfileWrapper-Main {
       z-index: 1;
+
+      flex: 1;
+
       padding: 1.5rem 2rem;
     }
 
@@ -374,8 +378,8 @@ watch(
   flex-direction: column;
   justify-content: center;
 
-  width: min(1080px, 60%);
-  height: min(720px, 60%);
+  width: max(1080px, 60%);
+  height: max(720px, 70%);
 
   top: 50%;
   left: 50%;
