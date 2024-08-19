@@ -43,6 +43,9 @@ export default {
     delete(id: number | string) {
       return endHttp.del(`system/users/${id}`) as Promise<IStandardResponse>
     },
+    search(query: string) {
+      return endHttp.get(`system/users/search?query=${query}`) as Promise<IDataResponse<[IUserModel[], number]>>
+    },
   },
 
   role: {
@@ -140,5 +143,10 @@ export default {
       return endHttp.get('system/serve/stat') as Promise<IPageResponse<ServeStatInfo>>
     },
 
+  },
+  aigc: {
+    userStatistics() {
+      return endHttp.get('aigc/prompts/user') as Promise<IStandardResponse>
+    },
   },
 }
