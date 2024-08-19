@@ -322,7 +322,7 @@ watch(() => codeStatus.value, async (status) => {
     ElMessage.info('登录成功！')
 
     show.value = false
-  }, 200)
+  }, 500)
 })
 
 // @ts-expect-error force exist

@@ -55,6 +55,8 @@ Object.defineProperty(userStore.value, 'isAdmin', {
 export async function $handleUserLogin(token: { accessToken: string, refreshToken: string }) {
   userStore.value.token = token
 
+  console.log("a", userStore.value, token)
+
   await refreshCurrentUserRPM()
   await refreshUserSubscription()
 
