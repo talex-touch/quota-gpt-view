@@ -47,6 +47,7 @@ onMounted(() => {
   }
 
   refreshCurrentUserRPM()
+  refreshUserSubscription()
 })
 
 router.afterEach(() => {
