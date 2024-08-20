@@ -107,7 +107,7 @@ export default {
      * @returns 
      */
     update(id: number | string, query: IDictTypeModel) {
-      return endHttp.post(`system/dict-type/${id}`, query) as Promise<IDataResponse<IDictTypeModel>>
+      return endHttp.put(`system/dict-type/${id}`, query) as Promise<IDataResponse<IDictTypeModel>>
     },
     delete(id: number | string) {
       return endHttp.del(`system/dict-type/${id}`) as Promise<IStandardResponse>
