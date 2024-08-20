@@ -398,6 +398,7 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
       word-wrap: break-word;
       word-break: break-all;
 
+      color: var(--el-text-color-primary);
       border: none #000;
       background-color: #0000;
 
