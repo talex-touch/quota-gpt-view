@@ -1,5 +1,4 @@
 export interface IUserModel extends Record<string, any> {
-
   /**
    * 头像
    */
@@ -146,7 +145,6 @@ export interface IMenuModel extends Record<string, any> {
    * 菜单类型
    */
   type?: number
-
 }
 // 这里这个菜单疑惑有没有page,pagesize
 export interface IMenuModelQuery extends IMenuModel {
@@ -155,13 +153,24 @@ export interface IMenuModelQuery extends IMenuModel {
 }
 
 export interface IParamConfigModel extends Record<string, any> {
-
   /**
-   * 参数名称
+   * 配置键名
+   */
+  key: string
+  /**
+   * 配置值
+   */
+  value: string
+  /**
+   * 配置名
    */
   name: string
-  order?: string
-  page?: number
+  /**
+   * 配置描述
+   */
+  remark: string
+
+  id: number
   updatedAt?: string
   createdAt?: string
 }
@@ -169,10 +178,14 @@ export interface IParamConfigModel extends Record<string, any> {
 export interface IParamConfigModelQuery extends IParamConfigModel {
   page: number
   pageSize: number
+
+  /**
+   * 参数名称
+   */
+  name: string
 }
 
 export interface IDictTypeModel extends Record<string, any> {
-
   /**
    * 字典编码
    */
@@ -212,11 +225,50 @@ export interface IDictTypeModelQuery extends IDictTypeModel {
 }
 
 export interface IDictItemModel extends Record<string, any> {
+  /**
+   * 创建者
+   */
+  creator: string
 
+  /**
+   * 字典项键名
+   */
+  label: string
+  orderNo: number
+  /**
+   * 备注
+   */
+  remark: string
+  /**
+   * 状态
+   */
+  status: number
+  type: DictTypeEntity
+
+  /**
+   * 更新者
+   */
+  updater: string
+  /**
+   * 字典项值
+   */
+  value: string
+  [property: string]: any
+
+  id: number
+  updatedAt: string
+  createdAt: string
+}
+export type DictTypeEntity = {
   /**
    * 字典编码
    */
   code: string
+
+  /**
+   * 创建者
+   */
+  creator: string
 
   /**
    * 字典名称
@@ -230,10 +282,6 @@ export interface IDictItemModel extends Record<string, any> {
    * 状态
    */
   status: number
-  /**
-   * 创建者
-   */
-  creator: string
 
   /**
    * 更新者
@@ -241,29 +289,30 @@ export interface IDictItemModel extends Record<string, any> {
   updater: string
 
   id: number
-  updatedAt: string
-  createdAt: string
+  createdAt: Date
+  updatedAt: Date
 }
 
 export interface IDictItemModelQuery extends IDictItemModel {
   page: number
   pageSize: number
-  /**
-   * 字典类型 ID
-   */
-  typeId: number
-  /**
-   * 字典项值
-   */
-  value?: string
+
   /**
    * 字典项键名
    */
   label?: string
+
+  /**
+   * 字典类型 ID
+   */
+  typeid?: number
+  /**
+   * 字典项值
+   */
+  value?: string
 }
 
 export interface ITasksModel extends Record<string, any> {
-
   /**
    * cron表达式
    */
@@ -319,7 +368,6 @@ export interface ITasksModel extends Record<string, any> {
 export interface ITasksModelQuery extends ITasksModel {
   page: number
   pageSize: number
-
 }
 
 // 系统监控
