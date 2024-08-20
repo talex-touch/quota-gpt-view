@@ -316,7 +316,7 @@ function filterNode(value: string, data: any) {
       </el-form>
 
       <ClientOnly>
-        <el-table v-if="users?.items" :data="users.items" style="width: 100%">
+        <el-table v-if="users?.items" :data="users.items" height="90%">
           <el-table-column type="index" label="序号" width="60" />
           <el-table-column prop="date" label="头像" width="80">
             <template #default="scope">
@@ -381,7 +381,7 @@ function filterNode(value: string, data: any) {
 
         <el-pagination
           v-if="users?.meta" v-model:current-page="users.meta.currentPage"
-          v-model:page-size="users.meta.itemsPerPage" float-right my-4 :page-sizes="[10, 30, 50, 100]"
+          v-model:page-size="users.meta.itemsPerPage" float-right my-4 :page-sizes="[15, 30, 50, 100]"
           layout="total, sizes, prev, pager, next, jumper" :total="users.meta.totalItems" @change="fetchData"
         />
       </ClientOnly>
