@@ -182,5 +182,8 @@ export default {
     list(query: ISubscriptionPlanQuery) {
       return endHttp.post('subscribe/list', query) as Promise<IPageResponse<ISubscriptionPlan>>
     },
+    forceUpdate(uid: number) {
+      return endHttp.get(`subscribe/update?uid=${uid}`) as Promise<IStandardResponse>
+    },
   },
 }

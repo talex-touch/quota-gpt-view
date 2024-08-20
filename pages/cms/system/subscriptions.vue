@@ -72,6 +72,25 @@ onMounted(fetchData)
 function doSubscriptionValid({ startDate, endDate }: any) {
   return dayjs().isBetween(dayjs(startDate), dayjs(endDate))
 }
+
+function forceUpdateSubscribe(row: TemplateType) {
+  ElMessageBox.confirm('确认更新吗？这是一个耗时操作，请勿频繁点击！', '强制更新订阅状态', {
+    confirmButtonText: '强制更新订阅',
+    cancelButtonText: '取消',
+    type: 'warning',
+  }).then(async () => {
+    const res = await $dataApi.forceUpdate(row.id)
+    if (res.code === 200) {
+      ElMessage.success('更新成功')
+      fetchData()
+    }
+    else {
+      ElMessage.error(res.message || '更新失败')
+    }
+  }).catch(() => {
+    ElMessage.info('已取消')
+  })
+}
 </script>
 
 <template>
@@ -135,6 +154,10 @@ function doSubscriptionValid({ startDate, endDate }: any) {
             <el-tag type="warning">
               未确认订阅
             </el-tag>
+
+            <el-button size="small" ml-2 type="danger" @click="forceUpdateSubscribe(row)">
+              强制刷新订阅
+            </el-button>
           </template>
         </template>
       </el-table-column>
