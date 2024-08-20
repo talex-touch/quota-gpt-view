@@ -1,10 +1,11 @@
 <script lang="ts" setup>
-import dayjs from 'dayjs'
-import type { ComponentSize, FormInstance, FormRules } from 'element-plus'
-import { type UserQuery, addUser, deleteUser, getDepartmentList, getUsers, updateUser } from '~/composables/api/account'
-import UserAvatar from '~/components/personal/UserAvatar.vue'
-import UserUploadAvatar from '~/components/personal/UserUploadAvatar.vue'
+
 import { $endApi } from '~/composables/api/base'
+import type { ServeStatInfo } from '~/composables/api/base/v1/cms.type'
+import type { IDataResponse } from '~/composables/api/base/index.type'
+
+import * as echarts from 'echarts'
+
 
 definePageMeta({
   name: '系统监控',
@@ -13,464 +14,477 @@ definePageMeta({
     name: 'rotate',
   },
 })
+const $dataApi = $endApi.v1.cms.systemServer
+const cpuChartRef = ref()
+/**
+ * 内存echart
+ */
+const pieChartRef1 = ref()
+/**
+ * 磁盘echart
+ */
+const pieChartRef2 = ref()
 
-const defaultProps = {
-  children: 'children',
-  label: 'name',
-}
+onMounted(() => {
+  fetchData()
+})
 
-const treeDom = ref()
-const treeFilterQuery = ref()
-const depts = ref()
 
-const formLoading = ref(false)
-const users = ref({
-  items: [],
-  meta: {
-    currentPage: 0,
-    perPage: 0,
-    total: 0,
-    totalPages: 0,
-    itemsPerPage: 0,
-    totalItems: 0,
+const sysInfo = ref<ServeStatInfo>({
+
+  runtime: {
+    npmVersion: "10.7.0",
+    nodeVersion: "22.2.0",
+    os: "linux",
+    arch: "x64"
   },
+  cpu: {
+    manufacturer: "Intel",
+    brand: "Xeon® Platinum 8336C",
+    physicalCores: 4,
+    model: "106",
+    speed: 2.3,
+    rawCurrentLoad: 5865170,
+    rawCurrentLoadIdle: 752606110,
+    coresLoad: [
+      {
+        rawLoad: 1509030,
+        rawLoadIdle: 188067440
+      },
+      {
+        rawLoad: 1504340,
+        rawLoadIdle: 188070050
+      },
+      {
+        rawLoad: 1468080,
+        rawLoadIdle: 188238140
+      },
+      {
+        rawLoad: 1383720,
+        rawLoadIdle: 188230480
+      }
+    ]
+  },
+  disk: {
+    size: 0,
+    used: 0,
+    available: 0,
+
+  },
+  memory: {
+    total: 8333570048,
+    available: 3071422464
+  }
+
+
+
 })
 
-const formInline = reactive({
-  user: '',
-  email: '',
-  phone: '',
-  remark: '',
-  deptId: 0,
-})
-
-function handleReset() {
-  formInline.user = ''
-  formInline.email = ''
-  formInline.phone = ''
-  formInline.remark = ''
-  formInline.deptId = 0
-
-  treeDom.value?.setCurrentKey(null)
-}
-
-const roles = ref()
-
-onMounted(fetchData)
 
 async function fetchData() {
-  formLoading.value = true
-
-  const query: any = {}
-  // 过滤掉为空的值
-  Object.entries(query).forEach(([key, value]) => {
-    if (!value)
-      delete query[key]
-  })
-
-  const res: any = (await getUsers(query))
+  const res: IDataResponse<ServeStatInfo> = (await $dataApi.list())
   if (!res) {
     ElMessage.warning('参数错误，查询失败！')
   }
   else {
-    if (res.code === 200) {
-      depts.value = (await getDepartmentList()).data
-      roles.value = (await $endApi.v1.cms.role.list({})).data
+    if (res.code === 200)
+      sysInfo.value = res.data!
 
-      users.value = res.data
-    }
+    await onFetchDataSucceed()
   }
-
-  formLoading.value = false
 }
 
-watch(() => formInline.deptId, () => {
-  fetchData()
-})
+function onFetchDataSucceed() {
 
-function formatDate(date: string) {
-  return dayjs(date).format('YYYY-MM-DD HH:mm:ss')
+  const option = generateEChartsConfig(sysInfo.value.cpu)
+  // 使用 ECharts 初始化图表
+  const cpuChart = echarts.init(cpuChartRef.value)
+  cpuChart.setOption(option)
+
+
+  /**
+   * 内存
+   */
+  const pieOption1 = generatePieEChartsConfig(sysInfo.value.memory)
+  const diskChart = echarts.init(pieChartRef1.value)
+  diskChart.setOption(pieOption1)
+
+  /**
+   * 磁盘
+   */
+  const pieOption2 = generatePieEChartsConfig2(sysInfo.value.disk)
+  const memoryChart = echarts.init(pieChartRef2.value)
+  memoryChart.setOption(pieOption2)
+
 }
+/**
+ * cpu
+ * @param data 
+ * @returns 
+ */
+function generateEChartsConfig(data: any) {
 
-interface UserForm extends UserQuery {
-  roles?: any[]
-  deptId: number
-}
+  const rawLoad = data.coresLoad.map((core: { rawLoad: any }) => Number.parseInt(core.rawLoad))
+  const rawLoadIdle = data.coresLoad.map((core: { rawLoadIdle: any }) => Number.parseInt(core.rawLoadIdle))
 
-const dialogOptions = reactive<{
-  visible: boolean
-  mode: 'edit' | 'read' | 'new'
-  data: UserForm | null
-  loading: boolean
-}>({
-  visible: false,
-  mode: 'edit',
-  data: null,
-  loading: false,
-})
+  rawLoad.push(data.rawCurrentLoad)
+  rawLoadIdle.push(data.rawCurrentLoadIdle)
 
-function handleDialog(data: UserForm | null, mode: 'edit' | 'read' | 'new') {
-  dialogOptions.mode = mode
-  dialogOptions.visible = true
-  dialogOptions.data = (mode === 'new'
-    ? {
-        id: '',
-        email: '',
-        username: '',
-        nickname: '',
-        avatar: '',
-        qq: '',
-        phone: '',
-        status: 1,
-        remark: '',
-        roles: [],
-      }
-    : { ...data }) as UserForm
 
-  dialogOptions.data.roleIds = dialogOptions.data.roles!.map((item: any) => item.id)
-  dialogOptions.data.deptId = dialogOptions.data.dept?.id ?? 0
-}
+  const options = {
+    title: {
+      text: 'CPU资源消耗',
+      subtext: '根据消息类型和模型',
 
-const ruleFormRef = ref<FormInstance>()
+      left: 'center',
 
-const rules = reactive<FormRules<UserForm>>({
-  username: [
-    { required: true, message: '请输入用户名称', trigger: 'blur' },
-    { min: 5, max: 24, message: '用户名需要在 5-24 位之间', trigger: 'blur' },
-  ],
-  nickname: [
-    { required: true, message: '请输入用户昵称', trigger: 'blur' },
-    { min: 5, max: 24, message: '用户名需要在 5-24 位之间', trigger: 'blur' },
-  ],
-  password: [
-    { required: true, message: '请输入用户密码', trigger: 'blur' },
-    { min: 6, max: 16, message: '用户密码需要在 6-16 位之间', trigger: 'blur' },
-    { pattern: /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{6,16}$/, message: '用户密码必须包含数字和字母', trigger: 'blur' },
-  ],
-  avatar: [
-    { required: true, message: '请上传头像', trigger: 'blur' },
-  ],
-  // qq: [
-  //   { required: true, message: '请输入QQ号', trigger: 'blur' },
-  // ],
-  phone: [
-    { required: true, message: '请输入手机号', trigger: 'blur' },
-  ],
-  status: [
-    { required: true, message: '请选择状态', trigger: 'blur' },
-  ],
-})
 
-async function submitForm(formEl: FormInstance | undefined) {
-  if (!formEl)
-    return
-  await formEl.validate(async (valid) => {
-    if (!valid)
-      return
-
-    dialogOptions.loading = true
-
-    if (dialogOptions.mode !== 'new') {
-      const res: any = await updateUser(dialogOptions.data!.id!, dialogOptions.data as UserForm)
-
-      if (res.code === 200) {
-        ElMessage.success('修改成功！')
-        dialogOptions.visible = false
-        fetchData()
-      }
-      else {
-        ElMessage.error(res.message ?? '修改失败！')
-      }
-    }
-    else {
-      const res: any = await addUser(dialogOptions.data as UserForm)
-
-      if (res.code === 200) {
-        ElMessage.success('添加成功！')
-        dialogOptions.visible = false
-        fetchData()
-      }
-      else {
-        ElMessage.error(res.message ?? '添加失败！')
-      }
-    }
-
-    dialogOptions.loading = false
-  })
-}
-
-function resetForm(formEl: FormInstance | undefined) {
-  if (!formEl)
-    return
-  formEl.resetFields()
-}
-
-function handleDeleteUser(id: number, data: UserForm) {
-  ElMessageBox.confirm(
-    `你确定要删除#${id} 吗？删除后这个账户永久无法找回。`,
-    '确认删除',
-    {
-      confirmButtonText: '取消',
-      cancelButtonText: '确定删除',
-      type: 'error',
     },
-  )
-    .then(() => {
-      ElMessage({
-        type: 'success',
-        message: '已取消删除用户！',
-      })
-    })
-    .catch(async () => {
-      const res: any = await deleteUser(`${id}`)
-      if (res.code !== 200) {
-        ElMessage.error('删除失败！')
-        return
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'shadow',
+      },
+    },
+    legend: {
+      data: ['CPU资源消耗', '空闲CPU资源'],
+      top: '20%'
+
+    },
+    xAxis: {
+      data: ['核心1', '核心2', '核心3', '核心4', "总核心"],
+      axisLable: {
+        rotate: 30,
       }
 
-      fetchData()
+    },
+    yAxis: {
+      type: 'value',
+      left: '5%',
+      axisLabel: {
+        show: true, // 显示 Y 轴标签
+        interval: 0 // 不省略任何标签
+      },
+      splitLine: {
+        show: true, // 显示分割线
+        interval: 0 // 不省略任何分割线
+      }
 
-      ElNotification({
-        title: 'Info',
-        type: 'info',
-      })
-    })
-}
+    },
 
-function handleNodeClick(node: any, treeNode: any) {
-  if (treeNode.checked) {
-    treeDom.value?.setCurrentKey(null)
-    formInline.deptId = 0
+    series: [
+      {
+        name: 'CPU资源消耗',
+        data: rawLoad,
+        type: 'bar',
+        stack: 'x',
+        itemStyle: {
+          color: ' #ff0000'
+        }
+      },
+      {
+        name: '空闲CPU资源',
+        data: rawLoadIdle,
+        type: 'bar',
+        stack: 'x',
+        itemStyle: {
+          color: '#00bfff'
+        }
+      }
+
+
+    ]
+
   }
-  else { formInline.deptId = node.id }
+
+
+  return options
+
 }
 
-watch(treeFilterQuery, (val) => {
-  nextTick(() => treeDom.value!.filter(val))
-}, { immediate: true })
+function generatePieEChartsConfig(data: any) {
+  const options = {
+    title: {
+      text: '内存情况',
+      left: 'center',
+      subtext: 'Fake Data',
+    },
+    tooltip: {
+      trigger: 'item'
+    },
+    legend: {
+      orient: 'vertical',
+      left: 'left'
+    },
+    series: [
+      {
+        type: 'pie',
+        data: [
+          {
+            value: data.total - data.available,
+            name: '已使用',
+            itemStyle: {
+              color: '#ff0000'
+            }
+          },
+          {
+            value: data.available,
+            name: '可用内存',
+            itemStyle: {
+              color: '#00bfff'
+            }
+          }
 
-function filterNode(value: string, data: any) {
-  if (!value)
-    return true
+        ],
+        radius: ['20%', '40%'],
 
-  if (data.id === +value)
-    return true
 
-  return data.name.includes(value)
+
+      }]
+
+  }
+
+  return options
+
+
+
+
 }
+
+function generatePieEChartsConfig2(data: any) {
+ 
+
+  const options = {
+    title: {
+      text: '磁盘资源消耗',
+      left: 'center',
+      subtext: 'Fake Data',
+
+    },
+    tooltip: {
+      trigger: 'item'
+    },
+    legend: {
+      orient: 'vertical',
+      left: 'left'
+    },
+    series: [
+      {
+        type: 'pie',
+        data: [
+          {
+            value: data.used,
+            name: '已使用磁盘空间 (bytes)',
+            itemStyle: {
+              color: '#ff0000'
+            }
+          },
+          {
+            value: data.available,
+            name: '可用磁盘空间 (bytes)',
+            itemStyle: {
+              color: '#00bfff'
+            }
+          },
+
+        ],
+        radius: ['20%', '40%'],
+      }]
+
+  }
+
+  return options
+}
+
+
 </script>
 
 <template>
   <el-container class="CmsUser">
-    <el-aside width="320px">
-      <el-header>
-        <p font-bold>
-          组织架构
-        </p>
-        <el-input v-model="treeFilterQuery" style="width: 200px" placeholder="搜索部门" />
-      </el-header>
-
-      <el-tree
-        ref="treeDom" :filter-node-method="filterNode" :default-expand-all="true" :highlight-current="true"
-        :current-node-key="formInline.deptId" node-key="id" :check-on-click-node="true" style="max-width: 600px"
-        :data="depts" :props="defaultProps" @node-click="handleNodeClick"
-      />
-    </el-aside>
 
     <el-main>
-      <el-form :disabled="formLoading" :inline="true" :model="formInline">
-        <el-form-item label="用户名">
-          <el-input v-model="formInline.user" minlength="4" placeholder="搜索用户名" clearable />
-        </el-form-item>
-        <el-form-item label="邮箱">
-          <el-input v-model="formInline.email" placeholder="搜索邮箱" clearable />
-        </el-form-item>
-        <el-form-item label="手机号">
-          <el-input v-model="formInline.phone" placeholder="搜索手机号" clearable />
-        </el-form-item>
-        <el-form-item label="备注">
-          <el-input v-model="formInline.remark" placeholder="搜索备注" clearable />
-        </el-form-item>
-
-        <el-form-item style="margin-right: 0" float-right>
-          <el-button @click="handleReset">
-            重置
-          </el-button>
-          <el-button :loading="formLoading" type="primary" @click="fetchData">
-            查询
-          </el-button>
-          <el-button type="success" @click="handleDialog(null, 'new')">
-            新建用户
-          </el-button>
-        </el-form-item>
-      </el-form>
-
       <ClientOnly>
-        <el-table v-if="users?.items" :data="users.items" style="width: 100%">
-          <el-table-column type="index" label="序号" width="60" />
-          <el-table-column prop="date" label="头像" width="80">
-            <template #default="scope">
-              <UserAvatar :avatar="scope.row.avatar" />
-            </template>
-          </el-table-column>
-          <el-table-column prop="username" label="用户名(昵称)" width="240">
-            <template #default="{ row }">
-              {{ row.username }}<span op-50>({{ row.nickname }})</span>
-            </template>
-          </el-table-column>
-          <el-table-column prop="email" label="邮箱" width="180" />
-          <el-table-column prop="department" label="部门" width="180">
-            <template #default="{ row }">
-              <el-tag v-if="row.dept">
-                {{ row.dept.name }}
-              </el-tag>
-              <span v-else>无</span>
-            </template>
-          </el-table-column>
-          <el-table-column prop="phone" label="手机号" width="180" />
-          <el-table-column prop="role" label="角色" width="180">
-            <template #default="{ row }">
-              <span v-if="row.roles?.length">
-                <el-tag v-for="role in row.roles" :key="role.id"> {{ role.name }}</el-tag>
-              </span>
-              <span v-else>无</span>
-            </template>
-          </el-table-column>
-          <el-table-column prop="status" label="状态" width="180">
-            <template #default="scope">
-              <el-tag :type="scope.row.status === 1 ? 'success' : 'danger'">
-                {{ scope.row.status === 1 ? '启用' : '禁用' }}
-              </el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column prop="remark" label="备注" width="180" />
-          <el-table-column prop="createdAt" label="创建时间" width="180">
-            <template #default="scope">
-              {{ formatDate(scope.row.createdAt) }}
-            </template>
-          </el-table-column>
-          <el-table-column prop="updatedAt" label="更新时间" width="180">
-            <template #default="scope">
-              {{ formatDate(scope.row.updatedAt) }}
-            </template>
-          </el-table-column>
-          <el-table-column fixed="right" label="操作" width="200">
-            <template #default="{ row }">
-              <el-button plain text size="small" @click="handleDialog(row, 'read')">
-                详情
-              </el-button>
-              <el-button plain text size="small" type="warning" @click="handleDialog(row, 'edit')">
-                编辑
-              </el-button>
-              <el-button plain text size="small" type="danger" @click="handleDeleteUser(row.id, row)">
-                删除
-              </el-button>
-            </template>
-          </el-table-column>
-        </el-table>
+        <div class="CmsBox">
+          <el-row class="title">
+            <el-col :span="24" p-2>
+              <h1 text-2xl border-b-1px border-b-coolGray>
+                CPU情况
+              </h1>
+            </el-col>
 
-        <el-pagination
-          v-if="users?.meta" v-model:current-page="users.meta.currentPage"
-          v-model:page-size="users.meta.itemsPerPage" float-right my-4 :page-sizes="[10, 30, 50, 100]"
-          layout="total, sizes, prev, pager, next, jumper" :total="users.meta.totalItems" @change="fetchData"
-        />
+          </el-row>
+          <el-row :span="24" type="flex" justify="space-around">
+            <el-col :span="4">
+              <div class="card">
+                <div class="card-header">cpu的品牌 </div>
+                <div class="card-body" color-blue>
+                  {{ sysInfo.cpu.brand }}
+                </div>
+              </div>
+            </el-col>
+
+            <el-col :span="4">
+              <div class="card">
+                <div class="card-header">制造商 </div>
+                <div class="card-body" color-blue>
+                  {{ sysInfo.cpu.manufacturer }}
+                </div>
+              </div>
+            </el-col>
+
+            <el-col :span="4">
+              <div class="card">
+                <div class="card-header">物理核心数</div>
+                <div class="card-body" color-blue>
+                  {{ sysInfo.cpu.physicalCores }}
+                </div>
+              </div>
+            </el-col>
+
+            <el-col :span="4">
+              <div class="card">
+                <div class="card-header">型号</div>
+                <div class="card-body" color-blue>
+                  {{ sysInfo.cpu.model }}
+                </div>
+              </div>
+            </el-col>
+            <el-col :span="4">
+              <div class="card">
+                <div class="card-header">速度 </div>
+                <div class="card-body" color-blue>
+                  {{ sysInfo.cpu.speed }}
+                </div>
+              </div>
+            </el-col>
+
+
+
+          </el-row>
+
+          <el-row type="flex" justify="space-around">
+            <el-col :span="14" border="1px" border-gray  flex class="left" >
+              <div ref="cpuChartRef" w-120 h-100></div>
+            </el-col>
+            <el-col :span="10">
+              <div class="right">
+                <div class="card">
+                  <div class="card-header">内存使用情况 </div>
+                    <div class="card-body" flex justify-center>
+                       <div ref="pieChartRef1" w-120 h-50 >
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card">
+                  <div class="card-header">磁盘使用情况 </div>
+                    <div class="card-body" flex justify-center>
+                       <div ref="pieChartRef2" w-120 h-50>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+
+
+            </el-col>
+          </el-row>
+        </div>
+
+
+        <div class="CmsBox">
+          <el-row :span="24" class="title">
+            <el-col :span="24" p-2>
+              <h1 text-2xl border-b-1px border-b-coolGray>
+                运行情况
+              </h1>
+            </el-col>
+          </el-row>
+
+          <el-row>
+            <el-col :span="6">
+              <div class="card">
+                <div class="card-header">系统 </div>
+                <div class="card-body" color-blue>
+                  {{ sysInfo.runtime.os }}
+                </div>
+              </div>
+            </el-col>
+            <el-col :span="6">
+              <div class="card">
+                <div class="card-header">服务器架构 </div>
+                <div class="card-body" color-blue>
+                  {{ sysInfo.runtime.arch }}
+                </div>
+              </div>
+            </el-col>
+            <el-col :span="6">
+              <div class="card">
+                <div class="card-header">Node版本
+                </div>
+                <div class="card-body" color-blue>
+                  {{ sysInfo.runtime.nodeVersion }}
+                </div>
+              </div>
+            </el-col>
+            <el-col :span="6">
+              <div class="card">
+                <div class="card-header">Npm版本
+                </div>
+                <div class="card-body" color-blue>
+                  {{ sysInfo.runtime.npmVersion }}
+                </div>
+              </div>
+            </el-col>
+
+          </el-row>
+
+
+
+
+
+
+        </div>
+
       </ClientOnly>
+
+
+
     </el-main>
 
-    <el-drawer v-model="dialogOptions.visible" :close-on-click-modal="false" :close-on-press-escape="false">
-      <template #header>
-        <h4>
-          <span v-if="dialogOptions.mode === 'new'">新建</span>
-          <span v-else-if="dialogOptions.mode === 'edit'">编辑</span>
-          <span v-else-if="dialogOptions.mode === 'read'">查看</span>用户信息<span v-if="dialogOptions.data" mx-4 op-50>#{{
-            dialogOptions.data.id }}</span>
-        </h4>
-      </template>
-      <template #default>
-        <el-form
-          v-if="dialogOptions.data" ref="ruleFormRef"
-          :disabled="dialogOptions.loading || dialogOptions.mode === 'read'" style="max-width: 600px"
-          :model="dialogOptions.data" :rules="rules" label-width="auto" status-icon
-        >
-          <el-form-item label="用户头像" prop="avatar">
-            <UserUploadAvatar
-              v-model="dialogOptions.data.avatar"
-              :disabled="dialogOptions.loading || dialogOptions.mode === 'read'"
-            />
-          </el-form-item>
-          <el-form-item label="用户名称" prop="username">
-            <el-input v-model="dialogOptions.data.username" :disabled="dialogOptions.mode !== 'new'" />
-          </el-form-item>
-          <el-form-item label="用户昵称" prop="nickname">
-            <el-input v-model="dialogOptions.data.nickname" />
-          </el-form-item>
-          <el-form-item label="用户密码" prop="password">
-            <el-input v-model="dialogOptions.data.password" :disabled="dialogOptions.mode !== 'new'" type="password" />
-          </el-form-item>
-          <el-form-item label="用户邮箱" prop="email">
-            <el-input v-model="dialogOptions.data.email" />
-          </el-form-item>
-          <el-form-item label="QQ" prop="qq">
-            <el-input v-model="dialogOptions.data.qq" />
-          </el-form-item>
-          <el-form-item label="用户手机号" prop="phone">
-            <el-input v-model="dialogOptions.data.phone" />
-          </el-form-item>
-          <el-form-item label="用户部门" prop="dept">
-            <el-tree-select
-              v-model="dialogOptions.data.deptId" :default-expand-all="true" :highlight-current="true"
-              node-key="id" :check-on-click-node="true" :props="defaultProps" :data="depts"
-              :render-after-expand="false"
-            />
-          </el-form-item>
-          <el-form-item label="用户角色" prop="roles">
-            <el-select v-model="dialogOptions.data.roleIds" multiple placeholder="请选择角色">
-              <el-option v-for="item in roles.items" :key="item.id" :label="item.name" :value="item.id" />
-            </el-select>
-          </el-form-item>
-          <el-form-item label="用户状态" prop="status">
-            <el-radio-group v-model="dialogOptions.data.status">
-              <el-radio-button :value="0">
-                已禁用
-              </el-radio-button>
-              <el-radio-button :value="1">
-                未禁用
-              </el-radio-button>
-            </el-radio-group>
-          </el-form-item>
-          <el-form-item label="用户备注" prop="remark">
-            <el-input v-model="dialogOptions.data.remark" placeholder="请输入备注..." type="textarea" />
-          </el-form-item>
-        </el-form>
-      </template>
-      <template #footer>
-        <div style="flex: auto">
-          <template v-if="dialogOptions.mode === 'read'">
-            <el-button @click="dialogOptions.visible = false">
-              关闭
-            </el-button>
-          </template>
-          <template v-else>
-            <el-button @click="dialogOptions.visible = false">
-              取消
-            </el-button>
-            <el-button @click="resetForm(ruleFormRef)">
-              重置
-            </el-button>
-            <el-button :loading="dialogOptions.loading" type="primary" @click="submitForm(ruleFormRef)">
-              {{ dialogOptions.mode !== 'new' ? "修改" : "新增" }}
-            </el-button>
-          </template>
-        </div>
-      </template>
-    </el-drawer>
+
   </el-container>
 </template>
 
 <style lang="scss">
 .CmsUser {
-  .el-aside {
-    border-right: 1px solid var(--el-border-color);
+  .el-row {
+    margin-bottom: 20px;
   }
+
+  .CmsBox {
+    border: 1px solid var(--el-border-color);
+  }
+
+.left{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+  .card {
+    border: 1px solid var(--el-border-color);
+
+    padding: 5px 10px;
+
+    .card-header {
+      font-size: 20px;
+      font-weight: 600;
+    }
+  }
+
+
+
+
 }
 </style>
