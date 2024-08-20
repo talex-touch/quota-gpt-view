@@ -40,7 +40,10 @@ Object.defineProperty(userStore.value, 'isAdmin', {
     if (!userStore.value.isLogin)
       return false
 
-    return !!userStore.value.roles?.find((item: any) => item.id === 1)
+    if (userStore.value.roles?.find((item: any) => item.id === 1))
+      return true
+
+    return !!userStore.value.permissions?.find((item: any) => item === 'system:manage')
   },
 })
 
