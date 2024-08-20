@@ -4,7 +4,13 @@ import type { IPageResponse, IStandardPageModel, IStandardResponse } from './api
 export interface TemplateDataHandler<T extends Record<string, any>, PageT extends T> {
   getEmptyModel: () => T
   onFetchSuccess: () => Promise<void>
-  transformSubmitData: (originData: T, mode: CrudMode) => any
+  /**
+   * 函数的功能是根据传入的原始数据和操作模式，转换并返回一个新的数据。
+   * @param originData 
+   * @param mode 
+   * @returns 
+   */
+  transformSubmitData: (originData: T, mode: CrudMode) => any 
   getList: (query: PageT & { page: number, pageSize: number }) => Promise<IPageResponse<T>>
   update: (id: string | number, data: T) => Promise<IStandardResponse>
   create: (data: T) => Promise<IStandardResponse>
@@ -15,6 +21,18 @@ export interface TemplateDataHandler<T extends Record<string, any>, PageT extend
 
 export type CrudMode = 'NEW' | 'EDIT' | 'READ'
 
+
+
+/**
+ * 生成CMS模板数据
+ * 
+ * @template T 扩展自Record<string, any>与可选的id属性，用于定义数据的基本结构
+ * @template PageT 扩展自T并增加page和pageSize属性，用于定义分页数据的结构
+ * @template O 用于定义额外的元数据结构，可选
+ * @param dataHandler 数据处理函数，用于与后端API交互
+ * @param queryData 查询参数，用于初始化查询条件
+ * @returns 返回一个对象，包含数据列表、表单加载状态、CRUD对话框选项以及数据获取和处理函数
+ */
 export function genCmsTemplateData<T extends Record<string, any> & { id?: number | string }, PageT extends T & { page: number, pageSize: number }, O extends Record<string, any> | null>(dataHandler: TemplateDataHandler<T, PageT>, queryData: Partial<T>) {
   const formLoading = ref(false)
   const list = shallowRef<IStandardPageModel<T>>({
@@ -28,7 +46,11 @@ export function genCmsTemplateData<T extends Record<string, any> & { id?: number
     },
   })
 
+  /**
+   * 传什么类型，生成什么类型
+   */
   type QueryDataType<T> = { [key in keyof T]: T[key] }
+
   const internalQueryData = reactive<QueryDataType<T>>(JSON.parse(JSON.stringify(queryData)))
 
   async function fetchData() {

@@ -3,6 +3,7 @@ const online = useOnline()
 </script>
 
 <template>
+  <!-- 包裹可能异步加载的内容，并定义加载时的备选UI。 -->
   <Suspense>
     <ClientOnly>
       <main class="DefaultTemplate-Container">
