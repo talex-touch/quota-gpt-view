@@ -100,8 +100,14 @@ export default {
     get(id: number | string) {
       return endHttp.get(`system/dict-type/${id}`) as Promise<IDataResponse<IDictTypeModel>>
     },
+    /**
+     * 这个跟新奇怪  竟然是post
+     * @param id 
+     * @param query 
+     * @returns 
+     */
     update(id: number | string, query: IDictTypeModel) {
-      return endHttp.put(`system/dict-type/${id}`, query) as Promise<IDataResponse<IDictTypeModel>>
+      return endHttp.post(`system/dict-type/${id}`, query) as Promise<IDataResponse<IDictTypeModel>>
     },
     delete(id: number | string) {
       return endHttp.del(`system/dict-type/${id}`) as Promise<IStandardResponse>
