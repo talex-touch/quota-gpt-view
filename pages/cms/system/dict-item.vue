@@ -29,6 +29,18 @@ const templateData = genCmsTemplateData<TemplateType, IDictItemModelQuery, null>
     remark: '',
     menuIds: [],
     createdAt: '' ,
+    type:{
+      id: 0,
+      name: '',
+      code: '',
+      remark: '',
+      status: 0,
+      order: '',
+      createdAt: '',
+      updatedAt: '',
+      creator: '',
+      updater: '',  
+    }
   }),
   onFetchSuccess: async () => {
 
@@ -41,9 +53,9 @@ const templateData = genCmsTemplateData<TemplateType, IDictItemModelQuery, null>
   update: $dataApi.update,
   delete: $dataApi.delete,
 }, {
-  label: '',
-  value: '',
-  remark: '',
+  label: '' ,
+  value:'',
+  typeid: 1,
 })
 const { list, listForm, fetchData, handleCrudDialog, handleDeleteData } = templateData
 

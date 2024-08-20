@@ -1,6 +1,7 @@
+import Dept from '~/pages/cms/system/dept.vue'
 import { endHttp } from '../../axios'
 import type { IDataResponse, IPageResponse, IStandardPageModel, IStandardResponse } from '../index.type'
-import type { IDictItemModel, IDictItemModelQuery, IDictTypeModel, IDictTypeModelQuery, IDoc, IDocQuery, IMenuModel, IParamConfigModel, IParamConfigModelQuery, IRoleModel, IRoleModelQuery, ITasksModel, ITasksModelQuery, IUserModel, IUserModelQuery, ServeStatInfo } from './cms.type'
+import type { IDeptModel, IDeptModelQuery, IDictItemModel, IDictItemModelQuery, IDictTypeModel, IDictTypeModelQuery, IDoc, IDocQuery, IMenuModel, IMenuModelQuery, IParamConfigModel, IParamConfigModelQuery, IRoleModel, IRoleModelQuery, ITasksModel, ITasksModelQuery, IUserModel, IUserModelQuery, ServeStatInfo } from './cms.type'
 
 export default {
   doc: {
@@ -88,7 +89,27 @@ export default {
     getPermissions(id: number | string) {
       return endHttp.get("system/menus/permissions") as Promise<{data:[]}>
     },
-  },
+  }, 
+
+  dept: {
+    list(query: Partial<IDeptModelQuery>) {
+      return endHttp.get('system/depts', query) as Promise<IDataResponse<IDeptModelQuery>>
+    },
+    create(Body: IDeptModelQuery) {
+      return endHttp.post('system/depts', Body)  as Promise<IStandardResponse>
+    },
+    get(id: number | string) {
+      return endHttp.get(`system/depts/${id}`) as Promise<IDataResponse<IDeptModelQuery>>
+    },
+    update(id: number | string, Body : IDeptModelQuery) {
+      return endHttp.put(`system/depts/${id}`, Body ) as Promise<IDataResponse<IDeptModelQuery>>
+    },
+    delete(id: number | string) {
+      return endHttp.del(`system/depts/${id}`) as Promise<IStandardResponse>
+    },
+  }, 
+
+  
 
   dictType: {
     list(query: IDictTypeModelQuery) {

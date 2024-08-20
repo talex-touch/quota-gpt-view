@@ -72,14 +72,32 @@ function getData(data: any) {
                   </el-table-column>
                 </slot>
               </el-table>
+            
+
+                <el-table v-else :data="list" row-key="id"
+                :tree-props="{ children: 'children', hasChildren: 'hasChildren' }" style="width: 100%;">
+                <slot name="TableColumn" />
+
+                <slot name="TableColumnAction">
+                  <el-table-column fixed="right" label="操作" width="200">
+                    <template #default="{ row }">
+                      <el-button plain text size="small" @click="handleCrudDialog(row, 'READ')">
+                        详情
+                      </el-button>
+                      <el-button plain text size="small" type="warning" @click="handleCrudDialog(row, 'EDIT')">
+                        编辑
+                      </el-button>
+                      <el-button plain text size="small" type="danger" @click="handleDeleteData(row.id)">
+                        删除
+                      </el-button>
+                    </template>
+                  </el-table-column>
+                </slot>
+              </el-table>
             </el-col>
           </el-row>
 
-          <el-pagination
-            v-if="list?.meta" v-model:current-page="mutableList.meta.currentPage"
-            v-model:page-size="mutableList.meta.itemsPerPage" float-right my-4 :page-sizes="[15, 30, 50, 100]"
-            layout="total, sizes, prev, pager, next, jumper" :total="list.meta.totalItems" @change="fetchData"
-          />
+    
         </el-main>
       </ClientOnly>
     </el-main>

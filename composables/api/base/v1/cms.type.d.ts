@@ -1,3 +1,5 @@
+import type { extend } from 'dayjs'
+
 export interface IUserModel extends Record<string, any> {
   /**
    * 头像
@@ -150,6 +152,44 @@ export interface IMenuModel extends Record<string, any> {
 export interface IMenuModelQuery extends IMenuModel {
   page: number
   pageSize: number
+}
+
+export interface IDeptModel extends Record<string, any> {
+  children: DeptEntity[]
+  createdAt: Date
+  /**
+   * 创建者
+   */
+  creator: string
+  id: number
+  /**
+   * 部门名称
+   */
+  name: string
+  /**
+   * 排序
+   */
+  orderNo: number
+  parent?: DeptEntity
+  updatedAt: Date
+  /**
+   * 更新者
+   */
+  updater: string
+}
+export interface IDeptModelQuery extends IDeptModel {
+   /**
+     * 部门名称
+     */
+   name?: string;
+   /**
+    * 排序编号
+    */
+   orderNo?: number;
+   /**
+    * 父级部门id
+    */
+   parentid?: number;
 }
 
 export interface IParamConfigModel extends Record<string, any> {
