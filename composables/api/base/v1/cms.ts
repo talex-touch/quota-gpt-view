@@ -1,7 +1,27 @@
-import Dept from '~/pages/cms/system/dept.vue'
 import { endHttp } from '../../axios'
-import type { IDataResponse, IPageResponse, IStandardPageModel, IStandardResponse } from '../index.type'
-import type { IDeptModel, IDeptModelQuery, IDictItemModel, IDictItemModelQuery, IDictTypeModel, IDictTypeModelQuery, IDoc, IDocQuery, IMenuModel, IMenuModelQuery, IParamConfigModel, IParamConfigModelQuery, IRoleModel, IRoleModelQuery, ITasksModel, ITasksModelQuery, IUserModel, IUserModelQuery, ServeStatInfo } from './cms.type'
+import type { IDataResponse, IPageResponse, IStandardResponse } from '../index.type'
+import type {
+  IDeptModelQuery,
+  IDictItemModel,
+  IDictItemModelQuery,
+  IDictTypeModel,
+  IDictTypeModelQuery,
+  IDoc,
+  IDocQuery,
+  IMenuModel,
+  IMenuModelQuery,
+  IParamConfigModel,
+  IParamConfigModelQuery,
+  IRoleModel,
+  IRoleModelQuery,
+  ISubscriptionPlan,
+  ISubscriptionPlanQuery,
+  ITasksModel,
+  ITasksModelQuery,
+  IUserModel,
+  IUserModelQuery,
+  ServeStatInfo,
+} from './cms.type'
 
 export default {
   doc: {
@@ -50,7 +70,7 @@ export default {
   },
 
   role: {
-    list(query: IRoleModelQuery) {
+    list(query: IRoleModelQuery = { page: 1, pageSize: 50 }) {
       return endHttp.get('system/roles', query) as Promise<IPageResponse<IRoleModel>>
     },
     create(Body: IRoleModel) {
@@ -67,7 +87,7 @@ export default {
     },
   },
   menu: {
-    list(query: IMenuModel) {
+    list(query: IMenuModelQuery = { page: 1, pageSize: 50 }) {
       return endHttp.get('system/menus', query) as Promise<IPageResponse<IMenuModel>>
     },
     create(Body: IMenuModel) {
@@ -84,32 +104,30 @@ export default {
     },
 
     /* 获取后端定义的所有权限集
-    *
-    */
+     *
+     */
     getPermissions(id: number | string) {
-      return endHttp.get("system/menus/permissions") as Promise<{data:[]}>
+      return endHttp.get('system/menus/permissions') as Promise<{ data: [] }>
     },
-  }, 
+  },
 
   dept: {
     list(query: Partial<IDeptModelQuery>) {
       return endHttp.get('system/depts', query) as Promise<IDataResponse<IDeptModelQuery>>
     },
     create(Body: IDeptModelQuery) {
-      return endHttp.post('system/depts', Body)  as Promise<IStandardResponse>
+      return endHttp.post('system/depts', Body) as Promise<IStandardResponse>
     },
     get(id: number | string) {
       return endHttp.get(`system/depts/${id}`) as Promise<IDataResponse<IDeptModelQuery>>
     },
-    update(id: number | string, Body : IDeptModelQuery) {
-      return endHttp.put(`system/depts/${id}`, Body ) as Promise<IDataResponse<IDeptModelQuery>>
+    update(id: number | string, Body: IDeptModelQuery) {
+      return endHttp.put(`system/depts/${id}`, Body) as Promise<IDataResponse<IDeptModelQuery>>
     },
     delete(id: number | string) {
       return endHttp.del(`system/depts/${id}`) as Promise<IStandardResponse>
     },
-  }, 
-
-  
+  },
 
   dictType: {
     list(query: IDictTypeModelQuery) {
@@ -123,9 +141,8 @@ export default {
     },
     /**
      * 这个跟新奇怪  竟然是post
-     * @param id 
-     * @param query 
-     * @returns 
+     * @param id
+     * @param query
      */
     update(id: number | string, query: IDictTypeModel) {
       return endHttp.put(`system/dict-type/${id}`, query) as Promise<IDataResponse<IDictTypeModel>>
@@ -193,11 +210,18 @@ export default {
     list() {
       return endHttp.get('system/serve/stat') as Promise<IDataResponse<ServeStatInfo>>
     },
-
   },
   aigc: {
     userStatistics() {
       return endHttp.get('aigc/prompts/user') as Promise<IStandardResponse>
+    },
+  },
+  subscription: {
+    list(query: ISubscriptionPlanQuery) {
+      return endHttp.post('subscribe/list', query) as Promise<IPageResponse<ISubscriptionPlan>>
+    },
+    forceUpdate(uid: number) {
+      return endHttp.get(`subscribe/update?uid=${uid}`) as Promise<IStandardResponse>
     },
   },
 }

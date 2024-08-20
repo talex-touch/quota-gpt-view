@@ -3,23 +3,30 @@ import type { IDataResponse, IPageResponse, IStandardPageModel, IStandardRespons
 
 export interface TemplateDataHandler<T extends Record<string, any>, PageT extends T> {
   getEmptyModel: () => T
-  onFetchSuccess: () => Promise<void>
+  onFetchSuccess?: () => Promise<void>
   /**
    * 函数的功能是根据传入的原始数据和操作模式，转换并返回一个新的数据。
    * @param originData
    * @param mode
    * @returns
    */
-  transformSubmitData: (originData: T, mode: CrudMode) => any
-  getList: (query: PageT & { page: number; pageSize: number }) => Promise<IPageResponse<T>>
-  update: (id: string | number, data: T) => Promise<IStandardResponse>
-  create: (data: T) => Promise<IStandardResponse>
-  delete: (id: string | number) => Promise<IStandardResponse>
+  transformSubmitData?: (originData: T, mode: CrudMode) => any
+  getList: (query: PageT & { page: number, pageSize: number }) => Promise<IPageResponse<T>>
+  update?: (id: string | number, data: T) => Promise<IStandardResponse>
+  create?: (data: T) => Promise<IStandardResponse>
+  delete?: (id: string | number) => Promise<IStandardResponse>
 
   getDeleteBoxTitle: (id: string | number) => string
 }
 
 export type CrudMode = 'NEW' | 'EDIT' | 'READ'
+
+export enum CurdController {
+  CREATE = 1,
+  REVIEW = 2,
+  UPDATE = 4,
+  DELETE = 8,
+}
 
 /**
  * 生成CMS模板数据
@@ -72,9 +79,7 @@ export function genCmsTemplateData<T extends Record<string, any> & { id?: number
     if (res.code === 200) {
       list.value = res.data!
 
-      dataHandler.onFetchSuccess()
-    } else {
-      ElMessage.error(res.message || '参数错误，查询失败！')
+      dataHandler.onFetchSuccess?.()
     }
 
     formLoading.value = false
@@ -117,10 +122,10 @@ export function genCmsTemplateData<T extends Record<string, any> & { id?: number
       }
 
       crudDialogOptions.loading = true
-      const submitData = dataHandler.transformSubmitData(data, crudDialogOptions.mode)
+      const submitData = dataHandler.transformSubmitData?.(data, crudDialogOptions.mode) || data
 
       if (crudDialogOptions.mode === 'EDIT') {
-        const res: any = await dataHandler.update(submitData.id!, submitData)
+        const res: any = await dataHandler.update!(submitData.id!, submitData)
 
         if (res.code === 200) {
           ElMessage.success('修改成功！')
@@ -130,8 +135,9 @@ export function genCmsTemplateData<T extends Record<string, any> & { id?: number
         } else {
           ElMessage.error(res.message ?? '修改失败！')
         }
-      } else {
-        const res: any = await dataHandler.create(data)
+      }
+      else {
+        const res: any = await dataHandler.create!(data)
 
         if (res.code === 200) {
           ElMessage.success('添加成功！')
@@ -160,7 +166,7 @@ export function genCmsTemplateData<T extends Record<string, any> & { id?: number
         })
       })
       .catch(async () => {
-        const res = await dataHandler.delete(id)
+        const res = await dataHandler.delete!(id)
 
         if (res.code !== 200) {
           ElMessage.error(res.message || '删除失败！')

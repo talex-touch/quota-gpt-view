@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const props = defineProps<{
   path?: string
+  external?: string
   query?: string
   danger?: boolean
   emphasis?: boolean
@@ -20,6 +21,11 @@ watch(() => route.fullPath, () => {
 }, { immediate: true })
 
 function handleClick() {
+  if (props.external) {
+    if (props.external.startsWith('http'))
+      return window.open(props.external, '_blank')
+  }
+
   if (props.path)
     router.push(props.path)
 

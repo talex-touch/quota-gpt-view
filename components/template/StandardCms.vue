@@ -6,8 +6,11 @@ const props = defineProps<{
   name: string
   list: IStandardPageModel<T>
   templateData: any
-  rules: FormRules<TemplateType>
+  rules?: FormRules<TemplateType>
+  crudController?: number
 }>()
+
+const _crudController = computed(() => props.crudController || 15)
 
 type TemplateType = IRoleModel
 
@@ -42,7 +45,10 @@ function getData(data: any) {
             <el-button :loading="formLoading" type="primary" @click="fetchData">
               查询
             </el-button>
-            <el-button type="success" @click="handleCrudDialog(null, 'NEW')">
+            <el-button
+              v-if="_crudController & CurdController.CREATE" type="success"
+              @click="handleCrudDialog(null, 'NEW')"
+            >
               新建{{ name }}
             </el-button>
           </el-form-item>
@@ -53,19 +59,28 @@ function getData(data: any) {
         <el-main>
           <el-row>
             <el-col :span="24">
-              <el-table v-if="list?.items" :data="list.items" style="width: 100%;">
+              <el-table v-if="list?.items" table-layout="auto" :data="list.items" style="width: 100%;">
                 <slot name="TableColumn" />
 
                 <slot name="TableColumnAction">
                   <el-table-column fixed="right" label="操作" width="200">
                     <template #default="{ row }">
-                      <el-button plain text size="small" @click="handleCrudDialog(row, 'READ')">
+                      <el-button
+                        v-if="_crudController & CurdController.REVIEW" plain text size="small"
+                        @click="handleCrudDialog(row, 'READ')"
+                      >
                         详情
                       </el-button>
-                      <el-button plain text size="small" type="warning" @click="handleCrudDialog(row, 'EDIT')">
+                      <el-button
+                        v-if="_crudController & CurdController.UPDATE" plain text size="small" type="warning"
+                        @click="handleCrudDialog(row, 'EDIT')"
+                      >
                         编辑
                       </el-button>
-                      <el-button plain text size="small" type="danger" @click="handleDeleteData(row.id)">
+                      <el-button
+                        v-if="_crudController & CurdController.DELETE" plain text size="small" type="danger"
+                        @click="handleDeleteData(row.id)"
+                      >
                         删除
                       </el-button>
                     </template>
@@ -123,7 +138,7 @@ function getData(data: any) {
           :disabled="crudDialogOptions.loading || crudDialogOptions.mode === 'READ'" style="max-width: 600px"
           :model="crudDialogOptions.data" :rules="rules" label-width="auto" status-icon
         >
-          <slot :data="getData(crudDialogOptions.data)" name="CrudForm" />
+          <slot :data="getData(crudDialogOptions.data)" :mode="crudDialogOptions.mode" name="CrudForm" />
         </el-form>
       </template>
       <template #footer>
