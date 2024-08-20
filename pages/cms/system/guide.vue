@@ -105,6 +105,7 @@ const dialogOptions = reactive<{
 function handleDialog(data: Partial<IDoc>, mode: 'edit' | 'read' | 'new') {
   dialogOptions.mode = mode
   dialogOptions.visible = true
+
   dialogOptions.data
     = mode === 'new'
       ? {
@@ -115,7 +116,7 @@ function handleDialog(data: Partial<IDoc>, mode: 'edit' | 'read' | 'new') {
         }
       : {
           ...data,
-          content: data.record?.content ? decodeURIComponent(atob(data.record?.content)) : '',
+          content: data.record?.content ? decodeURIComponent(atob(data.record.content)) : '',
         }
 
   dialogOptions.save.text = '编辑后保存'
@@ -192,34 +193,36 @@ function resetForm(formEl: FormInstance | undefined) {
   formEl.resetFields()
 }
 
-function handleDeleteUser(id: number, data: IDoc) {
+function handleArchiveDoc(id: number, data: IDoc) {
   ElMessageBox.confirm(
-    `你确定要删除文档 ${data.title} #${id} 吗？删除后这个文档永久无法找回。`,
-    '确认删除',
+    `你确定要归档文档 ${data.title} #${id} 吗？归档文件后你将不可以再编辑这个文件。`,
+    '确认归档',
     {
       confirmButtonText: '取消',
-      cancelButtonText: '确定删除',
-      type: 'error',
+      cancelButtonText: '确定归档',
+      closeOnClickModal: false,
+      showClose: false,
     },
   )
     .then(() => {
       ElMessage({
+        grouping: true,
         type: 'success',
-        message: '已取消删除文档！',
+        message: '已取消归档文档！',
       })
     })
     .catch(async () => {
-      // const res: any = await deleteUser(`${id}`)
-      // if (res.code !== 200) {
-      ElMessage.error('删除失败！')
-      //   return
-      // }
+      const res: any = await $endApi.v1.cms.doc.archived(id)
+      if (res.code !== 200) {
+        ElMessage.error(res.message || '归档失败！')
+        return
+      }
 
       fetchData()
 
       ElNotification({
         title: 'Info',
-        message: `你永久删除了文档 ${data.title} #${id} 及其相关数据！`,
+        message: `你归档了文档 ${data.title} #${id} 及其相关数据！`,
         type: 'info',
       })
     })
@@ -241,7 +244,7 @@ function handleChangeName() {
 
       const res = await $endApi.v1.cms.doc.create({
         ...dialogOptions.data,
-        content: btoa(encodeURIComponent(dialogOptions.data.content || '')),
+        content: dialogOptions.data.content ? btoa(encodeURIComponent(dialogOptions.data.content)) : '',
       } as IDoc)
 
       if (res.code !== 200) {
@@ -306,10 +309,41 @@ function timer() {
 
 timer()
 
-watch(() => dialogOptions.visible, (visible) => {
-  if (!visible)
+watch(() => dialogOptions.visible, async (visible) => {
+  if (!visible && dialogOptions.data.status !== 3 && dialogOptions.mode !== 'read') {
+    const res = await $endApi.v1.cms.doc.update(dialogOptions.data.id!, {
+      ...dialogOptions.data,
+      content: dialogOptions.data.content ? btoa(encodeURIComponent(dialogOptions.data.content)) : '',
+    } as IDoc)
+
+    if (res.code !== 200) {
+      ElMessage.error(res.message || '保存失败！')
+
+      dialogOptions.visible = true
+      return
+    }
+
     fetchData()
+  }
 })
+
+async function handlePublishVersion(id: number) {
+  const res = await $endApi.v1.cms.doc.public(id)
+
+  if (res.code !== 200) {
+    ElMessage.error(res.message || '发版失败！')
+
+    return
+  }
+
+  ElNotification({
+    title: 'Info',
+    message: `你发版了文档 #${id} 及其相关数据！`,
+    type: 'info',
+  })
+
+  fetchData()
+}
 </script>
 
 <template>
@@ -349,20 +383,24 @@ watch(() => dialogOptions.visible, (visible) => {
               {{ row.meta }}
             </template>
           </el-table-column>
-          <el-table-column label="创作者">
-            <template #default="{ row }">
-              {{ row.user }}
-            </template>
-          </el-table-column>
           <el-table-column label="权限">
             <template #default="{ row }">
               {{ row.permission }}
             </template>
           </el-table-column>
           <el-table-column prop="status" label="状态">
-            <template #default="scope">
-              <el-tag :type="scope.row.status === 1 ? 'success' : 'danger'">
-                {{ scope.row.status === 1 ? "启用" : "禁用" }}
+            <template #default="{ row }">
+              <el-tag v-if="row.status === 0" type="info">
+                草稿
+              </el-tag>
+              <el-tag v-else-if="row.status === 1" type="warning">
+                未发布
+              </el-tag>
+              <el-tag v-else-if="row.status === 2" type="success">
+                已发布
+              </el-tag>
+              <el-tag v-else-if="row.status === 3" type="danger">
+                归档
               </el-tag>
             </template>
           </el-table-column>
@@ -378,14 +416,26 @@ watch(() => dialogOptions.visible, (visible) => {
           </el-table-column>
           <el-table-column fixed="right" label="操作">
             <template #default="{ row }">
-              <el-button plain text size="small" @click="handleDialog(row, 'read')">
+              <el-button v-if="row.status !== 0" plain text size="small" @click="handleDialog(row, 'read')">
                 详情
               </el-button>
-              <el-button plain text size="small" type="warning" @click="handleDialog(row, 'edit')">
+              <el-button
+                v-if="row.status !== 3" plain text size="small" type="warning"
+                @click="handleDialog(row, 'edit')"
+              >
                 编辑
               </el-button>
-              <el-button plain text size="small" type="danger" @click="handleDeleteUser(row.id, row)">
-                删除
+              <el-button
+                v-if="row.status !== 0 && row.status !== 3" plain text size="small" type="danger"
+                @click="handleArchiveDoc(row.id, row)"
+              >
+                归档
+              </el-button>
+              <el-button
+                v-if="row.status === 1" plain text size="small" type="primary"
+                @click="handlePublishVersion(row.id)"
+              >
+                发版
               </el-button>
             </template>
           </el-table-column>
@@ -393,8 +443,8 @@ watch(() => dialogOptions.visible, (visible) => {
 
         <el-pagination
           v-if="docs?.meta" v-model:current-page="docs.meta.currentPage"
-          v-model:page-size="docs.meta.itemsPerPage" class="1" float-right my-4 :page-sizes="[10, 200, 300, 400]"
-          layout="total, sizes, prev, pager, next, jumper" :total="docs.meta.totalItems"
+          v-model:page-size="docs.meta.itemsPerPage" float-right my-4 :page-sizes="[15, 30, 50]"
+          layout="total, sizes, prev, pager, next, jumper" :total="docs.meta.totalItems" @change="fetchData"
         />
       </ClientOnly>
     </el-main>
@@ -404,7 +454,8 @@ watch(() => dialogOptions.visible, (visible) => {
         <div class="GuideEditor" :class="{ visible: dialogOptions.visible }">
           <div class="Header">
             <div class="time-status">
-              <OtherTextView :text="dialogOptions.data.title ? dialogOptions.save.text : '无法保存'" />
+              <OtherTextView v-if="dialogOptions.mode === 'read' || dialogOptions.data.status === 3" text="只读模式" />
+              <OtherTextView v-else :text="dialogOptions.data.title ? dialogOptions.save.text : '无法保存'" />
             </div>
 
             <h4 flex items-center gap-2>
@@ -432,7 +483,10 @@ watch(() => dialogOptions.visible, (visible) => {
               <span>请先编辑文档标题再编辑。</span>
             </div>
 
-            <ArticleThEditor v-model="dialogOptions.data.content!" @save="tryTempSave">
+            <ArticleThEditor
+              v-model="dialogOptions.data.content!"
+              :readonly="dialogOptions.mode === 'read' || dialogOptions.data.status === 3" @save="tryTempSave"
+            >
               <template #property>
                 <el-form
                   ref="ruleFormRef" :disabled="dialogOptions.loading || dialogOptions.mode === 'read'"

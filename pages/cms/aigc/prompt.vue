@@ -6,6 +6,7 @@ import { $completion } from '~/composables/completion/init'
 import StandardPrompt from '~/composables/completion/standard-prompt.txt?raw'
 import RenderContentOld from '~/components/render/RenderContentOld.vue'
 import { assignPromptTags, getPromptDailyStatistics, searchPromptTag } from '~/composables/api/chat'
+import { $endApi } from '~/composables/api/base'
 
 definePageMeta({
   name: 'PromptTemplate管理',
@@ -15,6 +16,7 @@ definePageMeta({
   },
 })
 
+const userStatistics = ref()
 const formLoading = ref(false)
 const prompts = ref({
   items: [],
@@ -68,6 +70,7 @@ async function fetchData() {
       prompts.value = res.data
 
       statistics.value = (await getPromptDailyStatistics()).data
+      userStatistics.value = (await $endApi.v1.cms.aigc.userStatistics()).data
     }
 
   formLoading.value = false
@@ -536,7 +539,7 @@ const statusOptions = [
 
     <div class="CmsPrompt-Header">
       <el-row>
-        <el-col v-for="item in statistics" :key="item.status" :span="6">
+        <el-col v-for="item in statistics" :key="item.status" :span="4">
           <el-statistic :title="`今日${formateTitle(item.status)}`" :value="+item.count" />
         </el-col>
       </el-row>
@@ -684,11 +687,22 @@ const statusOptions = [
           </el-table-column>
         </el-table>
 
-        <el-pagination
-          v-if="prompts?.meta" v-model:current-page="prompts.meta.currentPage"
-          v-model:page-size="prompts.meta.itemsPerPage" float-right my-4 :page-sizes="[15, 30, 50, 100]"
-          layout="total, sizes, prev, pager, next, jumper" :total="prompts.meta.totalItems" @change="fetchData"
-        />
+        <div class="CmsPrompt-Footer">
+          <div class="UserStatistics">
+            <h1>尊敬的 {{ userStore.nickname }} 您累计数据如下：</h1>
+            <el-row>
+              <el-col v-for="item in userStatistics" :key="item.status" :span="4">
+                <el-statistic :title="`历史${formateTitle(item.status)}`" :value="+item.count" />
+              </el-col>
+            </el-row>
+          </div>
+
+          <el-pagination
+            v-if="prompts?.meta" v-model:current-page="prompts.meta.currentPage"
+            v-model:page-size="prompts.meta.itemsPerPage" :page-sizes="[15, 30, 50, 100]"
+            layout="total, sizes, prev, pager, next, jumper" :total="prompts.meta.totalItems" @change="fetchData"
+          />
+        </div>
       </ClientOnly>
     </el-main>
 
@@ -928,7 +942,30 @@ const statusOptions = [
 </template>
 
 <style lang="scss">
-div.CmsPrompt {
+section.CmsPrompt {
+  .UserStatistics {
+    h1 {
+      font-size: 18px;
+    }
+
+    flex: 1;
+  }
+
+  .CmsPrompt-Footer {
+    display: flex;
+
+    width: 100%;
+
+    align-items: center;
+    justify-content: space-between;
+  }
+  .el-main {
+    padding: 2rem;
+    display: flex;
+
+    flex-direction: column;
+  }
+
   display: flex;
 
   flex-direction: column;

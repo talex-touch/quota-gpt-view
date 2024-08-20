@@ -4,8 +4,8 @@ import type { IDictItemModel, IDictItemModelQuery, IDictTypeModel, IDictTypeMode
 
 export default {
   doc: {
-    deployedList() {
-
+    deployedList(query: Partial<IDocQuery>) {
+      return endHttp.post('doc/published/list', query) as Promise<IPageResponse<IDoc>>
     },
     list(query: Partial<IDocQuery>) {
       return endHttp.post('doc/list', query) as Promise<IPageResponse<IDoc>>
@@ -18,6 +18,12 @@ export default {
     },
     update(id: number, body: IDoc) {
       return endHttp.put(`doc/${id}`, body) as Promise<IDataResponse<IDoc>>
+    },
+    archived(id: number) {
+      return endHttp.del(`doc/${id}`) as Promise<IStandardResponse>
+    },
+    public(id: number) {
+      return endHttp.post(`doc/publish/${id}`) as Promise<IDataResponse<boolean>>
     },
   },
 
@@ -36,6 +42,9 @@ export default {
     },
     delete(id: number | string) {
       return endHttp.del(`system/users/${id}`) as Promise<IStandardResponse>
+    },
+    search(query: string) {
+      return endHttp.get(`system/users/search?query=${query}`) as Promise<IDataResponse<[IUserModel[], number]>>
     },
   },
 
@@ -158,5 +167,10 @@ export default {
       return endHttp.get('system/serve/stat') as Promise<IDataResponse<ServeStatInfo>>
     },
 
+  },
+  aigc: {
+    userStatistics() {
+      return endHttp.get('aigc/prompts/user') as Promise<IStandardResponse>
+    },
   },
 }

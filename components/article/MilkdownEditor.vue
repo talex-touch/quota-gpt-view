@@ -40,6 +40,7 @@ import { globalOptions } from '~/constants'
 
 const props = defineProps<{
   modelValue: string
+  readonly: boolean
 }>()
 
 const emits = defineEmits<{
@@ -141,9 +142,11 @@ const editor = useEditor((root) => {
       ctx.set(rootCtx, root)
       // ctx.set(defaultValueCtx, content.value)
 
-      // ctx.update(editorViewOptionsCtx, prev => ({
-      //   ...prev,
-      // }))
+      ctx.update(editorViewOptionsCtx, prev => ({
+        ...prev,
+        editable: () => !props.readonly,
+      }))
+
       ctx.set(slash.key, {
         view: useSlashPluginView,
       })
