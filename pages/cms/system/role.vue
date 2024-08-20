@@ -16,6 +16,7 @@ definePageMeta({
 type TemplateType = IRoleModel
 const $dataApi = $endApi.v1.cms.role
 
+const menus = ref()
 const treeRef = ref()
 const templateData = genCmsTemplateData<TemplateType, IRoleModelQuery, null>({
   getDeleteBoxTitle(id) {
@@ -32,12 +33,14 @@ const templateData = genCmsTemplateData<TemplateType, IRoleModelQuery, null>({
     createdAt: '',
   }),
   onFetchSuccess: async () => {
+    const res = await $endApi.v1.cms.menu.list()
 
+    menus.value = res.data
   },
   transformSubmitData(originData) {
     const data = originData
 
-    data.menuIds = treeRef.value.getCheckedNodes() ?? []
+    data.menuIds = [...(treeRef.value.getCheckedNodes() ?? [])].map(item => item.id)
 
     return data
   },
@@ -51,9 +54,7 @@ const templateData = genCmsTemplateData<TemplateType, IRoleModelQuery, null>({
   status: 0,
   remark: '',
 })
-const { list, listForm, fetchData, handleCrudDialog, handleDeleteData } = templateData
-
-const menus = ref()
+const { list, listForm, fetchData } = templateData
 
 onMounted(fetchData)
 
@@ -124,19 +125,6 @@ const menuListTreeProps = {
       <el-table-column prop="updatedAt" label="更新时间">
         <template #default="scope">
           {{ formatDate(scope.row.updatedAt) }}
-        </template>
-      </el-table-column>
-      <el-table-column fixed="right" label="操作" width="200">
-        <template #default="{ row }">
-          <el-button plain text size="small" @click="handleCrudDialog(row, 'READ')">
-            详情
-          </el-button>
-          <el-button plain text size="small" type="warning" @click="handleCrudDialog(row, 'EDIT')">
-            编辑
-          </el-button>
-          <el-button plain text size="small" type="danger" @click="handleDeleteData(row.id)">
-            删除
-          </el-button>
         </template>
       </el-table-column>
     </template>

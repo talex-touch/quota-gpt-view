@@ -1,6 +1,6 @@
 import { endHttp } from '../../axios'
 import type { IDataResponse, IPageResponse, IStandardPageModel, IStandardResponse } from '../index.type'
-import type { IDictItemModel, IDictItemModelQuery, IDictTypeModel, IDictTypeModelQuery, IDoc, IDocQuery, IMenuModel, IParamConfigModel, IParamConfigModelQuery, IRoleModel, IRoleModelQuery, ITasksModel, ITasksModelQuery, IUserModel, IUserModelQuery, ServeStatInfo } from './cms.type'
+import type { IDictItemModel, IDictItemModelQuery, IDictTypeModel, IDictTypeModelQuery, IDoc, IDocQuery, IMenuModel, IMenuModelQuery, IParamConfigModel, IParamConfigModelQuery, IRoleModel, IRoleModelQuery, ITasksModel, ITasksModelQuery, IUserModel, IUserModelQuery, ServeStatInfo } from './cms.type'
 
 export default {
   doc: {
@@ -49,7 +49,7 @@ export default {
   },
 
   role: {
-    list(query: IRoleModelQuery) {
+    list(query: IRoleModelQuery = { page: 1, pageSize: 50 }) {
       return endHttp.get('system/roles', query) as Promise<IPageResponse<IRoleModel>>
     },
     create(Body: IRoleModel) {
@@ -66,7 +66,7 @@ export default {
     },
   },
   menu: {
-    list(query: IMenuModel) {
+    list(query: IMenuModelQuery = { page: 1, pageSize: 50 }) {
       return endHttp.get('system/menus', query) as Promise<IPageResponse<IMenuModel>>
     },
     create(Body: IMenuModel) {
@@ -86,7 +86,7 @@ export default {
     *
     */
     getPermissions(id: number | string) {
-      return endHttp.get("system/menus/permissions") as Promise<{data:[]}>
+      return endHttp.get('system/menus/permissions') as Promise<{ data: [] }>
     },
   },
 
@@ -102,9 +102,9 @@ export default {
     },
     /**
      * 这个跟新奇怪  竟然是post
-     * @param id 
-     * @param query 
-     * @returns 
+     * @param id
+     * @param query
+     * @returns
      */
     update(id: number | string, query: IDictTypeModel) {
       return endHttp.post(`system/dict-type/${id}`, query) as Promise<IDataResponse<IDictTypeModel>>

@@ -84,8 +84,8 @@ export interface IRoleModel extends Record<string, any> {
 }
 
 export interface IRoleModelQuery extends IRoleModel {
-  page?: number
-  pageSize?: number
+  page: number
+  pageSize: number
 }
 
 export interface IMenuModel extends Record<string, any> {
@@ -259,7 +259,7 @@ export interface IDictItemModel extends Record<string, any> {
   updatedAt: string
   createdAt: string
 }
-export type DictTypeEntity = {
+export interface DictTypeEntity {
   /**
    * 字典编码
    */
