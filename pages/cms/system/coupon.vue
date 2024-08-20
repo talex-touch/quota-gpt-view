@@ -1,9 +1,7 @@
 <script lang="ts" setup>
 import dayjs from 'dayjs'
-import type { ComponentSize, FormInstance, FormRules } from 'element-plus'
-import { type CouponListQueryDto, type CreateCouponDto, type UserQuery, addUser, createBatchesCodeList, deleteUser, getAllCoupon, getCouponList, getDepartmentList, getRoleList, getUsers, invalidateCouponCode, updateUser } from '~/composables/api/account'
-import UserAvatar from '~/components/personal/UserAvatar.vue'
-import UserUploadAvatar from '~/components/personal/UserUploadAvatar.vue'
+import type { FormInstance, FormRules } from 'element-plus'
+import { type CouponListQueryDto, type CreateCouponDto, createBatchesCodeList, getAllCoupon, invalidateCouponCode } from '~/composables/api/account'
 
 definePageMeta({
   name: '券码管理',
@@ -38,14 +36,14 @@ function handleReset() {
 onMounted(fetchData)
 
 async function fetchData() {
-  if (!window.h5sdk) {
-    ElMessageBox.alert('您需要通过风险检测才可使用本功能！', '环境检测异常', {
-      confirmButtonText: '了解',
-    })
+  // if (!window.h5sdk) {
+  //   ElMessageBox.alert('您需要通过风险检测才可使用本功能！', '环境检测异常', {
+  //     confirmButtonText: '了解',
+  //   })
 
-    router.back()
-    return
-  }
+  //   router.back()
+  //   return
+  // }
 
   formLoading.value = true
 
@@ -186,6 +184,16 @@ function transformCodes(code: string) {
 
   return `${unique.join()}-*****`
 }
+
+function handleTableRowClass(data: any) {
+  const { row } = data
+
+  // 如果这条记录未审核则标黄 如果未通过则标红
+  if (row.maxUsage === -1)
+    return 'error-row'
+
+  return ''
+}
 </script>
 
 <template>
@@ -210,8 +218,15 @@ function transformCodes(code: string) {
       </el-form>
 
       <ClientOnly>
-        <el-table v-if="coupons?.items" height="85%" :data="coupons.items" table-layout="auto" style="width: 100%">
-          <el-table-column type="index" label="序号" />
+        <el-table
+          v-if="coupons?.items" :row-class-name="handleTableRowClass" border height="90%" :data="coupons.items"
+          table-layout="auto" style="width: 100%"
+        >
+          <el-table-column width="60px" label="编号">
+            <template #default="{ row }">
+              {{ row.id }}
+            </template>
+          </el-table-column>
 
           <el-table-column label="券码">
             <template #default="{ row }">

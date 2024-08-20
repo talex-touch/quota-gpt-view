@@ -13,11 +13,11 @@ const emit = defineEmits<{
 const model = useVModel(props, 'modelValue', emit)
 
 const icons = [
-  // {
-  //   label: 'All',
-  //   type: 'all',
-  //   value: [...FontCarbon],
-  // },
+  {
+    label: 'All',
+    type: 'all',
+    value: [...FontCarbon],
+  },
   {
     label: 'Carbon',
     type: 'carbon',
