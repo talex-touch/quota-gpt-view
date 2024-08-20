@@ -1,6 +1,6 @@
 import { endHttp } from '../../axios'
 import type { IDataResponse, IPageResponse, IStandardPageModel, IStandardResponse } from '../index.type'
-import type { IDictItemModel, IDictItemModelQuery, IDictTypeModel, IDictTypeModelQuery, IDoc, IDocQuery, IMenuModel, IMenuModelQuery, IParamConfigModel, IParamConfigModelQuery, IRoleModel, IRoleModelQuery, ITasksModel, ITasksModelQuery, IUserModel, IUserModelQuery, ServeStatInfo } from './cms.type'
+import type { IDictItemModel, IDictItemModelQuery, IDictTypeModel, IDictTypeModelQuery, IDoc, IDocQuery, IMenuModel, IMenuModelQuery, IParamConfigModel, IParamConfigModelQuery, IRoleModel, IRoleModelQuery, ISubscriptionPlan, ISubscriptionPlanQuery, ITasksModel, ITasksModelQuery, IUserModel, IUserModelQuery, ServeStatInfo } from './cms.type'
 
 export default {
   doc: {
@@ -104,7 +104,6 @@ export default {
      * 这个跟新奇怪  竟然是post
      * @param id
      * @param query
-     * @returns
      */
     update(id: number | string, query: IDictTypeModel) {
       return endHttp.post(`system/dict-type/${id}`, query) as Promise<IDataResponse<IDictTypeModel>>
@@ -177,6 +176,11 @@ export default {
   aigc: {
     userStatistics() {
       return endHttp.get('aigc/prompts/user') as Promise<IStandardResponse>
+    },
+  },
+  subscription: {
+    list(query: ISubscriptionPlanQuery) {
+      return endHttp.post('subscribe/list', query) as Promise<IPageResponse<ISubscriptionPlan>>
     },
   },
 }

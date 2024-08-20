@@ -542,3 +542,43 @@ export interface IDocQuery extends IDoc {
   page?: number
   pageSize?: number
 }
+
+export interface ISubscriptionPlan extends Record<string, any> {
+  /**
+   * 订阅结束日期
+   */
+  endDate: Date
+  /**
+   * 订阅是否有效
+   */
+  isActive: boolean
+  /**
+   * 是否自动续费
+   */
+  isAutoRenew: boolean
+  /**
+   * 是否是试用订阅
+   */
+  isTrial: boolean
+  /**
+   * 相关订单号
+   */
+  orderId: string
+  /**
+   * 订阅开始日期
+   */
+  startDate: Date
+  /**
+   * 订阅计划类型
+   */
+  type: 'STANDARD' | 'ULTIMATE'
+  /**
+   * 用户id
+   */
+  userId: string
+}
+
+export interface ISubscriptionPlanQuery extends ISubscriptionPlan {
+  page: number
+  pageSize: number
+}
