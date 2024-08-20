@@ -79,17 +79,6 @@ watch(() => endUrl.value, async (val) => {
   setTimeout(() => location.reload(), 500)
 })
 
-/* computed({
-  get() {
-    return globalOptions.getEndsUrl()
-  },
-  set(val: string) {
-    console.log('a', val)
-
-    globalOptions.setEndsUrl(val)
-  },
-}) */
-
 function filterSubMenus(menu: any) {
   return [...menu].filter(item => item.meta?.show)
 }
@@ -109,7 +98,7 @@ router.beforeEach(() => {
       <span flex items-center>
         <span class="head-start">
           <Logo />
-          <span font-bold>ThisAI</span>
+          <span font-bold>科塔智爱</span>
         </span>
 
         <el-breadcrumb>
@@ -282,6 +271,7 @@ router.beforeEach(() => {
         height: 36px;
       }
     }
+    z-index: 1;
 
     padding: 0 1rem;
     display: flex;
@@ -291,7 +281,8 @@ router.beforeEach(() => {
 
     width: 100%;
 
-    border-bottom: 1px solid var(--el-border-color);
+    box-shadow: var(--el-box-shadow);
+    // border-bottom: 1px solid var(--el-border-color);
   }
 
   .el-container {
