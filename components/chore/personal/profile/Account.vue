@@ -35,7 +35,7 @@ onMounted(() => {
 const rules = reactive<FormRules<RuleForm>>({
   nickname: [
     { required: true, message: '请输入昵称', trigger: 'blur' },
-    { min: 5, max: 16, message: '长度应该在 5-16 之间', trigger: 'blur' },
+    { min: 2, max: 24, message: '长度应该在 2-24 之间', trigger: 'blur' },
   ],
   avatar: [
     { required: true, message: '请上传头像', trigger: 'blur' },

@@ -145,11 +145,11 @@ const ruleFormRef = ref<FormInstance>()
 const rules = reactive<FormRules<UserForm>>({
   username: [
     { required: true, message: '请输入用户名称', trigger: 'blur' },
-    { min: 5, max: 24, message: '用户名需要在 5-24 位之间', trigger: 'blur' },
+    { min: 2, max: 24, message: '用户名需要在 2-24 位之间', trigger: 'blur' },
   ],
   nickname: [
     { required: true, message: '请输入用户昵称', trigger: 'blur' },
-    { min: 5, max: 24, message: '用户名需要在 5-24 位之间', trigger: 'blur' },
+    { min: 2, max: 24, message: '用户名需要在 2-24 位之间', trigger: 'blur' },
   ],
   // password: [
   //   { required: true, message: '请输入用户密码', trigger: 'blur' },

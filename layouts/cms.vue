@@ -102,8 +102,6 @@ const select = computed(() => {
 
   const item = result.at(-1)
 
-  console.log(item)
-
   return item
 })
 
@@ -155,6 +153,7 @@ watch(() => select.value, val => curMenu.value = val)
               <CmsMenuItem
                 v-for="subMenu in filterSubMenus(curMenu.children)" :key="subMenu.id"
                 :path="`/cms${subMenu.path}`"
+                :external="subMenu.path"
               >
                 <div flex items-center gap-2>
                   <div :class="subMenu.meta.icon" />{{ subMenu.name }}
