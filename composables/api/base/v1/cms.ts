@@ -1,6 +1,6 @@
 import { endHttp } from '../../axios'
 import type { IDataResponse, IPageResponse, IStandardPageModel, IStandardResponse } from '../index.type'
-import type { IDictItemModel, IDictItemModelQuery, IDictTypeModel, IDictTypeModelQuery, IDoc, IDocQuery, IParamConfigModel, IParamConfigModelQuery, IRoleModel, IRoleModelQuery, ITasksModel, ITasksModelQuery, IUserModel, IUserModelQuery, ServeStatInfo } from './cms.type'
+import type { IDictItemModel, IDictItemModelQuery, IDictTypeModel, IDictTypeModelQuery, IDoc, IDocQuery, IMenuModel, IParamConfigModel, IParamConfigModelQuery, IRoleModel, IRoleModelQuery, ITasksModel, ITasksModelQuery, IUserModel, IUserModelQuery, ServeStatInfo } from './cms.type'
 
 export default {
   doc: {
@@ -54,6 +54,30 @@ export default {
     },
     delete(id: number | string) {
       return endHttp.del(`system/roles/${id}`) as Promise<IStandardResponse>
+    },
+  },
+  menu: {
+    list(query: IMenuModel) {
+      return endHttp.get('system/menus', query) as Promise<IPageResponse<IMenuModel>>
+    },
+    create(Body: IMenuModel) {
+      return endHttp.post('system/menus', Body)
+    },
+    get(id: number | string) {
+      return endHttp.get(`system/menus/${id}`) as Promise<IDataResponse<IMenuModel>>
+    },
+    update(id: number | string, query: IMenuModel) {
+      return endHttp.put(`system/menus/${id}`, query) as Promise<IDataResponse<IMenuModel>>
+    },
+    delete(id: number | string) {
+      return endHttp.del(`system/menus/${id}`) as Promise<IStandardResponse>
+    },
+
+    /* 获取后端定义的所有权限集
+    *
+    */
+    getPermissions(id: number | string) {
+      return endHttp.get("system/menus/permissions") as Promise<{data:[]}>
     },
   },
 
@@ -131,7 +155,7 @@ export default {
 
   systemServer: {
     list() {
-      return endHttp.get('system/serve/stat') as Promise<IPageResponse<ServeStatInfo>>
+      return endHttp.get('system/serve/stat') as Promise<IDataResponse<ServeStatInfo>>
     },
 
   },
