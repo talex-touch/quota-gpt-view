@@ -39,6 +39,22 @@ watch(() => model.value, (val) => {
 })
 
 provide('onScroll', (func: any) => _func = func)
+
+function handleKeyDown(event: KeyboardEvent) {
+  if (event.ctrlKey && event.key === 's') {
+    event.preventDefault()
+    handleSave()
+  }
+}
+
+// 监听键盘Ctrl+S
+onMounted(() => {
+  window.addEventListener('keydown', handleKeyDown)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', handleKeyDown)
+})
 </script>
 
 <template>

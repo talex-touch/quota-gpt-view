@@ -419,25 +419,33 @@ async function handlePublishVersion(id: number) {
               <el-button v-if="row.status !== 0" plain text size="small" @click="handleDialog(row, 'read')">
                 详情
               </el-button>
-              <el-button v-if="row.status !== 3" plain text size="small" type="warning"
-                @click="handleDialog(row, 'edit')">
+              <el-button
+                v-if="row.status !== 3" plain text size="small" type="warning"
+                @click="handleDialog(row, 'edit')"
+              >
                 编辑
               </el-button>
-              <el-button v-if="row.status !== 0 && row.status !== 3" plain text size="small" type="danger"
-                @click="handleArchiveDoc(row.id, row)">
+              <el-button
+                v-if="row.status !== 0 && row.status !== 3" plain text size="small" type="danger"
+                @click="handleArchiveDoc(row.id, row)"
+              >
                 归档
               </el-button>
-              <el-button v-if="row.status === 1" plain text size="small" type="primary"
-                @click="handlePublishVersion(row.id)">
+              <el-button
+                v-if="row.status === 1" plain text size="small" type="primary"
+                @click="handlePublishVersion(row.id)"
+              >
                 发版
               </el-button>
             </template>
           </el-table-column>
         </el-table>
 
-        <el-pagination v-if="docs?.meta" v-model:current-page="docs.meta.currentPage"
-          v-model:page-size="docs.meta.itemsPerPage" class="1" float-right my-4 :page-sizes="[15, 30, 50]"
-          layout="total, sizes, prev, pager, next, jumper" :total="docs.meta.totalItems" @change="fetchData" />
+        <el-pagination
+          v-if="docs?.meta" v-model:current-page="docs.meta.currentPage"
+          v-model:page-size="docs.meta.itemsPerPage" float-right my-4 :page-sizes="[15, 30, 50]"
+          layout="total, sizes, prev, pager, next, jumper" :total="docs.meta.totalItems" @change="fetchData"
+        />
       </ClientOnly>
     </el-main>
 
@@ -475,17 +483,23 @@ async function handlePublishVersion(id: number) {
               <span>请先编辑文档标题再编辑。</span>
             </div>
 
-            <ArticleThEditor v-model="dialogOptions.data.content!"
-              :readonly="dialogOptions.mode === 'read' || dialogOptions.data.status === 3" @save="tryTempSave">
+            <ArticleThEditor
+              v-model="dialogOptions.data.content!"
+              :readonly="dialogOptions.mode === 'read' || dialogOptions.data.status === 3" @save="tryTempSave"
+            >
               <template #property>
-                <el-form ref="ruleFormRef" :disabled="dialogOptions.loading || dialogOptions.mode === 'read'"
-                  :model="dialogOptions.data" :rules="rules" label-width="auto" status-icon my-4 inline>
+                <el-form
+                  ref="ruleFormRef" :disabled="dialogOptions.loading || dialogOptions.mode === 'read'"
+                  :model="dialogOptions.data" :rules="rules" label-width="auto" status-icon my-4 inline
+                >
                   <el-form-item label="文档权限" prop="permission">
                     <el-input v-model="dialogOptions.data.permission" :disabled="dialogOptions.mode === 'read'" />
                   </el-form-item>
                   <el-form-item v-if="dialogOptions.data.metaOptions" label="文档密码" prop="password">
-                    <el-input v-model="dialogOptions.data.metaOptions!.password"
-                      :disabled="dialogOptions.mode === 'read'" type="password" />
+                    <el-input
+                      v-model="dialogOptions.data.metaOptions!.password"
+                      :disabled="dialogOptions.mode === 'read'" type="password"
+                    />
                   </el-form-item>
                 </el-form>
               </template>
