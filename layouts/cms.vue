@@ -332,6 +332,10 @@ watch(() => select.value, val => curMenu.value = val)
   height: 100%;
 
   overflow: hidden;
+
+  .el-table__inner-wrapper {
+    height: 100% !important;
+  }
 }
 
 .CmsTemplate {
