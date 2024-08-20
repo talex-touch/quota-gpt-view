@@ -1,9 +1,7 @@
 <script lang="ts" setup>
 import dayjs from 'dayjs'
-import type { ComponentSize, FormInstance, FormRules } from 'element-plus'
-import { type CouponListQueryDto, type CreateCouponDto, type UserQuery, addUser, createBatchesCodeList, deleteUser, getAllCoupon, getCouponList, getDepartmentList, getRoleList, getUsers, invalidateCouponCode, updateUser } from '~/composables/api/account'
-import UserAvatar from '~/components/personal/UserAvatar.vue'
-import UserUploadAvatar from '~/components/personal/UserUploadAvatar.vue'
+import type { FormInstance, FormRules } from 'element-plus'
+import { type CouponListQueryDto, type CreateCouponDto, createBatchesCodeList, getAllCoupon, invalidateCouponCode } from '~/composables/api/account'
 
 definePageMeta({
   name: '券码管理',

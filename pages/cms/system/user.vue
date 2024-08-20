@@ -341,7 +341,7 @@ function filterNode(value: string, data: any) {
           <el-table-column prop="role" label="角色" width="180">
             <template #default="{ row }">
               <span v-if="row.roles?.length">
-                <el-tag v-for="role in row.roles" :key="role.id"> {{ role.name }}</el-tag>
+                <el-tag v-for="role in row.roles" :key="role.id" mr-2> {{ role.name }}</el-tag>
               </span>
               <span v-else>无</span>
             </template>

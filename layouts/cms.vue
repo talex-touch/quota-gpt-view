@@ -90,6 +90,24 @@ router.beforeEach(() => {
     return false
   }
 })
+
+const curMenu = ref()
+const select = computed(() => {
+  // 根据 route 来判断当前选中的是哪个menu 以及对应的parent
+  const path = route.fullPath.replace('/cms', '')
+
+  const result = [...(menus.value || [])].filter(item => path.startsWith(item.path))
+  if (!result.length)
+    return null
+
+  const item = result.at(-1)
+
+  console.log(item)
+
+  return item
+})
+
+watch(() => select.value, val => curMenu.value = val)
 </script>
 
 <template>
@@ -124,14 +142,38 @@ router.beforeEach(() => {
       </div>
     </el-header>
     <el-container class="CmsContainer">
-      <el-aside class="CmsAside" width="240px">
-        <template v-for="item in menus" :key="item.id">
-          <CmsMenu v-if="item.children?.length" :expandable="item.children?.length">
+      <el-aside class="CmsAside" width="280px">
+        <div class="MenuIcon">
+          <div v-for="item in menus" :key="item.id" :class="{ active: curMenu?.id === item.id }" class="MenuIcon-Item" @click="curMenu = item">
+            <div :class="item.meta.icon" />
+            <span>{{ item.name }}</span>
+          </div>
+        </div>
+        <div class="Menu-Sub">
+          <div class="Menu-Sub-Container">
+            <template v-if="curMenu?.children">
+              <CmsMenuItem
+                v-for="subMenu in filterSubMenus(curMenu.children)" :key="subMenu.id"
+                :path="`/cms${subMenu.path}`"
+              >
+                <div flex items-center gap-2>
+                  <div :class="subMenu.meta.icon" />{{ subMenu.name }}
+                </div>
+              </CmsMenuItem>
+            </template>
+          </div>
+        </div>
+
+        <!-- <template v-for="item in menus" :key="item.id">
+          <CmsMenu v-if="false && item.children?.length" :expandable="item.children?.length">
             <template #header>
               <div :class="item.meta.icon" />
-              {{ item.name }}
+              <span>{{ item.name }}</span>
             </template>
-            <CmsMenuItem v-for="subMenu in filterSubMenus(item.children)" :key="subMenu.id" :path="`/cms${subMenu.path}`">
+            <CmsMenuItem
+              v-for="subMenu in filterSubMenus(item.children)" :key="subMenu.id"
+              :path="`/cms${subMenu.path}`"
+            >
               <div flex items-center gap-2>
                 <div :class="subMenu.meta.icon" />{{ subMenu.name }}
               </div>
@@ -142,7 +184,7 @@ router.beforeEach(() => {
               <div :class="item.meta.icon" />{{ item.name }}
             </div>
           </CmsMenuItem>
-        </template>
+        </template> -->
       </el-aside>
       <el-main class="CmsMain">
         <el-watermark :font="font" :z-index="100" class="watermark" :content="[userStore.nickname!, 'ThisAI CMS']">
@@ -154,6 +196,78 @@ router.beforeEach(() => {
 </template>
 
 <style lang="scss">
+.CmsAside {
+  .MenuIcon {
+    &-Item {
+      span {
+        font-size: 12px;
+      }
+      div {
+        flex: 1;
+      }
+      &:hover {
+        color: var(--el-color-primary);
+      }
+      &.active {
+        color: var(--el-color-primary);
+        background-color: var(--el-color-primary-light-9);
+      }
+      padding: 0.5rem;
+      display: flex;
+      flex-direction: column;
+
+      width: 64px;
+      height: 64px;
+
+      align-items: center;
+      justify-content: space-between;
+
+      cursor: pointer;
+      border-radius: 8px;
+      box-sizing: border-box;
+      // background-color: var(--el-bg-color-page);
+    }
+    padding: 0.5rem;
+    gap: 0.5rem;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+
+    width: 96px;
+
+    background-color: var(--el-bg-color-overlay);
+    border-right: 1px solid var(--el-border-color);
+  }
+  .Menu-Sub {
+    width: 100%;
+  }
+  .CmsMenuItem {
+    &::after {
+      content: '';
+      position: absolute;
+
+      top: 0;
+      right: 0;
+      width: 2px;
+
+      height: 100%;
+
+      transition: 0.25s;
+      transform: scale(0);
+
+      background-color: var(--el-color-primary);
+    }
+    &.select::after {
+      transform: scale(1);
+    }
+    position: relative;
+  }
+
+  display: flex;
+}
+
 /* ... */
 .rotate-enter-active,
 .rotate-leave-active {
