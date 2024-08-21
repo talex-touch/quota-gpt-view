@@ -742,7 +742,7 @@ const statusOptions = [
           </el-form-item>
           <el-form-item label="模板关键词" prop="keywords">
             <el-select
-              v-model="dialogOptions.data.keywords" multiple allow-create default-first-option
+              v-model="dialogOptions.data.keywords" filterable multiple allow-create default-first-option
               :reserve-keyword="false" placeholder="选择或创建模板关键词"
             >
               <el-option label="信息" value="信息" />
