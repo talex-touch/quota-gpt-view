@@ -168,10 +168,10 @@ const rules = reactive<FormRules<PromptEntityDto>>({
     { required: true, message: '请输入模板描述', trigger: 'blur' },
     { min: 32, max: 200, message: '模板描述需要在 32-200 位之间', trigger: 'blur' },
   ],
-  keywords: [
-    { required: true, message: '请输入关键词', trigger: 'blur' },
-    { min: 20, max: 255, message: '关键词需要在 20-255 位之间', trigger: 'blur' },
-  ],
+  // keywords: [
+  //   { required: true, message: '请输入关键词', trigger: 'blur' },
+  //   { min: 20, max: 255, message: '关键词需要在 20-255 位之间', trigger: 'blur' },
+  // ],
 })
 
 async function submitForm(formEl: FormInstance | undefined) {
@@ -740,7 +740,7 @@ const statusOptions = [
               type="textarea"
             />
           </el-form-item>
-          <el-form-item label="模板关键词" prop="keywords">
+          <el-form-item label="模板关键词">
             <el-select
               v-model="dialogOptions.data.keywords" filterable multiple allow-create default-first-option
               :reserve-keyword="false" placeholder="选择或创建模板关键词"
