@@ -667,9 +667,7 @@ const statusOptions = [
               >
                 下线
               </el-button>
-              <el-button
-                v-if="row.status === 1" :disabled="true" plain text size="small" type="danger"
-              >
+              <el-button v-if="row.status === 1" :disabled="true" plain text size="small" type="danger">
                 删除
               </el-button>
             </template>
@@ -736,16 +734,16 @@ const statusOptions = [
           <el-form-item label="模板标题" prop="title">
             <el-input v-model="dialogOptions.data.title" :maxlength="255" :disabled="dialogOptions.mode !== 'new'" />
           </el-form-item>
-          <el-form-item label="模板介绍" prop="title">
+          <el-form-item label="模板介绍" prop="description">
             <el-input
-              v-model="dialogOptions.data.description" :maxlength="255"
-              :disabled="dialogOptions.mode !== 'new'"
+              v-model="dialogOptions.data.description" :maxlength="255" :disabled="dialogOptions.mode !== 'new'"
+              type="textarea"
             />
           </el-form-item>
-          <el-form-item label="模板关键词" prop="title">
+          <el-form-item label="模板关键词" prop="keywords">
             <el-select
-              v-model="dialogOptions.data.keywords" multiple allow-create default-first-option :reserve-keyword="false"
-              placeholder="选择或创建模板关键词"
+              v-model="dialogOptions.data.keywords" multiple allow-create default-first-option
+              :reserve-keyword="false" placeholder="选择或创建模板关键词"
             >
               <el-option label="信息" value="信息" />
             </el-select>
