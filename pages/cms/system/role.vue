@@ -40,7 +40,9 @@ const templateData = genCmsTemplateData<TemplateType, IRoleModelQuery, null>({
   transformSubmitData(originData) {
     const data = originData
 
-    data.menuIds = [...(treeRef.value.getCheckedNodes() ?? [])].map(item => item.id)
+    data.menuIds = [...(treeRef.value.getCheckedNodes(false, false) ?? [])].map(item => item.id)
+
+    delete data.menu
 
     return data
   },
