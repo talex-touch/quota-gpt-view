@@ -1,10 +1,6 @@
 <script lang="ts" setup>
-import dayjs from 'dayjs'
-import type { ComponentSize, FormInstance, FormRules } from 'element-plus'
 import { CaretBottom, CaretTop, Warning } from '@element-plus/icons-vue'
-import { type IAdminOrderQuery, type UserQuery, addUser, deleteUser, getAdminOrderStatistics, getAdminOrders, getDepartmentList, getRoleList, getUsers, updateUser } from '~/composables/api/account'
-import UserAvatar from '~/components/personal/UserAvatar.vue'
-import UserUploadAvatar from '~/components/personal/UserUploadAvatar.vue'
+import { type IAdminOrderQuery, getAdminOrderStatistics, getAdminOrders } from '~/composables/api/account'
 
 definePageMeta({
   name: '订单管理',
