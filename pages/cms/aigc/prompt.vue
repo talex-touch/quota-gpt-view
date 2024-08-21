@@ -161,7 +161,7 @@ const rules = reactive<FormRules<PromptEntityDto>>({
   ],
   content: [
     { required: true, message: '请输入模板内容', trigger: 'blur' },
-    { min: 200, max: 1024, message: '模板内容需要在 200-1024 位之间', trigger: 'blur' },
+    { min: 150, max: 512, message: '模板内容需要在 150-512 位之间', trigger: 'blur' },
   ],
   avatar: [{ required: true, message: '请上传头像', trigger: 'blur' }],
   description: [
@@ -184,12 +184,13 @@ async function submitForm(formEl: FormInstance | undefined) {
     dialogOptions.loading = true
 
     if (Array.isArray(dialogOptions.data!.keywords)) {
-      if (dialogOptions.data!.keywords.length < 20) {
-        ElMessage.error('关键词数量不能少于20个！')
+      if (dialogOptions.data!.keywords.length < 10) {
+        ElMessage.error('关键词数量不能少于10个！')
+        dialogOptions.loading = false
         return
       }
 
-      dialogOptions.data!.keywords.join(',')
+      dialogOptions.data!.keywords = dialogOptions.data!.keywords.join(',')
     }
 
     if (dialogOptions.mode !== 'new') {
@@ -358,9 +359,10 @@ const auditAssignOptions = reactive<{
 function handleAuditAssign(data: PromptEntityDto) {
   auditAssignOptions.data = {
     id: data.id!,
-    tags: data.tags || [],
+    tags: data.tags?.map(item => item.id) || [],
   }
   auditAssignOptions.dialog = true
+  auditAssignOptions.options = data.tags || []
 }
 
 async function remoteMethod(query: string) {
