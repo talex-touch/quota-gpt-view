@@ -736,7 +736,7 @@ const statusOptions = [
           </el-form-item>
           <el-form-item label="模板介绍" prop="description">
             <el-input
-              v-model="dialogOptions.data.description" :maxlength="255" :disabled="dialogOptions.mode !== 'new'"
+              v-model="dialogOptions.data.description" :maxlength="255"
               type="textarea"
             />
           </el-form-item>
