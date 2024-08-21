@@ -140,8 +140,12 @@ function handleDialog(data: PromptEntityDto | null, mode: 'edit' | 'read' | 'new
         avatar: '',
         content: '',
         title: '',
+        description: '',
+        keywords: [],
       }
     : { ...data }) as PromptEntityDto
+
+  dialogOptions.data.keywords = Array.isArray(dialogOptions.data.keywords) ? dialogOptions.data.keywords : (dialogOptions.data.keywords?.split(','))
 
   dialogOptions.meta.stashContent = ''
   dialogOptions.meta.polish = false
@@ -153,13 +157,21 @@ const ruleFormRef = ref<FormInstance>()
 const rules = reactive<FormRules<PromptEntityDto>>({
   title: [
     { required: true, message: '请输入模板标题', trigger: 'blur' },
-    { min: 5, max: 255, message: '模板标题需要在 5-255 位之间', trigger: 'blur' },
+    { min: 4, max: 255, message: '模板标题需要在 4-255 位之间', trigger: 'blur' },
   ],
   content: [
     { required: true, message: '请输入模板内容', trigger: 'blur' },
     { min: 200, max: 1024, message: '模板内容需要在 200-1024 位之间', trigger: 'blur' },
   ],
   avatar: [{ required: true, message: '请上传头像', trigger: 'blur' }],
+  description: [
+    { required: true, message: '请输入模板描述', trigger: 'blur' },
+    { min: 32, max: 200, message: '模板描述需要在 32-200 位之间', trigger: 'blur' },
+  ],
+  keywords: [
+    { required: true, message: '请输入关键词', trigger: 'blur' },
+    { min: 20, max: 255, message: '关键词需要在 20-255 位之间', trigger: 'blur' },
+  ],
 })
 
 async function submitForm(formEl: FormInstance | undefined) {
@@ -170,6 +182,15 @@ async function submitForm(formEl: FormInstance | undefined) {
       return
 
     dialogOptions.loading = true
+
+    if (Array.isArray(dialogOptions.data!.keywords)) {
+      if (dialogOptions.data!.keywords.length < 20) {
+        ElMessage.error('关键词数量不能少于20个！')
+        return
+      }
+
+      dialogOptions.data!.keywords.join(',')
+    }
 
     if (dialogOptions.mode !== 'new') {
       const res: any = await chatAdminManager.updateTemplate(
@@ -209,37 +230,6 @@ function resetForm(formEl: FormInstance | undefined) {
   if (!formEl)
     return
   formEl.resetFields()
-}
-
-function handleDeleteUser(id: number, data: PromptEntityDto) {
-  // ElMessageBox.confirm(
-  //   `你确定要删除用户 ${data.username}(${data.nickname}) #${id} 吗？删除后这个账户永久无法找回。`,
-  //   '确认删除',
-  //   {
-  //     confirmButtonText: '取消',
-  //     cancelButtonText: '确定删除',
-  //     type: 'error',
-  //   },
-  // )
-  //   .then(() => {
-  //     ElMessage({
-  //       type: 'success',
-  //       message: '已取消删除用户！',
-  //     })
-  //   })
-  //   .catch(async () => {
-  //     const res: any = await deleteUser(`${id}`)
-  //     if (res.code !== 200) {
-  //       ElMessage.error('删除失败！')
-  //       return
-  //     }
-  //     fetchData()
-  //     ElNotification({
-  //       title: 'Info',
-  //       message: `你永久删除了用户 ${data.username}(${data.nickname}) #${id} 及其相关数据！`,
-  //       type: 'info',
-  //     })
-  //   })
 }
 
 const auditOptions = reactive<{
@@ -679,7 +669,6 @@ const statusOptions = [
               </el-button>
               <el-button
                 v-if="row.status === 1" :disabled="true" plain text size="small" type="danger"
-                @click="handleDeleteUser(row.id, row)"
               >
                 删除
               </el-button>
@@ -747,7 +736,21 @@ const statusOptions = [
           <el-form-item label="模板标题" prop="title">
             <el-input v-model="dialogOptions.data.title" :maxlength="255" :disabled="dialogOptions.mode !== 'new'" />
           </el-form-item>
-          <el-form-item label="模板标签" prop="tags">
+          <el-form-item label="模板介绍" prop="title">
+            <el-input
+              v-model="dialogOptions.data.description" :maxlength="255"
+              :disabled="dialogOptions.mode !== 'new'"
+            />
+          </el-form-item>
+          <el-form-item label="模板关键词" prop="title">
+            <el-select
+              v-model="dialogOptions.data.keywords" multiple allow-create default-first-option :reserve-keyword="false"
+              placeholder="选择或创建模板关键词"
+            >
+              <el-option label="信息" value="信息" />
+            </el-select>
+          </el-form-item>
+          <el-form-item v-if="dialogOptions.mode === 'read'" label="模板标签" prop="tags">
             <span v-for="item in dialogOptions.data.tags" :key="item.id" mx-2 flex items-center>
               <el-tooltip>
                 <template #default>
@@ -770,7 +773,7 @@ const statusOptions = [
               :autosize="{ minRows: 5, maxRows: 30 }" type="textarea"
             />
           </el-form-item>
-          <el-form-item label="创建者" prop="content">
+          <el-form-item v-if="dialogOptions.mode === 'read'" label="创建者" prop="content">
             <PersonalNormalUser :data="dialogOptions.data.creator" />
           </el-form-item>
           <el-form-item v-if="dialogOptions.mode !== 'read'" label="模板须知" prop="agreement">

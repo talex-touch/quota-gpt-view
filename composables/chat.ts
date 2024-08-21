@@ -894,6 +894,8 @@ export interface PromptEntityDto {
    * 提示词标题
    */
   title?: string
+  description?: string
+  keywords?: string | string[]
   updatedAt?: Date
   /**
    * 更新者
