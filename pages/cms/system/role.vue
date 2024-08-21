@@ -44,6 +44,9 @@ const templateData = genCmsTemplateData<TemplateType, IRoleModelQuery, null>({
 
     return data
   },
+  handleCrudDialog(data) {
+    data.menuIds = data.menus.map((item: any) => item.id)
+  },
   getList: $dataApi.list,
   create: $dataApi.create,
   update: $dataApi.update,

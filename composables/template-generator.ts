@@ -1,7 +1,7 @@
 import type { FormInstance } from 'element-plus'
 import type { IDataResponse, IPageResponse, IStandardPageModel, IStandardResponse } from './api/base/index.type'
 
-export interface TemplateDataHandler<T extends Record<string, any>, PageT extends T> {
+export interface TemplateDataHandler<T extends Record<string, any>, PageT extends T, O> {
   getEmptyModel: () => T
   onFetchSuccess?: () => Promise<void>
   /**
@@ -15,6 +15,7 @@ export interface TemplateDataHandler<T extends Record<string, any>, PageT extend
   update?: (id: string | number, data: T) => Promise<IStandardResponse>
   create?: (data: T) => Promise<IStandardResponse>
   delete?: (id: string | number) => Promise<IStandardResponse>
+  handleCrudDialog?: (data: T, mode: CrudMode, meta?: Partial<O>) => void
 
   getDeleteBoxTitle: (id: string | number) => string
 }
@@ -38,9 +39,9 @@ export enum CurdController {
  * @param queryData 查询参数，用于初始化查询条件
  * @returns 返回一个对象，包含数据列表、表单加载状态、CRUD对话框选项以及数据获取和处理函数
  */
-export function genCmsTemplateData<T extends Record<string, any> & { id?: number | string }, PageT extends T & { page: number; pageSize: number }, O extends Record<string, any> | null>(
-  dataHandler: TemplateDataHandler<T, PageT>,
-  queryData: Partial<T>
+export function genCmsTemplateData<T extends Record<string, any> & { id?: number | string }, PageT extends T & { page: number, pageSize: number }, O extends Record<string, any> | null>(
+  dataHandler: TemplateDataHandler<T, PageT, O>,
+  queryData: Partial<T>,
 ) {
   const formLoading = ref(false)
   const list = shallowRef<IStandardPageModel<T>>({
@@ -72,7 +73,8 @@ export function genCmsTemplateData<T extends Record<string, any> & { id?: number
 
     // 过滤掉为空的值
     Object.entries(query).forEach(([key, value]) => {
-      if (!value) delete query[key]
+      if (!value)
+        delete query[key]
     })
 
     const res = await dataHandler.getList(query as PageT)
@@ -106,13 +108,17 @@ export function genCmsTemplateData<T extends Record<string, any> & { id?: number
       data: data || dataHandler.getEmptyModel(),
       visible: true,
     })
+
+    dataHandler.handleCrudDialog?.(data, mode, meta)
   }
 
   async function submitForm(formEl: FormInstance | undefined) {
-    if (!formEl) return
+    if (!formEl)
+      return
 
     await formEl.validate(async (valid) => {
-      if (!valid) return
+      if (!valid)
+        return
 
       const data = crudDialogOptions.data as T | undefined
 
@@ -132,7 +138,8 @@ export function genCmsTemplateData<T extends Record<string, any> & { id?: number
           crudDialogOptions.visible = false
 
           fetchData()
-        } else {
+        }
+        else {
           ElMessage.error(res.message ?? '修改失败！')
         }
       }
@@ -144,7 +151,8 @@ export function genCmsTemplateData<T extends Record<string, any> & { id?: number
           crudDialogOptions.visible = false
 
           fetchData()
-        } else {
+        }
+        else {
           ElMessage.error(res.message ?? '添加失败！')
         }
       }
@@ -199,14 +207,6 @@ export function genCmsTemplateData<T extends Record<string, any> & { id?: number
   }
 }
 
-
-
-
-
-
-
-
-
 export interface TemplateDataHandler2<T extends Record<string, any>> {
   getEmptyModel: () => T
   onFetchSuccess: () => Promise<void>
@@ -228,7 +228,7 @@ export interface TemplateDataHandler2<T extends Record<string, any>> {
  */
 export function genCmsTemplateData2<T extends Record<string, any>, O extends Record<string, any> | null>(
   dataHandler: TemplateDataHandler2<T>,
-  queryData: Partial<T>
+  queryData: Partial<T>,
 ) {
   const formLoading = ref(false)
   const list = shallowRef<T[] >()
@@ -238,22 +238,24 @@ export function genCmsTemplateData2<T extends Record<string, any>, O extends Rec
   async function fetchData() {
     formLoading.value = true
 
-    const query: Record<string, any> = { ...internalQueryData };
+    const query: Record<string, any> = { ...internalQueryData }
 
     // 过滤掉为空的值
-    Object.keys(query).forEach(key => {
-      if (!query[key]) delete query[key];
-    });
+    Object.keys(query).forEach((key) => {
+      if (!query[key])
+        delete query[key]
+    })
 
-    const res = await dataHandler.getList(query as T);
+    const res = await dataHandler.getList(query as T)
     if (res.code === 200) {
-      list.value = res.data!;
-      dataHandler.onFetchSuccess();
-    } else {
-      ElMessage.error(res.message || '参数错误，查询失败！');
+      list.value = res.data!
+      dataHandler.onFetchSuccess()
+    }
+    else {
+      ElMessage.error(res.message || '参数错误，查询失败！')
     }
 
-    formLoading.value = false;
+    formLoading.value = false
   }
 
   const crudDialogOptions = reactive<{
@@ -268,48 +270,50 @@ export function genCmsTemplateData2<T extends Record<string, any>, O extends Rec
     data: null,
     loading: false,
     // meta: {},
-  });
+  })
 
   function handleCrudDialog(data: T | null, mode: CrudMode) {
     Object.assign(crudDialogOptions, {
       mode,
       data: data || dataHandler.getEmptyModel(),
       visible: true,
-    });
+    })
   }
 
   async function submitForm(formEl: FormInstance | undefined) {
-    if (!formEl) return;
+    if (!formEl)
+      return
 
-    await formEl.validate(async valid => {
-      if (!valid) return;
+    await formEl.validate(async (valid) => {
+      if (!valid)
+        return
 
-      const data = crudDialogOptions.data as T | undefined;
+      const data = crudDialogOptions.data as T | undefined
       if (!data) {
-        ElMessage.error('流程数据错误！');
-        return;
+        ElMessage.error('流程数据错误！')
+        return
       }
 
-      crudDialogOptions.loading = true;
-      const submitData = dataHandler.transformSubmitData(data, crudDialogOptions.mode);
+      crudDialogOptions.loading = true
+      const submitData = dataHandler.transformSubmitData(data, crudDialogOptions.mode)
 
-      let res: any;
-      if (crudDialogOptions.mode === 'EDIT') {
-        res = await dataHandler.update(submitData.id!, submitData);
-      } else {
-        res = await dataHandler.create(data);
-      }
+      let res: any
+      if (crudDialogOptions.mode === 'EDIT')
+        res = await dataHandler.update(submitData.id!, submitData)
+      else
+        res = await dataHandler.create(data)
 
       if (res.code === 200) {
-        ElMessage.success(crudDialogOptions.mode === 'EDIT' ? '修改成功！' : '添加成功！');
-        crudDialogOptions.visible = false;
-        fetchData();
-      } else {
-        ElMessage.error(res.message ?? (crudDialogOptions.mode === 'EDIT' ? '修改失败！' : '添加失败！'));
+        ElMessage.success(crudDialogOptions.mode === 'EDIT' ? '修改成功！' : '添加成功！')
+        crudDialogOptions.visible = false
+        fetchData()
+      }
+      else {
+        ElMessage.error(res.message ?? (crudDialogOptions.mode === 'EDIT' ? '修改失败！' : '添加失败！'))
       }
 
-      crudDialogOptions.loading = false;
-    });
+      crudDialogOptions.loading = false
+    })
   }
 
   async function handleDeleteData(id: string | number) {
@@ -318,25 +322,25 @@ export function genCmsTemplateData2<T extends Record<string, any>, O extends Rec
       cancelButtonText: '取消',
       type: 'error',
     }).then(async () => {
-      const res = await dataHandler.delete(id);
+      const res = await dataHandler.delete(id)
       if (res.code !== 200) {
-        ElMessage.error(res.message || '删除失败！');
-        return;
+        ElMessage.error(res.message || '删除失败！')
+        return
       }
 
-      fetchData(); // 刷新数据
+      fetchData() // 刷新数据
 
       ElNotification({
         title: 'Info',
         message: `你永久删除了${dataHandler.getDeleteBoxTitle(id)}！`,
         type: 'info',
-      });
+      })
     }).catch(() => {
       ElMessage({
         type: 'success',
         message: `已取消删除${dataHandler.getDeleteBoxTitle(id)}！`,
-      });
-    });
+      })
+    })
   }
 
   return {
@@ -349,9 +353,7 @@ export function genCmsTemplateData2<T extends Record<string, any>, O extends Rec
     handleCrudDialog,
     handleDeleteData,
     resetQueryForm() {
-      Object.assign(internalQueryData, queryData);
+      Object.assign(internalQueryData, queryData)
     },
-  };
+  }
 }
-
-

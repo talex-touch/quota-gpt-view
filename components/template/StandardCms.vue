@@ -87,10 +87,10 @@ function getData(data: any) {
                   </el-table-column>
                 </slot>
               </el-table>
-            
-
-                <el-table v-else :data="list" row-key="id"
-                :tree-props="{ children: 'children', hasChildren: 'hasChildren' }" style="width: 100%;">
+              <el-table
+                v-else :data="list" row-key="id"
+                :tree-props="{ children: 'children', hasChildren: 'hasChildren' }" style="width: 100%;"
+              >
                 <slot name="TableColumn" />
 
                 <slot name="TableColumnAction">
@@ -111,8 +111,6 @@ function getData(data: any) {
               </el-table>
             </el-col>
           </el-row>
-
-    
         </el-main>
       </ClientOnly>
     </el-main>
