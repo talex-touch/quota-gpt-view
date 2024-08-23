@@ -6,6 +6,13 @@ export default defineNuxtPlugin((nuxtApp) => {
       const permission = bindings.value
       if (!userHavePermission(permission))
         el.style.display = 'none'
+      else el.style.display = ''
+    },
+    updated(el: HTMLElement, bindings) {
+      const permission = bindings.value
+      if (!userHavePermission(permission))
+        el.style.display = 'none'
+      else el.style.display = ''
     },
   })
 })

@@ -40,7 +40,7 @@ const templateData = genCmsTemplateData<TemplateType, IRoleModelQuery, null>({
   transformSubmitData(originData) {
     const data = originData
 
-    data.menuIds = [...(treeRef.value.getCheckedNodes(false, false) ?? [])].map(item => item.id)
+    data.menuIds = [...(treeRef.value.getCheckedNodes(false, !false) ?? [])].map(item => item.id)
 
     delete data.menu
 
@@ -84,7 +84,7 @@ const menuListTreeProps = {
 </script>
 
 <template>
-  <TemplateStandardCms :rules="rules" :list="list" :template-data="templateData" name="角色">
+  <TemplateStandardCms identifier="role" :rules="rules" :list="list" :template-data="templateData" name="角色">
     <template #QueryForm>
       <el-form-item label="角色名称">
         <el-input v-model="listForm.name" placeholder="角色名称" clearable />
@@ -164,7 +164,7 @@ const menuListTreeProps = {
       <el-form-item label="菜单权限">
         <el-tree
           ref="treeRef" :default-checked-keys="data.menuIds" :data="menus" show-checkbox
-          node-key="id" :props="menuListTreeProps"
+          node-key="id" :props="menuListTreeProps" check-strictly
         />
       </el-form-item>
     </template>

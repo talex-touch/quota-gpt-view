@@ -171,25 +171,12 @@ export interface IDeptModel extends Record<string, any> {
    */
   orderNo: number
   parent?: DeptEntity
+  parentid?: number
   updatedAt: Date
   /**
    * 更新者
    */
   updater: string
-}
-export interface IDeptModelQuery extends IDeptModel {
-   /**
-     * 部门名称
-     */
-   name?: string;
-   /**
-    * 排序编号
-    */
-   orderNo?: number;
-   /**
-    * 父级部门id
-    */
-   parentid?: number;
 }
 
 export interface IParamConfigModel extends Record<string, any> {

@@ -25,6 +25,12 @@ watch(() => route.fullPath, () => {
 const menus = ref()
 const menuOpened = ref<any[]>([])
 onBeforeMount(async () => {
+  if (!userStore.value.isAdmin) {
+    router.push('/')
+
+    return false
+  }
+
   const res = await getAccountMenuList()
 
   // 将menu的每一项都排序 (orderNo)
@@ -82,14 +88,6 @@ watch(() => endUrl.value, async (val) => {
 function filterSubMenus(menu: any) {
   return [...menu].filter(item => item.meta?.show)
 }
-
-router.beforeEach(() => {
-  if (!userStore.value.isAdmin) {
-    router.push('/')
-
-    return false
-  }
-})
 
 const curMenu = ref()
 const select = computed(() => {

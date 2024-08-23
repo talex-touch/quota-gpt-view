@@ -309,7 +309,7 @@ function filterNode(value: string, data: any) {
           <el-button :loading="formLoading" type="primary" @click="fetchData">
             查询
           </el-button>
-          <el-button type="success" @click="handleDialog(null, 'new')">
+          <el-button v-permission="`system:user:create`" type="success" @click="handleDialog(null, 'new')">
             新建用户
           </el-button>
         </el-form-item>
@@ -369,10 +369,16 @@ function filterNode(value: string, data: any) {
               <el-button plain text size="small" @click="handleDialog(row, 'read')">
                 详情
               </el-button>
-              <el-button plain text size="small" type="warning" @click="handleDialog(row, 'edit')">
+              <el-button
+                v-permission="`system:user:update`" plain text size="small" type="warning"
+                @click="handleDialog(row, 'edit')"
+              >
                 编辑
               </el-button>
-              <el-button plain text size="small" type="danger" @click="handleDeleteUser(row.id, row)">
+              <el-button
+                v-permission="`system:user:delete`" plain text size="small" type="danger"
+                @click="handleDeleteUser(row.id, row)"
+              >
                 删除
               </el-button>
             </template>

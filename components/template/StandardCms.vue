@@ -4,7 +4,8 @@ import type { IRoleModel, IStandardPageModel } from '~/composables/api/base/inde
 
 const props = defineProps<{
   name: string
-  list: IStandardPageModel<T>
+  identifier: string
+  list: IStandardPageModel<T> | T[]
   templateData: any
   rules?: FormRules<TemplateType>
   crudController?: number
@@ -29,6 +30,8 @@ function resetForm(formEl: FormInstance | undefined) {
 function getData(data: any) {
   return data as T
 }
+
+const tableData = computed(() => Array.isArray(props.list) ? props.list : props.list.items)
 </script>
 
 <template>
@@ -59,7 +62,7 @@ function getData(data: any) {
         <el-main>
           <el-row>
             <el-col :span="24">
-              <el-table v-if="list?.items" table-layout="auto" :data="list.items" style="width: 100%;">
+              <el-table v-if="tableData" table-layout="auto" :data="tableData" style="width: 100%;">
                 <slot name="TableColumn" />
 
                 <slot name="TableColumnAction">
@@ -72,37 +75,17 @@ function getData(data: any) {
                         详情
                       </el-button>
                       <el-button
-                        v-if="_crudController & CurdController.UPDATE" plain text size="small" type="warning"
+                        v-if="_crudController & CurdController.UPDATE"
+                        v-permission="identifier ? `system:${identifier}:update` : ''" plain text size="small" type="warning"
                         @click="handleCrudDialog(row, 'EDIT')"
                       >
                         编辑
                       </el-button>
                       <el-button
-                        v-if="_crudController & CurdController.DELETE" plain text size="small" type="danger"
+                        v-if="_crudController & CurdController.DELETE"
+                        v-permission="identifier ? `system:${identifier}:delete` : ''" plain text size="small" type="danger"
                         @click="handleDeleteData(row.id)"
                       >
-                        删除
-                      </el-button>
-                    </template>
-                  </el-table-column>
-                </slot>
-              </el-table>
-              <el-table
-                v-else :data="list" row-key="id"
-                :tree-props="{ children: 'children', hasChildren: 'hasChildren' }" style="width: 100%;"
-              >
-                <slot name="TableColumn" />
-
-                <slot name="TableColumnAction">
-                  <el-table-column fixed="right" label="操作" width="200">
-                    <template #default="{ row }">
-                      <el-button plain text size="small" @click="handleCrudDialog(row, 'READ')">
-                        详情
-                      </el-button>
-                      <el-button plain text size="small" type="warning" @click="handleCrudDialog(row, 'EDIT')">
-                        编辑
-                      </el-button>
-                      <el-button plain text size="small" type="danger" @click="handleDeleteData(row.id)">
                         删除
                       </el-button>
                     </template>

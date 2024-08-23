@@ -11,7 +11,7 @@ export interface TemplateDataHandler<T extends Record<string, any>, PageT extend
    * @returns
    */
   transformSubmitData?: (originData: T, mode: CrudMode) => any
-  getList: (query: PageT & { page: number, pageSize: number }) => Promise<IPageResponse<T>>
+  getList: (query: Partial<PageT>) => Promise<IPageResponse<T>>
   update?: (id: string | number, data: T) => Promise<IStandardResponse>
   create?: (data: T) => Promise<IStandardResponse>
   delete?: (id: string | number) => Promise<IStandardResponse>
@@ -109,7 +109,7 @@ export function genCmsTemplateData<T extends Record<string, any> & { id?: number
       visible: true,
     })
 
-    dataHandler.handleCrudDialog?.(data, mode, meta)
+    dataHandler.handleCrudDialog?.(data!, mode, meta)
   }
 
   async function submitForm(formEl: FormInstance | undefined) {
@@ -207,52 +207,70 @@ export function genCmsTemplateData<T extends Record<string, any> & { id?: number
   }
 }
 
-export interface TemplateDataHandler2<T extends Record<string, any>> {
+export interface TemplateSingleDataHandler<T extends Record<string, any>, O> {
   getEmptyModel: () => T
-  onFetchSuccess: () => Promise<void>
-  transformSubmitData: (originData: T, mode: CrudMode) => any
-  getList: (query: T) => Promise<IDataResponse<T[]>>
-  update: (id: string | number, data: T) => Promise<IDataResponse<T>>
-  create: (data: T) => Promise<IDataResponse<T>>
-  delete: (id: string | number) => Promise<IDataResponse<T>>
+  onFetchSuccess?: () => Promise<void>
+  /**
+   * 函数的功能是根据传入的原始数据和操作模式，转换并返回一个新的数据。
+   * @param originData
+   * @param mode
+   * @returns
+   */
+  transformSubmitData?: (originData: T, mode: CrudMode) => any
+  getList: (query: Partial<T>) => Promise<IDataResponse<T[]>>
+  update?: (id: string | number, data: T) => Promise<IStandardResponse>
+  create?: (data: T) => Promise<IStandardResponse>
+  delete?: (id: string | number) => Promise<IStandardResponse>
+  handleCrudDialog?: (data: T, mode: CrudMode, meta?: Partial<O>) => void
+
   getDeleteBoxTitle: (id: string | number) => string
 }
 
 /**
+ * 生成CMS模板单列数据
+ * 同普通CMS模板一样，但是会内部维护一个pages，以实现一页浏览的功能
+ */
+/**
  * 生成CMS模板数据
+ *
  * @template T 扩展自Record<string, any>与可选的id属性，用于定义数据的基本结构
  * @template O 用于定义额外的元数据结构，可选
  * @param dataHandler 数据处理函数，用于与后端API交互
  * @param queryData 查询参数，用于初始化查询条件
  * @returns 返回一个对象，包含数据列表、表单加载状态、CRUD对话框选项以及数据获取和处理函数
  */
-export function genCmsTemplateData2<T extends Record<string, any>, O extends Record<string, any> | null>(
-  dataHandler: TemplateDataHandler2<T>,
+export function genCmsTemplateSingleData<T extends Record<string, any> & { id?: number | string }, O extends Record<string, any> | null>(
+  dataHandler: TemplateSingleDataHandler<T, O>,
   queryData: Partial<T>,
 ) {
   const formLoading = ref(false)
-  const list = shallowRef<T[] >()
+  const list = shallowRef<Array<T>>([])
 
-  const internalQueryData = reactive(JSON.parse(JSON.stringify(queryData)))
+  /**
+   * 传什么类型，生成什么类型
+   */
+  type QueryDataType<T> = { [key in keyof T]: T[key] }
+
+  const internalQueryData = reactive<QueryDataType<T>>(JSON.parse(JSON.stringify(queryData)))
 
   async function fetchData() {
     formLoading.value = true
 
-    const query: Record<string, any> = { ...internalQueryData }
+    const query: Record<string, any> = {
+      ...internalQueryData,
+    }
 
     // 过滤掉为空的值
-    Object.keys(query).forEach((key) => {
-      if (!query[key])
+    Object.entries(query).forEach(([key, value]) => {
+      if (!value)
         delete query[key]
     })
 
     const res = await dataHandler.getList(query as T)
     if (res.code === 200) {
       list.value = res.data!
-      dataHandler.onFetchSuccess()
-    }
-    else {
-      ElMessage.error(res.message || '参数错误，查询失败！')
+
+      dataHandler.onFetchSuccess?.()
     }
 
     formLoading.value = false
@@ -263,21 +281,24 @@ export function genCmsTemplateData2<T extends Record<string, any>, O extends Rec
     mode: CrudMode
     data: T | null
     loading: boolean
-    // meta: Partial<O>
+    meta: Partial<O>
   }>({
     visible: false,
     mode: 'NEW',
     data: null,
     loading: false,
-    // meta: {},
+    meta: {},
   })
 
-  function handleCrudDialog(data: T | null, mode: CrudMode) {
+  function handleCrudDialog(data: T | null, mode: CrudMode, meta?: Partial<O>) {
     Object.assign(crudDialogOptions, {
+      meta,
       mode,
       data: data || dataHandler.getEmptyModel(),
       visible: true,
     })
+
+    dataHandler.handleCrudDialog?.(data!, mode, meta)
   }
 
   async function submitForm(formEl: FormInstance | undefined) {
@@ -289,27 +310,40 @@ export function genCmsTemplateData2<T extends Record<string, any>, O extends Rec
         return
 
       const data = crudDialogOptions.data as T | undefined
+
       if (!data) {
         ElMessage.error('流程数据错误！')
         return
       }
 
       crudDialogOptions.loading = true
-      const submitData = dataHandler.transformSubmitData(data, crudDialogOptions.mode)
+      const submitData = dataHandler.transformSubmitData?.(data, crudDialogOptions.mode) || data
 
-      let res: any
-      if (crudDialogOptions.mode === 'EDIT')
-        res = await dataHandler.update(submitData.id!, submitData)
-      else
-        res = await dataHandler.create(data)
+      if (crudDialogOptions.mode === 'EDIT') {
+        const res: any = await dataHandler.update!(submitData.id!, submitData)
 
-      if (res.code === 200) {
-        ElMessage.success(crudDialogOptions.mode === 'EDIT' ? '修改成功！' : '添加成功！')
-        crudDialogOptions.visible = false
-        fetchData()
+        if (res.code === 200) {
+          ElMessage.success('修改成功！')
+          crudDialogOptions.visible = false
+
+          fetchData()
+        }
+        else {
+          ElMessage.error(res.message ?? '修改失败！')
+        }
       }
       else {
-        ElMessage.error(res.message ?? (crudDialogOptions.mode === 'EDIT' ? '修改失败！' : '添加失败！'))
+        const res: any = await dataHandler.create!(data)
+
+        if (res.code === 200) {
+          ElMessage.success('添加成功！')
+          crudDialogOptions.visible = false
+
+          fetchData()
+        }
+        else {
+          ElMessage.error(res.message ?? '添加失败！')
+        }
       }
 
       crudDialogOptions.loading = false
@@ -317,30 +351,33 @@ export function genCmsTemplateData2<T extends Record<string, any>, O extends Rec
   }
 
   async function handleDeleteData(id: string | number) {
-    ElMessageBox.confirm(`你确定要删除${dataHandler.getDeleteBoxTitle(id)}吗？删除后这个${dataHandler.getDeleteBoxTitle(id)}永久无法找回。`, '是否确认删除', {
-      confirmButtonText: '确定删除',
-      cancelButtonText: '取消',
+    ElMessageBox.confirm(`你确定要删除${dataHandler.getDeleteBoxTitle(id)} 吗？删除后这个${dataHandler.getDeleteBoxTitle(id)}永久无法找回。`, '是否确认删除', {
+      confirmButtonText: '取消',
+      cancelButtonText: '确定删除',
       type: 'error',
-    }).then(async () => {
-      const res = await dataHandler.delete(id)
-      if (res.code !== 200) {
-        ElMessage.error(res.message || '删除失败！')
-        return
-      }
-
-      fetchData() // 刷新数据
-
-      ElNotification({
-        title: 'Info',
-        message: `你永久删除了${dataHandler.getDeleteBoxTitle(id)}！`,
-        type: 'info',
-      })
-    }).catch(() => {
-      ElMessage({
-        type: 'success',
-        message: `已取消删除${dataHandler.getDeleteBoxTitle(id)}！`,
-      })
     })
+      .then(() => {
+        ElMessage({
+          type: 'success',
+          message: `已取消删除${dataHandler.getDeleteBoxTitle(id)}！`,
+        })
+      })
+      .catch(async () => {
+        const res = await dataHandler.delete!(id)
+
+        if (res.code !== 200) {
+          ElMessage.error(res.message || '删除失败！')
+          return
+        }
+
+        fetchData() // 刷新数据
+
+        ElNotification({
+          title: 'Info',
+          message: `你永久删除了${dataHandler.getDeleteBoxTitle(id)}！`,
+          type: 'info',
+        })
+      })
   }
 
   return {
@@ -348,6 +385,7 @@ export function genCmsTemplateData2<T extends Record<string, any>, O extends Rec
     listForm: internalQueryData,
     formLoading,
     crudDialogOptions,
+
     fetchData,
     submitForm,
     handleCrudDialog,

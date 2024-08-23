@@ -31,7 +31,11 @@ export const userStore = useLocalStorage<Partial<AccountDetail>>('user', {})
 
 Object.defineProperty(userStore.value, 'isLogin', {
   get() {
-    return !!userStore.value.token?.accessToken
+    const res = !!userStore.value.token?.accessToken
+
+    console.debug('isLogin', res)
+
+    return res
   },
 })
 
@@ -57,6 +61,8 @@ Object.defineProperty(userStore.value, 'isAdmin', {
 
 export async function $handleUserLogin(token: { accessToken: string, refreshToken: string }) {
   userStore.value.token = token
+
+  console.debug('User login success.')
 
   await refreshCurrentUserRPM()
   await refreshUserSubscription()
