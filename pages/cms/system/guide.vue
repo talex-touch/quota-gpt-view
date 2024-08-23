@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import type { FormInstance, FormRules } from 'element-plus'
-import dayjs from 'dayjs'
 import { $endApi } from '~/composables/api/base'
 import type { IStandardPageModel } from '~/composables/api/base/index.type'
 import type { IDoc, IDocQuery } from '~/composables/api/base/v1/cms.type'
@@ -102,9 +101,28 @@ const dialogOptions = reactive<{
   },
 })
 
-function handleDialog(data: Partial<IDoc>, mode: 'edit' | 'read' | 'new') {
+async function handleDialog(data: Partial<IDoc>, mode: 'edit' | 'read' | 'new') {
   dialogOptions.mode = mode
-  dialogOptions.visible = true
+
+  if (mode !== 'new') {
+    const loading = ElLoading.service({
+      lock: true,
+      text: '加载中',
+      background: 'rgba(0, 0, 0, 0.7)',
+    })
+
+    const res = await $endApi.v1.cms.doc.info(data.id!)
+
+    loading.close()
+    if (res.data?.length !== 2) {
+      ElMessage.error('无法得到有效文档！')
+      return
+    }
+
+    data.record = res.data[1]
+
+    console.log('data', data)
+  }
 
   dialogOptions.data
     = mode === 'new'
@@ -120,6 +138,7 @@ function handleDialog(data: Partial<IDoc>, mode: 'edit' | 'read' | 'new') {
         }
 
   dialogOptions.save.text = '编辑后保存'
+  dialogOptions.visible = true
 
   if (!dialogOptions.data.metaOptions) {
     if (dialogOptions.data.meta) {

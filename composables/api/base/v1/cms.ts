@@ -46,6 +46,9 @@ export default {
     public(id: number) {
       return endHttp.post(`doc/publish/${id}`) as Promise<IDataResponse<boolean>>
     },
+    info(id: number) {
+      return endHttp.get(`doc/${id}`) as Promise<IDataResponse<[IDoc, { content: string }]>>
+    },
   },
 
   users: {
