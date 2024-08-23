@@ -3,11 +3,11 @@ import dayjs from 'dayjs'
 import IconButton from '../button/IconButton.vue'
 import Logo from '../chore/Logo.vue'
 import type { ThHistory } from './history'
+import { chatManager } from '~/composables/chat'
 
 const props = defineProps<{
   expand: boolean
   selectIndex: number
-  history: ThHistory[]
 }>()
 
 const emits = defineEmits<{
@@ -50,12 +50,12 @@ const categories = [
 ]
 
 const loadMore = ref()
-const processedHistory = computed(() =>
-  [...props.history].map((item, index) => ({
-    index,
-    ...item,
-  })),
+const processedHistory = computed(() => [...(chatManager.history.value)].map((item, index) => ({
+  index,
+  ...item,
+})),
 )
+
 const historyList = computed(() => {
   const used: number[] = []
 

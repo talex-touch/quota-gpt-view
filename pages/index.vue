@@ -171,7 +171,7 @@ provide('pageOptions', pageOptions)
   <div :class="{ expand: pageOptions.expand }" class="PageContainer">
     <History
       v-model:selectIndex="pageOptions.select" v-model:expand="pageOptions.expand" class="PageContainer-History"
-      :history="chatManager.history.value" @create="handleCreate" @delete="handleDelete"
+      @create="handleCreate" @delete="handleDelete"
     />
 
     <div class="PageContainer-Main">

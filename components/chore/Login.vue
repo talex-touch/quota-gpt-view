@@ -315,8 +315,8 @@ watch(() => codeStatus.value, async (status) => {
     return
   }
 
-  setTimeout(() => {
-    $handleUserLogin(res.data)
+  setTimeout(async () => {
+    await $handleUserLogin(res.data)
     // userStore.value.token = (res.data.token)
 
     ElMessage.info('登录成功！')

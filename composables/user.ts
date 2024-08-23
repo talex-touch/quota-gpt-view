@@ -29,27 +29,21 @@ export interface AccountDetail {
 
 export const userStore = useLocalStorage<Partial<AccountDetail>>('user', {})
 
-Object.defineProperty(userStore.value, 'isLogin', {
-  get() {
-    const res = !!userStore.value.token?.accessToken
+watch(() => userStore.value.token?.accessToken, (token) => {
+  userStore.value.isLogin = !!token
+  console.log('1', userStore.value)
+}, { immediate: true })
 
-    console.debug('isLogin', res)
+watch(() => userStore.value.isLogin, (a) => {
+  console.log('2', a)
+  if (!userStore.value.isLogin)
+    return false
 
-    return res
-  },
-})
+  if (userStore.value.roles?.find((item: any) => item.id === 1))
+    return true
 
-Object.defineProperty(userStore.value, 'isAdmin', {
-  get() {
-    if (!userStore.value.isLogin)
-      return false
-
-    if (userStore.value.roles?.find((item: any) => item.id === 1))
-      return true
-
-    return !!userStore.value.permissions?.find((item: any) => item === 'system:manage')
-  },
-})
+  userStore.value.isAdmin = !!userStore.value.permissions?.find((item: any) => item === 'system:manage')
+}, { immediate: true })
 
 // watch(() => userStore.value.token, async () => {
 //   if (!userStore.value.isLogin)
@@ -59,10 +53,12 @@ Object.defineProperty(userStore.value, 'isAdmin', {
 //   await refreshUserSubscription()
 // }, { deep: true, immediate: true })
 
+$event.on('USER_LOGIN_SUCCESS', () => {
+  console.log('login success')
+})
+
 export async function $handleUserLogin(token: { accessToken: string, refreshToken: string }) {
   userStore.value.token = token
-
-  console.debug('User login success.')
 
   await refreshCurrentUserRPM()
   await refreshUserSubscription()

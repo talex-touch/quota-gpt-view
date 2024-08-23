@@ -403,7 +403,7 @@ export class ChatManager {
   }
 
   messages = ref<ThHistory>(JSON.parse(JSON.stringify(this.originObj)))
-  history: any
+  history = ref<ThHistory[]>([])
   loadingHistory = ref(false)
   historyCompleted = ref(false)
 
@@ -423,11 +423,14 @@ export class ChatManager {
     })
   }
 
+  _scope: any
   async init() {
+    this._scope?.()
+
     const localHistory = useLocalStorage<ThHistory[]>('chat-history', [])
 
     if (userStore.value.isLogin) {
-      this.history = ref([])
+      this.history.value.length = 0
       if (localHistory.value) {
         this.postLocalHistory(localHistory.value).then((leftHistory) => {
           this.history.value.push(...leftHistory)
@@ -441,7 +444,11 @@ export class ChatManager {
         })
       }
     }
-    else { this.history = localHistory }
+    else {
+      this._scope = watchEffect(() => {
+        this.history.value = localHistory.value
+      })
+    }
   }
 
   async loadHistories() {
@@ -468,7 +475,7 @@ export class ChatManager {
       this.currentLoadPage -= 1
     }
 
-    this.history.value.push(...(res.data.items).map((item: any) => {
+    this.history.value = (res.data.items).map((item: any) => {
       const option = {
         ...item,
         id: item.uid,
@@ -480,7 +487,7 @@ export class ChatManager {
         ...option,
         ...option.meta,
       }
-    }))
+    })
   }
 
   async postTargetHistory(data: ThHistory): Promise<any> {
