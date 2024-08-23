@@ -70,7 +70,7 @@ function handleGeneratingDotUpdate(rootEl: HTMLElement, cursor: HTMLElement) {
 
 watch(() => props.item?.content, () => {
   const rootEl = dom.value?.querySelector('.RenderContent-Inner')
-  const cursor: HTMLElement = dom.value.querySelector('.Generating-Dot')!
+  const cursor: HTMLElement = dom.value?.querySelector('.Generating-Dot')
 
   if (rootEl && cursor)
     setTimeout(() => handleGeneratingDotUpdate(rootEl, cursor), 0)
@@ -166,7 +166,7 @@ function filterTools(item: any, total: number, ind: number) {
             <RoundLoading />
           </div>
         </div>
-        <div v-else ref="dom" :class="{ completed, display: !!item.content.length }" class="ChatItem-Content-Inner">
+        <div v-else ref="dom" :class="{ completed, display: !!item.content?.length }" class="ChatItem-Content-Inner">
           <span v-if="item.role === 'user'">
             <pre class="inner" v-text="item.content" />
           </span>
@@ -194,7 +194,7 @@ function filterTools(item: any, total: number, ind: number) {
       <div
         v-if="
           item.status !== 1
-            && !!item.content.length
+            && !!item.content?.length
             && !item.streaming
         " class="ChatItem-Mention"
       >
@@ -212,7 +212,7 @@ function filterTools(item: any, total: number, ind: number) {
         <span>
           <span class="date">{{ timeAgo }}</span>
           &nbsp;
-          <span v-if="item.content.length > 30" class="length">{{ item.content.length }} 字</span>
+          <span v-if="item.content?.length > 30" class="length">{{ item.content.length }} 字</span>
           <!-- &nbsp;
           <span class="costs">{{ item.content.length * 2.25 }} tokens</span> -->
         </span>

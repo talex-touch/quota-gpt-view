@@ -220,16 +220,17 @@ async function handleExecutorItem(item: string, callback: (data: any) => void) {
     try {
       const json = JSON5.parse(item)
 
-      if (json?.type === 'heartbeat') {
+      if (json?.type === 'heartbeat')
+        return
+
+      if (json?.type === 'error') {
         callback({
           done: true,
           error: true,
         })
-        return
-      }
 
-      if (json?.type === 'error')
         return ElMessage.error(json.message)
+      }
 
       callback({
         done: false,

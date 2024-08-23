@@ -31,11 +31,9 @@ export const userStore = useLocalStorage<Partial<AccountDetail>>('user', {})
 
 watch(() => userStore.value.token?.accessToken, (token) => {
   userStore.value.isLogin = !!token
-  console.log('1', userStore.value)
 }, { immediate: true })
 
-watch(() => userStore.value.isLogin, (a) => {
-  console.log('2', a)
+watch(() => userStore.value.isLogin, () => {
   if (!userStore.value.isLogin)
     return false
 
