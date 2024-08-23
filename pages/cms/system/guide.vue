@@ -13,7 +13,7 @@ definePageMeta({
 })
 
 const formLoading = ref(false)
-const docs = shallowRef<IStandardPageModel<IDoc>>({
+const docs = ref<IStandardPageModel<IDoc>>({
   items: [],
   meta: {
     currentPage: 0,
@@ -65,9 +65,6 @@ async function fetchData() {
       docs.value = res.data
 
       docs.value.items.forEach((item: IDocQuery) => {
-        if (item.value)
-          item.value = JSON.parse(decodeURI(atob(item.value)))
-
         if (item.meta)
           item.meta = JSON.parse(decodeURI(atob(item.meta)))
       })
@@ -156,61 +153,8 @@ async function handleDialog(data: Partial<IDoc>, mode: 'edit' | 'read' | 'new') 
 const ruleFormRef = ref<FormInstance>()
 
 const rules = reactive<FormRules<IDoc>>({
-  title: [
-    { required: true, message: '请输入文档名称', trigger: 'blur' },
-    { min: 5, max: 24, message: '文档名需要在 5-24 位之间', trigger: 'blur' },
-  ],
   status: [{ required: true, message: '请选择状态', trigger: 'blur' }],
 })
-
-async function submitForm(formEl: FormInstance | undefined) {
-  if (!formEl)
-    return
-  await formEl.validate(async (valid) => {
-    if (!valid)
-      return
-
-    dialogOptions.loading = true
-
-    const data = dialogOptions.data
-
-    data.meta = btoa(encodeURI(JSON.stringify(data.metaOptions)))
-    data.value = btoa(encodeURI(JSON.stringify(data.value)))
-
-    if (dialogOptions.mode !== 'new') {
-      const res: any = await $endApi.v1.cms.doc.update(dialogOptions.data.id!, data as IDoc)
-
-      if (res.code === 200) {
-        ElMessage.success('修改成功！')
-        dialogOptions.visible = false
-        fetchData()
-      }
-      else {
-        ElMessage.error(res.message ?? '修改失败！')
-      }
-    }
-    else {
-      const res: any = await $endApi.v1.cms.doc.create(data as IDoc)
-
-      if (res.code === 200) {
-        ElMessage.success('添加成功！')
-        dialogOptions.visible = false
-        fetchData()
-      }
-      else {
-        ElMessage.error(res.message ?? '添加失败！')
-      }
-    }
-
-    dialogOptions.loading = false
-  })
-}
-
-function resetForm(formEl: FormInstance | undefined) {
-  if (!formEl)
-    return
-  formEl.resetFields()
-}
 
 function handleArchiveDoc(id: number, data: IDoc) {
   ElMessageBox.confirm(
@@ -462,7 +406,7 @@ async function handlePublishVersion(id: number) {
 
         <el-pagination
           v-if="docs?.meta" v-model:current-page="docs.meta.currentPage"
-          v-model:page-size="docs.meta.itemsPerPage" float-right my-4 :page-sizes="[15, 30, 50]"
+          v-model:page-size="docs.meta.itemsPerPage" float-right my-4 :page-sizes="[15, 30, 50, 100]"
           layout="total, sizes, prev, pager, next, jumper" :total="docs.meta.totalItems" @change="fetchData"
         />
       </ClientOnly>
