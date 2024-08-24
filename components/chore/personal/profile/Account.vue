@@ -4,6 +4,7 @@ import { Plus } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
 import { getAccountDetail } from '~/composables/api/account'
 import UserUploadAvatar from '~/components/personal/UserUploadAvatar.vue'
+import ImageUpload from '~/components/personal/ImageUpload.vue'
 
 definePageMeta({
   layout: 'personal',
@@ -92,7 +93,8 @@ const lastEditTime = computed(() => dayjs(userStore.value.updatedAt).format('DD 
         :size="formSize" status-icon
       >
         <el-form-item label="头像" prop="avatar">
-          <UserUploadAvatar v-model="ruleForm.avatar" />
+          <ImageUpload v-model="ruleForm.avatar" />
+          <!-- <UserUploadAvatar v-model="ruleForm.avatar" /> -->
         </el-form-item>
 
         <el-form-item label="昵称" prop="nickname">

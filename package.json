@@ -35,6 +35,8 @@
     "@milkdown/vue": "^7.4.0",
     "@prosemirror-adapter/vue": "^0.2.6",
     "axios": "^1.7.2",
+    "cropic": "^1.0.8",
+    "cropperjs": "^1.6.2",
     "dayjs": "^1.11.11",
     "element-plus": "^2.7.6",
     "gpt-tokenizer": "^2.2.1",

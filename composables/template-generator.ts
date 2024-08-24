@@ -50,7 +50,7 @@ export function genCmsTemplateData<T extends Record<string, any> & { id?: number
       currentPage: 0,
       itemCount: 0,
       totalPages: 0,
-      itemsPerPage: 0,
+      itemsPerPage: 15,
       totalItems: 0,
     },
   })

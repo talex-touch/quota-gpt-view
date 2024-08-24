@@ -6,6 +6,9 @@ export default {
     const formData = new FormData()
     formData.append('file', file)
 
+    return this.uploadCustom(formData)
+  },
+  uploadCustom(formData: FormData): Promise<IUploadResponse> {
     return endHttp.post('tools/upload', formData)
   },
 }
