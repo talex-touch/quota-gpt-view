@@ -476,7 +476,7 @@ export class ChatManager {
       this.currentLoadPage -= 1
     }
 
-    this.history.value = (res.data.items).map((item: any) => {
+    this.history.value.push(...(res.data.items).map((item: any) => {
       const option = {
         ...item,
         id: item.uid,
@@ -488,7 +488,7 @@ export class ChatManager {
         ...option,
         ...option.meta,
       }
-    })
+    }))
   }
 
   async postTargetHistory(data: ThHistory): Promise<any> {

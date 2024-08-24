@@ -44,7 +44,7 @@ export function genCmsTemplateData<T extends Record<string, any> & { id?: number
   queryData: Partial<T>,
 ) {
   const formLoading = ref(false)
-  const list = shallowRef<IStandardPageModel<T>>({
+  const list = ref<IStandardPageModel<T>>({
     items: [],
     meta: {
       currentPage: 0,
@@ -79,7 +79,7 @@ export function genCmsTemplateData<T extends Record<string, any> & { id?: number
 
     const res = await dataHandler.getList(query as PageT)
     if (res.code === 200) {
-      list.value = res.data!
+      list.value = res.data as any
 
       dataHandler.onFetchSuccess?.()
     }
