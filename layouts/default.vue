@@ -1,4 +1,9 @@
 <script setup lang="ts">
+import AnimateIcon from '~/components/icon/AnimateIcon.vue'
+import UserAccountAvatar from '~/components/personal/UserAccountAvatar.vue'
+import IndexNavbar from '~/components/chore/IndexNavbar.vue'
+import IconButton from '~/components/button/IconButton.vue'
+
 const online = useOnline()
 </script>
 
@@ -7,7 +12,30 @@ const online = useOnline()
   <Suspense>
     <ClientOnly>
       <main class="DefaultTemplate-Container">
-        <slot />
+        <el-aside>
+          <div class="Navbar-Header">
+            <div class="LogoContainer">
+              <ChoreLogo />
+              <span>科塔智爱</span>
+            </div>
+
+            <IndexNavbar my-4 />
+          </div>
+
+          <div class="Navbar-Footer">
+            <AnimateIcon>
+              <IconSvgQuesSvg />
+            </AnimateIcon>
+            <AnimateIcon style="color: #D8A972">
+              <IconSvgStartSvg />
+            </AnimateIcon>
+
+            <UserAccountAvatar mt-4 />
+          </div>
+        </el-aside>
+        <el-main>
+          <slot />
+        </el-main>
 
         <div class="Offline" :class="{ display: online }">
           <div v-for="i in 4" :key="i" :class="`item-${i}`" class="item" />
@@ -27,6 +55,52 @@ const online = useOnline()
 </template>
 
 <style lang="scss">
+.Navbar-Header,
+.Navbar-Footer {
+  display: flex;
+  flex-direction: column;
+
+  gap: 1rem;
+  align-items: center;
+  .el-avatar {
+    box-shadow: 0 0 12px 2px var(--plan-color);
+
+    animation: shining_shadow 5s infinite linear;
+  }
+}
+
+@keyframes shining_shadow {
+  0%,
+  100% {
+    box-shadow: 0 0 4px 2px var(--plan-color);
+  }
+
+  50% {
+    box-shadow: 0 0 16px 4px var(--plan-color);
+  }
+}
+
+.LogoContainer {
+  span {
+    position: absolute;
+
+    font-size: 12px;
+    bottom: 1.25rem;
+
+    font-weight: 600;
+    transform: scale(0.9);
+  }
+  position: relative;
+  padding: 1rem 0;
+  display: flex;
+
+  height: calc(65px + 2rem);
+
+  flex-direction: column;
+
+  border-bottom: 1px solid var(--el-border-color);
+}
+
 @keyframes q_shining {
   0%,
   100% {
@@ -132,12 +206,40 @@ const online = useOnline()
 }
 
 .DefaultTemplate-Container {
+  .el-aside {
+    padding: 1rem 0.5rem;
+    z-index: 2;
+    display: flex;
+
+    align-items: center;
+    flex-direction: column;
+    justify-content: space-between;
+
+    width: 64px;
+    height: 100%;
+
+    box-sizing: border-box;
+    background-color: var(--el-bg-color);
+    border-right: 1px solid var(--el-border-color);
+  }
+  .el-main {
+    z-index: 1;
+    position: relative;
+    display: flex;
+
+    flex: 1;
+
+    width: 100%;
+    height: 100%;
+
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+
+    overflow: hidden;
+  }
   position: absolute;
   display: flex;
-
-  align-items: center;
-  flex-direction: column;
-  justify-content: center;
 
   width: 100%;
   height: 100%;

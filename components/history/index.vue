@@ -2,6 +2,8 @@
 import dayjs from 'dayjs'
 import IconButton from '../button/IconButton.vue'
 import Logo from '../chore/Logo.vue'
+import UserAvatar from '../personal/UserAvatar.vue'
+import PremiumButton from '../button/PremiumButton.vue'
 import type { ThHistory } from './history'
 import { chatManager } from '~/composables/chat'
 
@@ -152,24 +154,74 @@ async function mobileSlideProcess() {
     down = false
   })
 }
+
+const planProgress = computed(() => {
+  if (!userStore.value.subscription)
+    return null
+
+  const { startDate, endDate } = userStore.value.subscription
+
+  // 将 2024-08-03 转换成 date对象
+  const startDateObj = dayjs(startDate)
+  const endDateObj = dayjs(endDate)
+
+  function calculateExpiry(expiryDate: Date) {
+    const now = dayjs()
+    const expiry = dayjs(expiryDate)
+    const diff = expiry.diff(now)
+
+    const years = expiry.diff(now, 'year')
+    const months = expiry.diff(now, 'month') % 12
+    const days = expiry.diff(now, 'day') % 30
+    const hours = expiry.diff(now, 'hour') % 24
+    const minutes = expiry.diff(now, 'minute') % 60
+
+    if (diff > 0) {
+      if (years > 0)
+        return `${years}年 后到期`
+
+      else if (months > 0)
+        return `${months}月 后到期`
+
+      else if (days > 0)
+        return `${days}天 后到期`
+
+      else if (hours > 0)
+        return `${hours}小时 后到期`
+
+      else
+        return `${minutes}分钟 后到期`
+    }
+    else {
+      return '已过期'
+    }
+  }
+
+  const startTimeStamp = startDateObj.toDate().getTime()
+  const endTimeStamp = endDateObj.toDate().getTime()
+
+  const total = endTimeStamp - startTimeStamp
+  const diff = Date.now() - startTimeStamp
+  const progress = Math.round((diff / total) * 100)
+
+  const text = calculateExpiry(endDateObj.toDate())
+
+  return { text, progress }
+})
 </script>
 
 <template>
-  <div ref="dom" class="History">
+  <div ref="dom" class="History" :class="{ plan: userStore.subscription }">
     <teleport to="body">
       <div :class="{ expand }" class="History-Indicator" @click="expand = !expand" />
     </teleport>
 
     <div class="History-Title">
-      <div flex items-center gap-2>
-        <Logo />
-        <h1 my-4>
-          科塔智爱
-        </h1>
+      <div class="History-Title-Head" flex items-center gap-2 @click="emits('create')">
+        <img src="/logo.png">
+        <span>创建新对话</span>
+        <div i-carbon-add />
       </div>
-      <IconButton @click="emits('create')">
-        +
-      </IconButton>
     </div>
 
     <div class="History-Wrapper">
@@ -194,10 +246,81 @@ async function mobileSlideProcess() {
         </div>
       </el-scrollbar>
     </div>
+
+    <div class="History-Bottom">
+      <PremiumButton v-if="!userStore.subscription" />
+      <template v-else>
+        <span v-if="planProgress && planProgress" class="plan">
+          <span class="progress-bar" :style="`--w: ${100 - planProgress.progress}%`" />
+          <span class="text" w-full flex items-center justify-center gap-2 text-sm>{{ planProgress.text }}<el-link
+            v-if="planProgress.progress >= 30" type="primary"
+          >立即续费</el-link></span>
+        </span>
+      </template>
+    </div>
   </div>
 </template>
 
 <style lang="scss">
+.History-Bottom {
+  .plan {
+    .progress-bar {
+      &::before {
+        content: '';
+        position: absolute;
+        display: block;
+
+        top: 0;
+        left: 0;
+
+        height: 100%;
+        width: 100%;
+
+        opacity: 0.5;
+        background-color: var(--plan-color);
+      }
+
+      &::after {
+        content: '';
+        position: absolute;
+        display: block;
+
+        top: 0;
+        left: 0;
+
+        height: 100%;
+        width: var(--w);
+
+        background-color: var(--plan-color);
+      }
+      position: absolute;
+      display: block;
+
+      top: 0;
+      left: 0;
+
+      width: 100%;
+      height: 100%;
+
+      overflow: hidden;
+    }
+
+    .text {
+      z-index: 1;
+    }
+
+    position: relative;
+    display: flex;
+
+    width: 90%;
+    height: 36px;
+
+    overflow: hidden;
+    text-align: center;
+    border-radius: 18px;
+  }
+}
+
 div.History {
   .el-scrollbar__bar.is-vertical {
     width: 3px;
@@ -223,6 +346,29 @@ div.History {
   }
 }
 
+.History-Title-Head {
+  &:hover {
+    cursor: pointer;
+    background-color: var(--el-fill-color);
+  }
+  padding: 0.25rem 0.5rem;
+  display: flex;
+
+  justify-content: space-between;
+
+  width: 100%;
+
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 16px;
+  background-color: var(--el-bg-color-page);
+
+  img {
+    width: 32px;
+    height: 32px;
+  }
+}
+
 .History-Wrapper {
   &::before {
     z-index: 2;
@@ -245,7 +391,7 @@ div.History {
   position: relative;
 
   width: 100%;
-  height: 100%;
+  height: calc(100% - 70px);
 
   box-sizing: border-box;
 }
@@ -271,7 +417,7 @@ div.History {
   }
 
   &.expand {
-    left: 270px;
+    left: 344px;
 
     &:hover {
       &::before {
@@ -317,7 +463,7 @@ div.History {
   position: absolute;
 
   top: 50%;
-  left: 10px;
+  left: 74px;
 
   width: 8px;
   height: 50px;
@@ -362,12 +508,32 @@ div.History {
       backdrop-filter: blur(4px);
     }
 
-    background-size: 4px 4px;
-    background-image: radial-gradient(
-      transparent 1px,
-      var(--wallpaper-color-light, var(--el-bg-color)) 1px
-    );
-    backdrop-filter: saturate(50%) blur(4px);
+    background-color: var(--el-bg-color);
+    // background-size: 4px 4px;
+    // background-image: radial-gradient(
+    //   transparent 1px,
+    //   var(--wallpaper-color-light, var(--el-bg-color)) 1px
+    // );
+    // backdrop-filter: saturate(50%) blur(4px);
+  }
+  &-Bottom {
+    z-index: 2;
+    position: absolute;
+    padding: 0.5rem;
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    bottom: 0;
+
+    width: 100%;
+    height: 70px;
+
+    box-sizing: border-box;
+    border-top: 1px solid var(--el-border-color);
+    // backdrop-filter: blur(18px) saturate(180%);
+    background-color: var(--el-bg-color-page);
   }
 
   .expand & {
@@ -397,7 +563,7 @@ div.History {
   pointer-events: none;
   transform: translateX(-100%);
   background-color: var(--el-bg-color);
-  border-right: 1px solid var(--el-border-color);
+
   transition:
     0.75s width cubic-bezier(0.785, 0.135, 0.15, 0.86),
     0.5s opacity cubic-bezier(0.785, 0.135, 0.15, 0.86),

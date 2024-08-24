@@ -31,7 +31,7 @@ globalOptions.onUpdateUrl((url: string) => {
 
 globalOptions.setEndsUrl(globalOptionsStore.value.url)
 
-onMounted(() => {
+onMounted(async () => {
   if (window.h5sdk)
     feishuInit(router)
 
@@ -46,8 +46,14 @@ onMounted(() => {
       pageOptions.mobile = true
   }
 
-  refreshCurrentUserRPM()
-  refreshUserSubscription()
+  await refreshCurrentUserRPM()
+  await refreshUserSubscription()
+
+  watch(() => userStore.value.subscription, (plan) => {
+    document.body.classList.remove('ULTIMATE', 'STANDARD', 'DEV')
+    if (plan)
+      document.body.classList.add(plan.type)
+  }, { immediate: true })
 })
 
 router.afterEach(() => {
@@ -67,6 +73,18 @@ provide('appOptions', pageOptions)
 </template>
 
 <style style="scss">
+.ULTIMATE {
+  --plan-color: #299b4850;
+}
+
+.STANDARD {
+  --plan-color: #306df750;
+}
+
+.DEV {
+  --plan-color: #fc487050;
+}
+
 .watermark {
   position: absolute;
 

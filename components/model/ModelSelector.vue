@@ -267,7 +267,7 @@ const curSelect = computed(() => models.find(item => item.value === model.value)
   }
   position: relative;
 
-  right: 36px;
+  right: 0;
 
   user-select: none;
 }

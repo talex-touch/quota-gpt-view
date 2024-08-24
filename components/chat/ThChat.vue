@@ -148,7 +148,6 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
       <span v-if="messageBubbles" class="model">
         <ModelSelector v-model="messagesModel.model" />
       </span>
-      <AccountAvatar />
     </div>
 
     <div class="ThChat-Container" :class="{ stop: options.stopGenerating, backToBottom: options.backToBottom }">

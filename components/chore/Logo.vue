@@ -7,7 +7,7 @@
   </div>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .LogoContainer {
   img {
     transform: scale(1.25);

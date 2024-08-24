@@ -21,14 +21,6 @@ const menus = reactive([
     },
   },
   {
-    icon: 'i-carbon-book',
-    label: '使用指南',
-    show: true,
-    click: () => {
-      router.push('/guide')
-    },
-  },
-  {
     icon: 'i-carbon-settings-adjust',
     label: '系统设置',
     show: computed(() => userStore.value.isAdmin),
@@ -66,7 +58,7 @@ const avatarUrl = computed(() => {
 </script>
 
 <template>
-  <div class="AccountAvatar">
+  <div class="UserAccountAvatar">
     <div
       v-if="!userStore.isLogin" class="AccountAvatar-Wrapper"
       @click="appOptions.model.login = !appOptions.model.login"
@@ -77,7 +69,7 @@ const avatarUrl = computed(() => {
     </div>
 
     <el-popover
-      v-else :width="300" :show-arrow="false" popper-class="AccountAvatar-Float"
+      v-else placement="right-end" :width="300" :show-arrow="false" popper-class="UserAccountAvatar-Float"
       popper-style="box-shadow: rgb(14 18 22 / 35%) 0px 10px 38px -10px, rgb(14 18 22 / 20%) 0px 10px 20px -15px; padding: 20px;"
     >
       <template #reference>
@@ -86,7 +78,7 @@ const avatarUrl = computed(() => {
         </div>
       </template>
       <template #default>
-        <div :class="[userStore.subscription?.type]" class="AccountAvatar-Head">
+        <div class="AccountAvatar-Head">
           <el-avatar :src="avatarUrl" />
 
           <p flex items-center>
@@ -164,7 +156,7 @@ const avatarUrl = computed(() => {
       font-size: 12px;
       border-radius: 8px;
       // background: #ffca1a50;
-      background: var(--c, #21384c50);
+      background: var(var(--c, var(--plan-color)), #21384c50);
     }
 
     .name {
@@ -176,7 +168,7 @@ const avatarUrl = computed(() => {
   }
   display: flex;
 
-  gap: 1rem;
+  gap: 0.5rem 0.25rem;
   align-items: center;
   flex-direction: column;
 
@@ -186,7 +178,7 @@ const avatarUrl = computed(() => {
   }
 }
 
-.AccountAvatar {
+.UserAccountAvatar {
   &-Wrapper {
     .el-avatar {
       width: 28px;
@@ -195,13 +187,10 @@ const avatarUrl = computed(() => {
 
     cursor: pointer;
   }
-  position: absolute;
-
-  top: 5px;
-  right: 1rem;
 }
 
-div.el-popper.AccountAvatar-Float {
+div.el-popper.UserAccountAvatar-Float {
+  padding: 0.5rem 0.25rem !important;
   border: none;
 
   border-radius: 16px;
