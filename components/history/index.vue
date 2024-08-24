@@ -380,10 +380,10 @@ div.History {
     width: 100%;
     height: 100%;
 
-    opacity: 0.5;
+    opacity: 0.75;
     background-color: var(--el-bg-color-page);
   }
-
+  position: relative;
   padding: 0.25rem 0.5rem;
   display: flex;
 
@@ -393,6 +393,7 @@ div.History {
 
   font-size: 14px;
   font-weight: 600;
+  overflow: hidden;
   border-radius: 16px;
 
   img {
