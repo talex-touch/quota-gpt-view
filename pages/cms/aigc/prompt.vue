@@ -689,8 +689,9 @@ const statusOptions = [
           </div>
 
           <el-pagination
-            v-if="prompts?.meta" v-model:current-page="prompts.meta.currentPage"
-            v-model:page-size="prompts.meta.itemsPerPage" :page-sizes="[15, 30, 50, 100]"
+            v-if="prompts?.meta"
+            v-model:current-page="prompts.meta.currentPage" v-model:page-size="prompts.meta.itemsPerPage"
+            :disabled="formLoading" :page-sizes="[15, 30, 50, 100]"
             layout="total, sizes, prev, pager, next, jumper" :total="prompts.meta.totalItems" @change="fetchData"
           />
         </div>

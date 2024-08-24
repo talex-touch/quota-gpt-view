@@ -405,8 +405,8 @@ async function handlePublishVersion(id: number) {
         </el-table>
 
         <el-pagination
-          v-if="docs?.meta" v-model:current-page="docs.meta.currentPage"
-          v-model:page-size="docs.meta.itemsPerPage" float-right my-4 :page-sizes="[15, 30, 50, 100]"
+          v-if="docs?.meta" v-model:current-page="docs.meta.currentPage" v-model:page-size="docs.meta.itemsPerPage"
+          :disabled="formLoading" float-right my-4 :page-sizes="[15, 30, 50, 100]"
           layout="total, sizes, prev, pager, next, jumper" :total="docs.meta.totalItems" @change="fetchData"
         />
       </ClientOnly>

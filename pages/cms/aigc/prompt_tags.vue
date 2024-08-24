@@ -273,8 +273,9 @@ function resetForm(formEl: FormInstance | undefined) {
 
         <el-pagination
           v-if="promptTags?.meta" v-model:current-page="promptTags.meta.currentPage"
-          v-model:page-size="promptTags.meta.itemsPerPage" float-right my-4 :page-sizes="[15, 30, 50, 100]"
-          layout="total, sizes, prev, pager, next, jumper" :total="promptTags.meta.totalItems" @change="fetchData"
+          v-model:page-size="promptTags.meta.itemsPerPage" :disabled="formLoading"
+          float-right my-4 :page-sizes="[15, 30, 50, 100]" layout="total, sizes, prev, pager, next, jumper"
+          :total="promptTags.meta.totalItems" @change="fetchData"
         />
       </ClientOnly>
     </el-main>

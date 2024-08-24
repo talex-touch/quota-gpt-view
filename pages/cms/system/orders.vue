@@ -282,11 +282,9 @@ function parseAdditionalInfo(info: string) {
           </el-table-column>
         </el-table>
 
-        <el-pagination
-          v-if="orders?.meta" v-model:current-page="orders.meta.currentPage"
+        <el-pagination :disabled="formLoading" v-if="orders?.meta" v-model:current-page="orders.meta.currentPage"
           v-model:page-size="orders.meta.itemsPerPage" float-right my-4 :page-sizes="[10, 30, 50, 100]"
-          layout="total, sizes, prev, pager, next, jumper" :total="orders.meta.totalItems" @change="fetchData"
-        />
+          layout="total, sizes, prev, pager, next, jumper" :total="orders.meta.totalItems" @change="fetchData" />
       </ClientOnly>
     </el-main>
 
@@ -299,14 +297,10 @@ function parseAdditionalInfo(info: string) {
         </h4>
       </template>
       <template #default>
-        <el-watermark
-          :font="{ color: 'rgba(255, 255, 255, .15)' }" :z-index="100" class="watermark"
-          :content="[userStore.nickname!, 'ThisAI OrderSystem']"
-        >
-          <el-form
-            v-if="dialogOptions.data" :disabled="dialogOptions.loading || dialogOptions.mode === 'read'"
-            style="max-width: 600px" :model="dialogOptions.data" label-width="auto" status-icon
-          >
+        <el-watermark :font="{ color: 'rgba(255, 255, 255, .15)' }" :z-index="100" class="watermark"
+          :content="[userStore.nickname!, 'ThisAI OrderSystem']">
+          <el-form v-if="dialogOptions.data" :disabled="dialogOptions.loading || dialogOptions.mode === 'read'"
+            style="max-width: 600px" :model="dialogOptions.data" label-width="auto" status-icon>
             <el-form-item label="订单号">
               {{ dialogOptions.data.id }}
             </el-form-item>

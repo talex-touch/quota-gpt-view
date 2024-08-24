@@ -409,8 +409,8 @@ function generateEChartsConfig(data: any) {
         </div>
 
         <el-pagination
-          v-if="logs?.meta" v-model:current-page="logs.meta.currentPage"
-          v-model:page-size="logs.meta.itemsPerPage" float-right my-4 :page-sizes="[10, 30, 50, 100]"
+          v-if="logs?.meta" v-model:current-page="logs.meta.currentPage" v-model:page-size="logs.meta.itemsPerPage"
+          :disabled="formLoading" float-right my-4 :page-sizes="[10, 30, 50, 100]"
           layout="total, sizes, prev, pager, next, jumper" :total="logs.meta.totalItems" @change="fetchData"
         />
       </ClientOnly>
