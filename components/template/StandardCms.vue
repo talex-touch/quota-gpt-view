@@ -15,7 +15,7 @@ const _crudController = computed(() => props.crudController || 15)
 
 type TemplateType = IRoleModel
 
-const { list: mutableList, crudDialogOptions, listForm, formLoading, fetchData, resetQueryForm, handleCrudDialog, handleDeleteData, submitForm } = props.templateData
+const { list: mutableList, crudDialogOptions, listForm, formLoading, fetchData, resetQueryForm, handleCrudDialog, handleDeleteData,handleDeleteDatas, submitForm } = props.templateData
 
 onMounted(fetchData)
 
@@ -48,6 +48,11 @@ const tableData = computed(() => Array.isArray(props.list) ? props.list : props.
             <el-button :loading="formLoading" type="primary" @click="fetchData">
               查询
             </el-button>
+
+            <slot  name="QueryFormDel"></slot>
+
+          
+
             <el-button
               v-if="_crudController & CurdController.CREATE" type="success"
               @click="handleCrudDialog(null, 'NEW')"
@@ -96,6 +101,12 @@ const tableData = computed(() => Array.isArray(props.list) ? props.list : props.
               </slot>
             </el-col>
           </el-row>
+
+          <el-pagination
+            v-if="tableData?." v-model:current-page="mutableList.meta.currentPage"
+            v-model:page-size="list.meta.itemsPerPage" float-right my-4 :page-sizes="[15, 30, 50, 100]"
+            layout="total, sizes, prev, pager, next, jumper" :total="list.meta.totalItems" @change="fetchData"
+          />
         </el-main>
       </ClientOnly>
     </el-main>

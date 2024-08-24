@@ -15,9 +15,11 @@ export interface TemplateDataHandler<T extends Record<string, any>, PageT extend
   update?: (id: string | number, data: T) => Promise<IStandardResponse>
   create?: (data: T) => Promise<IStandardResponse>
   delete?: (id: string | number) => Promise<IStandardResponse>
+  deletes?: (ids: Array<number>) => Promise<IStandardResponse>
   handleCrudDialog?: (data: T, mode: CrudMode, meta?: Partial<O>) => void
 
   getDeleteBoxTitle: (id: string | number) => string
+  getDeleteBoxTitles: (ids: Array<number>) => string
 }
 
 export type CrudMode = 'NEW' | 'EDIT' | 'READ'
@@ -41,7 +43,7 @@ export enum CurdController {
  */
 export function genCmsTemplateData<T extends Record<string, any> & { id?: number | string }, PageT extends T & { page: number, pageSize: number }, O extends Record<string, any> | null>(
   dataHandler: TemplateDataHandler<T, PageT, O>,
-  queryData: Partial<T>,
+  queryData: Partial<PageT>,
 ) {
   const formLoading = ref(false)
   const list = ref<IStandardPageModel<T>>({
@@ -164,6 +166,36 @@ export function genCmsTemplateData<T extends Record<string, any> & { id?: number
     })
   }
 
+  async function handleDeleteDatas(ids: Array<number>) {
+    ElMessageBox.confirm(`你确定要删除${dataHandler.getDeleteBoxTitles(ids)} 吗？删除后这个${dataHandler.getDeleteBoxTitles(ids)}永久无法找回。`, '是否确认删除', {
+      confirmButtonText: '取消',
+      cancelButtonText: '确定删除',
+      type: 'error',
+    })
+      .then(() => {
+        ElMessage({
+          type: 'success',
+          message: `已取消删除${dataHandler.getDeleteBoxTitles(ids)}！`,
+        })
+      })
+      .catch(async () => {
+        const res = await dataHandler.deletes!(ids)
+
+        if (res.code !== 200) {
+          ElMessage.error(res.message || '删除失败！')
+          return
+        }
+
+        fetchData() // 刷新数据
+
+        ElNotification({
+          title: 'Info',
+          message: `你永久删除了${dataHandler.getDeleteBoxTitles(ids)}！`,
+          type: 'info',
+        })
+      })
+  }
+
   async function handleDeleteData(id: string | number) {
     ElMessageBox.confirm(`你确定要删除${dataHandler.getDeleteBoxTitle(id)} 吗？删除后这个${dataHandler.getDeleteBoxTitle(id)}永久无法找回。`, '是否确认删除', {
       confirmButtonText: '取消',
@@ -204,6 +236,8 @@ export function genCmsTemplateData<T extends Record<string, any> & { id?: number
     submitForm,
     handleCrudDialog,
     handleDeleteData,
+    handleDeleteDatas,
+
     resetQueryForm() {
       Object.assign(internalQueryData, queryData)
     },
@@ -247,7 +281,7 @@ export function genCmsTemplateSingleData<T extends Record<string, any> & { id?: 
   queryData: Partial<T>,
 ) {
   const formLoading = ref(false)
-  const list = ref<Array<T>>([])
+  const list = shallowRef<Array<T>>([])
 
   /**
    * 传什么类型，生成什么类型
