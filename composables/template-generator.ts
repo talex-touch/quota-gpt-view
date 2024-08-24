@@ -63,6 +63,9 @@ export function genCmsTemplateData<T extends Record<string, any> & { id?: number
   const internalQueryData = reactive<QueryDataType<T>>(JSON.parse(JSON.stringify(queryData)))
 
   async function fetchData() {
+    if (formLoading.value)
+      return
+
     formLoading.value = true
 
     const query: Record<string, any> = {

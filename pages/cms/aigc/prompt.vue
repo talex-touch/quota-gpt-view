@@ -48,6 +48,8 @@ function handleReset() {
 onMounted(fetchData)
 
 async function fetchData() {
+  if (formLoading.value)
+    return
   formLoading.value = true
 
   const query: Record<string, any> = {
