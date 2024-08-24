@@ -174,7 +174,7 @@ export default {
   },
 
   paramConfig: {
-    list(query: IParamConfigModelQuery) {
+    list(query: Partial<IParamConfigModelQuery>) {
       return endHttp.get('system/param-config', query) as Promise<IPageResponse<IParamConfigModel>>
     },
     create(Body: IParamConfigModel) {
