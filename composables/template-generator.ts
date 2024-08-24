@@ -244,7 +244,7 @@ export function genCmsTemplateSingleData<T extends Record<string, any> & { id?: 
   queryData: Partial<T>,
 ) {
   const formLoading = ref(false)
-  const list = shallowRef<Array<T>>([])
+  const list = ref<Array<T>>([])
 
   /**
    * 传什么类型，生成什么类型

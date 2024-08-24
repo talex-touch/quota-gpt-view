@@ -4,7 +4,7 @@ import type { IRoleModel, IStandardPageModel } from '~/composables/api/base/inde
 
 const props = defineProps<{
   name: string
-  identifier: string
+  identifier?: string
   list: IStandardPageModel<T> | T[]
   templateData: any
   rules?: FormRules<TemplateType>
