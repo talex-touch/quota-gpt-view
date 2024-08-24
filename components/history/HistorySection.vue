@@ -69,7 +69,7 @@ watch(() => route, () => {
 
 <style lang="scss">
 .History-ContentHolder {
-  padding: 0 0.5rem;
+  padding: 0 1rem;
 }
 
 .HistorySection {
@@ -80,7 +80,7 @@ watch(() => route, () => {
     top: 70px;
 
     margin: 0.75rem 0 0.5rem;
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 1.5rem;
 
     font-weight: 600;
     color: var(--el-text-color-primary);

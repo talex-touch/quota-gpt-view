@@ -240,6 +240,38 @@ const online = useOnline()
 
 .DefaultTemplate-Container {
   .el-aside {
+    &::before {
+      z-index: -2;
+      content: '';
+      position: absolute;
+
+      top: 0;
+      left: 0;
+
+      width: 100%;
+      height: 100%;
+
+      // opacity: 0.5;
+      background-size: cover;
+      filter: blur(18px) saturate(180%);
+      background-image: var(--wallpaper);
+    }
+
+    &::after {
+      z-index: -1;
+      content: '';
+      position: absolute;
+
+      top: 0;
+      left: 0;
+
+      width: 100%;
+      height: 100%;
+
+      opacity: 0.85;
+      background-color: var(--el-bg-color);
+    }
+    position: relative;
     padding: 1rem 0.5rem;
     z-index: 2;
     display: flex;

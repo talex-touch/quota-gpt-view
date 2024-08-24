@@ -293,6 +293,7 @@ const planProgress = computed(() => {
 
         background-color: var(--plan-color);
       }
+
       position: absolute;
       display: block;
 
@@ -351,6 +352,38 @@ div.History {
     cursor: pointer;
     background-color: var(--el-fill-color);
   }
+  &::before {
+    content: '';
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    opacity: 0.25;
+    background-size: cover;
+    background-position: 64px 0;
+    filter: blur(18px) saturate(180%);
+    background-image: var(--wallpaper);
+  }
+
+  &::after {
+    z-index: -1;
+    content: '';
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    opacity: 0.5;
+    background-color: var(--el-bg-color-page);
+  }
+
   padding: 0.25rem 0.5rem;
   display: flex;
 
@@ -361,7 +394,6 @@ div.History {
   font-size: 14px;
   font-weight: 600;
   border-radius: 16px;
-  background-color: var(--el-bg-color-page);
 
   img {
     width: 32px;
@@ -387,6 +419,7 @@ div.History {
       #0000 100%
     );
   }
+
   z-index: 2;
   position: relative;
 
@@ -517,6 +550,7 @@ div.History {
     .wallpaper & {
       background-image: none;
 
+      background-color: #0000;
       backdrop-filter: blur(4px);
     }
 
@@ -528,7 +562,40 @@ div.History {
     // );
     // backdrop-filter: saturate(50%) blur(4px);
   }
+
   &-Bottom {
+    &::before {
+      content: '';
+      position: absolute;
+
+      top: 0;
+      left: 0;
+
+      width: 100%;
+      height: 100%;
+
+      opacity: 0.25;
+      background-size: cover;
+      background-position: 64px 100%;
+      filter: blur(18px) saturate(180%);
+      background-image: var(--wallpaper);
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+
+      top: 0;
+      left: 0;
+
+      width: 100%;
+      height: 100%;
+
+      opacity: 0.5;
+      filter: blur(18px);
+      background-color: var(--el-bg-color);
+    }
+
     z-index: 2;
     position: absolute;
     padding: 0.5rem;
@@ -543,9 +610,9 @@ div.History {
     height: 70px;
 
     box-sizing: border-box;
-    border-top: 1px solid var(--el-border-color);
+    // border-top: 1px solid var(--el-border-color);
     // backdrop-filter: blur(18px) saturate(180%);
-    background-color: var(--el-bg-color-page);
+    // background-color: var(--el-bg-color-page);
   }
 
   .expand & {
