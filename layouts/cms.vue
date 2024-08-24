@@ -26,6 +26,8 @@ const menus = ref()
 const menuOpened = ref<any[]>([])
 onBeforeMount(async () => {
   if (!userStore.value.isAdmin) {
+    console.log('a')
+
     router.push('/')
 
     return false

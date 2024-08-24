@@ -38,7 +38,7 @@ watch(() => userStore.value.isLogin, () => {
     return false
 
   if (userStore.value.roles?.find((item: any) => item.id === 1))
-    return true
+    return userStore.value.isAdmin = true
 
   userStore.value.isAdmin = !!userStore.value.permissions?.find((item: any) => item === 'system:manage')
 }, { immediate: true })
@@ -101,5 +101,8 @@ export function updateAccountDetail(obj: { nickname: string, avatar: string }) {
 }
 
 export function userHavePermission(permission: string) {
+  if (userStore.value.isAdmin)
+    return true
+
   return userStore.value.permissions?.includes(permission)
 }
