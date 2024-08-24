@@ -62,36 +62,38 @@ const tableData = computed(() => Array.isArray(props.list) ? props.list : props.
         <el-main>
           <el-row>
             <el-col :span="24">
-              <el-table v-if="tableData" table-layout="auto" :data="tableData" style="width: 100%;">
-                <slot name="TableColumn" />
+              <slot name="Table">
+                <el-table v-if="tableData" table-layout="auto" :data="tableData" style="width: 100%;">
+                  <slot name="TableColumn" />
 
-                <slot name="TableColumnAction">
-                  <el-table-column fixed="right" label="操作" width="200">
-                    <template #default="{ row }">
-                      <el-button
-                        v-if="_crudController & CurdController.REVIEW" plain text size="small"
-                        @click="handleCrudDialog(row, 'READ')"
-                      >
-                        详情
-                      </el-button>
-                      <el-button
-                        v-if="_crudController & CurdController.UPDATE"
-                        v-permission="identifier ? `system:${identifier}:update` : ''" plain text size="small" type="warning"
-                        @click="handleCrudDialog(row, 'EDIT')"
-                      >
-                        编辑
-                      </el-button>
-                      <el-button
-                        v-if="_crudController & CurdController.DELETE"
-                        v-permission="identifier ? `system:${identifier}:delete` : ''" plain text size="small" type="danger"
-                        @click="handleDeleteData(row.id)"
-                      >
-                        删除
-                      </el-button>
-                    </template>
-                  </el-table-column>
-                </slot>
-              </el-table>
+                  <slot name="TableColumnAction">
+                    <el-table-column fixed="right" label="操作" width="200">
+                      <template #default="{ row }">
+                        <el-button
+                          v-if="_crudController & CurdController.REVIEW" plain text size="small"
+                          @click="handleCrudDialog(row, 'READ')"
+                        >
+                          详情
+                        </el-button>
+                        <el-button
+                          v-if="_crudController & CurdController.UPDATE"
+                          v-permission="identifier ? `system:${identifier}:update` : ''" plain text size="small"
+                          type="warning" @click="handleCrudDialog(row, 'EDIT')"
+                        >
+                          编辑
+                        </el-button>
+                        <el-button
+                          v-if="_crudController & CurdController.DELETE"
+                          v-permission="identifier ? `system:${identifier}:delete` : ''" plain text size="small"
+                          type="danger" @click="handleDeleteData(row.id)"
+                        >
+                          删除
+                        </el-button>
+                      </template>
+                    </el-table-column>
+                  </slot>
+                </el-table>
+              </slot>
             </el-col>
           </el-row>
         </el-main>
