@@ -8,6 +8,13 @@ import ShareSection from '~/components/chat/ShareSection.vue'
 import { inputProperty } from '~/components/input/input'
 import { getTargetPrompt } from '~/composables/api/chat'
 
+definePageMeta({
+  layout: 'default',
+  pageTransition: {
+    name: 'slide',
+  },
+})
+
 const chatRef = ref()
 const pageOptions = reactive<any>({
   settingDialog: false,

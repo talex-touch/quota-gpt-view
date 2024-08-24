@@ -55,6 +55,39 @@ const online = useOnline()
 </template>
 
 <style lang="scss">
+.slide-enter-active,
+.slide-leave-active {
+  position: absolute;
+
+  width: 100%;
+
+  transition: 0.75s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+}
+
+.slide-enter-active {
+  z-index: 10;
+
+  transition: 0.5s 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+}
+
+.slide-enter-from {
+  position: absolute !important;
+
+  opacity: 0;
+
+  width: 100%;
+
+  transform: translateY(-1%);
+}
+
+.slide-leave-to {
+  position: absolute !important;
+
+  opacity: 0;
+
+  transform: translateY(1%);
+}
+
 .Navbar-Header,
 .Navbar-Footer {
   display: flex;

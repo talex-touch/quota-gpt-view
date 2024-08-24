@@ -220,7 +220,7 @@ const planProgress = computed(() => {
       <div class="History-Title-Head" flex items-center gap-2 @click="emits('create')">
         <img src="/logo.png">
         <span>创建新对话</span>
-        <div i-carbon-add />
+        <div i-carbon-add mr-2 />
       </div>
     </div>
 
@@ -317,7 +317,7 @@ const planProgress = computed(() => {
 
     overflow: hidden;
     text-align: center;
-    border-radius: 18px;
+    border-radius: 16px;
   }
 }
 
@@ -468,10 +468,22 @@ div.History {
   width: 8px;
   height: 50px;
 
-  opacity: 0.5;
+  opacity: 0;
   cursor: pointer;
   transform: translateX(0px) translateY(-50%);
   transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+
+  animation: indicator_form 0.25s 1s forwards;
+}
+
+@keyframes indicator_form {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 0.5;
+  }
 }
 
 .History-Content {

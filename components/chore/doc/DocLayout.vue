@@ -8,8 +8,7 @@ import AccountAvatar from '../components/personal/AccountAvatar.vue'
     <el-header>
       <span flex items-center>
         <span class="head-start">
-          <Logo />
-          <span font-bold>QuotaWish</span>
+          <span font-bold>ThisAI</span>
         </span>
         文档中心
       </span>
@@ -20,8 +19,6 @@ import AccountAvatar from '../components/personal/AccountAvatar.vue'
             Ctrl+K
           </template>
         </el-input>
-
-        <AccountAvatar />
       </div>
     </el-header>
     <el-container class="DocumentTemplate-Main">
@@ -65,7 +62,7 @@ import AccountAvatar from '../components/personal/AccountAvatar.vue'
 
           box-sizing: border-box;
         }
-        right: 50px;
+        right: 5px;
 
         background: var(--el-fill-color);
         border-radius: 8px;
@@ -98,7 +95,7 @@ import AccountAvatar from '../components/personal/AccountAvatar.vue'
 
     height: 100%;
     width: 100%;
-    max-width: 1680px;
+    // max-width: 1680px;
 
     overflow: hidden;
   }

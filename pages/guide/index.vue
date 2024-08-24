@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import GuideAside from '~/components/guide/GuideAside.vue'
 import { $endApi } from '~/composables/api/base'
+import DocLayout from '~/components/chore/doc/DocLayout.vue'
 
 definePageMeta({
-  layout: 'document',
+  layout: 'default',
+  pageTransition: {
+    name: 'slide',
+  },
 })
 
 const route = useRoute()
@@ -53,27 +57,29 @@ function handleScroll(e: any) {
 </script>
 
 <template>
-  <div class="Guide expand">
-    <el-aside class="GuideAside" width="200px">
-      <ClientOnly>
-        <GuideAside :data="documents" @select="handleSelect" />
-      </ClientOnly>
-    </el-aside>
-    <el-main>
-      <div v-if="curDoc" class="GuideMain markdown-body">
-        <el-scrollbar @scroll="handleScroll">
-          <div class="GuideMain-Header">
-            <h1>{{ curDoc.title }}</h1>
-            <p>最后更新于 {{ formatDate(curDoc.updatedAt) }}</p>
-          </div>
-          <ArticleMilkContent :content="content" @outline="handleOutLine" />
-        </el-scrollbar>
+  <DocLayout>
+    <div class="Guide expand">
+      <div class="GuideAside">
+        <ClientOnly>
+          <GuideAside :data="documents" @select="handleSelect" />
+        </ClientOnly>
       </div>
-      <ClientOnly>
-        <ArticleContentOutline v-if="outline" :outline="outline" />
-      </ClientOnly>
-    </el-main>
-  </div>
+      <el-main>
+        <div v-if="curDoc" class="GuideMain markdown-body">
+          <el-scrollbar @scroll="handleScroll">
+            <div class="GuideMain-Header">
+              <h1>{{ curDoc.title }}</h1>
+              <p>最后更新于 {{ formatDate(curDoc.updatedAt) }}</p>
+            </div>
+            <ArticleMilkContent :content="content" @outline="handleOutLine" />
+          </el-scrollbar>
+        </div>
+        <ClientOnly>
+          <ArticleContentOutline v-if="outline" :outline="outline" />
+        </ClientOnly>
+      </el-main>
+    </div>
+  </DocLayout>
 </template>
 
 <style lang="scss">
@@ -142,8 +148,14 @@ function handleScroll(e: any) {
 }
 
 .GuideAside {
+  position: absolute;
+
+  width: 200px;
   height: 100%;
 
-  align-self: flex-start;
+  top: 0;
+  left: 0;
+
+  flex: 1;
 }
 </style>

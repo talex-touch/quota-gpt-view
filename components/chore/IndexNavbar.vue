@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import AnimateIcon from '../icon/AnimateIcon.vue'
 
-const select = ref(0)
+const route = useRoute()
 </script>
 
 <template>
   <div class="IndexNavBar">
-    <AnimateIcon :active="select === 0" @click="select = 0">
+    <AnimateIcon :active="route.name === 'index'" @click="$router.push('/')">
       <IconSvgChatSvg />
     </AnimateIcon>
-    <AnimateIcon :active="select === 1" @click="select = 1">
+    <AnimateIcon :active="route.name === 'prompt_role'" @click="$router.push('/prompt_role')">
       <IconSvgCaseSvg />
     </AnimateIcon>
-    <AnimateIcon :active="select === 2" @click="select = 2">
+    <AnimateIcon :active="route.name === 'guide'" @click="$router.push('/guide')">
       <IconSvgDocSvg />
     </AnimateIcon>
     <AnimateIcon v-if="userStore.isAdmin" @click="$router.push('/cms')">
