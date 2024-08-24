@@ -21,11 +21,13 @@ const menus = reactive([
     },
   },
   {
-    icon: 'i-carbon-settings-adjust',
-    label: '系统设置',
-    show: computed(() => userStore.value.isAdmin),
+    icon: 'i-carbon-share',
+    label: '分享管理',
+    show: true,
     click: () => {
-      router.push('/cms')
+      router.push({
+        path: '/share',
+      })
     },
   },
   {
@@ -190,7 +192,7 @@ const avatarUrl = computed(() => {
 }
 
 div.el-popper.UserAccountAvatar-Float {
-  padding: 0.5rem 0.25rem !important;
+  padding: 1rem 0.5rem !important;
   border: none;
 
   border-radius: 16px;

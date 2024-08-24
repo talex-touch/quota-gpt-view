@@ -15,6 +15,9 @@ const select = ref(0)
     <AnimateIcon :active="select === 2" @click="select = 2">
       <IconSvgDocSvg />
     </AnimateIcon>
+    <AnimateIcon v-if="userStore.isAdmin" @click="$router.push('/cms')">
+      <IconSvgCopSvg />
+    </AnimateIcon>
   </div>
 </template>
 
