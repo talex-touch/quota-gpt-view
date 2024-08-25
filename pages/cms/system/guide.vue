@@ -65,8 +65,11 @@ async function fetchData() {
       docs.value = res.data
 
       docs.value.items.forEach((item: IDocQuery) => {
-        if (item.meta)
-          item.meta = JSON.parse(decodeURI(atob(item.meta)))
+        if (item.meta?.length) {
+          if (item.meta === 'undefined' || atob(item.meta) === 'undefined')
+            item.meta = ''
+        }
+        else { item.meta = decodeURIComponent(atob(item.meta)) }
       })
     }
   }
@@ -79,6 +82,9 @@ const dialogOptions = reactive<{
   mode: 'edit' | 'read' | 'new'
   data: Partial<IDoc & { content: string }>
   loading: boolean
+  // meta: {
+  //   parentDoc: number
+  // }
   save: {
     cur: number
     loading: boolean
@@ -90,6 +96,9 @@ const dialogOptions = reactive<{
   mode: 'edit',
   data: {},
   loading: false,
+  // meta: {
+  //   parentDoc: -1,
+  // },
   save: {
     cur: -1,
     loading: false,
@@ -116,9 +125,7 @@ async function handleDialog(data: Partial<IDoc>, mode: 'edit' | 'read' | 'new') 
       return
     }
 
-    data.record = res.data[1]
-
-    console.log('data', data)
+    data.record = res.data[1] as any
   }
 
   dialogOptions.data
@@ -133,13 +140,14 @@ async function handleDialog(data: Partial<IDoc>, mode: 'edit' | 'read' | 'new') 
           ...data,
           content: data.record?.content ? decodeURIComponent(atob(data.record.content)) : '',
         }
+  // dialogOptions.meta = data.meta ? JSON.parse(data.meta) : { parentDoc: -1 }
 
   dialogOptions.save.text = '编辑后保存'
   dialogOptions.visible = true
 
   if (!dialogOptions.data.metaOptions) {
     if (dialogOptions.data.meta) {
-      dialogOptions.data.metaOptions = dialogOptions.data.meta
+      dialogOptions.data.metaOptions = JSON.parse(dialogOptions.data.meta)
     }
     else {
       dialogOptions.data.metaOptions = {
@@ -274,8 +282,13 @@ timer()
 
 watch(() => dialogOptions.visible, async (visible) => {
   if (!visible && dialogOptions.data.status !== 3 && dialogOptions.mode !== 'read') {
+    // 如果没有编辑文档则直接返回
+    if (!dialogOptions.data.title)
+      return
+
     const res = await $endApi.v1.cms.doc.update(dialogOptions.data.id!, {
       ...dialogOptions.data,
+      meta: btoa(encodeURIComponent(JSON.stringify(dialogOptions.data.metaOptions))),
       content: dialogOptions.data.content ? btoa(encodeURIComponent(dialogOptions.data.content)) : '',
     } as IDoc)
 
@@ -405,9 +418,10 @@ async function handlePublishVersion(id: number) {
         </el-table>
 
         <el-pagination
-          v-if="docs?.meta" v-model:current-page="docs.meta.currentPage" v-model:page-size="docs.meta.itemsPerPage"
-          :disabled="formLoading" float-right my-4 :page-sizes="[15, 30, 50, 100]"
-          layout="total, sizes, prev, pager, next, jumper" :total="docs.meta.totalItems" @change="fetchData"
+          v-if="docs?.meta" v-model:current-page="docs.meta.currentPage"
+          v-model:page-size="docs.meta.itemsPerPage" :disabled="formLoading" float-right my-4
+          :page-sizes="[15, 30, 50, 100]" layout="total, sizes, prev, pager, next, jumper" :total="docs.meta.totalItems"
+          @change="fetchData"
         />
       </ClientOnly>
     </el-main>
@@ -463,6 +477,15 @@ async function handlePublishVersion(id: number) {
                       v-model="dialogOptions.data.metaOptions!.password"
                       :disabled="dialogOptions.mode === 'read'" type="password"
                     />
+                  </el-form-item>
+                  <el-form-item v-if="dialogOptions.data.metaOptions" label="父节点文档">
+                    <el-select
+                      v-model="dialogOptions.data.metaOptions.parentDoc" style="width: 177px"
+                      placeholder="选择父节点文档"
+                    >
+                      <el-option label="根节点" :value="-1" />
+                      <el-option v-for="item in docs.items" :key="item.id" :label="item.title" :value="item.id!" />
+                    </el-select>
                   </el-form-item>
                 </el-form>
               </template>
