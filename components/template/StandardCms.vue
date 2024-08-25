@@ -15,7 +15,7 @@ const _crudController = computed(() => props.crudController || 15)
 
 type TemplateType = IRoleModel
 
-const { list: mutableList, crudDialogOptions, listForm, formLoading, fetchData, resetQueryForm, handleCrudDialog, handleDeleteData,handleDeleteDatas, submitForm } = props.templateData
+const { list: mutableList, crudDialogOptions, listForm, formLoading, fetchData, resetQueryForm, handleCrudDialog, handleDeleteData, submitForm } = props.templateData
 
 onMounted(fetchData)
 
@@ -31,7 +31,7 @@ function getData(data: any) {
   return data as T
 }
 
-const tableData = computed(() => Array.isArray(props.list) ? props.list : props.list.items)
+const tableData = computed(() => Array.isArray(props.list) ? false : props.list.items)
 </script>
 
 <template>
@@ -49,9 +49,7 @@ const tableData = computed(() => Array.isArray(props.list) ? props.list : props.
               查询
             </el-button>
 
-            <slot  name="QueryFormDel"></slot>
-
-          
+            <slot name="QueryFormDel" />
 
             <el-button
               v-if="_crudController & CurdController.CREATE" type="success"
@@ -103,9 +101,9 @@ const tableData = computed(() => Array.isArray(props.list) ? props.list : props.
           </el-row>
 
           <el-pagination
-            v-if="tableData?." v-model:current-page="mutableList.meta.currentPage"
-            v-model:page-size="list.meta.itemsPerPage" float-right my-4 :page-sizes="[15, 30, 50, 100]"
-            layout="total, sizes, prev, pager, next, jumper" :total="list.meta.totalItems" @change="fetchData"
+            v-if="tableData && !Array.isArray(mutableList)" v-model:current-page="mutableList.meta.currentPage"
+            v-model:page-size="mutableList.meta.itemsPerPage" float-right my-4 :page-sizes="[15, 30, 50, 100]"
+            layout="total, sizes, prev, pager, next, jumper" :total="mutableList.meta.totalItems" @change="fetchData"
           />
         </el-main>
       </ClientOnly>
