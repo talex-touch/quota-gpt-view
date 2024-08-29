@@ -58,6 +58,9 @@ const templateData = genCmsTemplateData<TemplateType, ISubscriptionPlanQuery, nu
     }
   },
   getList: $dataApi.list,
+  getDeleteBoxTitles: function (ids: Array<number>): string {
+   return ` 订阅#${ids.join(',')} `
+  }
 }, {
   name: '',
   value: '',

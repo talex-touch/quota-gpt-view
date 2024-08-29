@@ -229,7 +229,7 @@ export default {
     },
   },
   subscription: {
-    list(query: ISubscriptionPlanQuery) {
+    list(query: Partial<ISubscriptionPlanQuery>) {
       return endHttp.post('subscribe/list', query) as Promise<IPageResponse<ISubscriptionPlan>>
     },
     forceUpdate(uid: number) {
