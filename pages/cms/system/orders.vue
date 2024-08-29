@@ -211,7 +211,7 @@ function parseAdditionalInfo(info: string) {
 </script>
 
 <template>
-  <TemplateStandardCms identifier="order" :list="list" :template-data="templateData" name="订单">
+  <TemplateStandardCms identifier="order" :crudController="CurdController.REVIEW | CurdController.UPDATE" :list="list" :template-data="templateData" name="订单">
     <template #IHeade>
       <div class="CmsOrder-Statistics">
         <el-row :gutter="16">
