@@ -38,7 +38,7 @@ const tableData = computed(() => Array.isArray(props.list) ? false : props.list.
   <el-container class="CmsTemplate">
     <el-main>
 
-      <slot name="IHeade">
+      <slot name="IHeade" w-100%>
         <el-form :disabled="formLoading" :inline="true" :model="listForm">
           <slot name="QueryForm" />
 

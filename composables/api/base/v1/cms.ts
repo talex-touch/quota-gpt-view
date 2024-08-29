@@ -75,8 +75,8 @@ export default {
     },
   },
   order:{
-    list(query: Partial<IAdminOrderQuery>){
-      return endHttp.get('order/admin/list',query) as Promise<IPageResponse<IAdminOrder>>
+    list(body: Partial<IAdminOrderQuery>){
+      return endHttp.post('order/admin/list',body) as Promise<IPageResponse<IAdminOrder>>
     }
 
   },

@@ -13,7 +13,18 @@ definePageMeta({
 import { $endApi } from '~/composables/api/base';
 import type { IAdminOrder, IAdminOrderQuery } from '~/composables/api/base/v1/cms.type';
 
-
+const statistics = ref({
+  orders: [],
+  payStatus: {
+    other: 0,
+    success: 0,
+  },
+  price: {
+    submit: 0,
+    success: 0,
+  },
+  totalPrice: 0,
+})
 type TemplateType = IAdminOrder
 const $dataApi = $endApi.v1.cms.order
 
@@ -33,12 +44,8 @@ const templateData = genCmsTemplateData<TemplateType, IAdminOrderQuery, null>({
     updatedAt: 'string'
   }),
   onFetchSuccess: async () => {
-    // const res = await $endApi.v1.cms.menu.list()
-    // menus.value = res.data
-  },
-  transformSubmitData(originData) {
 
-    Object.assign(statistics.value, originData)
+    Object.assign(statistics.value, list)
 
     const _orders = statistics.value.orders.map((item: any) => {
       const additionalInfo = parseAdditionalInfo(item.additionalInfo)
@@ -59,10 +66,14 @@ const templateData = genCmsTemplateData<TemplateType, IAdminOrderQuery, null>({
       }
     }, 0) / 100
     statistics.value.price.submit = statistics.value.totalPrice / 100
-    // const data = originData
-    // data.menuIds = [...(treeRef.value.getCheckedNodes(false, !false) ?? [])].map(item => item.id)
-    // delete data.menu
-    // return data
+    console.log("======= statistics.value.price.submit =======\n", statistics.value.price.submit);
+
+
+  },
+  transformSubmitData(originData) {
+
+
+
   },
   handleCrudDialog(data) {
     // data.menuIds = data.menus.map((item: any) => item.id)
@@ -78,6 +89,12 @@ const templateData = genCmsTemplateData<TemplateType, IAdminOrderQuery, null>({
 
 
 const { list, listForm, fetchData } = templateData
+
+function StatisticsData() {
+
+}
+
+
 
 
 const formLoading = ref(false)
@@ -95,18 +112,7 @@ const orders = ref({
 
 
 
-const statistics = ref({
-  orders: [],
-  payStatus: {
-    other: 0,
-    success: 0,
-  },
-  price: {
-    submit: 0,
-    success: 0,
-  },
-  totalPrice: 0,
-})
+
 
 const formInline = reactive({
   user: '',
@@ -119,8 +125,12 @@ const formInline = reactive({
 function handleReset() {
   formInline.user = ''
 }
+onMounted(async () => {
+  fetchData()
 
-onMounted(fetchData)
+})
+
+
 
 // async function fetchData() {
 //   formLoading.value = true
