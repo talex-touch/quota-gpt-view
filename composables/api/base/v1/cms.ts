@@ -1,6 +1,9 @@
+import type { promises } from 'node:dns'
 import { endHttp } from '../../axios'
 import type { IDataResponse, IPageResponse, IStandardResponse } from '../index.type'
 import type {
+  IAdminOrder,
+  IAdminOrderQuery,
   IDeptModelQuery,
   IDictItemModel,
   IDictItemModelQuery,
@@ -71,9 +74,15 @@ export default {
       return endHttp.get(`system/users/search?query=${query}`) as Promise<IDataResponse<[IUserModel[], number]>>
     },
   },
+  order:{
+    list(query: Partial<IAdminOrderQuery>){
+      return endHttp.get('order/admin/list',query) as Promise<IPageResponse<IAdminOrder>>
+    }
+
+  },
 
   role: {
-    list(query: IRoleModelQuery = { page: 1, pageSize: 50 }) {
+    list(query: Partial<IRoleModelQuery> = { page: 1, pageSize: 50 }) {
       return endHttp.get('system/roles', query) as Promise<IPageResponse<IRoleModel>>
     },
     create(Body: IRoleModel) {
