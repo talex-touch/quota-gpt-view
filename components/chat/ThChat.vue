@@ -424,14 +424,6 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
       width: 95%;
     }
   }
-
-  position: absolute;
-
-  top: 0;
-  left: 0;
-
-  width: 100%;
-  height: 100%;
 }
 
 .ThChat {
@@ -465,47 +457,5 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
 
     // backdrop-filter: blur(18px) saturate(180%);
   }
-
-  &::before {
-    content: '';
-    position: absolute;
-
-    top: 0;
-    left: 0;
-
-    width: 100%;
-    height: 100%;
-
-    opacity: 0.5;
-    background-size: cover;
-    background-image: var(--wallpaper);
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-
-    top: 0;
-    left: 0;
-
-    width: 100%;
-    height: 100%;
-
-    opacity: 0.25;
-    background-color: var(--el-bg-color-page);
-  }
-
-  position: relative;
-  padding: 1rem 1.25rem;
-
-  top: 0%;
-  left: 0%;
-
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-
-  box-sizing: border-box;
-  background-color: var(--el-bg-color-page);
 }
 </style>

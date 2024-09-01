@@ -1,3 +1,4 @@
+import './index'
 import { getAccountDetail, getPermissionList, getUserSubscription } from './api/account'
 import { endHttp } from './api/axios'
 

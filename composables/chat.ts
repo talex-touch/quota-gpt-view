@@ -1,30 +1,11 @@
 import JSON5 from 'json5'
 import { getConversations, postHistory } from './api/chat'
 import { endHttp } from './api/axios'
+import { QuotaModel } from '~/composables/api/base/v1/chat.type.d.ts'
 import { globalOptions } from '~/constants'
 
 import type { ThHistory } from '~/components/history/history-types'
 import { inputProperty } from '~/components/input/input'
-
-export enum QuotaModel {
-  // 普通版本，纯问答（类豆包，普通联网）
-  QUOTA_THIS_NORMAL = 'this-normal',
-
-  // 普通版本+，联网+工具能力（类GPT，高级联网+工具）
-  QUOTA_THIS_NORMAL_PLUS = 'this-normal-plus',
-
-  // 中级模型，中级会员可用 （上下文更强，普通联网）
-  QUOTA_THIS_NORMAL_TURBO = 'this-normal-turbo',
-
-  // 中级模型，中级会员可用 （上下文更强，类GPT，高级联网+工具）
-  QUOTA_THIS_NORMAL_TURBO_PLUS = 'this-normal-turbo-plus',
-
-  // 高级模型，高级会员可用 （全功能，上下文更强，类GPT，高级联网+工具）
-  QUOTA_THIS_NORMAL_ULTRA = 'this-normal-ultra',
-
-  // 极速模型，高级会员可用 （全功能，上下文更强，类GPT，高级联网+工具）
-  QUOTA_THIS_NORMAL_ULTRA_PLUS = 'this-normal-ultra-plus',
-}
 
 export interface ChatCompletionDto {
   model: QuotaModel
@@ -510,7 +491,7 @@ export class ChatManager {
     })
 
     const res: any = await postHistory({
-      uid: data.id || (`${Date.now()}THIS_AI_STANDARD_QUOTA_WISH`),
+      chat_id: data.id || (`${Date.now()}THIS_AI_STANDARD_QUOTA_WISH`),
       topic: data.topic,
       value: `${btoa(encodeURIComponent(JSON.stringify(data.messages)))}`,
       meta: JSON.stringify(meta),

@@ -3,9 +3,7 @@ import { inputProperty } from '~/components/input/input'
 
 export enum CompletionQuotaModel {
   QUOTA_THIS_NORMAL = 'this-normal',
-
   QUOTA_THIS_NORMAL_TURBO = 'this-normal-turbo',
-
   QUOTA_THIS_NORMAL_ULTRA = 'this-normal-ultra',
 }
 
