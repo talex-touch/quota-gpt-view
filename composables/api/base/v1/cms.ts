@@ -1,6 +1,9 @@
+import type { promises } from 'node:dns'
 import { endHttp } from '../../axios'
 import type { IDataResponse, IPageResponse, IStandardResponse } from '../index.type'
 import type {
+  IAdminOrder,
+  IAdminOrderQuery,
   IDeptModelQuery,
   IDictItemModel,
   IDictItemModelQuery,
@@ -71,9 +74,15 @@ export default {
       return endHttp.get(`system/users/search?query=${query}`) as Promise<IDataResponse<[IUserModel[], number]>>
     },
   },
+  order:{
+    list(body: Partial<IAdminOrderQuery>){
+      return endHttp.post('order/admin/list',body) as Promise<IPageResponse<IAdminOrder>>
+    }
+
+  },
 
   role: {
-    list(query: IRoleModelQuery = { page: 1, pageSize: 50 }) {
+    list(query: Partial<IRoleModelQuery> = { page: 1, pageSize: 50 }) {
       return endHttp.get('system/roles', query) as Promise<IPageResponse<IRoleModel>>
     },
     create(Body: IRoleModel) {
@@ -220,7 +229,7 @@ export default {
     },
   },
   subscription: {
-    list(query: ISubscriptionPlanQuery) {
+    list(query: Partial<ISubscriptionPlanQuery>) {
       return endHttp.post('subscribe/list', query) as Promise<IPageResponse<ISubscriptionPlan>>
     },
     forceUpdate(uid: number) {
