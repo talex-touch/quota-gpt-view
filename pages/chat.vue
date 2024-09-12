@@ -5,7 +5,6 @@ import History from '~/components/history/index.vue'
 import type { ThHistory } from '~/components/history/history'
 import { chatManager } from '~/composables/chat'
 import ShareSection from '~/components/chat/ShareSection.vue'
-import { inputProperty } from '~/components/input/input'
 import { getTargetPrompt } from '~/composables/api/chat'
 
 definePageMeta({

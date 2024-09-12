@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import ChatSetting from '../setting/ChatSetting.vue'
-import type { ThHistory } from '../history/history'
 import ChatItem from './ChatItem.vue'
 import EmptyGuide from './EmptyGuide.vue'
 import TrChatTitle from './head/TrChatTitle.vue'
@@ -9,10 +8,11 @@ import { Status } from '~/composables/chat'
 import ModelSelector from '~/components/model/ModelSelector.vue'
 import AccountAvatar from '~/components/personal/AccountAvatar.vue'
 import IconButton from '~/components/button/IconButton.vue'
+import { type IChatConversation, IChatItemStatus } from '~/composables/api/base/v1/aigc/index.type.d.ts'
 
 const props = defineProps<{
-  messages: ThHistory
-  roundLimit: boolean
+  messages: IChatConversation
+  status: IChatItemStatus
 }>()
 
 const emits = defineEmits<{
@@ -26,15 +26,10 @@ const share: any = (inject('pageOptions')! as any).share
 const options = reactive({
   backToTop: false,
   backToBottom: false,
-  stopGenerating: false,
   share,
 })
 
-watchEffect(() => {
-  options.stopGenerating = props.messages?.status === Status.GENERATING
-})
-
-const messagesModel = useVModel(props, 'messages', emits)
+// const messagesModel = useVModel(props, 'messages', emits)
 
 function handleCancel() {
   emits('cancel')
@@ -48,11 +43,6 @@ watch(
     }, 10)
   },
 )
-
-function handleShare() {
-  options.share.selected.length = 0
-  options.share.enable = !options.share.enable
-}
 
 function handleSelectShareItem(index: number, check: boolean) {
   if (!check)
@@ -111,7 +101,7 @@ function handleBackToTop() {
 }
 
 const messageBubbles = computed(() =>
-  [...(props.messages?.messages ?? [])].filter(message => !message.hide),
+  [...(props.messages?.messages ?? [])],
 )
 
 defineExpose({
@@ -124,33 +114,20 @@ defineExpose({
   },
 })
 
-const [chatSettingShow, toggleChatSettingShow] = useToggle()
+const stop = computed(() =>
+  props.status === IChatItemStatus.GENERATING || props.status === IChatItemStatus.WAITING,
+)
 </script>
 
 <template>
   <div class="ThChat">
-    <ChatSetting v-if="messagesModel" v-model:data="messagesModel" v-model:show="chatSettingShow" />
-
     <div v-if="messages" :class="{ show: messages.messages?.length > 1 }" class="ThChat-Title">
-      <div v-if="userStore?.isAdmin && messageBubbles" v-wave class="ThChat-Setting" @click="toggleChatSettingShow()">
-        <div i-carbon-settings />
-        <span>设置</span>
-      </div>
-
-      <div class="ThChat-HeadBar" flex items-center gap-4>
-        <TrSyncStatus :syncing="messages.syncing" :sync="messages.sync" />
-        <TrChatTitle :title="messages.topic" />
-        <IconButton class="only-pc-display" :shining="options.share.enable" :stay="true" @click="handleShare">
-          <div i-carbon-share />
-        </IconButton>
-      </div>
-
       <span v-if="messageBubbles" class="model">
-        <ModelSelector v-model="messagesModel.model" />
+        <!-- <ModelSelector v-model="messagesModel.model" /> -->
       </span>
     </div>
 
-    <div class="ThChat-Container" :class="{ stop: options.stopGenerating, backToBottom: options.backToBottom }">
+    <div class="ThChat-Container" :class="{ stop, backToBottom: options.backToBottom }">
       <div :class="{ in: options.backToTop }" class="ToTop only-pc-display" @click="handleBackToTop">
         <div i-carbon:arrow-up />
         查看{{ messageBubbles.length }}条历史消息
@@ -159,17 +136,19 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
       <el-scrollbar ref="scrollbar" @scroll="handleScroll">
         <div v-if="messages" class="ThChat-Container-Wrapper">
           <ChatItem
-            v-for="(message, ind) in messageBubbles" :key="message.id" :ind="ind"
+            v-for="(message, ind) in messageBubbles"
+            :key="message.id" :dict-index="0" :ind="ind"
             :total="messages.messages.length" :item="message" :share="options.share.enable"
             :select="options.share.selected" @select="handleSelectShareItem"
           />
 
-          <div v-if="!options.share.enable && roundLimit" class="TrChat-RateLimit">
+          <!-- 统一 error / warning mention -->
+          <!-- <div v-if="!options.share.enable" class="TrChat-RateLimit">
             为了避免恶意使用，你需要登录来解锁聊天限制！
-          </div>
+          </div> -->
         </div>
 
-        <EmptyGuide :show="messages.messages?.length > 1" />
+        <EmptyGuide :show="!!messages.messages?.length" />
 
         <br>
         <br>
@@ -424,6 +403,8 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
       width: 95%;
     }
   }
+
+  height: 100%;
 }
 
 .ThChat {
@@ -457,5 +438,7 @@ const [chatSettingShow, toggleChatSettingShow] = useToggle()
 
     // backdrop-filter: blur(18px) saturate(180%);
   }
+
+  height: 100%;
 }
 </style>

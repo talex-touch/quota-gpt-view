@@ -1,6 +1,6 @@
 export * from './v1/auth.type'
 export * from './v1/cms.type'
-export * from './v1/chat.type'
+export * from './v1/aigc/chat.type'
 
 export interface IStandardResponse {
   code: number

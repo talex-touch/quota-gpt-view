@@ -1,22 +1,31 @@
 <script name="ThInput" setup lang="ts">
 import { encode } from 'gpt-tokenizer'
-import { inputProperty } from './input'
 import ThInputPlus from './ThInputPlus.vue'
+import type { InputPlusProperty } from './input'
 import { Status } from '~/composables/chat'
 
 const props = defineProps<{
   status: Status
   hide: boolean
   templateEnable: boolean
+  inputProperty: InputPlusProperty
 }>()
 const emits = defineEmits<{
   (name: 'send', data: any, meta: any): void
-  (name: 'clear'): void
+  (name: 'update:inputProperty', value: InputPlusProperty): void
 }>()
+
+const inputProperty = computed({
+  get() {
+    return props.inputProperty
+  },
+  set(value) {
+    emits('update:inputProperty', value)
+  },
+})
 
 const input = ref('')
 const template = ref<any>({})
-const pageOptions: any = inject('pageOptions')
 const nonPlusMode = computed(() => props.templateEnable && !template.value?.title && (input.value.startsWith('/') || input.value.startsWith('@')))
 
 const inputHistories = useLocalStorage<string[]>('inputHistories', [])
@@ -56,10 +65,8 @@ function handleInputKeydown(event: KeyboardEvent) {
     return
 
   if (event.key === 'Backspace') {
-    if (template.value && !input.value) {
+    if (template.value && !input.value)
       template.value = {}
-      pageOptions.template = null
-    }
   }
 
   if (event.key === 'Enter') {
@@ -140,7 +147,7 @@ onMounted(() => {
 })
 
 function handleTemplateSelect(data: any) {
-  pageOptions.template = template.value = data
+  template.value = data
 
   input.value = ''
 }
@@ -158,11 +165,6 @@ function handleTemplateSelect(data: any) {
     }" class="ThInput" @keydown.enter="handleSend"
   >
     <div class="ThInput-Float">
-      <div class="ThInput-Float-Start">
-        <span v-if="inputProperty.internet" class="tag">联网模式</span>
-        <!-- <span class="tag">SMART</span> -->
-      </div>
-
       <div class="ThInput-Float-End">
         <span class="tag">{{ len }}/
           <span v-if="userStore.isLogin">8192</span>
@@ -203,6 +205,8 @@ function handleTemplateSelect(data: any) {
       <div i-carbon:send-alt />
       <span v-if="status === Status.GENERATING">生成中</span>
     </div>
+
+    <div class="ThInput-StatusBar" />
   </div>
 </template>
 

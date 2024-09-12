@@ -69,13 +69,12 @@ export enum IChatRole {
 }
 
 export interface IChatInnerItemMeta {
-  temperature: number
+  temperature?: number
 
   // TODO: context memory
 }
 
 export interface IChatInnerItem {
-  role: IChatRole
   model: QuotaModel
   status: IChatItemStatus
 
@@ -85,6 +84,7 @@ export interface IChatInnerItem {
 
 export interface IChatItem {
   id: string
+  role: IChatRole
   timestamp: number
   content: IChatInnerItem[]
 }
@@ -103,7 +103,7 @@ export interface IChatConversation {
    */
   topic: string
 
-  messages: ChatItem[]
+  messages: IChatItem[]
 
   lastUpdate: number
   // lastSummarizeIndex: number
@@ -131,4 +131,29 @@ export interface IHistoryUploadQuery {
    * 对话的附属信息 必须encode
    */
   meta: string
+}
+
+export interface ICompletionHandler {
+  onTriggerStatus?: (status: IChatItemStatus) => void
+  onReqCompleted?: () => void
+  onFrequentLimit?: () => void
+  // return true to deny auto add
+  onCompletion?: (name: string, text: string) => boolean
+  onCompletionStart?: (name: string) => void
+  onChainEnd?: (name: string) => void
+  onToolStart?: (name: string, input?: string) => void
+  onToolEnd?: (name: string, output?: string) => void
+  onError?: () => void
+}
+
+export interface IToolHandler {
+  onToolStart: (name: string, input?: string) => void
+  onToolEnd: (name: string, output?: string) => void
+}
+
+interface ITransmissionFormat {
+  id: string // 单聊天ID
+  role: ITransmissionRole
+  event: IFormatEvent
+  chat_id: string // 对话ID
 }

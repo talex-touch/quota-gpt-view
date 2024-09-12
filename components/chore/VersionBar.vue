@@ -10,40 +10,34 @@ const version = computed(() => {
 </script>
 
 <template>
-  <div class="VersionBar">
-    <span>ThisAI 可能会犯错，生成的内容仅供参考。</span>
-    <span float-right mr-4>
-      {{ version }}
-    </span>
-  </div>
+  <span class="VersionBar">
+    <!-- <span float-right mr-4> -->
+    {{ version }}
+    <!-- </span> -->
+  </span>
 </template>
 
 <style lang="scss">
-.mobile .VersionBar {
-  position: absolute;
+// .mobile .VersionBar {
+//   position: absolute;
 
-  left: 50%;
+//   left: 50%;
 
-  bottom: 1rem;
+//   bottom: 1rem;
 
-  transform: translateX(-50%) scale(0.75);
-}
+//   transform: translateX(-50%) scale(0.75);
+// }
 
 .VersionBar {
-  z-index: 3;
-  position: absolute;
+  display: flex;
 
-  left: 50%;
-
-  bottom: 0.5rem;
-  width: 100%;
+  align-items: center;
 
   color: var(--el-text-color-secondary);
   font-size: 12px;
   text-align: center;
-  transform: translateX(-50%);
 
-  mix-blend-mode: difference;
+  // mix-blend-mode: difference;
   // background: var(--el-bg-color-page);
 }
 </style>
