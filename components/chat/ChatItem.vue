@@ -52,36 +52,6 @@ const settingMode = reactive({
 dayjs.locale(zhLocale)
 dayjs.extend(relativeTime)
 
-const tools = reactive([
-  {
-    name: '复制',
-    icon: 'i-carbon-copy',
-    errorHide: true,
-    trigger: () => {
-      if (!props.item.content || tools[0].icon !== 'i-carbon-copy')
-        return
-
-      // navigator.clipboard.writeText(props.item.content)
-
-      tools[0].icon = 'i-carbon-checkmark'
-
-      setTimeout(() => {
-        tools[0].icon = 'i-carbon-copy'
-      }, 1200)
-    },
-  },
-  {
-    name: '属性',
-    icon: 'i-carbon-settings-adjust',
-    userIgnored: true,
-    errorHide: true,
-    trigger: () => {
-      settingMode.visible = !settingMode.visible
-    },
-  },
-  // { name: '朗读', icon: 'i-carbon-user-speaker' },
-])
-
 const check = ref(false)
 
 watch(() => check.value, (val) => {
@@ -153,6 +123,36 @@ watch(() => [innerItem.value?.value, innerItem.value?.status], () => {
   if (rootEl && cursor)
     setTimeout(() => handleGeneratingDotUpdate(rootEl, cursor), 0)
 })
+
+const tools = reactive([
+  {
+    name: '复制',
+    icon: 'i-carbon-copy',
+    errorHide: true,
+    trigger: () => {
+      if (!props.item.content || tools[0].icon !== 'i-carbon-copy')
+        return
+
+      navigator.clipboard.writeText(innerItem.value.value)
+
+      tools[0].icon = 'i-carbon-checkmark'
+
+      setTimeout(() => {
+        tools[0].icon = 'i-carbon-copy'
+      }, 1200)
+    },
+  },
+  {
+    name: '属性',
+    icon: 'i-carbon-settings-adjust',
+    userIgnored: true,
+    errorHide: true,
+    trigger: () => {
+      settingMode.visible = !settingMode.visible
+    },
+  },
+  // { name: '朗读', icon: 'i-carbon-user-speaker' },
+])
 </script>
 
 <template>
@@ -308,7 +308,7 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
   padding: 0.5rem 1rem;
 
   left: 0;
-  bottom: -20px;
+  bottom: -30px;
 
   width: 125px;
   height: 70px;
