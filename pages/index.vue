@@ -7,7 +7,7 @@ import ShareSection from '~/components/chat/ShareSection.vue'
 import type { InputPlusProperty } from '~/components/input/input'
 import { getTargetPrompt } from '~/composables/api/chat'
 import { $completion } from '~/composables/api/base/v1/aigc/completion'
-import { type IChatConversation, IChatItemStatus, QuotaModel } from '~/composables/api/base/v1/aigc/index.type.d.ts'
+import { type IChatConversation, type IChatInnerItem, type IChatItem, IChatItemStatus, PersistStatus, QuotaModel } from '~/composables/api/base/v1/aigc/completion-types'
 
 definePageMeta({
   layout: 'default',
@@ -97,23 +97,8 @@ function handleCreate() {
   return true
 }
 
-async function handleSend(query: string, _meta: any) {
-  const conversation = pageOptions.conversation
-
-  const chatItem = $completion.emptyChatItem()
-  const innerItem = $completion.emptyChatInnerItem({
-    model: QuotaModel.QUOTA_THIS_NORMAL,
-    value: query,
-    meta: {
-      temperature: 0,
-    },
-    status: IChatItemStatus.AVAILABLE,
-  })
-
-  chatItem.content.push(innerItem)
-  conversation.messages.push(chatItem)
-
-  const chatCompletion = $completion.createCompletion(conversation, innerItem)
+async function innerSend(conversation: IChatConversation, chatItem: IChatItem, index: number) {
+  const chatCompletion = $completion.createCompletion(conversation, chatItem, index)
 
   chatCompletion.registerHandler({
     onCompletion: () => {
@@ -141,6 +126,46 @@ async function handleSend(query: string, _meta: any) {
   chatCompletion.send()
 }
 
+// 重新生成某条消息 只需要给消息索引即可 还需要传入目标inner 如果有新的参数赋值则传options替换
+async function handleRetry(index: number, innerItem: IChatInnerItem) {
+  const conversation = pageOptions.conversation
+
+  const chatItem = conversation.messages[index]
+  const _innerItem = $completion.emptyChatInnerItem({
+    model: innerItem.model,
+    value: '',
+    meta: innerItem.meta,
+    status: IChatItemStatus.AVAILABLE,
+  })
+
+  chatItem.content.push(_innerItem)
+
+  // console.log('a', conversation.messages)
+
+  innerSend(conversation, chatItem, index)
+}
+
+async function handleSend(query: string, _meta: any) {
+  const conversation = pageOptions.conversation
+
+  const shiftItem = conversation.messages.at(-1)
+
+  const chatItem = $completion.emptyChatItem()
+  const innerItem = $completion.emptyChatInnerItem({
+    model: QuotaModel.QUOTA_THIS_NORMAL,
+    value: query,
+    meta: {
+      temperature: 0,
+    },
+    status: IChatItemStatus.AVAILABLE,
+  })
+
+  chatItem.content.push(innerItem)
+  conversation.messages.push(chatItem)
+
+  innerSend(conversation, chatItem, shiftItem?.content.length ?? 0)
+}
+
 // provide('updateConversationTopic', (index: number, topic: string) => {
 //   const conversation: ThHistory = chatManager.history.value[index]
 
@@ -156,17 +181,16 @@ function handleShare() {
 </script>
 
 <template>
-  <div :class="{ expand: false }" class="PageContainer">
-    <!-- <History
+  <div :class="{ expand: pageOptions.expand }" class="PageContainer">
+    <History
       v-model:selectIndex="pageOptions.select" v-model:expand="pageOptions.expand" class="PageContainer-History"
       @create="handleCreate" @delete="handleDelete"
-    /> -->
+    />
 
     <div class="PageContainer-Main">
       <ThChat
-        ref="chatRef"
-        v-model:messages="pageOptions.conversation" :status="pageOptions.status"
-        @cancel="chatManager.cancelCurrentReq()"
+        ref="chatRef" v-model:messages="pageOptions.conversation" :status="pageOptions.status"
+        @cancel="chatManager.cancelCurrentReq()" @retry="handleRetry"
       />
 
       <ThInput
@@ -188,7 +212,10 @@ function handleShare() {
             离线模式
           </span>
 
-          <span cursor-pointer class="tag" @click="handleShare">
+          <span
+            v-if="!!pageOptions.conversation.messages.length"
+            :class="pageOptions.share.enable ? 'warning shining' : ''" cursor-pointer class="tag" @click="handleShare"
+          >
             <i i-carbon:share />分享对话
           </span>
 
@@ -196,13 +223,39 @@ function handleShare() {
             <i i-carbon:time />2 mins
           </span>
         </template>
+        <template #end>
+          <ChatHeadTrSyncStatus :status="pageOptions.conversation.sync" />
+        </template>
       </AigcChatStatusBar>
+
+      <ShareSection
+        v-if="pageOptions.conversation" :length="pageOptions.conversation.messages.length"
+        :show="pageOptions.share.enable" :selected="pageOptions.share.selected"
+      />
+
+      <ChorePersonalDialog v-if="userStore.isLogin" v-model="pageOptions.settingDialog" />
     </div>
   </div>
 </template>
 
 <style lang="scss">
 .PageContainer {
+  &::before {
+    z-index: -2;
+    content: '';
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    opacity: 0.5;
+    background-size: cover;
+    background-image: var(--wallpaper);
+  }
+
   &-Main {
     z-index: 2;
     position: relative;
@@ -245,8 +298,6 @@ function handleShare() {
       filter: blur(18px);
       background-color: var(--el-bg-color);
     }
-
-    z-index: 3;
   }
 
   position: absolute;

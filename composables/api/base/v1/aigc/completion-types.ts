@@ -84,16 +84,27 @@ export interface IChatInnerItem {
 
 export interface IChatItem {
   id: string
+  page: number
   role: IChatRole
   timestamp: number
-  content: IChatInnerItem[]
+  content: (IChatInnerItem | null)[]
 }
 
 export enum IConversationSynchronizeStatus {
   SYNCING = 'syncing',
 }
 
-export interface IChatConversation {
+export enum PersistStatus {
+  PENDING = 'pending',
+  SUCCESS = 'success',
+  FAILED = 'failed',
+}
+
+export interface IChatPersist {
+  sync: PersistStatus
+}
+
+export interface IChatConversation extends IChatPersist {
   /**
    * 对话ID，唯一标识，用于各处确定对话
    */
@@ -108,6 +119,15 @@ export interface IChatConversation {
   lastUpdate: number
   // lastSummarizeIndex: number
 
+  templateId: number
+}
+
+export interface IChatBody {
+  chat_id: string
+  index: number
+  model: QuotaModel
+  messages: IChatItem[]
+  temperature: number
   templateId: number
 }
 

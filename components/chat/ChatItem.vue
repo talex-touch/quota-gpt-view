@@ -6,7 +6,7 @@ import RoundLoading from '../loaders/RoundLoading.vue'
 import TextShaving from '../other/TextShaving.vue'
 import ThWickCheckBox from '../checkbox/ThWickCheckBox.vue'
 import ItemModelSelector from './addon/ItemModelSelector.vue'
-import { type IChatItem, IChatItemStatus, IChatRole } from '~/composables/api/base/v1/aigc/index.type.d.ts'
+import { type IChatInnerItem, type IChatItem, IChatItemStatus, IChatRole } from '~/composables/api/base/v1/aigc/completion-types'
 
 interface IChatItemProp {
   item: IChatItem
@@ -15,32 +15,27 @@ interface IChatItemProp {
   share: boolean
   select: number[]
 
-  // 表指应该渲染第几个顺序 由上一级决定 （暂时统一为0）
-  dictIndex: number
+  // 表指应该渲染第几个顺序 由上一级决定
+  meta: {
+    dictIndex: number
+    show: boolean
+  }
 }
 
 const props = defineProps<IChatItemProp>()
 
 const emits = defineEmits<{
   (e: 'select', index: number, checked: boolean): void
-  (e: 'update:dictIndex', page: number): void
+  (e: 'retry', innerItem: IChatInnerItem): void
+  (e: 'update:item', data: IChatItem): void
+  (e: 'update:meta', data: IChatItem): void
 }>()
 
-const page = ref(0)
+const msgItem = useVModel(props, 'item', emits)
+const metaModel = useVModel(props, 'meta', emits)
 const dom = ref()
 
 let timer: any
-
-watch(() => props.dictIndex, () => {
-  page.value = props.dictIndex
-})
-
-watch(() => page.value, () => {
-  if (props.dictIndex === page.value)
-    return
-
-  emits('update:dictIndex', page.value)
-})
 
 const settingMode = reactive({
   visible: false,
@@ -62,18 +57,8 @@ watch(() => props.select, (val) => {
   check.value = val.includes(props.ind)
 })
 
-function filterTools(item: any) {
-  return tools.filter((tool) => {
-    if (item.status === 2 && tool.errorHide)
-      return false
-
-    return item.role === 'user'
-      ? !tool.userIgnored
-      : true
-  })
-}
-
-const innerItem = computed(() => props.item.content?.[page.value] || null)
+const nullLen = computed(() => props.item.content?.filter(item => item === null).length || 0)
+const innerItem = computed(() => props.item.content?.[msgItem.value.page + nullLen.value] || null)
 const timeAgo = computed(() => dayjs(props.item.timestamp, 'YYYY/M/D HH:mm:ss').fromNow())
 const isUser = computed(() => props.item.role === IChatRole.USER)
 
@@ -84,13 +69,15 @@ function handleGeneratingDotUpdate(rootEl: HTMLElement, cursor: HTMLElement) {
   cursor.style.opacity = '1'
   timer && clearTimeout(timer)
   timer = setTimeout(() => {
-    if (innerItem.value.status === IChatItemStatus.GENERATING)
+    if (innerItem.value!.status === IChatItemStatus.GENERATING)
       return
 
     cursor.style.opacity = '0'
   }, 200)
 
   const textNode = getLastTextNode(rootEl)
+
+  console.log('a', textNode)
 
   const tempNode = document.createTextNode('|')
   if (textNode)
@@ -133,7 +120,7 @@ const tools = reactive([
       if (!props.item.content || tools[0].icon !== 'i-carbon-copy')
         return
 
-      navigator.clipboard.writeText(innerItem.value.value)
+      navigator.clipboard.writeText(innerItem.value!.value)
 
       tools[0].icon = 'i-carbon-checkmark'
 
@@ -153,10 +140,35 @@ const tools = reactive([
   },
   // { name: '朗读', icon: 'i-carbon-user-speaker' },
 ])
+
+function filterTools(item: any) {
+  return tools.filter((tool) => {
+    if (item.status === 2 && tool.errorHide)
+      return false
+
+    return item.role === 'user'
+      ? !tool.userIgnored
+      : true
+  })
+}
+
+function handleRetry() {
+  emits('retry', innerItem.value!)
+
+  msgItem.value.page = props.item.content?.length - 1
+}
+
+watchEffect(() => {
+  if (isUser.value)
+    return
+
+  // 计算自己的content中有多少个null
+  metaModel.value.show = !!innerItem.value && metaModel.value.dictIndex >= props.item.page + nullLen.value
+})
 </script>
 
 <template>
-  <div :class="{ check, share, user: isUser }" class="ChatItem">
+  <div v-if="metaModel.show" :class="{ check, share, user: isUser }" class="ChatItem">
     <div class="ChatItem-Select">
       <el-checkbox v-model="check" />
     </div>
@@ -165,6 +177,7 @@ const tools = reactive([
       <img src="/logo.png">
     </div>
     <div
+      v-if="innerItem"
       :class="{ error: innerItem.status === IChatItemStatus.ERROR, settingVisible: settingMode.visible }"
       class="ChatItem-Wrapper"
     >
@@ -215,28 +228,24 @@ const tools = reactive([
           innerItem.status !== IChatItemStatus.GENERATING
             && !!item.content?.length
             && innerItem.status !== IChatItemStatus.WAITING
-        " class="ChatItem-Mention"
-        :class="{
+        " class="ChatItem-Mention" :class="{
           autoHide: isUser || total !== ind + 1,
         }"
       >
         <ChatAddonChatPageSelector
-          v-if="!isUser && item.content.length > 1" v-model="page"
-          :total-page="item.content.length"
+          v-if="!isUser && item.content.length - nullLen > 1" v-model="msgItem.page"
+          :total-page="item.content.length - nullLen"
         />
 
         <span class="toolbox">
-          <span
-            v-for="tool in filterTools(item)" :key="tool.name" class="toolbox-item"
-            @click="tool.trigger"
-          >
+          <span v-for="tool in filterTools(item)" :key="tool.name" class="toolbox-item" @click="tool.trigger">
             <el-tooltip :content="tool.name">
               <i :class="tool.icon" />
             </el-tooltip>
           </span>
         </span>
 
-        <ItemModelSelector v-model="innerItem.model" />
+        <ItemModelSelector v-if="!isUser && total === ind + 1" v-model="innerItem.model" @retry="handleRetry" />
 
         <span class="info">
           <span class="date">{{ timeAgo }}</span>
@@ -347,16 +356,6 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
   position: relative;
   top: 20px;
   left: 10px;
-}
-
-@keyframes join {
-  from {
-    transform: translateY(20%) scale(0.75);
-  }
-
-  to {
-    transform: translateY(0) scale(1);
-  }
 }
 
 .ChatItem-Reference {
@@ -485,6 +484,7 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
     }
 
     .user & {
+      padding: 0.25rem 0.5rem;
       flex-direction: row-reverse;
 
       left: unset;
@@ -494,8 +494,7 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
       box-shadow: var(--el-box-shadow);
       background-color: var(--el-bg-color-page);
     }
-
-    z-index: 1;
+    z-index: 2;
     position: relative;
     margin: 0.25rem 0;
     display: flex;
@@ -514,7 +513,6 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
     box-sizing: border-box;
     transition: 0.25s;
   }
-
   position: relative;
 
   width: max-content;
@@ -546,6 +544,8 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
     position: relative;
     display: flex;
 
+    width: 100%;
+
     .user & {
       position: relative;
 
@@ -567,7 +567,7 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
 
   transition: 0.25s;
   box-sizing: border-box;
-  animation: join 0.35s ease-in-out;
+  // animation: join 0.35s ease-in-out;
 
   // background-color: #ff000010;
 }

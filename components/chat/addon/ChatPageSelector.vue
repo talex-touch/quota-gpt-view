@@ -13,12 +13,26 @@ const page = useVModel(props, 'modelValue', emits)
 
 <template>
   <div flex items-center>
-    <div i-carbon:chevron-left cursor-pointer />
+    <div class="_btn" mr-1 cursor-pointer op-50 @click="page -= 1">
+      <i i-carbon:chevron-left />
+    </div>
     <div>{{ page + 1 }} / {{ totalPage }}</div>
-    <div i-carbon:chevron-right cursor-pointer />
+    <div class="_btn" ml-1 cursor-pointer op-50 @click="page += 1">
+      <i i-carbon:chevron-right />
+    </div>
   </div>
 </template>
 
 <style lang="scss">
+._btn {
+  display: flex;
 
+  border-radius: 4px;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background-color: var(--el-bg-color-page);
+  }
+}
 </style>

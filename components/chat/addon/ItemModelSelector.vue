@@ -5,6 +5,7 @@ const props = defineProps<{
 
 const emits = defineEmits<{
   (e: 'update:modelValue', value: string): void
+  (e: 'retry'): void
 }>()
 
 const hover = debouncedRef(ref(false))
@@ -32,7 +33,7 @@ const models = reactive([
     label: 'GPT-5o',
     value: 'this-normal-ultimate',
     desc: '不只是模态能力，来试试',
-    lock: () => userStore.value?.subscription?.type === 'STANDARD',
+    lock: () => userStore.value?.subscription?.type === 'ULTIMATE',
   },
 ])
 
@@ -73,7 +74,7 @@ const curModel = computed(() => models.find(_model => _model.value === model.val
     </div>
     <template v-if="curModel">
       <el-divider style="margin: 12px 0" />
-      <div v-wave class="model-selector-content">
+      <div v-wave class="model-selector-content" @click="emits('retry')">
         <div class="model-popover-item">
           <div class="icon">
             <i i-carbon:renew />
@@ -147,7 +148,7 @@ const curModel = computed(() => models.find(_model => _model.value === model.val
     }
     position: relative;
     display: flex;
-    padding: 0.5rem;
+    padding: 0.75rem;
 
     width: 100%;
     height: 64px;
@@ -164,10 +165,29 @@ const curModel = computed(() => models.find(_model => _model.value === model.val
 
         backdrop-filter: blur(18px);
       }
-      background-color: var(--el-bg-color-page);
+      .icon {
+        background-color: var(--theme-color-light);
+      }
+      background-color: var(--el-fill-color-extra-light);
     }
   }
-  z-index: 1;
+
+  &::after {
+    z-index: -1;
+    content: '';
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    opacity: 0.5;
+    filter: blur(18px);
+    background-color: var(--el-bg-color);
+  }
+  z-index: 2;
   position: absolute;
   padding: 1rem;
 
@@ -184,6 +204,8 @@ const curModel = computed(() => models.find(_model => _model.value === model.val
   transform: scale(0);
   transition: 0.25s;
   transform-origin: center 10%;
+
+  backdrop-filter: blur(18px) saturate(180%);
 
   &.hover {
     transform: scale(1);

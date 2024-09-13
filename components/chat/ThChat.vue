@@ -8,7 +8,7 @@ import { Status } from '~/composables/chat'
 import ModelSelector from '~/components/model/ModelSelector.vue'
 import AccountAvatar from '~/components/personal/AccountAvatar.vue'
 import IconButton from '~/components/button/IconButton.vue'
-import { type IChatConversation, IChatItemStatus } from '~/composables/api/base/v1/aigc/index.type.d.ts'
+import { type IChatConversation, type IChatInnerItem, IChatItemStatus } from '~/composables/api/base/v1/aigc/completion-types'
 
 const props = defineProps<{
   messages: IChatConversation
@@ -16,8 +16,9 @@ const props = defineProps<{
 }>()
 
 const emits = defineEmits<{
-  (e: 'update:messages', messages: ChatCompletion): void
+  (e: 'update:messages', messages: IChatConversation): void
   (e: 'cancel'): void
+  (e: 'retry', index: number, innerItem: IChatInnerItem): Promise<void>
 }>()
 
 const scrollbar = ref()
@@ -29,7 +30,7 @@ const options = reactive({
   share,
 })
 
-// const messagesModel = useVModel(props, 'messages', emits)
+const messagesModel = useVModel(props, 'messages', emits)
 
 function handleCancel() {
   emits('cancel')
@@ -100,10 +101,6 @@ function handleBackToTop() {
   })
 }
 
-const messageBubbles = computed(() =>
-  [...(props.messages?.messages ?? [])],
-)
-
 defineExpose({
   handleBackToBottom,
   generateScroll: () => {
@@ -117,12 +114,57 @@ defineExpose({
 const stop = computed(() =>
   props.status === IChatItemStatus.GENERATING || props.status === IChatItemStatus.WAITING,
 )
+
+// dict index是参考值 即从当前消息向上的最大页数
+// 根据 dp[i + 1](page) = max(dp[i](page), dp[i - 1](page)) 推导
+// 还要考虑到用户发送的消息没有换页
+function getDictIndex(ind: number) {
+  // 如果给入的ind不是奇数 则固定返回ind+1
+  if (ind % 2 === 0)
+    return getDictIndex(ind + 1)
+
+  const msg = messagesModel.value.messages[ind]
+  // 如果本来就是 0 直接返回
+  if (ind === 1)
+    return msg.page
+
+  const prev = messagesModel.value.messages[ind - 2]
+  const page = Math.max(prev.page, msg.page)
+
+  // 如果 prev 的 content 没有这么多直接push null即可
+  while (prev.content.length < page)
+    prev.content.push(null)
+
+  return page
+}
+
+// 计算每一条消息的属性 从后向前
+const msgMeta = computed(() => {
+  const meta = reactive<{
+    dictIndex: number
+    show: boolean
+  }[]>([])
+  const msgList = messagesModel.value.messages
+
+  for (let i = msgList.length - 1; i >= 0; i -= 2) {
+    const dictIndex = getDictIndex(i)
+
+    const obj = reactive({
+      dictIndex,
+      show: false,
+    })
+
+    meta.push(...[obj, obj])
+  }
+
+  return meta
+})
 </script>
 
 <template>
   <div class="ThChat">
     <div v-if="messages" :class="{ show: messages.messages?.length > 1 }" class="ThChat-Title">
-      <span v-if="messageBubbles" class="model">
+      <span v-if="messagesModel.messages" class="model">
         <!-- <ModelSelector v-model="messagesModel.model" /> -->
       </span>
     </div>
@@ -130,16 +172,17 @@ const stop = computed(() =>
     <div class="ThChat-Container" :class="{ stop, backToBottom: options.backToBottom }">
       <div :class="{ in: options.backToTop }" class="ToTop only-pc-display" @click="handleBackToTop">
         <div i-carbon:arrow-up />
-        查看{{ messageBubbles.length }}条历史消息
+        查看{{ messagesModel.messages.length }}条历史消息
       </div>
 
       <el-scrollbar ref="scrollbar" @scroll="handleScroll">
         <div v-if="messages" class="ThChat-Container-Wrapper">
           <ChatItem
-            v-for="(message, ind) in messageBubbles"
-            :key="message.id" :dict-index="0" :ind="ind"
-            :total="messages.messages.length" :item="message" :share="options.share.enable"
+            v-for="(message, ind) in messagesModel.messages"
+            :key="message.id" v-model:item="messagesModel.messages[ind]" v-model:meta="msgMeta[ind]"
+            :ind="ind" :total="messages.messages.length" :share="options.share.enable"
             :select="options.share.selected" @select="handleSelectShareItem"
+            @retry="emits('retry', ind, $event)"
           />
 
           <!-- 统一 error / warning mention -->

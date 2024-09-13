@@ -1,5 +1,5 @@
 import { endHttp } from '~/composables/api/axios'
-import { type IChatConversation, type IChatInnerItem, type IChatItem, IChatItemStatus, IChatRole, type ICompletionHandler, QuotaModel } from '~/composables/api/base/v1/aigc/index.type.d.ts'
+import { type IChatBody, type IChatConversation, type IChatInnerItem, type IChatItem, IChatItemStatus, IChatRole, type ICompletionHandler, PersistStatus, QuotaModel } from '~/composables/api/base/v1/aigc/completion-types'
 
 function mapStrStatus(str: string) {
   if (str === 'progress')
@@ -89,7 +89,9 @@ async function handleExecutorResult(reader: ReadableStreamDefaultReader<string>,
   }
 }
 
-async function useCompletionExecutor(body: any, callback: (data: any) => void, options: Partial<ChatCompletionDto>) {
+async function useCompletionExecutor(body: IChatBody, callback: (data: any) => void, options: Partial<ChatCompletionDto>) {
+  body.messages.pop()
+
   const { promise, resolve } = Promise.withResolvers()
 
   function _callback() {
@@ -151,18 +153,20 @@ async function useCompletionExecutor(body: any, callback: (data: any) => void, o
 export const $completion = {
   emptyHistory() {
     return {
-      id: '',
+      id: `${Date.now()}`,
       topic: '新的聊天',
       messages: [],
       lastUpdate: -1,
       templateId: -1,
+      sync: PersistStatus.SUCCESS,
     } as IChatConversation
   },
 
   emptyChatItem(role: IChatRole = IChatRole.USER) {
     return {
-      id: '',
+      id: `${Date.now()}`,
       role,
+      page: 0,
       timestamp: Date.now(),
       content: [],
     } as IChatItem
@@ -198,12 +202,33 @@ export const $completion = {
     }
   },
 
-  createCompletion(conversation: IChatConversation, curItem: IChatInnerItem) {
-    let handler: ICompletionHandler = {}
-    const tempMessage = reactive(this.emptyChatItem(IChatRole.ASSISTANT))
-    const innerMsg = reactive(this.emptyChatInnerItem())
+  createCompletion(conversation: IChatConversation, curItem: IChatItem, index: number) {
+    const itemIndex = conversation.messages.findIndex(item => item.id === curItem.id)
 
-    tempMessage.content.push(innerMsg)
+    if (itemIndex === -1)
+      throw new Error('item not found')
+
+    // 因为传入的curItem一定是（规范）role:User 如果User是最后一个 那么就是新增
+    // 还有一种情况 用户重新生成最后一个 所以还要判断messages是不是odd
+    const isAdd = itemIndex === conversation.messages.length - 1 && conversation.messages.length % 2 === 1
+
+    let handler: ICompletionHandler = {}
+    const tempMessage = reactive(isAdd ? this.emptyChatItem(IChatRole.ASSISTANT) : conversation.messages[itemIndex])
+    const innerMsg = reactive(isAdd ? this.emptyChatInnerItem() : curItem.content[index]!)
+
+    if (isAdd) {
+      innerMsg.meta = curItem.content[0]!.meta
+
+      while (tempMessage.content.length < index - 1)
+        tempMessage.content.push(null)
+
+      tempMessage.content.push(innerMsg)
+
+      conversation.messages.push(tempMessage)
+    }
+
+    // 获得某一条消息的指定 innerItem
+    const curInnerItem = curItem.content[index]
 
     watch(() => innerMsg.status, (status) => {
       handler.onTriggerStatus?.(status)
@@ -222,18 +247,16 @@ export const $completion = {
         handler = _handler
       },
       send: async (options?: Partial<ChatCompletionDto>) => {
-        const _conversation = JSON.parse(JSON.stringify(conversation))
-        conversation.messages.push(tempMessage)
         innerMsg.status = IChatItemStatus.WAITING
-
-        await sleep(2000)
 
         await useCompletionExecutor(
           {
-            ..._conversation,
-            index: 0,
-            chat_id: '1',
-            model: 'this-normal-turbo',
+            temperature: innerMsg.meta.temperature || 0,
+            templateId: -1,
+            messages: JSON.parse(JSON.stringify(conversation.messages)),
+            index: index === -1 ? 0 : index,
+            chat_id: conversation.id,
+            model: QuotaModel.QUOTA_THIS_NORMAL_TURBO, // TODO
           },
           (res) => {
             if (res.error) {
@@ -253,7 +276,6 @@ export const $completion = {
             }
 
             const { event, name } = res
-            console.log('a', res, innerMsg.status)
             if (event === 'status_updated') {
               const mappedStatus = mapStrStatus(res.status)
               if (mappedStatus === IChatItemStatus.GENERATING && innerMsg.status !== IChatItemStatus.WAITING)
@@ -286,7 +308,7 @@ export const $completion = {
           },
           {
             ...(options || {}),
-            temperature: curItem.meta.temperature,
+            temperature: curInnerItem?.meta?.temperature || 0,
           },
         )
       },

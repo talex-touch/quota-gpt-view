@@ -42,7 +42,7 @@ const props = defineProps<{
     }
 
     &.shining {
-      animation: tag_shining 1.5s infinite;
+      animation: tag_shining 1s infinite;
     }
 
     padding: 0.25rem 0.5rem;
@@ -57,6 +57,7 @@ const props = defineProps<{
     mix-blend-mode: none;
     color: var(--el-text-color-primary);
   }
+
   z-index: 3;
   position: absolute;
   // padding: 0 1rem;
@@ -75,8 +76,23 @@ const props = defineProps<{
   font-size: 12px;
   text-align: center;
 
-  border-top: 1px solid var(--el-border-color);
-  background-color: var(--el-bg-color-page);
+  backdrop-filter: blur(18px);
+  // border-top: 1px solid var(--el-border-color);
+  // background-color: var(--el-bg-color-page);
+  &::after {
+    z-index: -1;
+    content: '';
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    opacity: 0.5;
+    background-color: var(--el-bg-color);
+  }
 }
 
 @keyframes tag_shining {
