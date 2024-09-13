@@ -54,8 +54,11 @@ const curModel = computed(() => models.find(_model => _model.value === model.val
       选择模型
     </p>
     <div class="model-selector-content">
-      <div v-for="_model in models" :key="_model.value" v-wave :class="{ lock: !(_model.lock?.() ?? true) }" class="model-popover-item">
-        <div class="icon">
+      <div
+        v-for="_model in models" :key="_model.value" v-wave :class="{ lock: !(_model.lock?.() ?? true) }"
+        class="model-popover-item"
+      >
+        <div class="icon fake-background">
           <i :class="_model.icon" />
         </div>
         <div class="main">
@@ -76,7 +79,7 @@ const curModel = computed(() => models.find(_model => _model.value === model.val
       <el-divider style="margin: 12px 0" />
       <div v-wave class="model-selector-content" @click="emits('retry')">
         <div class="model-popover-item">
-          <div class="icon">
+          <div class="icon fake-background">
             <i i-carbon:renew />
           </div>
           <div class="main">
@@ -131,6 +134,7 @@ const curModel = computed(() => models.find(_model => _model.value === model.val
       i {
         display: block;
       }
+      position: relative;
       display: flex;
 
       align-items: center;
@@ -139,8 +143,11 @@ const curModel = computed(() => models.find(_model => _model.value === model.val
       width: 32px;
       height: 32px;
 
+      overflow: hidden;
       border-radius: 50%;
-      background-color: var(--el-bg-color);
+      --fake-opacity: 0;
+      --fake-color: var(--theme-color);
+      // background-color: var(--el-bg-color);
     }
     .main p.desc {
       opacity: 0.75;
@@ -166,9 +173,26 @@ const curModel = computed(() => models.find(_model => _model.value === model.val
         backdrop-filter: blur(18px);
       }
       .icon {
-        background-color: var(--theme-color-light);
+        --fake-opacity: 1;
       }
-      background-color: var(--el-fill-color-extra-light);
+      &::after {
+        opacity: 0.5;
+      }
+    }
+    &::after {
+      z-index: -1;
+      content: '';
+      position: absolute;
+
+      top: 0;
+      left: 0;
+
+      width: 100%;
+      height: 100%;
+
+      opacity: 0;
+      filter: blur(18px);
+      background-color: var(--el-bg-color-page);
     }
   }
 
@@ -184,7 +208,7 @@ const curModel = computed(() => models.find(_model => _model.value === model.val
     height: 100%;
 
     opacity: 0.5;
-    filter: blur(18px);
+    filter: blur(8px);
     background-color: var(--el-bg-color);
   }
   z-index: 2;

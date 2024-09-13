@@ -294,8 +294,8 @@ function handleShare() {
       width: 100%;
       height: 100%;
 
-      opacity: 0.5;
-      filter: blur(18px);
+      opacity: 0.75;
+      // filter: blur(18px);
       background-color: var(--el-bg-color);
     }
   }

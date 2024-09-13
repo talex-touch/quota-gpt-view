@@ -412,8 +412,9 @@ div.History {
     bottom: 0px;
 
     width: 100%;
-    height: 10px;
+    height: 20px;
 
+    opacity: 0.25;
     background: linear-gradient(
       to top,
       var(--wallpaper-color-lighter, var(--el-bg-color)) 0%,
