@@ -14,6 +14,7 @@ function mapStrStatus(str: string) {
   return IChatItemStatus.AVAILABLE
 }
 
+let lastReceive = ''
 async function handleExecutorItem(item: string, callback: (data: any) => void) {
   if (item === '[DONE]') {
     callback({
@@ -22,7 +23,14 @@ async function handleExecutorItem(item: string, callback: (data: any) => void) {
   }
   else {
     try {
-      const json = JSON.parse(item)
+      let _item = item
+
+      if (lastReceive) {
+        _item = lastReceive + item
+        lastReceive = ''
+      }
+
+      const json = JSON.parse(_item)
 
       callback({
         done: false,
@@ -30,11 +38,13 @@ async function handleExecutorItem(item: string, callback: (data: any) => void) {
       })
     }
     catch (e: any) {
-      // if (e.message.includes('invalid end of input')) {
-      //   console.warn('Item Not Completed, continuing receiving ...', item)
+      if (e.message.includes('in JSON') || e instanceof SyntaxError) {
+        lastReceive = item
 
-      //   return
-      // }
+        console.warn('Item Not Completed, continuing receiving ...', item)
+
+        return
+      }
 
       console.log('item', item)
       console.error(e)

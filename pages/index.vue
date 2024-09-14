@@ -181,7 +181,7 @@ function handleShare() {
 </script>
 
 <template>
-  <div :class="{ expand: pageOptions.expand }" class="PageContainer">
+  <div :class="{ expand: pageOptions.expand, empty: !pageOptions.conversation.messages.length }" class="PageContainer">
     <History
       v-model:selectIndex="pageOptions.select" v-model:expand="pageOptions.expand" class="PageContainer-History"
       @create="handleCreate" @delete="handleDelete"
@@ -251,9 +251,13 @@ function handleShare() {
     width: 100%;
     height: 100%;
 
-    opacity: 0.5;
+    opacity: 0.45;
+    transition: 0.35s;
     background-size: cover;
     background-image: var(--wallpaper);
+  }
+  &.empty::before {
+    opacity: 0.75;
   }
 
   &-Main {

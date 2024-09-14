@@ -77,7 +77,7 @@ function handleGeneratingDotUpdate(rootEl: HTMLElement, cursor: HTMLElement) {
 
   const textNode = getLastTextNode(rootEl)
 
-  console.log('a', textNode)
+  console.dir(textNode)
 
   const tempNode = document.createTextNode('|')
   if (textNode)
@@ -492,7 +492,9 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
 
       border-radius: 12px;
       box-shadow: var(--el-box-shadow);
-      background-color: var(--el-bg-color-page);
+      background-color: var(--wallpaper-color-lighter);
+      backdrop-filter: blur(18px) saturate(180%);
+      // background-color: var(--el-bg-color-page);
     }
     z-index: 2;
     position: relative;
