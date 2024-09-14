@@ -5,3 +5,10 @@ export interface IUploadResponse extends IStandardResponse {
     filename: string
   }
 }
+
+export interface FeedbackQuery {
+  allRate: number
+  feedType: string
+  feedDesc: string
+  feedSuggestion: string
+}

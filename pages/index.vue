@@ -8,6 +8,8 @@ import ShareSection from '~/components/chat/ShareSection.vue'
 import { inputProperty } from '~/components/input/input'
 import { getTargetPrompt } from '~/composables/api/chat'
 
+
+
 definePageMeta({
   layout: 'default',
   pageTransition: {
@@ -83,7 +85,20 @@ function handleCreate() {
   return true
 }
 
+
+
 async function handleSend(query: string, _meta: any) {
+
+  //todo 检查发送/问答次数，超过10此就触发反馈弹窗
+  dialogues.value +=1
+  if(dialogues.value>=10){
+    showFeedbackForm.value = true
+    return
+  }
+
+
+  //end
+
   const format = genFormatNowDate()
 
   let genTitle: any = async (_index: number) => void 0
@@ -172,6 +187,20 @@ provide('updateConversationTopic', (index: number, topic: string) => {
   conversation.sync = false
 })
 provide('pageOptions', pageOptions)
+
+
+
+
+// 控制反馈表单的显示状态
+const showFeedbackForm = ref(false);
+// 对话次数
+let  dialogues= ref(0)
+
+
+
+
+
+
 </script>
 
 <template>
@@ -201,6 +230,11 @@ provide('pageOptions', pageOptions)
         ThisAI. 可能会犯错，生成的内容仅供参考。v24.08.27
         <span class="business">四川科塔锐行科技有限公司</span>
       </div>
+
+   
+      <!-- 根据 发送消息超过10次 控制弹窗的显示 -->
+      <FeedBack v-if="showFeedbackForm" @close="showFeedbackForm = false"/>
+      
 
       <ChorePersonalDialog v-if="userStore.isLogin" v-model="pageOptions.settingDialog" />
     </div>
