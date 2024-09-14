@@ -2,11 +2,12 @@
 import ThChat from '~/components/chat/ThChat.vue'
 import ThInput from '~/components/input/ThInput.vue'
 import History from '~/components/history/index.vue'
-import type { ThHistory } from '~/components/history/history'
 import { chatManager } from '~/composables/chat'
 import ShareSection from '~/components/chat/ShareSection.vue'
-import { inputProperty } from '~/components/input/input'
+import type { InputPlusProperty } from '~/components/input/input'
 import { getTargetPrompt } from '~/composables/api/chat'
+import { $completion } from '~/composables/api/base/v1/aigc/completion'
+import { type IChatConversation, type IChatInnerItem, type IChatItem, IChatItemStatus, PersistStatus, QuotaModel } from '~/composables/api/base/v1/aigc/completion-types'
 
 
 
@@ -18,11 +19,25 @@ definePageMeta({
 })
 
 const chatRef = ref()
-const pageOptions = reactive<any>({
+const pageOptions = reactive<{
+  settingDialog: boolean
+  expand: boolean
+  select: number
+  template: any
+  conversation: IChatConversation
+  inputProperty: InputPlusProperty
+  share: any
+  status: IChatItemStatus
+}>({
   settingDialog: false,
   expand: true,
   select: -1,
   template: null,
+  conversation: $completion.emptyHistory(),
+  inputProperty: {
+    internet: true,
+    temperature: 50,
+  },
   share: {
     enable: false,
     selected: new Array<number>(),
@@ -30,9 +45,8 @@ const pageOptions = reactive<any>({
       return [chatManager.messages.value?.messages.filter((_, index) => pageOptions.share.selected.includes(index)), chatManager.messages.value?.topic]
     },
   },
+  status: IChatItemStatus.AVAILABLE,
 })
-
-const roundLimit = computed(() => (!userStore.value?.isLogin && ((chatManager.messages.value?.messages?.length) ?? 1) >= 10))
 
 function handleDelete(index: number) {
   chatManager.deleteMessage(index)
@@ -86,12 +100,16 @@ function handleCreate() {
 }
 
 
+// 控制反馈表单的显示状态
+const showFeedbackForm = ref(false);
+// 对话次数
+let dialogues = ref(0)
 
 async function handleSend(query: string, _meta: any) {
 
   //todo 检查发送/问答次数，超过10此就触发反馈弹窗
-  dialogues.value +=1
-  if(dialogues.value>=10){
+  dialogues.value += 1
+  if (dialogues.value >= 10) {
     showFeedbackForm.value = true
     return
   }
@@ -100,141 +118,149 @@ async function handleSend(query: string, _meta: any) {
   //end
 
   const format = genFormatNowDate()
+  async function innerSend(conversation: IChatConversation, chatItem: IChatItem, index: number) {
+    const chatCompletion = $completion.createCompletion(conversation, chatItem, index)
 
-  let genTitle: any = async (_index: number) => void 0
+    chatCompletion.registerHandler({
+      onCompletion: () => {
+        chatRef.value?.generateScroll()
 
-  if (chatManager.messages.value?.messages && chatManager.messages.value.messages.length < 2) {
-    if (pageOptions.select === -1) {
-      const res = handleCreate()
+        return true
+      },
+      onTriggerStatus(status) {
+        pageOptions.status = status
+      },
+      async onReqCompleted() {
+        // await genTitle(pageOptions.select)
 
-      if (!res) {
-        chatManager.setStatus(Status.AVAILABLE)
-        return
-      }
-    }
+        // if (userStore.value.isLogin) {
+        //   setTimeout(() => {
+        //     chatManager.postTargetHistory(conversation)
+        //   }, 500)
+        // }
+      },
+      onFrequentLimit() {
+        chatManager.cancelCurrentReq()
+      },
+    })
 
-    genTitle = async (index: number) =>
-      await chatManager.genConversationTitle(chatManager.history.value[index])
+    chatCompletion.send()
   }
 
-  const conversation: ThHistory = chatManager.history.value[pageOptions.select]
+  // 重新生成某条消息 只需要给消息索引即可 还需要传入目标inner 如果有新的参数赋值则传options替换
+  async function handleRetry(index: number, innerItem: IChatInnerItem) {
+    const conversation = pageOptions.conversation
 
-  const meta = {
-    model: chatManager.messages.value.model,
-    tools: inputProperty.internet,
-    templateId: conversation?.templateId || _meta?.template,
+    const chatItem = conversation.messages[index]
+    const _innerItem = $completion.emptyChatInnerItem({
+      model: innerItem.model,
+      value: '',
+      meta: innerItem.meta,
+      status: IChatItemStatus.AVAILABLE,
+    })
+
+    chatItem.content.push(_innerItem)
+
+    // console.log('a', conversation.messages)
+
+    innerSend(conversation, chatItem, index)
   }
 
-  if ((!conversation.templateId || conversation.templateId === -1) && (meta.templateId !== undefined && meta.templateId !== -1))
-    conversation.templateId = meta.templateId
+  async function handleSend(query: string, _meta: any) {
+    const conversation = pageOptions.conversation
 
-  conversation.messages.push({
-    date: format,
-    role: 'user',
-    content: query,
-    streaming: false,
-    meta,
-  })
+    const shiftItem = conversation.messages.at(-1)
 
-  const obj = reactive<any>({
-    date: format,
-    role: 'assistant',
-    content: '',
-    generating: true,
-    streaming: false,
-    status: Status.GENERATING,
-  })
+    const chatItem = $completion.emptyChatItem()
+    const innerItem = $completion.emptyChatInnerItem({
+      model: QuotaModel.QUOTA_THIS_NORMAL,
+      value: query,
+      meta: {
+        temperature: 0,
+      },
+      status: IChatItemStatus.AVAILABLE,
+    })
 
-  conversation.messages.push(obj)
-  conversation.sync = false
-  conversation.lastUpdate = Date.now()
+    chatItem.content.push(innerItem)
+    conversation.messages.push(chatItem)
 
-  chatManager.setStatus(Status.GENERATING)
+    innerSend(conversation, chatItem, shiftItem?.content.length ?? 0)
+  }
 
-  chatManager.messages.value = conversation
+  // provide('updateConversationTopic', (index: number, topic: string) => {
+  //   const conversation: ThHistory = chatManager.history.value[index]
 
-  await chatManager.sendMessage(obj, conversation, meta, {
-    onErrorHandler: (e) => {
-      console.log('error', JSON.stringify(e))
-      obj.content = JSON.stringify(e)
-    },
-    onTriggerUpdate: () => {
-      chatRef.value?.generateScroll()
-    },
-    onTriggerStatus(status) {
-      chatManager.setStatus(status)
-      obj.status = status
-    },
-    async onReqCompleted() {
-      await genTitle(pageOptions.select)
-
-      if (userStore.value.isLogin) {
-        setTimeout(() => {
-          chatManager.postTargetHistory(conversation)
-        }, 500)
-      }
-    },
-    onFrequentLimit() {
-      chatManager.cancelCurrentReq()
-    },
-  })
-}
-
-provide('updateConversationTopic', (index: number, topic: string) => {
-  const conversation: ThHistory = chatManager.history.value[index]
-
-  conversation.topic = topic
-  conversation.sync = false
-})
-provide('pageOptions', pageOptions)
-
-
-
-
-// 控制反馈表单的显示状态
-const showFeedbackForm = ref(false);
-// 对话次数
-let  dialogues= ref(0)
+  //   conversation.topic = topic
+  //   conversation.sync = false
+  // })
+  provide('pageOptions', pageOptions)
 
 
 
 
 
 
+
+
+
+
+  function handleShare() {
+    pageOptions.share.selected.length = 0
+    pageOptions.share.enable = !pageOptions.share.enable
+  }
 </script>
 
 <template>
-  <div :class="{ expand: pageOptions.expand }" class="PageContainer">
-    <History
-      v-model:selectIndex="pageOptions.select" v-model:expand="pageOptions.expand" class="PageContainer-History"
-      @create="handleCreate" @delete="handleDelete"
-    />
+  <div :class="{ expand: pageOptions.expand, empty: !pageOptions.conversation.messages.length }" class="PageContainer">
+    <History v-model:selectIndex="pageOptions.select" v-model:expand="pageOptions.expand" class="PageContainer-History"
+      @create="handleCreate" @delete="handleDelete" />
 
     <div class="PageContainer-Main">
-      <ThChat
-        ref="chatRef" v-model:messages="chatManager.messages.value" :round-limit="roundLimit"
-        @cancel="chatManager.cancelCurrentReq()"
-      />
-      <ThInput
-        :template-enable="!chatManager.messages.value.messages.length"
-        :status="chatManager.messages.value?.status ?? Status.AVAILABLE" :hide="pageOptions.share.enable || roundLimit"
-        @send="handleSend"
-      />
+      <ThChat ref="chatRef" v-model:messages="pageOptions.conversation" :status="pageOptions.status"
+        @cancel="chatManager.cancelCurrentReq()" @retry="handleRetry" />
 
-      <ShareSection
-        v-if="chatManager.messages.value" :length="chatManager.messages.value.messages.length"
-        :show="pageOptions.share.enable" :selected="pageOptions.share.selected"
-      />
+      <ThInput v-model:input-property="pageOptions.inputProperty"
+        :template-enable="!pageOptions.conversation.messages.length" :status="Status.AVAILABLE" :hide="false"
+        @send="handleSend" />
+
+      <AigcChatStatusBar>
+        <template #start>
+          <span v-if="!userStore.isLogin" class="tag warning shining">
+            未登录无法使用
+          </span>
+
+          <span v-if="pageOptions.inputProperty.internet" class="tag success">
+            联网模式
+          </span>
+          <span v-else class="tag warning">
+            离线模式
+          </span>
+
+          <span v-if="!!pageOptions.conversation.messages.length"
+            :class="pageOptions.share.enable ? 'warning shining' : ''" cursor-pointer class="tag" @click="handleShare">
+            <i i-carbon:share />分享对话
+          </span>
+
+          <span class="tag">
+            <i i-carbon:time />2 mins
+          </span>
+        </template>
+        <template #end>
+          <ChatHeadTrSyncStatus :status="pageOptions.conversation.sync" />
+        </template>
+      </AigcChatStatusBar>
+
+      <ShareSection v-if="pageOptions.conversation" :length="pageOptions.conversation.messages.length"
+        :show="pageOptions.share.enable" :selected="pageOptions.share.selected" />
 
       <div class="copyright">
         ThisAI. 可能会犯错，生成的内容仅供参考。v24.08.27
         <span class="business">四川科塔锐行科技有限公司</span>
       </div>
 
-   
+
       <!-- 根据 发送消息超过10次 控制弹窗的显示 -->
-      <FeedBack v-if="showFeedbackForm" @close="showFeedbackForm = false"/>
-      
+      <FeedBack v-if="showFeedbackForm" @close="showFeedbackForm = false" />
 
       <ChorePersonalDialog v-if="userStore.isLogin" v-model="pageOptions.settingDialog" />
     </div>
@@ -242,21 +268,28 @@ let  dialogues= ref(0)
 </template>
 
 <style lang="scss">
-.mobile .copyright {
-  .business {
-    display: none;
+.PageContainer {
+  &::before {
+    z-index: -2;
+    content: '';
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    opacity: 0.45;
+    transition: 0.35s;
+    background-size: cover;
+    background-image: var(--wallpaper);
   }
 
-  position: absolute;
+  &.empty::before {
+    opacity: 0.75;
+  }
 
-  left: 50%;
-
-  bottom: 1rem;
-
-  transform: translateX(-50%) scale(0.75);
-}
-
-.PageContainer {
   &-Main {
     z-index: 2;
     position: relative;
@@ -295,12 +328,10 @@ let  dialogues= ref(0)
       width: 100%;
       height: 100%;
 
-      opacity: 0.5;
-      filter: blur(18px);
+      opacity: 0.75;
+      // filter: blur(18px);
       background-color: var(--el-bg-color);
     }
-
-    z-index: 3;
   }
 
   position: absolute;
@@ -313,23 +344,7 @@ let  dialogues= ref(0)
   left: 0;
 
   overflow: hidden;
-}
 
-.copyright {
-  z-index: 3;
-  position: absolute;
-
-  left: 50%;
-
-  bottom: 0.5rem;
-  width: 100%;
-
-  color: var(--el-text-color-secondary);
-  font-size: 14px;
-  text-align: center;
-  transform: translateX(-50%);
-
-  mix-blend-mode: difference;
-  // background: var(--el-bg-color-page);
+  // background-color: red;
 }
 </style>

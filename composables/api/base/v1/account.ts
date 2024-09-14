@@ -3,10 +3,7 @@ import type { IDataResponse } from '../index.type'
 import type { ILoginToken } from './auth.type'
 
 export default {
-  serverStatus() {
-    return endHttp.get('auth/status')
-  },
-  renewToken() {
-    return endHttp.get('auth/renew_token') as Promise<IDataResponse<ILoginToken>>
+  dailyFortune() {
+    return endHttp.get('dummy/fortune')
   },
 }

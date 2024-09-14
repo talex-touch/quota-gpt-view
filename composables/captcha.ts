@@ -22,7 +22,7 @@ export function newCaptcha(scene: CaptchaSceneId, elementQuery: string, triggerQ
   if (!window.initAliyunCaptcha) {
     console.log('waiting')
 
-    setTimeout(() => newCaptcha(), 200)
+    setTimeout(() => newCaptcha(scene, elementQuery, triggerQuery, callback), 200)
     return
   }
 

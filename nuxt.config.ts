@@ -12,6 +12,14 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     'v-wave/nuxt',
     'nuxt-echarts',
+    ['vite-plugin-version-date-mark/nuxt', {
+      name: 'THISAI',
+      ifShortSHA: true,
+      ifMeta: true,
+      ifLog: true,
+      ifGlobal: true,
+    }],
+    '@nuxtjs/device',
   ],
 
   vWave: {

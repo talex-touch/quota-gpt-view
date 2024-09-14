@@ -1,24 +1,23 @@
 <script setup lang="ts">
 import ChatSetting from '../setting/ChatSetting.vue'
-import ChatItem from './ChatItem.vue'
-import EmptyGuide from './EmptyGuide.vue'
-import TrChatTitle from './head/TrChatTitle.vue'
-import TrSyncStatus from './head/TrSyncStatus.vue'
+import type { ThHistory } from '../../history/history'
+import ChatItem from '../chat/ChatItem.vue'
+import EmptyGuide from '../chat/EmptyGuide.vue'
+import TrChatTitle from '../chat/head/TrChatTitle.vue'
+import TrSyncStatus from '../chat/head/TrSyncStatus.vue'
 import { Status } from '~/composables/chat'
 import ModelSelector from '~/components/model/ModelSelector.vue'
 import AccountAvatar from '~/components/personal/AccountAvatar.vue'
 import IconButton from '~/components/button/IconButton.vue'
-import { type IChatConversation, type IChatInnerItem, IChatItemStatus } from '~/composables/api/base/v1/aigc/completion-types'
 
 const props = defineProps<{
-  messages: IChatConversation
-  status: IChatItemStatus
+  messages: ThHistory
+  roundLimit: boolean
 }>()
 
 const emits = defineEmits<{
-  (e: 'update:messages', messages: IChatConversation): void
+  (e: 'update:messages', messages: ChatCompletion): void
   (e: 'cancel'): void
-  (e: 'retry', index: number, innerItem: IChatInnerItem): Promise<void>
 }>()
 
 const scrollbar = ref()
@@ -27,7 +26,12 @@ const share: any = (inject('pageOptions')! as any).share
 const options = reactive({
   backToTop: false,
   backToBottom: false,
+  stopGenerating: false,
   share,
+})
+
+watchEffect(() => {
+  options.stopGenerating = props.messages?.status === Status.GENERATING
 })
 
 const messagesModel = useVModel(props, 'messages', emits)
@@ -44,6 +48,11 @@ watch(
     }, 10)
   },
 )
+
+function handleShare() {
+  options.share.selected.length = 0
+  options.share.enable = !options.share.enable
+}
 
 function handleSelectShareItem(index: number, check: boolean) {
   if (!check)
@@ -101,6 +110,10 @@ function handleBackToTop() {
   })
 }
 
+const messageBubbles = computed(() =>
+  [...(props.messages?.messages ?? [])].filter(message => !message.hide),
+)
+
 defineExpose({
   handleBackToBottom,
   generateScroll: () => {
@@ -111,87 +124,52 @@ defineExpose({
   },
 })
 
-const stop = computed(() =>
-  props.status === IChatItemStatus.GENERATING || props.status === IChatItemStatus.WAITING,
-)
-
-// dict index是参考值 即从当前消息向上的最大页数
-// 根据 dp[i + 1](page) = max(dp[i](page), dp[i - 1](page)) 推导
-// 还要考虑到用户发送的消息没有换页
-function getDictIndex(ind: number) {
-  // 如果给入的ind不是奇数 则固定返回ind+1
-  if (ind % 2 === 0)
-    return getDictIndex(ind + 1)
-
-  const msg = messagesModel.value.messages[ind]
-  // 如果本来就是 0 直接返回
-  if (ind === 1)
-    return msg.page
-
-  const prev = messagesModel.value.messages[ind - 2]
-  const page = Math.max(prev.page, msg.page)
-
-  // 如果 prev 的 content 没有这么多直接push null即可
-  while (prev.content.length < page)
-    prev.content.push(null)
-
-  return page
-}
-
-// 计算每一条消息的属性 从后向前
-const msgMeta = computed(() => {
-  const meta = reactive<{
-    dictIndex: number
-    show: boolean
-  }[]>([])
-  const msgList = messagesModel.value.messages
-
-  for (let i = msgList.length - 1; i >= 0; i -= 2) {
-    const dictIndex = getDictIndex(i)
-
-    const obj = reactive({
-      dictIndex,
-      show: false,
-    })
-
-    meta.push(...[obj, obj])
-  }
-
-  return meta
-})
+const [chatSettingShow, toggleChatSettingShow] = useToggle()
 </script>
 
 <template>
   <div class="ThChat">
+    <ChatSetting v-if="messagesModel" v-model:data="messagesModel" v-model:show="chatSettingShow" />
+
     <div v-if="messages" :class="{ show: messages.messages?.length > 1 }" class="ThChat-Title">
-      <span v-if="messagesModel.messages" class="model">
-        <!-- <ModelSelector v-model="messagesModel.model" /> -->
+      <div v-if="userStore?.isAdmin && messageBubbles" v-wave class="ThChat-Setting" @click="toggleChatSettingShow()">
+        <div i-carbon-settings />
+        <span>设置</span>
+      </div>
+
+      <div class="ThChat-HeadBar" flex items-center gap-4>
+        <TrSyncStatus :syncing="messages.syncing" :sync="messages.sync" />
+        <TrChatTitle :title="messages.topic" />
+        <IconButton class="only-pc-display" :shining="options.share.enable" :stay="true" @click="handleShare">
+          <div i-carbon-share />
+        </IconButton>
+      </div>
+
+      <span v-if="messageBubbles" class="model">
+        <ModelSelector v-model="messagesModel.model" />
       </span>
     </div>
 
-    <div class="ThChat-Container" :class="{ stop, backToBottom: options.backToBottom }">
+    <div class="ThChat-Container" :class="{ stop: options.stopGenerating, backToBottom: options.backToBottom }">
       <div :class="{ in: options.backToTop }" class="ToTop only-pc-display" @click="handleBackToTop">
         <div i-carbon:arrow-up />
-        查看{{ messagesModel.messages.length }}条历史消息
+        查看{{ messageBubbles.length }}条历史消息
       </div>
 
       <el-scrollbar ref="scrollbar" @scroll="handleScroll">
         <div v-if="messages" class="ThChat-Container-Wrapper">
           <ChatItem
-            v-for="(message, ind) in messagesModel.messages"
-            :key="message.id" v-model:item="messagesModel.messages[ind]" v-model:meta="msgMeta[ind]"
-            :ind="ind" :total="messages.messages.length" :share="options.share.enable"
+            v-for="(message, ind) in messageBubbles" :key="message.id" :ind="ind"
+            :total="messages.messages.length" :item="message" :share="options.share.enable"
             :select="options.share.selected" @select="handleSelectShareItem"
-            @retry="emits('retry', ind, $event)"
           />
 
-          <!-- 统一 error / warning mention -->
-          <!-- <div v-if="!options.share.enable" class="TrChat-RateLimit">
+          <div v-if="!options.share.enable && roundLimit" class="TrChat-RateLimit">
             为了避免恶意使用，你需要登录来解锁聊天限制！
-          </div> -->
+          </div>
         </div>
 
-        <EmptyGuide :show="!!messages.messages?.length" />
+        <EmptyGuide :show="messages.messages?.length > 1" />
 
         <br>
         <br>
@@ -216,6 +194,7 @@ const msgMeta = computed(() => {
   &.in {
     transform: translateX(0);
   }
+
   z-index: 1;
   position: absolute;
   padding: 1rem 2rem 1rem 0.5rem;
@@ -442,12 +421,11 @@ const msgMeta = computed(() => {
     box-sizing: border-box;
 
     transform: translateX(-50%);
+
     .mobile & {
       width: 95%;
     }
   }
-
-  height: 100%;
 }
 
 .ThChat {
@@ -481,7 +459,5 @@ const msgMeta = computed(() => {
 
     // backdrop-filter: blur(18px) saturate(180%);
   }
-
-  height: 100%;
 }
 </style>

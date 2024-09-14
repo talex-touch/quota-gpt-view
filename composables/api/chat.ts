@@ -4,7 +4,7 @@ export interface HistoryPostQuery {
   topic: string
   value: string // messages
   meta: string
-  uid: string
+  chat_id: string
 }
 
 export function postHistory(history: HistoryPostQuery) {

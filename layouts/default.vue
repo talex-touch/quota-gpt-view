@@ -2,9 +2,26 @@
 import AnimateIcon from '~/components/icon/AnimateIcon.vue'
 import UserAccountAvatar from '~/components/personal/UserAccountAvatar.vue'
 import IndexNavbar from '~/components/chore/IndexNavbar.vue'
-import IconButton from '~/components/button/IconButton.vue'
+import { $endApi } from '~/composables/api/base'
 
 const online = useOnline()
+const status = ref(false)
+
+// 检测后端接口 如果无法使用则直接提示
+async function detectEndStatus() {
+  if (!online.value)
+    return status.value = false
+
+  // 为了避免每次弹窗打扰用户使用
+  status.value = true
+
+  const res = await $endApi.v1.common.status()
+
+  status.value = res?.data?.message === 'OK'
+}
+
+onBeforeMount(detectEndStatus)
+watch(() => online.value, detectEndStatus)
 </script>
 
 <template>
@@ -37,11 +54,16 @@ const online = useOnline()
           <slot />
         </el-main>
 
-        <div class="Offline" :class="{ display: online }">
+        <div class="Offline" :class="{ display: status }">
           <div v-for="i in 4" :key="i" :class="`item-${i}`" class="item" />
 
           <div class="Mentions">
-            请连接互联网使用！
+            <span v-if="online">
+              无法连接至远程服务器！
+            </span>
+            <span v-else>
+              请连接互联网使用！
+            </span>
           </div>
         </div>
       </main>
@@ -95,6 +117,7 @@ const online = useOnline()
 
   gap: 1rem;
   align-items: center;
+
   .el-avatar {
     box-shadow: 0 0 12px 2px var(--plan-color);
 
@@ -123,6 +146,7 @@ const online = useOnline()
     font-weight: 600;
     transform: scale(0.9);
   }
+
   position: relative;
   padding: 1rem 0;
   display: flex;
@@ -271,6 +295,7 @@ const online = useOnline()
       opacity: 0.85;
       background-color: var(--el-bg-color);
     }
+
     position: relative;
     padding: 1rem 0.5rem;
     z-index: 2;
@@ -283,10 +308,12 @@ const online = useOnline()
     width: 64px;
     height: 100%;
 
+    overflow: hidden;
     box-sizing: border-box;
     background-color: var(--el-bg-color);
     border-right: 1px solid var(--el-border-color);
   }
+
   .el-main {
     z-index: 1;
     position: relative;
@@ -303,6 +330,7 @@ const online = useOnline()
 
     overflow: hidden;
   }
+
   position: absolute;
   display: flex;
 
