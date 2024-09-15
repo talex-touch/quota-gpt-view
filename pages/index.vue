@@ -10,6 +10,8 @@ import { $completion } from '~/composables/api/base/v1/aigc/completion'
 import { type IChatConversation, type IChatInnerItem, type IChatItem, IChatItemStatus, PersistStatus, QuotaModel } from '~/composables/api/base/v1/aigc/completion-types'
 import { $historyManager } from '~/composables/api/base/v1/aigc/history'
 
+
+
 definePageMeta({
   layout: 'default',
   pageTransition: {
@@ -112,17 +114,17 @@ async function innerSend(conversation: IChatConversation, chatItem: IChatItem, i
 
   const chatCompletion = $completion.createCompletion(conversation, chatItem, index)
 
-  chatCompletion.registerHandler({
-    onCompletion: () => {
-      chatRef.value?.generateScroll()
+    chatCompletion.registerHandler({
+      onCompletion: () => {
+        chatRef.value?.generateScroll()
 
-      return true
-    },
-    onTriggerStatus(status) {
-      pageOptions.status = status
-    },
-    async onReqCompleted() {
-      // await genTitle(pageOptions.select)
+        return true
+      },
+      onTriggerStatus(status) {
+        pageOptions.status = status
+      },
+      async onReqCompleted() {
+        // await genTitle(pageOptions.select)
 
       $historyManager.syncHistory(conversation)
     },
@@ -131,12 +133,12 @@ async function innerSend(conversation: IChatConversation, chatItem: IChatItem, i
     },
   })
 
-  chatCompletion.send()
-}
+    chatCompletion.send()
+  }
 
-// 重新生成某条消息 只需要给消息索引即可 还需要传入目标inner 如果有新的参数赋值则传options替换
-async function handleRetry(index: number, innerItem: IChatInnerItem) {
-  const conversation = pageOptions.conversation
+  // 重新生成某条消息 只需要给消息索引即可 还需要传入目标inner 如果有新的参数赋值则传options替换
+  async function handleRetry(index: number, innerItem: IChatInnerItem) {
+    const conversation = pageOptions.conversation
 
   const chatItem = conversation.messages[index]
   const _innerItem = $completion.emptyChatInnerItem({
@@ -147,15 +149,15 @@ async function handleRetry(index: number, innerItem: IChatInnerItem) {
     status: IChatItemStatus.AVAILABLE,
   })
 
-  chatItem.content.push(_innerItem)
+    chatItem.content.push(_innerItem)
 
-  // console.log('a', conversation.messages)
+    // console.log('a', conversation.messages)
 
-  innerSend(conversation, chatItem, index)
-}
+    innerSend(conversation, chatItem, index)
+  }
 
-async function handleSend(query: string, _meta: any) {
-  const conversation = pageOptions.conversation
+  async function handleSend(query: string, _meta: any) {
+    const conversation = pageOptions.conversation
 
   if (!$historyManager.options.list.get(conversation.id))
     $historyManager.options.list.set(conversation.id, conversation)
@@ -173,18 +175,18 @@ async function handleSend(query: string, _meta: any) {
     status: IChatItemStatus.AVAILABLE,
   })
 
-  chatItem.content.push(innerItem)
-  conversation.messages.push(chatItem)
+    chatItem.content.push(innerItem)
+    conversation.messages.push(chatItem)
 
-  innerSend(conversation, chatItem, shiftItem?.content.length ?? 0)
-}
+    innerSend(conversation, chatItem, shiftItem?.content.length ?? 0)
+  }
 
 provide('pageOptions', pageOptions)
 
-function handleShare() {
-  pageOptions.share.selected.length = 0
-  pageOptions.share.enable = !pageOptions.share.enable
-}
+  function handleShare() {
+    pageOptions.share.selected.length = 0
+    pageOptions.share.enable = !pageOptions.share.enable
+  }
 </script>
 
 <template>
@@ -195,16 +197,12 @@ function handleShare() {
     />
 
     <div class="PageContainer-Main">
-      <ThChat
-        ref="chatRef" v-model:messages="pageOptions.conversation" :status="pageOptions.status"
-        @cancel="chatManager.cancelCurrentReq()" @retry="handleRetry"
-      />
+      <ThChat ref="chatRef" v-model:messages="pageOptions.conversation" :status="pageOptions.status"
+        @cancel="chatManager.cancelCurrentReq()" @retry="handleRetry" />
 
-      <ThInput
-        v-model:input-property="pageOptions.inputProperty"
+      <ThInput v-model:input-property="pageOptions.inputProperty"
         :template-enable="!pageOptions.conversation.messages.length" :status="Status.AVAILABLE" :hide="false"
-        @send="handleSend"
-      />
+        @send="handleSend" />
 
       <AigcChatStatusBar>
         <template #start>
@@ -219,10 +217,8 @@ function handleShare() {
             离线模式
           </span>
 
-          <span
-            v-if="!!pageOptions.conversation.messages.length"
-            :class="pageOptions.share.enable ? 'warning shining' : ''" cursor-pointer class="tag" @click="handleShare"
-          >
+          <span v-if="!!pageOptions.conversation.messages.length"
+            :class="pageOptions.share.enable ? 'warning shining' : ''" cursor-pointer class="tag" @click="handleShare">
             <i i-carbon:share />分享对话
           </span>
 
@@ -235,10 +231,17 @@ function handleShare() {
         </template>
       </AigcChatStatusBar>
 
-      <ShareSection
-        v-if="pageOptions.conversation" :length="pageOptions.conversation.messages.length"
-        :show="pageOptions.share.enable" :selected="pageOptions.share.selected"
-      />
+      <ShareSection v-if="pageOptions.conversation" :length="pageOptions.conversation.messages.length"
+        :show="pageOptions.share.enable" :selected="pageOptions.share.selected" />
+
+      <div class="copyright">
+        ThisAI. 可能会犯错，生成的内容仅供参考。v24.08.27
+        <span class="business">四川科塔锐行科技有限公司</span>
+      </div>
+
+
+      <!-- 根据 发送消息超过10次 控制弹窗的显示 -->
+      <!-- <FeedBack v-if="showFeedbackForm" @close="showFeedbackForm = false" /> -->
 
       <ChorePersonalDialog v-if="userStore.isLogin" v-model="pageOptions.settingDialog" />
     </div>
