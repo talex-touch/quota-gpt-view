@@ -1,5 +1,3 @@
-import JSON5 from 'json5'
-import { getConversations, postHistory } from './api/chat'
 import { endHttp } from './api/axios'
 
 import { QuotaModel } from './api/base/v1/aigc/completion-types'
@@ -379,18 +377,6 @@ export class ChatManager {
     this.messages.value.status = Status.AVAILABLE
 
     return msg
-  }
-
-  // TODO 撤销删除
-  async deleteMessage(index: number) {
-    if (userStore.value.isLogin) {
-      const conversation: ThHistory = this.history.value[index]
-      const res: any = await endHttp.del(`aigc/conversations/${conversation.id}`)
-      if (res.code !== 200)
-        return ElMessage.error(`删除失败(${res.message})`)
-    }
-
-    this.history.value.splice(index, 1)
   }
 
   setStatus(status: Status) {

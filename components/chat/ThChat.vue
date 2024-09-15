@@ -101,16 +101,6 @@ function handleBackToTop() {
   })
 }
 
-defineExpose({
-  handleBackToBottom,
-  generateScroll: () => {
-    handleScroll()
-
-    if (!options.backToBottom)
-      handleBackToBottom()
-  },
-})
-
 const stop = computed(() =>
   props.status === IChatItemStatus.GENERATING || props.status === IChatItemStatus.WAITING,
 )
@@ -123,7 +113,11 @@ function getDictIndex(ind: number) {
   if (ind % 2 === 0)
     return getDictIndex(ind + 1)
 
+  // console.log('mm', messagesModel, ind)
   const msg = messagesModel.value.messages[ind]
+  if (!msg)
+    return 0
+
   // 如果本来就是 0 直接返回
   if (ind === 1)
     return msg.page
@@ -159,6 +153,17 @@ const msgMeta = computed(() => {
 
   return meta
 })
+
+defineExpose({
+  handleBackToBottom,
+  generateScroll: () => {
+    handleScroll()
+
+    if (!options.backToBottom)
+      handleBackToBottom()
+  },
+  getDictMeta: () => msgMeta,
+})
 </script>
 
 <template>
@@ -170,6 +175,7 @@ const msgMeta = computed(() => {
     </div>
 
     <div class="ThChat-Container" :class="{ stop, backToBottom: options.backToBottom }">
+      <!-- {{ messagesModel }} -->
       <div :class="{ in: options.backToTop }" class="ToTop only-pc-display" @click="handleBackToTop">
         <div i-carbon:arrow-up />
         查看{{ messagesModel.messages.length }}条历史消息

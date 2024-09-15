@@ -10,4 +10,7 @@ export default {
   getConversations(query: Partial<HistoryQuery>): Promise<IPageResponse<any>> {
     return endHttp.get('aigc/conversations', query)
   },
+  deleteConversation(id: string) {
+    return endHttp.del(`aigc/conversations/${id}`)
+  },
 }

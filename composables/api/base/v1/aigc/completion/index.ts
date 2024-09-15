@@ -1,5 +1,5 @@
 import { endHttp } from '~/composables/api/axios'
-import { type IChatBody, type IChatConversation, type IChatInnerItem, type IChatItem, IChatItemStatus, IChatRole, type ICompletionHandler, PersistStatus, QuotaModel } from '~/composables/api/base/v1/aigc/completion-types'
+import { type IChatBody, type IChatConversation, type IChatInnerItem, type IChatItem, IChatItemStatus, IChatRole, type ICompletionHandler, type IInnerItemMeta, type IInnerItemType, PersistStatus, QuotaModel } from '~/composables/api/base/v1/aigc/completion-types'
 
 function mapStrStatus(str: string) {
   if (str === 'progress')
@@ -8,6 +8,10 @@ function mapStrStatus(str: string) {
     return IChatItemStatus.WAITING
   else if (str === 'end')
     return IChatItemStatus.AVAILABLE
+  else if (str === 'calling')
+    return IChatItemStatus.TOOL_CALLING
+  else if (str === 'result')
+    return IChatItemStatus.TOOL_RESULT
 
   console.error('unknown status', str)
 
@@ -99,8 +103,32 @@ async function handleExecutorResult(reader: ReadableStreamDefaultReader<string>,
   }
 }
 
-async function useCompletionExecutor(body: IChatBody, callback: (data: any) => void, options: Partial<ChatCompletionDto>) {
-  body.messages.pop()
+async function useCompletionExecutor(body: IChatBody, callback: (data: any) => void) {
+  const msgList = body.messages
+
+  msgList.pop()
+
+  msgList.forEach((item) => {
+    if (!item.content)
+      return
+
+    for (const c of item.content) {
+      if (!c)
+        continue
+
+      let content = ''
+
+      c.value.forEach((_) => {
+        if (_.type === 'markdown' || _.type === 'text')
+          content += _.value
+      })
+
+      if (content) {
+        // force ignored
+        c.value = content as any
+      }
+    }
+  })
 
   const { promise, resolve } = Promise.withResolvers()
 
@@ -126,7 +154,6 @@ async function useCompletionExecutor(body: IChatBody, callback: (data: any) => v
         url: 'aigc/executor',
         method: 'POST',
         data: {
-          ...options,
           ...body,
         },
         params: {
@@ -187,6 +214,12 @@ export const $completion = {
       content: [],
     } as IChatItem
   },
+  initInnerMeta(type: IInnerItemType, value: string) {
+    return {
+      type,
+      value,
+    } as IInnerItemMeta
+  },
 
   emptyChatInnerItem({
     model,
@@ -194,7 +227,7 @@ export const $completion = {
     meta,
     status,
     timestamp,
-  }: IChatInnerItem = { model: QuotaModel.QUOTA_THIS_NORMAL, value: '', meta: {}, timestamp: Date.now(), status: IChatItemStatus.AVAILABLE }) {
+  }: IChatInnerItem = { model: QuotaModel.QUOTA_THIS_NORMAL, value: [], meta: {}, timestamp: Date.now(), status: IChatItemStatus.AVAILABLE }) {
     return {
       model,
       value,
@@ -235,7 +268,9 @@ export const $completion = {
     const innerMsg = reactive(isAdd ? this.emptyChatInnerItem() : curItem.content[index]!)
 
     if (isAdd) {
-      innerMsg.meta = curItem.content[0]!.meta
+      // 获得某一条消息的指定 innerItem
+      const curInnerItem = curItem.content[index]
+      innerMsg.meta = (curInnerItem || curItem.content[0])!.meta
 
       while (tempMessage.content.length < index - 1)
         tempMessage.content.push(null)
@@ -244,9 +279,6 @@ export const $completion = {
 
       conversation.messages.push(tempMessage)
     }
-
-    // 获得某一条消息的指定 innerItem
-    const curInnerItem = curItem.content[index]
 
     watch(() => innerMsg.status, (status) => {
       handler.onTriggerStatus?.(status)
@@ -264,11 +296,61 @@ export const $completion = {
       registerHandler(_handler: ICompletionHandler = {}) {
         handler = _handler
       },
+      async getTitle() {
+        const titleOptions = reactive({
+          value: '',
+          status: IChatItemStatus.AVAILABLE,
+        })
+
+        await useCompletionExecutor(
+          {
+            temperature: 0,
+            templateId: -1,
+            generateTitle: true,
+            messages: JSON.parse(JSON.stringify(conversation.messages)),
+            index: index === -1 ? 0 : index,
+            chat_id: conversation.id,
+            model: QuotaModel.QUOTA_THIS_NORMAL_TURBO, // TODO
+          },
+          (res) => {
+            if (res.error) {
+              titleOptions.status = IChatItemStatus.ERROR
+
+              if (res.frequentLimit)
+                handler.onFrequentLimit?.()
+
+              return
+            }
+
+            if (res.done) {
+              titleOptions.status = IChatItemStatus.AVAILABLE
+
+              return
+            }
+
+            const { event } = res
+            if (event === 'status_updated') {
+              const mappedStatus = mapStrStatus(res.status)
+              if (mappedStatus === IChatItemStatus.GENERATING && innerMsg.status !== IChatItemStatus.WAITING)
+                return
+              titleOptions.status = mappedStatus
+            }
+            else if (event === 'completion') {
+              titleOptions.value += res.content
+
+              conversation.topic = titleOptions.value
+            }
+          },
+        )
+
+        return titleOptions
+      },
       send: async (options?: Partial<ChatCompletionDto>) => {
         innerMsg.status = IChatItemStatus.WAITING
 
         await useCompletionExecutor(
           {
+            ...options || {},
             temperature: innerMsg.meta.temperature || 0,
             templateId: -1,
             messages: JSON.parse(JSON.stringify(conversation.messages)),
@@ -293,7 +375,7 @@ export const $completion = {
               return
             }
 
-            const { event, name } = res
+            const { event, name, data } = res
             if (event === 'status_updated') {
               const mappedStatus = mapStrStatus(res.status)
               if (mappedStatus === IChatItemStatus.GENERATING && innerMsg.status !== IChatItemStatus.WAITING)
@@ -306,27 +388,63 @@ export const $completion = {
 
               if (res.status === 'end')
                 handler?.onChainEnd?.(res.id)
-            }
-            else if (event === 'on_tool_start') {
-              const input = res.data.input.input
-              handler.onToolStart?.(name, input)
 
-              console.error('e', res)
+              if (mappedStatus === IChatItemStatus.TOOL_CALLING) {
+                handler.onToolStart?.(name, data)
+                console.log(res)
+
+                innerMsg.value.push({
+                  type: 'tool',
+                  value: '',
+                  data,
+                  name,
+                })
+              }
+              else if (mappedStatus === IChatItemStatus.TOOL_RESULT) {
+                handler.onToolEnd?.(name, data)
+                console.log(res)
+
+                // 从最后一个往前找 name 相同的 meta
+                for (let i = innerMsg.value.length - 1; i >= 0; i--) {
+                  const meta = innerMsg.value[i]
+                  if (meta.name === name) {
+                    meta.value = data
+                    meta.extra = {
+                      ...meta.extra,
+                      end: true,
+                    }
+                    return
+                  }
+                }
+
+                // 找不到就新增一个 (算是有bug 不过先这样)
+                innerMsg.value.push({
+                  type: 'tool',
+                  value: data,
+                  data: '',
+                  name,
+                  extra: {
+                    end: true,
+                  },
+                })
+              }
             }
             else if (event === 'completion') {
-              innerMsg.value += res.content
+              const innerMeta = innerMsg.value.at(-1)
+              if (innerMeta?.type === 'markdown') {
+                innerMeta.value += res.content
+              }
+              else {
+                innerMsg.value.push({
+                  type: 'markdown',
+                  value: res.content,
+                })
+              }
+
+              console.log('a', innerMeta)
 
               handler.onCompletion?.(name, res.content)
             }
-            else if (event === 'on_tool_end') {
-              handler.onToolEnd?.(name, res.data.output)
-
-              console.log('tool end', res)
-            }
-          },
-          {
-            ...(options || {}),
-            temperature: curInnerItem?.meta?.temperature || 0,
           },
         )
       },
