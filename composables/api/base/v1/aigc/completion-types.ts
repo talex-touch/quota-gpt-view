@@ -77,6 +77,7 @@ export interface IChatInnerItemMeta {
 export interface IChatInnerItem {
   model: QuotaModel
   status: IChatItemStatus
+  timestamp: number
 
   value: string
   meta: IChatInnerItemMeta
@@ -86,7 +87,6 @@ export interface IChatItem {
   id: string
   page: number
   role: IChatRole
-  timestamp: number
   content: (IChatInnerItem | null)[]
 }
 
@@ -98,6 +98,7 @@ export enum PersistStatus {
   PENDING = 'pending',
   SUCCESS = 'success',
   FAILED = 'failed',
+  MODIFIED = 'modified',
 }
 
 export interface IChatPersist {

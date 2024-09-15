@@ -1,19 +1,23 @@
+import Ecs20140526, * as $Ecs20140526 from '@alicloud/ecs20140526'
+import OpenApi, * as $OpenApi from '@alicloud/openapi-client'
+import Util, * as $Util from '@alicloud/tea-util'
+import * as $tea from '@alicloud/tea-typescript'
 import type { EffectScope } from 'vue'
-import type { ThHistory } from '~/components/history/history-types'
 import { userStore } from '#imports'
 import { $endApi } from '~/composables/api/base'
-import type { IChatConversation } from '~/composables/api/base/index.type'
+import { type IChatConversation, PersistStatus } from '~/composables/api/base/v1/aigc/completion-types'
 import { encodeObject } from '~/composables/common'
 
-export enum HistoryManageMode {
-  OFFLINE,
-  ONLINE,
-}
+// export enum HistoryManageMode {
+//   OFFLINE,
+//   ONLINE,
+// }
 
 export interface IHistoryManager {
-  getCurrentMode: () => HistoryManageMode
+  // getCurrentMode: () => HistoryManageMode
 
   /**
+   * @deprecated 已取消用户离线使用 必须登录使用
    * 触发模式更新，用于抉择历史管理状态
    * 1.离线模式使用 localStorage 管理
    * 2.在线模式需要进行以下步骤：
@@ -21,9 +25,9 @@ export interface IHistoryManager {
    *  b) 同步历史在线对话记录
    *  c) 接受对话记录更新上传
    */
-  triggerUpdateMode: () => void
+  // triggerUpdateMode: () => void
 
-  uploadHistory: (history: ThHistory, uploadHandler: IUploadHistoryHandler) => Promise<boolean>
+  uploadHistory: (history: IChatConversation, uploadHandler: IUploadHistoryHandler) => Promise<boolean>
 }
 
 export interface IUploadHistoryHandler {
@@ -32,35 +36,106 @@ export interface IUploadHistoryHandler {
   onHistoryUploadSuccess: () => void
 }
 
+export enum IHistoryStatus {
+  DONE,
+  LOADING,
+  COMPLETED,
+  ERROR,
+}
+
+export interface IHistoryOption {
+  list: Map<string, IChatConversation>
+  status: IHistoryStatus
+  page: number
+}
+
 export class HistoryManager implements IHistoryManager {
-  #historyList: ThHistory[] = []
+  // TODO: performance - shallowReactive
+  options: IHistoryOption = reactive({
+    list: new Map(),
+    status: IHistoryStatus.DONE,
+    page: 0,
+  })
 
   constructor() {
-
+    $event.on('USER_LOGOUT_SUCCESS', () => {
+      this.options.list.clear()
+    })
+    $event.on('USER_LOGIN_SUCCESS', async () => {
+      this.loadHistories()
+    })
   }
 
-  #updateScope?: EffectScope
+  // #updateScope?: EffectScope
 
-  triggerUpdateMode() {
-    if (this.#updateScope)
-      this.#updateScope.stop()
+  // triggerUpdateMode() {
+  //   if (this.#updateScope)
+  //     this.#updateScope.stop()
 
-    this.#updateScope = effectScope()
+  //   this.#updateScope = effectScope()
 
-    this.#updateScope.run(() => {
-      const localHistoryList = useLocalStorage<ThHistory[]>('chat-history', [])
+  //   this.#updateScope.run(() => {
+  //     const localHistoryList = useLocalStorage<ThHistory[]>('chat-history', [])
 
-      if (this.getCurrentMode()) {
-        this.#historyList = reactive([])
+  //     if (this.getCurrentMode()) {
+  //       this.#historyList = reactive([])
 
-        if (localHistoryList.value.length) {
-          // TODO: 上传离线对话记录
-          // TODO: 同步历史在线对话记录
-        }
-      }
-      else {
-        this.#historyList = reactive(localHistoryList.value)
-      }
+  //       if (localHistoryList.value.length) {
+  //         // TODO: 上传离线对话记录
+  //         // TODO: 同步历史在线对话记录
+  //       }
+  //     }
+  //     else {
+  //       this.#historyList = reactive(localHistoryList.value)
+  //     }
+  //   })
+  // }
+  async loadHistories() {
+    if (!userStore.value.isLogin)
+      return
+
+    this.options.status = IHistoryStatus.LOADING
+    this.options.page += 1
+
+    const res: any = await $endApi.v1.aigc.getConversations({
+      pageSize: 25,
+      page: this.options.page,
+    })
+
+    this.options.status = IHistoryStatus.DONE
+
+    if (res.code !== 200)
+      return ElMessage.error('获取历史记录失败!所有操作不会被保存!')
+
+    const totalPages = res.data.meta.totalPages
+    if (totalPages <= this.options.page) {
+      this.options.status = IHistoryStatus.COMPLETED
+      this.options.page -= 1
+    }
+
+    const result = (res.data.items).map((item: any) => decodeObject(item.value))
+
+    result.forEach((item: IChatConversation) => {
+      this.options.list.set(item.id, item)
+    })
+  }
+
+  async syncHistory(history: IChatConversation) {
+    if (this.options.status === IHistoryStatus.LOADING)
+      console.warn('HistoryManager is loading, 2 throttle sync request may cause error')
+
+    return this.uploadHistory(history, {
+      onHistorySyncing: () => {
+        history.sync = PersistStatus.PENDING
+      },
+      onHistoryUploadFailed(error) {
+        history.sync = PersistStatus.FAILED
+
+        ElMessage.error(error.message)
+      },
+      onHistoryUploadSuccess: () => {
+        history.sync = PersistStatus.SUCCESS
+      },
     })
   }
 
@@ -73,20 +148,22 @@ export class HistoryManager implements IHistoryManager {
 
       const uploadTime = new Date()
 
-      const meta: Record<string, any> = {
-        sync: true,
-        lastUpdate: uploadTime.getTime(),
-        templateId: history.templateId || -1, // 兜底策略，兼容以前版本
-      }
+      // const meta: Record<string, any> = {
+      //   sync: true,
+      //   lastUpdate: uploadTime.getTime(),
+      //   templateId: history.templateId || -1, // 兜底策略，兼容以前版本
+      // }
+      history.lastUpdate = uploadTime.getTime()
+      history.sync = PersistStatus.SUCCESS
 
       const uploadQuery = {
         chat_id: history.id,
         topic: history.topic,
-        value: encodeObject(history.messages),
-        meta: encodeObject(meta),
+        value: encodeObject(history),
+        meta: '',
       }
 
-      const res = await $endApi.v1.chat.uploadHistory(uploadQuery)
+      const res = await $endApi.v1.aigc.uploadHistory(uploadQuery)
 
       if (res.code !== 200)
         throw new Error(res.message || 'Upload failed')
@@ -106,8 +183,8 @@ export class HistoryManager implements IHistoryManager {
     return false
   }
 
-  getCurrentMode() {
-    return userStore.value.isLogin ? HistoryManageMode.ONLINE : HistoryManageMode.OFFLINE
+  isLoading() {
+    return this.options.status === IHistoryStatus.LOADING
   }
 }
 

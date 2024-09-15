@@ -8,11 +8,13 @@ const props = defineProps < {
 
 const sync = computed(() => props.status === C.PersistStatus.SUCCESS)
 const syncing = computed(() => props.status === C.PersistStatus.PENDING)
+const failed = computed(() => props.status === C.PersistStatus.FAILED)
+const modified = computed(() => props.status === C.PersistStatus.MODIFIED)
 </script>
 
 <template>
   <span
-    :class="{ shining: syncing, warning: status === C.PersistStatus.FAILED || status === C.PersistStatus.PENDING, syncing, sync }"
+    :class="{ shining: syncing, error: failed, warning: syncing || modified, syncing, sync }"
     class="tag TrSyncStatus"
   >
     <template v-if="syncing">
@@ -23,8 +25,12 @@ const syncing = computed(() => props.status === C.PersistStatus.PENDING)
       <i i-carbon:checkmark block />
       已同步
     </template>
+    <template v-else-if="failed">
+      <i i-carbon:checkmark block />
+      同步失败
+    </template>
     <template v-else>
-      <i i-carbon:close block />
+      <i i-carbon:information block />
       未同步
     </template>
 

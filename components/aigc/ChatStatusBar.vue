@@ -36,8 +36,13 @@ const props = defineProps<{
     &.success {
       background-color: var(--el-color-success);
     }
+    &.error {
+      color: #fff;
+      background-color: var(--el-color-danger);
+    }
 
     &.warning {
+      color: #000;
       background-color: var(--el-color-warning);
     }
 

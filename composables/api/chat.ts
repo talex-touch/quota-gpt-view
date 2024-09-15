@@ -11,16 +11,6 @@ export function postHistory(history: HistoryPostQuery) {
   return endHttp.post('aigc/conversations', history)
 }
 
-export interface HistoryQuery {
-  page: number
-  pageSize: number
-  topic: string
-}
-
-export function getConversations(query: Partial<HistoryQuery>) {
-  return endHttp.get('aigc/conversations', query)
-}
-
 export function getPromptTemplate(keyword: string) {
   return endHttp.get('aigc/prompts/search', { keyword })
 }

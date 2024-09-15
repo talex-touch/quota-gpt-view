@@ -8,6 +8,7 @@ import type { InputPlusProperty } from '~/components/input/input'
 import { getTargetPrompt } from '~/composables/api/chat'
 import { $completion } from '~/composables/api/base/v1/aigc/completion'
 import { type IChatConversation, type IChatInnerItem, type IChatItem, IChatItemStatus, PersistStatus, QuotaModel } from '~/composables/api/base/v1/aigc/completion-types'
+import { $historyManager } from '~/composables/api/base/v1/aigc/history'
 
 definePageMeta({
   layout: 'default',
@@ -17,10 +18,11 @@ definePageMeta({
 })
 
 const chatRef = ref()
+const initConversation = $completion.emptyHistory()
 const pageOptions = reactive<{
   settingDialog: boolean
   expand: boolean
-  select: number
+  select: string
   template: any
   conversation: IChatConversation
   inputProperty: InputPlusProperty
@@ -29,9 +31,9 @@ const pageOptions = reactive<{
 }>({
   settingDialog: false,
   expand: true,
-  select: -1,
+  select: '',
   template: null,
-  conversation: $completion.emptyHistory(),
+  conversation: initConversation,
   inputProperty: {
     internet: true,
     temperature: 50,
@@ -46,25 +48,30 @@ const pageOptions = reactive<{
   status: IChatItemStatus.AVAILABLE,
 })
 
-function handleDelete(index: number) {
-  chatManager.deleteMessage(index)
+function handleDelete(id: string) {
+  // chatManager.deleteMessage(id)
 
-  pageOptions.select = chatManager.history.value.length - 1
+  // pageOptions.select = chatManager.history.value.length - 1
 
   // handleCreate()
 }
 
 watch(
   () => pageOptions.select,
-  (ind) => {
+  (select) => {
     pageOptions.template = null
-
-    if (ind < 0 || ind >= chatManager.history.value.length) {
+    if (!select) {
       // chatManager.messages.value = JSON.parse(JSON.stringify(chatManager.originObj))
       return
     }
 
-    const conversation = chatManager.history.value[ind]
+    const historyList = $historyManager.options.list
+
+    const conversation = historyList.get(select)
+    if (!conversation) {
+      pageOptions.select = ''
+      return
+    }
 
     setTimeout(async () => {
       // get template
@@ -75,9 +82,7 @@ watch(
         pageOptions.template = res.data
       }
 
-      chatManager.messages.value = conversation
-      if (!chatManager.messages.value!.status)
-        chatManager.messages.value!.status = Status.AVAILABLE
+      pageOptions.conversation = conversation
 
       pageOptions.share.enable = false
       chatRef.value?.handleBackToBottom(false)
@@ -87,17 +92,24 @@ watch(
 )
 
 function handleCreate() {
-  const res = chatManager.createMessage()
-  if (!res)
-    return false
+  const conversation = $completion.emptyHistory()
 
-  pageOptions.select = chatManager.history.value.length - 1
-  chatManager.messages.value = JSON.parse(JSON.stringify(chatManager.originObj))
+  $historyManager.options.list.set(conversation.id, conversation)
+
+  Object.assign(pageOptions, {
+    conversation,
+    select: conversation.id,
+    share: {
+      enable: false,
+    },
+  })
 
   return true
 }
 
 async function innerSend(conversation: IChatConversation, chatItem: IChatItem, index: number) {
+  conversation.sync = PersistStatus.MODIFIED
+
   const chatCompletion = $completion.createCompletion(conversation, chatItem, index)
 
   chatCompletion.registerHandler({
@@ -112,11 +124,7 @@ async function innerSend(conversation: IChatConversation, chatItem: IChatItem, i
     async onReqCompleted() {
       // await genTitle(pageOptions.select)
 
-      // if (userStore.value.isLogin) {
-      //   setTimeout(() => {
-      //     chatManager.postTargetHistory(conversation)
-      //   }, 500)
-      // }
+      $historyManager.syncHistory(conversation)
     },
     onFrequentLimit() {
       chatManager.cancelCurrentReq()
@@ -135,6 +143,7 @@ async function handleRetry(index: number, innerItem: IChatInnerItem) {
     model: innerItem.model,
     value: '',
     meta: innerItem.meta,
+    timestamp: Date.now(),
     status: IChatItemStatus.AVAILABLE,
   })
 
@@ -148,6 +157,9 @@ async function handleRetry(index: number, innerItem: IChatInnerItem) {
 async function handleSend(query: string, _meta: any) {
   const conversation = pageOptions.conversation
 
+  if (!$historyManager.options.list.get(conversation.id))
+    $historyManager.options.list.set(conversation.id, conversation)
+
   const shiftItem = conversation.messages.at(-1)
 
   const chatItem = $completion.emptyChatItem()
@@ -157,6 +169,7 @@ async function handleSend(query: string, _meta: any) {
     meta: {
       temperature: 0,
     },
+    timestamp: Date.now(),
     status: IChatItemStatus.AVAILABLE,
   })
 
@@ -166,12 +179,6 @@ async function handleSend(query: string, _meta: any) {
   innerSend(conversation, chatItem, shiftItem?.content.length ?? 0)
 }
 
-// provide('updateConversationTopic', (index: number, topic: string) => {
-//   const conversation: ThHistory = chatManager.history.value[index]
-
-//   conversation.topic = topic
-//   conversation.sync = false
-// })
 provide('pageOptions', pageOptions)
 
 function handleShare() {
@@ -183,7 +190,7 @@ function handleShare() {
 <template>
   <div :class="{ expand: pageOptions.expand, empty: !pageOptions.conversation.messages.length }" class="PageContainer">
     <History
-      v-model:selectIndex="pageOptions.select" v-model:expand="pageOptions.expand" class="PageContainer-History"
+      v-model:select="pageOptions.select" v-model:expand="pageOptions.expand" class="PageContainer-History"
       @create="handleCreate" @delete="handleDelete"
     />
 
@@ -220,7 +227,7 @@ function handleShare() {
           </span>
 
           <span class="tag">
-            <i i-carbon:time />2 mins
+            <i i-carbon:time />0 mins
           </span>
         </template>
         <template #end>
@@ -252,12 +259,37 @@ function handleShare() {
     height: 100%;
 
     opacity: 0.5;
+    filter: blur(58px) saturate(180%);
     transition: 0.35s;
+    transform: scale(1.05);
     background-size: cover;
     background-image: var(--wallpaper);
   }
-  &.empty::before {
-    opacity: 0.75;
+  &::after {
+    z-index: -1;
+    content: '';
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    opacity: 0.5;
+    transition: 0.35s;
+    // filter: blur(18px);
+    background-color: var(--el-bg-color);
+  }
+  &.empty {
+    &::before {
+      opacity: 0.75;
+
+      filter: blur(0px) saturate(100%);
+    }
+    &::after {
+      opacity: 0;
+    }
   }
 
   &-Main {
@@ -300,8 +332,10 @@ function handleShare() {
 
       opacity: 0.75;
       // filter: blur(18px);
-      background-color: var(--el-bg-color);
+      background-color: var(--el-bg-color-page);
     }
+
+    flex-shrink: 0;
   }
 
   position: absolute;

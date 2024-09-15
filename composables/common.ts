@@ -106,3 +106,7 @@ export function encodeObject(obj: any) {
 export function decodeObject(str: string) {
   return JSON.parse(decodeText(str))
 }
+
+export function randomStr(len: number = 16) {
+  return Array.from({ length: len }, () => String.fromCharCode(Math.floor(Math.random() * 26) + 97)).join('')
+}

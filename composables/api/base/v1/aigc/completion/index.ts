@@ -161,12 +161,19 @@ async function useCompletionExecutor(body: IChatBody, callback: (data: any) => v
 }
 
 export const $completion = {
+  randomUUID(type: 'Chat' | 'Item') {
+    // 获取最后的时间戳6位
+    const last6 = Date.now().toString().slice(-6)
+
+    return `${type}-${randomStr(6)}-${last6}-${randomStr(6)}`
+  },
+
   emptyHistory() {
     return {
-      id: `${Date.now()}`,
+      id: this.randomUUID('Chat'),
       topic: '新的聊天',
       messages: [],
-      lastUpdate: -1,
+      lastUpdate: Date.now(),
       templateId: -1,
       sync: PersistStatus.SUCCESS,
     } as IChatConversation
@@ -174,10 +181,9 @@ export const $completion = {
 
   emptyChatItem(role: IChatRole = IChatRole.USER) {
     return {
-      id: `${Date.now()}`,
+      id: this.randomUUID('Item'),
       role,
       page: 0,
-      timestamp: Date.now(),
       content: [],
     } as IChatItem
   },
@@ -187,12 +193,14 @@ export const $completion = {
     value,
     meta,
     status,
-  }: IChatInnerItem = { model: QuotaModel.QUOTA_THIS_NORMAL, value: '', meta: {}, status: IChatItemStatus.AVAILABLE }) {
+    timestamp,
+  }: IChatInnerItem = { model: QuotaModel.QUOTA_THIS_NORMAL, value: '', meta: {}, timestamp: Date.now(), status: IChatItemStatus.AVAILABLE }) {
     return {
       model,
       value,
       status,
       meta,
+      timestamp,
     } as IChatInnerItem
   },
 

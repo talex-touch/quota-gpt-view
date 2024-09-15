@@ -13,11 +13,11 @@ const page = useVModel(props, 'modelValue', emits)
 
 <template>
   <div flex items-center>
-    <div class="_btn" mr-1 cursor-pointer op-50 @click="page -= 1">
+    <div :class="{ disabled: page === 0 }" class="_btn" mr-1 cursor-pointer op-50 @click="page -= 1">
       <i i-carbon:chevron-left />
     </div>
     <div>{{ page + 1 }} / {{ totalPage }}</div>
-    <div class="_btn" ml-1 cursor-pointer op-50 @click="page += 1">
+    <div :class="{ disabled: page === totalPage - 1 }" class="_btn" ml-1 cursor-pointer op-50 @click="page += 1">
       <i i-carbon:chevron-right />
     </div>
   </div>
@@ -25,6 +25,9 @@ const page = useVModel(props, 'modelValue', emits)
 
 <style lang="scss">
 ._btn {
+  &.disabled {
+    display: none;
+  }
   display: flex;
 
   border-radius: 4px;

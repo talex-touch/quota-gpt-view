@@ -2,6 +2,7 @@ import JSON5 from 'json5'
 import { getConversations, postHistory } from './api/chat'
 import { endHttp } from './api/axios'
 
+import { QuotaModel } from './api/base/v1/aigc/completion-types'
 import type { ThHistory } from '~/components/history/history-types'
 
 export interface ChatCompletionDto {
@@ -27,7 +28,7 @@ export enum Status {
 export interface ChatCompletion {
   id: string
   topic: string
-  messages: ChatItem[]
+  messages: any[]
   stat?: {
     tokenCount: number
     wordCount: number
@@ -42,17 +43,6 @@ export interface ChatCompletion {
   }
   status: Status
   templateId?: number
-}
-
-export interface ChatItem {
-  id?: string
-  date: string
-  role: string
-  content: string | string[]
-  streaming?: boolean
-  model?: string
-  hide?: boolean
-  status: Status
 }
 
 /**
@@ -116,14 +106,6 @@ export function useChatTitle(context: ChatCompletion) {
   return options
 }
 
-export interface IMessageHandler {
-  onTriggerStatus: (status: Status) => void
-  onTriggerUpdate: () => void
-  onReqCompleted?: () => void
-  onFrequentLimit?: () => void
-  onErrorHandler?: (error: Error) => void
-}
-
 export class ChatManager {
   originObj: ThHistory = {
     id: '',
@@ -144,55 +126,10 @@ export class ChatManager {
   currentLoadPage: number = 0
 
   constructor() {
-    $event.on('USER_LOGOUT_SUCCESS', () => {
-      this.history.value.length = 0
-      this.messages.value = JSON.parse(JSON.stringify(this.originObj))
-    })
-    $event.on('USER_LOGIN_SUCCESS', async () => {
-      this.loadHistories()
-    })
+
   }
 
   _scope: any
-
-  async loadHistories() {
-    if (!userStore.value.isLogin)
-      return
-
-    this.loadingHistory.value = true
-
-    this.currentLoadPage += 1
-
-    const res: any = await getConversations({
-      pageSize: 25,
-      page: this.currentLoadPage,
-    })
-
-    this.loadingHistory.value = false
-
-    if (res.code !== 200)
-      return ElMessage.error('获取历史记录失败!所有操作不会被保存!')
-
-    const totalPages = res.data.meta.totalPages
-    if (totalPages <= this.currentLoadPage) {
-      this.historyCompleted.value = true
-      this.currentLoadPage -= 1
-    }
-
-    this.history.value.push(...(res.data.items).map((item: any) => {
-      const option = {
-        ...item,
-        id: item.uid,
-        meta: JSON.parse(item.meta),
-        messages: JSON.parse(decodeURIComponent(atob(item.value))),
-      }
-
-      return {
-        ...option,
-        ...option.meta,
-      }
-    }))
-  }
 
   createMessage() {
     if (!userStore.value.token) {
@@ -241,194 +178,194 @@ export class ChatManager {
     })
   }
 
-  async sendMessage(obj: any, conversation: ThHistory, options: Partial<ChatCompletionDto>, callback: IMessageHandler) {
-    // function complete() {
-    //   if (obj.agent?.actions?.length)
-    //     obj.agent.actions = obj.agent.actions.filter((item: string) => typeof item !== 'string')
+  // async sendMessage(obj: any, conversation: ThHistory, options: Partial<ChatCompletionDto>, callback: IMessageHandler) {
+  // function complete() {
+  //   if (obj.agent?.actions?.length)
+  //     obj.agent.actions = obj.agent.actions.filter((item: string) => typeof item !== 'string')
 
-    //   setTimeout(() => {
-    //     callback.onTriggerUpdate()
+  //   setTimeout(() => {
+  //     callback.onTriggerUpdate()
 
-    //     callback?.onReqCompleted?.()
-    //   }, 200)
-    // }
+  //     callback?.onReqCompleted?.()
+  //   }, 200)
+  // }
 
-    // TODO: abort
-    // await useChatExecutor(
-    //   conversation,
-    //   (res) => {
-    //     if (res.error) {
-    //       obj.streaming = false
-    //       callback.onTriggerStatus(Status.ERROR)
+  // TODO: abort
+  // await useChatExecutor(
+  //   conversation,
+  //   (res) => {
+  //     if (res.error) {
+  //       obj.streaming = false
+  //       callback.onTriggerStatus(Status.ERROR)
 
-    //       if (res.frequentLimit)
-    //         callback?.onFrequentLimit?.()
-    //       else callback?.onErrorHandler?.(res.e)
+  //       if (res.frequentLimit)
+  //         callback?.onFrequentLimit?.()
+  //       else callback?.onErrorHandler?.(res.e)
 
-    //       return
-    //     }
+  //       return
+  //     }
 
-    //     if (res.done) {
-    //       obj.streaming = false
-    //       callback.onTriggerStatus(Status.AVAILABLE)
+  //     if (res.done) {
+  //       obj.streaming = false
+  //       callback.onTriggerStatus(Status.AVAILABLE)
 
-    //       setTimeout(() => {
-    //         callback.onTriggerUpdate()
+  //       setTimeout(() => {
+  //         callback.onTriggerUpdate()
 
-    //         complete()
-    //       }, 200)
+  //         complete()
+  //       }, 200)
 
-    //       return
-    //     }
+  //       return
+  //     }
 
-    //     if (!conversation.id)
-    //       conversation.id = res.id || res.run_id!
+  //     if (!conversation.id)
+  //       conversation.id = res.id || res.run_id!
 
-    //     const { event, name } = res
-    //     if (event === 'on_chain_start') {
-    //       if (name === 'Agent') {
-    //         obj.status = Status.AVAILABLE
+  //     const { event, name } = res
+  //     if (event === 'on_chain_start') {
+  //       if (name === 'Agent') {
+  //         obj.status = Status.AVAILABLE
 
-    //         return (obj.agent = reactive({
-    //           actions: ['正在分析信息...'],
-    //         }))
-    //       }
-    //     }
-    //     else if (
-    //       event === 'on_chain_stream'
-    //       || event === 'on_prompt_start'
-    //       || event === 'on_prompt_end'
-    //       || event === 'on_chat_model_start'
-    //     ) {
-    //       obj.streaming = false
-    //     }
-    //     else if (event === 'on_tool_start') {
-    //       if (name === 'TavilySearchResults')
-    //         return obj.agent.actions[0] = `正在广泛搜索 \`${res.data.input.input}\``
-    //       if (name === 'SerpAPI')
-    //         return obj.agent.actions[0] = `正在精确搜索 \`${res.data.input.input}\``
-    //       if (name === 'Calculator')
-    //         return obj.agent.actions[0] = `正在计算 \`${res.data.input.input}\``
-    //       if (name === 'WebBrowser') {
-    //         let input = res.data.input.input
-    //         if (input.indexOf(','))
-    //           input = input.split(',').at(-1)
+  //         return (obj.agent = reactive({
+  //           actions: ['正在分析信息...'],
+  //         }))
+  //       }
+  //     }
+  //     else if (
+  //       event === 'on_chain_stream'
+  //       || event === 'on_prompt_start'
+  //       || event === 'on_prompt_end'
+  //       || event === 'on_chat_model_start'
+  //     ) {
+  //       obj.streaming = false
+  //     }
+  //     else if (event === 'on_tool_start') {
+  //       if (name === 'TavilySearchResults')
+  //         return obj.agent.actions[0] = `正在广泛搜索 \`${res.data.input.input}\``
+  //       if (name === 'SerpAPI')
+  //         return obj.agent.actions[0] = `正在精确搜索 \`${res.data.input.input}\``
+  //       if (name === 'Calculator')
+  //         return obj.agent.actions[0] = `正在计算 \`${res.data.input.input}\``
+  //       if (name === 'WebBrowser') {
+  //         let input = res.data.input.input
+  //         if (input.indexOf(','))
+  //           input = input.split(',').at(-1)
 
-    //         return obj.agent.actions[0] = `正在浏览 \`${input}\``
-    //       }
-    //       else if (name === 'QuotaSearchAPI' || name === 'QuotaSearchImagesAPI' || name === 'QuotaSearchVideosAPI') {
-    //         return obj.agent.actions[0] = `Quota正在搜索 \`${res.data.input.input}\``
-    //       }
-    //       else if (name === 'QuotaDateAPI') {
-    //         return obj.agent.actions[0] = `Quota正在分析日期`
-    //       }
+  //         return obj.agent.actions[0] = `正在浏览 \`${input}\``
+  //       }
+  //       else if (name === 'QuotaSearchAPI' || name === 'QuotaSearchImagesAPI' || name === 'QuotaSearchVideosAPI') {
+  //         return obj.agent.actions[0] = `Quota正在搜索 \`${res.data.input.input}\``
+  //       }
+  //       else if (name === 'QuotaDateAPI') {
+  //         return obj.agent.actions[0] = `Quota正在分析日期`
+  //       }
 
-    //       console.error('e', res)
-    //     }
-    //     else if (event === 'on_chat_model_stream') {
-    //       if (name === 'ChatOpenAI' || name === 'ChatVolc') {
-    //         const text = res!.data?.chunk?.kwargs
-    //         if (!text?.content)
-    //           return
+  //       console.error('e', res)
+  //     }
+  //     else if (event === 'on_chat_model_stream') {
+  //       if (name === 'ChatOpenAI' || name === 'ChatVolc') {
+  //         const text = res!.data?.chunk?.kwargs
+  //         if (!text?.content)
+  //           return
 
-    //         obj.streaming = true
-    //         obj.content += text!.content
-    //         callback.onTriggerUpdate()
-    //       }
-    //       else {
-    //         console.error('model stream', res)
-    //       }
-    //     }
-    //     else if (event === 'on_tool_end') {
-    //       if (name === 'TavilySearchResults') {
-    //         const output = res.data.output
+  //         obj.streaming = true
+  //         obj.content += text!.content
+  //         callback.onTriggerUpdate()
+  //       }
+  //       else {
+  //         console.error('model stream', res)
+  //       }
+  //     }
+  //     else if (event === 'on_tool_end') {
+  //       if (name === 'TavilySearchResults') {
+  //         const output = res.data.output
 
-    //         const websites = JSON5.parse(output)
+  //         const websites = JSON5.parse(output)
 
-    //         for (let i = 0; i < websites.length; i++) {
-    //           const website = websites[i]
+  //         for (let i = 0; i < websites.length; i++) {
+  //           const website = websites[i]
 
-    //           obj.agent.actions.push({
-    //             type: 'url',
-    //             data: website,
-    //             title: `[${i + 1}] \`${website.title}\``,
-    //           })
-    //         }
-    //       }
-    //       else if (name === 'SerpAPI') {
-    //         const output = res.data.output
+  //           obj.agent.actions.push({
+  //             type: 'url',
+  //             data: website,
+  //             title: `[${i + 1}] \`${website.title}\``,
+  //           })
+  //         }
+  //       }
+  //       else if (name === 'SerpAPI') {
+  //         const output = res.data.output
 
-    //         const _obj = JSON5.parse(output)
+  //         const _obj = JSON5.parse(output)
 
-    //         obj.agent.actions.push({
-    //           type: 'display',
-    //           data: {
-    //             ..._obj,
-    //             _: res.data,
-    //           },
-    //         })
-    //       }
-    //       else if (name === 'QuotaSearchAPI') {
-    //         const output = res.data.output
+  //         obj.agent.actions.push({
+  //           type: 'display',
+  //           data: {
+  //             ..._obj,
+  //             _: res.data,
+  //           },
+  //         })
+  //       }
+  //       else if (name === 'QuotaSearchAPI') {
+  //         const output = res.data.output
 
-    //         const _obj = JSON5.parse(output)
+  //         const _obj = JSON5.parse(output)
 
-    //         obj.agent.actions.push({
-    //           type: 'display',
-    //           data: {
-    //             type: 'quota_search',
-    //             ..._obj,
-    //             _: res.data,
-    //           },
-    //         })
-    //       }
-    //       else if (name === 'QuotaSearchImagesAPI') {
-    //         const output = res.data.output
+  //         obj.agent.actions.push({
+  //           type: 'display',
+  //           data: {
+  //             type: 'quota_search',
+  //             ..._obj,
+  //             _: res.data,
+  //           },
+  //         })
+  //       }
+  //       else if (name === 'QuotaSearchImagesAPI') {
+  //         const output = res.data.output
 
-    //         const _obj = JSON5.parse(output)
+  //         const _obj = JSON5.parse(output)
 
-    //         obj.agent.actions.push({
-    //           type: 'display',
-    //           data: {
-    //             type: 'quota_search_images',
-    //             ..._obj,
-    //             _: res.data,
-    //           },
-    //         })
-    //       }
-    //       else if (name === 'QuotaSearchVideosAPI') {
-    //         const output = res.data.output
+  //         obj.agent.actions.push({
+  //           type: 'display',
+  //           data: {
+  //             type: 'quota_search_images',
+  //             ..._obj,
+  //             _: res.data,
+  //           },
+  //         })
+  //       }
+  //       else if (name === 'QuotaSearchVideosAPI') {
+  //         const output = res.data.output
 
-    //         const _obj = JSON5.parse(output)
+  //         const _obj = JSON5.parse(output)
 
-    //         obj.agent.actions.push({
-    //           type: 'display',
-    //           data: {
-    //             type: 'quota_search_videos',
-    //             ..._obj,
-    //             _: res.data,
-    //           },
-    //         })
-    //       }
-    //       else if (name === 'Calculator') {
-    //         obj.agent.actions.push({
-    //           type: 'display',
-    //           data: {
-    //             type: 'Calculator',
-    //             ...res.data,
-    //           },
-    //         })
-    //       }
+  //         obj.agent.actions.push({
+  //           type: 'display',
+  //           data: {
+  //             type: 'quota_search_videos',
+  //             ..._obj,
+  //             _: res.data,
+  //           },
+  //         })
+  //       }
+  //       else if (name === 'Calculator') {
+  //         obj.agent.actions.push({
+  //           type: 'display',
+  //           data: {
+  //             type: 'Calculator',
+  //             ...res.data,
+  //           },
+  //         })
+  //       }
 
-    //       console.log('tool end', res)
-    //     }
-    //   },
-    //   {
-    //     ...options,
-    //     temperature: 0,
-    //   },
-    // )
-  }
+  //       console.log('tool end', res)
+  //     }
+  //   },
+  //   {
+  //     ...options,
+  //     temperature: 0,
+  //   },
+  // )
+  // }
 
   cancelCurrentReq() {
     if (!this.messages.value)

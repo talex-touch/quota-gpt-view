@@ -59,7 +59,7 @@ watch(() => props.select, (val) => {
 
 const nullLen = computed(() => props.item.content?.filter(item => item === null).length || 0)
 const innerItem = computed(() => props.item.content?.[msgItem.value.page + nullLen.value] || null)
-const timeAgo = computed(() => dayjs(props.item.timestamp, 'YYYY/M/D HH:mm:ss').fromNow())
+const timeAgo = computed(() => innerItem.value ? dayjs(innerItem.value.timestamp).fromNow() : '-')
 const isUser = computed(() => props.item.role === IChatRole.USER)
 
 function handleGeneratingDotUpdate(rootEl: HTMLElement, cursor: HTMLElement) {
@@ -67,17 +67,28 @@ function handleGeneratingDotUpdate(rootEl: HTMLElement, cursor: HTMLElement) {
     return
 
   cursor.style.opacity = '1'
+  cursor.style.animation = 'dot-frames 0.5s infinite'
   timer && clearTimeout(timer)
   timer = setTimeout(() => {
     if (innerItem.value!.status === IChatItemStatus.GENERATING)
       return
 
     cursor.style.opacity = '0'
+    cursor.style.animation = ''
   }, 200)
 
-  const textNode = getLastTextNode(rootEl)
+  let _remove
+  // 移除 rootEl最后一个TextNode
+  if (rootEl.lastChild?.nodeType === Node.TEXT_NODE) {
+    const data = rootEl.lastChild as Text
 
-  console.dir(textNode)
+    if (!data.nodeValue?.replace('\n', '')) {
+      rootEl.lastChild.remove()
+      _remove = data
+    }
+  }
+
+  const textNode = getLastTextNode(rootEl)
 
   const tempNode = document.createTextNode('|')
   if (textNode)
@@ -87,19 +98,23 @@ function handleGeneratingDotUpdate(rootEl: HTMLElement, cursor: HTMLElement) {
 
   const range = document.createRange()
   range.setStart(tempNode, 0)
-  range.setEnd(tempNode, 1)
+  range.setEnd(tempNode, 0)
   const rect = range.getBoundingClientRect()
-  const textRect = dom.value!.getBoundingClientRect()
+  const textRect = rootEl.getBoundingClientRect()
+  const cursorRect = cursor.getBoundingClientRect()
 
-  const top = textRect.top - rect.top
-  const left = textRect.left - rect.left
+  const top = rect.top - textRect.top + rect.height / 2 - cursorRect.height / 2
+  const left = rect.left - textRect.left + rect.width / 2 - cursorRect.width / 2
 
   Object.assign(cursor!.style, {
-    top: `${-top}px`,
-    left: `${-left}px`,
+    top: `${top}px`,
+    left: `${left}px`,
   })
 
   tempNode.remove()
+  if (_remove)
+    rootEl.appendChild(_remove)
+
   // setTimeout(() => handleGeneratingDotUpdate(rootEl, cursor), 20)
 }
 
@@ -165,6 +180,14 @@ watchEffect(() => {
   // 计算自己的content中有多少个null
   metaModel.value.show = !!innerItem.value && metaModel.value.dictIndex >= props.item.page + nullLen.value
 })
+
+// onMounted(() => {
+//   const rootEl = dom.value?.querySelector('.RenderContent-Inner')
+//   const cursor: HTMLElement = dom.value?.querySelector('.Generating-Dot')
+
+//   if (rootEl && cursor)
+//     setTimeout(() => handleGeneratingDotUpdate(rootEl, cursor), 0)
+// })
 </script>
 
 <template>
@@ -283,6 +306,22 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
   border-radius: 50%;
   pointer-events: none;
   background-color: var(--el-text-color-primary);
+
+  // animation: dot-frames 0.5s infinite;
+}
+
+@keyframes dot-frames {
+  0% {
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
 }
 
 .ChatItem.share {

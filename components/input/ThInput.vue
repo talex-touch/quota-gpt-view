@@ -247,6 +247,21 @@ const tokenLimit = computed(() => userStore.value.isLogin ? 8192 : 256)
     color: var(--el-color-danger);
   }
 
+  &::before {
+    content: '';
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    opacity: 0.25;
+    filter: blur(10px) brightness(120%);
+    background: var(--el-bg-color-page);
+  }
+
   & > div {
     display: flex;
 
@@ -257,7 +272,7 @@ const tokenLimit = computed(() => userStore.value.isLogin ? 8192 : 256)
 
   z-index: -1;
   position: absolute;
-  padding: 0 1rem;
+  // padding: 0 1rem;
   display: flex;
 
   // gap: 0.5rem;
@@ -273,15 +288,16 @@ const tokenLimit = computed(() => userStore.value.isLogin ? 8192 : 256)
   transition: 0.25s;
 
   opacity: 0;
-  filter: blur(10px);
+  filter: blur(10px) drop-shadow(0 0 10px var(--el-bg-color-page));
   pointer-events: none;
   transform: translateX(-50%);
+  text-shadow: 0 0 10px var(--el-bg-color);
   // box-shadow: var(--el-box-shadow);
   // backdrop-filter: blur(18px);
   // background: var(--el-bg-color-page);
   &.show {
     opacity: 1;
-    filter: blur(0);
+    filter: blur(0) drop-shadow(0 0 5px var(--el-bg-color-page));
   }
 }
 
