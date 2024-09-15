@@ -251,7 +251,7 @@ function handleShare() {
     width: 100%;
     height: 100%;
 
-    opacity: 0.45;
+    opacity: 0.5;
     transition: 0.35s;
     background-size: cover;
     background-image: var(--wallpaper);

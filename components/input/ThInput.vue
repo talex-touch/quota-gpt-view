@@ -382,6 +382,9 @@ const tokenLimit = computed(() => userStore.value.isLogin ? 8192 : 256)
       outline: none;
       border: none;
     }
+    &::placeholder {
+      color: var(--el-text-color-regular);
+    }
 
     position: relative;
 
