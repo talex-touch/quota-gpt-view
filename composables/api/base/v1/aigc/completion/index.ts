@@ -87,22 +87,40 @@ async function handleExecutorResult(reader: ReadableStreamDefaultReader<string>,
     for (let i = 0; i < arr.length; i++) {
       const item = arr[i]
 
-      if (item.startsWith('data: '))
-        handleExecutorItem(item.slice(6), callback)
-      // else {
-      //   try {
-      //     const data = JSON.parse(item)
+      if (item.startsWith('data: ')) { handleExecutorItem(item.slice(6), callback) }
+      else {
+        const prevItem = arr[1]
 
-      //     if (data.code === 1101)
-      //       $handleUserLogout()
+        if (!prevItem.startsWith('event: error'))
+          continue
 
-      //     if (data?.message && !data?.data)
-      //       ElMessage.error(data.message)
-      //   }
-      //   catch (_ignored) {
-      //     // console.error('error in chat', _ignored)
-      //   }
-      // }
+        const dataItem = arr[3]
+
+        callback({
+          done: true,
+          error: true,
+          e: dataItem.slice(6),
+        })
+
+        // try {
+        //   const data = JSON.parse(item)
+
+        //   if (data.code === 1101)
+        //     $handleUserLogout()
+
+        //   if (data?.message && !data?.data)
+        //     ElMessage.error(data.message)
+        // }
+        // catch (_ignored) {
+        //   console.error('error in chat', _ignored, item)
+
+        //   callback({
+        //     done: true,
+        //     error: true,
+        //     e: item,
+        //   })
+        // }
+      }
     }
   }
 }
@@ -366,10 +384,19 @@ export const $completion = {
           },
           (res) => {
             if (res.error) {
+              console.log('res', res)
+
               innerMsg.status = IChatItemStatus.ERROR
 
               if (res.frequentLimit)
                 handler.onFrequentLimit?.()
+
+              innerMsg.value.push({
+                type: 'error',
+                value: res.e,
+              })
+
+              complete()
 
               return
             }

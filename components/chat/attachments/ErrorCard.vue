@@ -8,6 +8,10 @@ const props = defineProps<{
 // 去除文本中的括号以及括号内的内容 比如 a (2323124你好) => a [包括a后面的空格也要去除]
 const _text = computed(() => {
   const text = props.block.value
+
+  if (!text.includes(' ('))
+    return [`${text}`, '500']
+
   const reg = /\((.*?)\)/g
 
   const content = text.replace(reg, '')
@@ -50,6 +54,8 @@ const description = computed(() => {
     return [1, '您已达到限制，升级订阅计划以继续使用科塔智爱。为确保服务不受影响，建议您尽快完成订阅计划升级。如有任何疑问，欢迎随时联系客服咨询。感谢您的支持与理解。']
   else if (+_text.value[1]! === 503)
     return [2, '当前模型的使用需升级至更高级的订阅计划。请前往订阅页面选择合适的套餐进行升级，以便继续使用该模型的所有功能。感谢您的理解和支持。']
+  else if (+_text.value[1]! === 500)
+    return [0, '发生未知错误，请联系管理员以获取进一步支持。我们将尽快为您解决问题，感谢您的理解和配合。']
 
   else return [-1, props.block.value]
 })
@@ -79,13 +85,13 @@ const description = computed(() => {
 
       </el-tooltip> -->
 
-      <p my-2 flex items-center gap-1 text-gray-700 op-75>
-        <i i-carbon:information block cursor-pointer />
+      <p my-2 flex cursor-pointer items-center gap-1 op-75>
+        <i i-carbon:information block />
         为何会发生此问题？
       </p>
     </div>
 
-    <div flex items-center gap-1 class="ErrorCard-Footer">
+    <div v-if="_bracket" flex items-center gap-1 class="ErrorCard-Footer">
       <el-tooltip content="请求识别ID">
         <div i-carbon:id text-lg />
       </el-tooltip> {{ _bracket }}

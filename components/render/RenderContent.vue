@@ -45,7 +45,7 @@ onMounted(() => {
   //   // mode: color.value !== 'dark' ? 'light' : 'dark',
   // })
 
-  const regex = /\[([^[\]]+)\]/g
+  // const regex = /\[([^[\]]+)\]/g
 
   watch(
     () => [props.data, color.value, props.render],

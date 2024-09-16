@@ -214,9 +214,10 @@ watchEffect(() => {
     <div class="ChatItem-Avatar">
       <img src="/logo.png">
     </div>
+    <!-- error: innerItem.status === IChatItemStatus.ERROR, -->
     <div
       v-if="innerItem"
-      :class="{ error: innerItem.status === IChatItemStatus.ERROR, settingVisible: settingMode.visible }"
+      :class="{ settingVisible: settingMode.visible }"
       class="ChatItem-Wrapper"
     >
       <div class="ChatItem-Agent">
@@ -234,9 +235,9 @@ watchEffect(() => {
           </div>
         </div>
         <div v-else-if="innerItem.value.length" ref="dom" class="ChatItem-Content-Inner">
-          <span v-if="innerItem.status === IChatItemStatus.ERROR">
+          <!-- <span v-if="innerItem.status === IChatItemStatus.ERROR">
             错误 {{ item.content }}
-          </span>
+          </span> -->
           <div v-for="(block, i) in innerItem.value" :key="i" class="ChatItem-Content-Inner-Block">
             <span v-if="block.type === 'text'">
               <pre class="inner" v-text="block.value" />
@@ -262,7 +263,7 @@ watchEffect(() => {
           <div v-if="!isUser" class="Generating-Dot" />
         </div>
         <p v-else mt-3>
-          <TextShaving text="正在分析中" />
+          <TextShaving :text="isEnd ? '分析失败' : '正在分析中'" />
           <br>
         </p>
 

@@ -2,6 +2,7 @@
 import CalculatorResult from './attachments/CalculatorResult.vue'
 import WeatherResult from './attachments/WeatherResult.vue'
 import QuotaSearchResult from './attachments/QuotaSearchResult.vue'
+import QuotaDateResult from './attachments/QuotaDateResult.vue'
 import QuotaSearchImagesResult from './attachments/QuotaSearchImagesResult.vue'
 import QuotaSearchVideosResult from './attachments/QuotaSearchVideosResult.vue'
 import type { IInnerItemMeta } from '~/composables/api/base/v1/aigc/completion-types'
@@ -13,6 +14,7 @@ const props = defineProps<{
 const typeMapper: Record<string, {
   icon: string
   comp: Component
+  getTitle?: (block: IInnerItemMeta) => string
 }> = {
   // weather_result: WeatherResult,
   // Calculator: CalculatorResult,
@@ -23,6 +25,20 @@ const typeMapper: Record<string, {
   QuotaSearchAPI: {
     icon: 'i-carbon:search',
     comp: QuotaSearchResult,
+  },
+  QuotaSearchVideosAPI: {
+    icon: 'i-carbon:search',
+    comp: QuotaSearchResult,
+    getTitle(block: IInnerItemMeta) {
+      return `${block.data} 相关视频`
+    },
+  },
+  QuotaDateAPI: {
+    icon: 'i-carbon:time',
+    comp: QuotaDateResult,
+    getTitle() {
+      return '获取时间'
+    },
   },
 }
 
@@ -40,7 +56,7 @@ const curType = computed(() => typeMapper[props.block.name!])
         <ChatQueryCollapse>
           <template #Header>
             <i block :class="curType.icon" />
-            {{ block.data }}
+            {{ curType.getTitle?.(block) || block.data || '-' }}
           </template>
           <component :is="curType.comp" :value="block.value" :data="block.data" />
         </ChatQueryCollapse>

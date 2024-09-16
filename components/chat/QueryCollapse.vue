@@ -42,7 +42,7 @@ const expand = ref(false)
   }
   position: relative;
 
-  max-height: 28px;
+  max-height: 32px;
 
   overflow-y: hidden;
 
