@@ -15,7 +15,13 @@ const _text = computed(() => {
   // 提取文本中的错误码 比如：401 该令牌状态不可用 => 401
   const errCode = content.match(/[0-9]{3}/)?.[0]
 
-  return [content.replace(errCode || '', '').trim(), errCode]
+  const value = content.replace(errCode || '', '').trim()
+  // 如果得到的内容是 当前分组 default 下对于模型 gpt-4o-mini 计费模式 [按量计费,按次计费] 无可用渠道
+  // 上面这种格式 其中 default gpt-4o-mini 是变量
+  if (value.includes('当前分组') && value.includes('无可用渠道'))
+    return ['无法使用该模型', errCode]
+
+  return [value, errCode]
 })
 
 // 获取文本中括号的内容
@@ -42,6 +48,8 @@ const description = computed(() => {
 
   else if (title.includes('额度已用尽'))
     return [1, '您已达到限制，升级订阅计划以继续使用科塔智爱。为确保服务不受影响，建议您尽快完成订阅计划升级。如有任何疑问，欢迎随时联系客服咨询。感谢您的支持与理解。']
+  else if (+_text.value[1]! === 503)
+    return [2, '当前模型的使用需升级至更高级的订阅计划。请前往订阅页面选择合适的套餐进行升级，以便继续使用该模型的所有功能。感谢您的理解和支持。']
 
   else return [-1, props.block.value]
 })
@@ -86,10 +94,10 @@ const description = computed(() => {
   </div>
 
   <div v-if="description" v-wave class="ErrorCard-Addon">
-    <template v-if="description[0] === 0">
+    <template v-if="+description[0] === 0">
       <i i-carbon:chat-bot block /> 联系客服
     </template>
-    <template v-if="description[0] === 1">
+    <template v-else-if="+description[0] <= 2">
       <div class="primary bg" />
 
       <span text-white font-bold><i i-carbon:upgrade block /> 立即升级</span>

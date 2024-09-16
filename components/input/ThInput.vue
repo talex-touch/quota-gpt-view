@@ -205,7 +205,7 @@ const tokenLimit = computed(() => userStore.value.isLogin ? 8192 : 256)
 
     <div class="ThInput-Send" @click="handleSend">
       <div i-carbon:send-alt />
-      <span v-if="status === 2">生成中</span>
+      <span v-if="status === 2" mr-4 text-lg text-black font-bold op-75>生成中</span>
     </div>
 
     <div class="ThInput-StatusBar" />
