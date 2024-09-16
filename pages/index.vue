@@ -151,7 +151,7 @@ function handleSync() {
 }
 
 // 重新生成某条消息 只需要给消息索引即可 还需要传入目标inner 如果有新的参数赋值则传options替换
-async function handleRetry(index: number, innerItem: IChatInnerItem) {
+async function handleRetry(index: number, page: number, innerItem: IChatInnerItem) {
   const conversation = pageOptions.conversation
 
   const chatItem = conversation.messages[index]
@@ -165,7 +165,7 @@ async function handleRetry(index: number, innerItem: IChatInnerItem) {
 
   chatItem.content.push(_innerItem)
 
-  innerSend(conversation, chatItem, index)
+  innerSend(conversation, chatItem, page)
 }
 
 async function handleSend(query: string, _meta: any) {
@@ -174,7 +174,15 @@ async function handleSend(query: string, _meta: any) {
   if (!$historyManager.options.list.get(conversation.id))
     $historyManager.options.list.set(conversation.id, conversation)
 
-  const shiftItem = conversation.messages.at(-1)
+  const meta = chatRef.value.getDictMeta()
+  console.log('a', meta)
+  let i = conversation.messages.length - 1
+  // let shiftItem /* = conversation.messages.at(-1) */
+  while (meta?.[i] && !meta[i].show)
+    i -= 1
+
+  // getDictMeta
+  const shiftItem = i >= 0 ? conversation.messages.at(i) : null
 
   const chatItem = $completion.emptyChatItem()
   const innerItem = $completion.emptyChatInnerItem({
@@ -190,6 +198,8 @@ async function handleSend(query: string, _meta: any) {
   chatItem.content.push(innerItem)
   conversation.messages.push(chatItem)
 
+  console.log('a', shiftItem, shiftItem?.page)
+
   innerSend(conversation, chatItem, (shiftItem?.content.length ?? 1) - 1)
 }
 
@@ -201,6 +211,8 @@ function handleShare() {
   pageOptions.share.selected.length = 0
   pageOptions.share.enable = !pageOptions.share.enable
 }
+
+console.log(pageOptions)
 </script>
 
 <template>

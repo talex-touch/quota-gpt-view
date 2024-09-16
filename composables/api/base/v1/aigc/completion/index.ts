@@ -12,6 +12,10 @@ function mapStrStatus(str: string) {
     return IChatItemStatus.TOOL_CALLING
   else if (str === 'result')
     return IChatItemStatus.TOOL_RESULT
+  else if (str === 'cancelled')
+    return IChatItemStatus.CANCELLED
+  else if (str === 'failed')
+    return IChatItemStatus.ERROR
 
   console.error('unknown status', str)
 
@@ -267,6 +271,8 @@ export const $completion = {
     const tempMessage = reactive(isAdd ? this.emptyChatItem(IChatRole.ASSISTANT) : conversation.messages[itemIndex])
     const innerMsg = reactive(isAdd ? this.emptyChatInnerItem() : curItem.content[index]!)
 
+    console.log('a', curItem, index)
+
     if (isAdd) {
       // 获得某一条消息的指定 innerItem
       const curInnerItem = curItem.content[index]
@@ -441,9 +447,32 @@ export const $completion = {
                 })
               }
 
-              console.log('a', innerMeta)
-
               handler.onCompletion?.(name, res.content)
+            }
+            else if (event === 'error') {
+              handler.onError?.()
+
+              const mappedStatus = mapStrStatus(res.status)
+              if (mappedStatus === IChatItemStatus.ERROR) {
+                console.log('a12312', res)
+
+                const message: string = res.message
+
+                innerMsg.value.push({
+                  type: 'error',
+                  value: message,
+                })
+
+                if (message.includes('状态不可用'))
+                  innerMsg.status = IChatItemStatus.BANNED
+                else if (message.includes('额度已用尽'))
+                  innerMsg.status = IChatItemStatus.REJECTED
+                else
+                  innerMsg.status = IChatItemStatus.ERROR
+              }
+              else {
+                innerMsg.status = mappedStatus
+              }
             }
           },
         )

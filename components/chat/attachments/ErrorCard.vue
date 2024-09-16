@@ -1,0 +1,170 @@
+<script setup lang="ts">
+import type { IInnerItemMeta } from '~/composables/api/base/v1/aigc/completion-types'
+
+const props = defineProps<{
+  block: IInnerItemMeta
+}>()
+
+// 去除文本中的括号以及括号内的内容 比如 a (2323124你好) => a [包括a后面的空格也要去除]
+const _text = computed(() => {
+  const text = props.block.value
+  const reg = /\((.*?)\)/g
+
+  const content = text.replace(reg, '')
+
+  // 提取文本中的错误码 比如：401 该令牌状态不可用 => 401
+  const errCode = content.match(/[0-9]{3}/)?.[0]
+
+  return [content.replace(errCode || '', '').trim(), errCode]
+})
+
+// 获取文本中括号的内容
+const _bracket = computed(() => {
+  const text = props.block.value
+  const reg = /\((.*?)\)/g
+
+  const content = text.match(reg)?.[0] || ''
+
+  // 提取括号中的内容 比如：(2323124你好) => 2323124你好
+  // 然后括号中的内容会是 request id: 123456456456456465 => 只提取这一串不定长数字
+  const bracketContent = content.match(/[0-9]{3,}/)?.[0] || ''
+
+  return bracketContent
+})
+
+const description = computed(() => {
+  const title = _text.value[0]
+  if (!title)
+    return null
+
+  if (title.includes('状态不可用'))
+    return [0, '由于您长时间未进行任何操作，系统为保障安全已自动注销您的会话。请您重新登录以获取新的访问令牌，以便继续正常使用系统各项功能。感谢您的理解与配合。']
+
+  else if (title.includes('额度已用尽'))
+    return [1, '您已达到限制，升级订阅计划以继续使用科塔智爱。为确保服务不受影响，建议您尽快完成订阅计划升级。如有任何疑问，欢迎随时联系客服咨询。感谢您的支持与理解。']
+
+  else return [-1, props.block.value]
+})
+</script>
+
+<template>
+  <div class="ErrorCard">
+    <div text-sm text-red font-bold class="ErrorCard-Header">
+      <i i-carbon:error block />
+      <div>
+        <span v-if="_text">
+          {{ _text[0] }}
+        </span>
+        <span v-else>
+          {{ block.value }}
+        </span>
+      </div>
+    </div>
+
+    <div text-gray-500 class="ErrorCard-Content">
+      <!-- 根据错误码内容来确定错误原因，尝试重新请求或者联系管理员解决。 -->
+      <p v-if="description?.[1]" v-text="description[1]" />
+      <p v-else>
+        无法寻找到解决方案，请尝试重新登录！
+      </p>
+      <!-- <el-tooltip content="为何发生此问题？">
+
+      </el-tooltip> -->
+
+      <p my-2 flex items-center gap-1 text-gray-700 op-75>
+        <i i-carbon:information block cursor-pointer />
+        为何会发生此问题？
+      </p>
+    </div>
+
+    <div flex items-center gap-1 class="ErrorCard-Footer">
+      <el-tooltip content="请求识别ID">
+        <div i-carbon:id text-lg />
+      </el-tooltip> {{ _bracket }}
+      <div v-copy="_bracket" i-carbon:copy cursor-pointer />
+    </div>
+  </div>
+
+  <div v-if="description" v-wave class="ErrorCard-Addon">
+    <template v-if="description[0] === 0">
+      <i i-carbon:chat-bot block /> 联系客服
+    </template>
+    <template v-if="description[0] === 1">
+      <div class="primary bg" />
+
+      <span text-white font-bold><i i-carbon:upgrade block /> 立即升级</span>
+    </template>
+  </div>
+</template>
+
+<style lang="scss">
+.ErrorCard-Addon {
+  .bg {
+    z-index: -1;
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    border-radius: 10px;
+    &.primary {
+      background-color: var(--el-color-primary);
+    }
+  }
+  & > span {
+    display: flex;
+
+    gap: 0.5rem;
+    align-items: center;
+  }
+  position: relative;
+  display: flex;
+  margin: 0.5rem 0;
+  padding: 0.5rem 0.5rem;
+
+  gap: 0.5rem;
+  align-items: center;
+
+  width: max-content;
+  max-width: 70%;
+
+  opacity: 0.75;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 10px;
+  background-color: var(--el-bg-color-page);
+}
+
+.ErrorCard {
+  &-Footer {
+    margin-top: 0.5rem;
+
+    font-size: 12px;
+  }
+
+  &-Content {
+    margin: 0.25rem 0.25rem 0 0.25rem;
+
+    font-size: 14px;
+    // color: var(--el-text-color-secondary);
+  }
+
+  &-Header {
+    display: flex;
+
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  padding: 0.5rem 0.5rem;
+
+  width: max-content;
+  max-width: 70%;
+
+  border-radius: 10px;
+  background-color: var(--el-bg-color-page);
+}
+</style>

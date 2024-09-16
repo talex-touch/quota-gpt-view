@@ -18,7 +18,7 @@ const props = defineProps<{
 const emits = defineEmits<{
   (e: 'update:messages', messages: IChatConversation): void
   (e: 'cancel'): void
-  (e: 'retry', index: number, innerItem: IChatInnerItem): Promise<void>
+  (e: 'retry', index: number, page: number, innerItem: IChatInnerItem): Promise<void>
 }>()
 
 const scrollbar = ref()
@@ -140,7 +140,7 @@ const msgMeta = computed(() => {
   }[]>([])
   const msgList = messagesModel.value.messages
 
-  for (let i = msgList.length - 1; i >= 0; i -= 2) {
+  for (let i = 0; i < msgList.length - 1; i += 2) {
     const dictIndex = getDictIndex(i)
 
     const obj = reactive({
@@ -164,6 +164,20 @@ defineExpose({
   },
   getDictMeta: () => msgMeta,
 })
+
+function handleRetry(ind: number, item: IChatInnerItem) {
+  const chat = messagesModel.value.messages[ind]
+
+  console.log('a', ind, item)
+
+  // const index = chat.content.findIndex(_ => _?.value === item.value)
+  // chat.content.push({
+  //   ...item,
+  //   value: [],
+  // })
+
+  emits('retry', ind, chat.content.length, item)
+}
 </script>
 
 <template>
@@ -188,7 +202,7 @@ defineExpose({
             :key="message.id" v-model:item="messagesModel.messages[ind]" v-model:meta="msgMeta[ind]"
             :ind="ind" :total="messages.messages.length" :share="options.share.enable"
             :select="options.share.selected" @select="handleSelectShareItem"
-            @retry="emits('retry', ind, $event)"
+            @retry="handleRetry(ind, $event)"
           />
 
           <!-- 统一 error / warning mention -->
@@ -199,12 +213,7 @@ defineExpose({
 
         <EmptyGuide :show="!!messages.messages?.length" />
 
-        <br>
-        <br>
-        <br>
-        <br>
-        <br>
-        <br>
+        <br v-for="i in 20" :key="i">
       </el-scrollbar>
 
       <div class="ThChat-BackToBottom" @click="handleBackToBottom()">

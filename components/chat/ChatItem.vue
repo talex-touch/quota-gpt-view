@@ -7,6 +7,7 @@ import TextShaving from '../other/TextShaving.vue'
 import ThWickCheckBox from '../checkbox/ThWickCheckBox.vue'
 import ChatAttachment from './ChatAttachment.vue'
 import ItemModelSelector from './addon/ItemModelSelector.vue'
+import ErrorCard from './attachments/ErrorCard.vue'
 import { type IChatInnerItem, type IChatItem, IChatItemStatus, IChatRole } from '~/composables/api/base/v1/aigc/completion-types'
 
 interface IChatItemProp {
@@ -187,8 +188,11 @@ watchEffect(() => {
   if (isUser.value)
     return
 
+  // const selfIndex = innerItem.value ? props.item.content.findIndex(_ => _?.timestamp === innerItem.value?.timestamp) : 0
+  // console.log('refresh', selfIndex, innerItem.value, props)
+
   // 计算自己的content中有多少个null
-  metaModel.value.show = !!innerItem.value && metaModel.value.dictIndex >= props.item.page + nullLen.value
+  metaModel.value.show = !!innerItem.value && metaModel.value.dictIndex <= props.item.page + nullLen.value
 })
 
 // onMounted(() => {
@@ -201,6 +205,7 @@ watchEffect(() => {
 </script>
 
 <template>
+  <!-- {{ meta }} {{ item.page }} - {{ nullLen }} -->
   <div v-if="metaModel.show" :class="{ check, share, user: isUser }" class="ChatItem">
     <div class="ChatItem-Select">
       <el-checkbox v-model="check" />
@@ -249,10 +254,15 @@ watchEffect(() => {
             <div v-else-if="block.type === 'tool'">
               <ChatAttachment :block="block" />
             </div>
+
+            <div v-else-if="block.type === 'error'">
+              <ErrorCard :block="block " />
+            </div>
           </div>
           <div v-if="!isUser" class="Generating-Dot" />
         </div>
-        <p v-else>
+        <p v-else mt-3>
+          <TextShaving text="正在分析中" />
           <br>
         </p>
 
