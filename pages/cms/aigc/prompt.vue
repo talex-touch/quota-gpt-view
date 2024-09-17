@@ -1,9 +1,8 @@
 <script lang="ts" setup>
 import type { FormInstance, FormRules } from 'element-plus'
+import StandardPrompt from './standard-prompt.txt?raw'
 import UserAvatar from '~/components/personal/UserAvatar.vue'
 import UserUploadAvatar from '~/components/personal/UserUploadAvatar.vue'
-import { $completion } from '~/composables/aigc/completion/init'
-import StandardPrompt from '~/composables/completion/standard-prompt.txt?raw'
 import RenderContentOld from '~/components/render/RenderContentOld.vue'
 import { assignPromptTags, getPromptDailyStatistics, searchPromptTag } from '~/composables/api/chat'
 import { $endApi } from '~/composables/api/base'
@@ -101,37 +100,37 @@ const dialogOptions = reactive<{
   },
 })
 
-async function polishContent(type: number) {
-  if (!dialogOptions.data?.content)
-    return
+// async function polishContent(type: number) {
+//   if (!dialogOptions.data?.content)
+//     return
 
-  const completion = $completion.v1.createCompletion(
-    $completion.v1.createEmptyHistoryWithInput(dialogOptions.data?.content),
-  )
+// const completion = $completion.v1.createCompletion(
+//   $completion.v1.createEmptyHistoryWithInput(dialogOptions.data?.content),
+// )
 
-  completion.registerHandler({
-    onCompletionStart() {
-      dialogOptions.loading = true
-    },
-    onCompletion() {
-      dialogOptions.meta.stashContent = completion.tempMessage.content
+// completion.registerHandler({
+//   onCompletionStart() {
+//     dialogOptions.loading = true
+//   },
+//   onCompletion() {
+//     dialogOptions.meta.stashContent = completion.tempMessage.content
 
-      return false
-    },
-    onReqCompleted() {
-      if (type === 1)
-        dialogOptions.meta.polish = true
-      else if (type === 2)
-        dialogOptions.meta.translation = true
+//     return false
+//   },
+//   onReqCompleted() {
+//     if (type === 1)
+//       dialogOptions.meta.polish = true
+//     else if (type === 2)
+//       dialogOptions.meta.translation = true
 
-      dialogOptions.loading = false
-    },
-  })
+//     dialogOptions.loading = false
+//   },
+// })
 
-  await completion.send({
-    generateSummary: type + 1,
-  })
-}
+// await completion.send({
+//   generateSummary: type + 1,
+// })
+// }
 
 function handleDialog(data: PromptEntityDto | null, mode: 'edit' | 'read' | 'new') {
   dialogOptions.mode = mode
@@ -822,7 +821,7 @@ const statusOptions = [
             </el-timeline>
           </el-form-item>
           <el-form-item v-if="dialogOptions.mode !== 'read'" label="操作按钮">
-            <el-button
+            <!-- <el-button
               :loading="dialogOptions.loading" :disabled="dialogOptions.data.content!.length < 200"
               @click="polishContent(0)"
             >
@@ -833,7 +832,7 @@ const statusOptions = [
               @click="polishContent(1)"
             >
               翻译
-            </el-button>
+            </el-button> -->
             <el-button
               :loading="dialogOptions.loading" :disabled="!dialogOptions.meta.stashContent!.length"
               @click="dialogOptions.data.content = dialogOptions.meta.stashContent!"
