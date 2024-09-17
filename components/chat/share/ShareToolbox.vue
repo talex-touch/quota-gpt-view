@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import html2canvas from 'html2canvas'
+import type { IChatItem } from '~/composables/api/base/v1/aigc/completion-types'
 
 const props = defineProps<{
   show: boolean
@@ -10,7 +11,7 @@ const shareOptions = reactive({
   display: false,
   title: '',
   loading: false,
-  messages: new Array<any>(),
+  messages: new Array<IChatItem>(),
 })
 const share: any = (inject('pageOptions')! as any).share
 
@@ -86,6 +87,9 @@ async function downloadImage() {
 
 async function duplicatingShearsClick() {
   shareOptions.loading = true
+
+  await sleep(300) // render
+
   const dataURL = (await getCanvas()).toDataURL()
   shareOptions.loading = false
 
@@ -105,6 +109,12 @@ async function duplicatingShearsClick() {
     share.enable = false
   }, 200)
 }
+
+const filteredMsg = computed(() => shareOptions.messages.filter((msg, index) => {
+  const meta = share.meta[index]
+
+  return meta.show
+}))
 </script>
 
 <template>
@@ -121,7 +131,7 @@ async function duplicatingShearsClick() {
     </div>
   </div>
 
-  <div v-loading="shareOptions.loading" :class="{ display: props.show && shareOptions.display }" class="Share-Image">
+  <div v-loading="shareOptions.loading" :class="{ gen: shareOptions.loading, display: props.show && shareOptions.display }" class="Share-Image">
     <el-scrollbar>
       <div ref="imageHolder" class="Share-Image-Inner">
         <div class="Share-Image-Head">
@@ -135,11 +145,27 @@ async function duplicatingShearsClick() {
           <span v-else>ThisAI!</span> -->
         </div>
         <div class="Share-Image-Main">
-          <div v-for="(msg, ind) in shareOptions.messages" :key="ind" class="ShareMessage">
+          <div v-for="(msg, ind) in filteredMsg" :key="ind" class="ShareMessage">
             <p class="title">
               {{ msg.role === 'assistant' ? 'ThisAI' : '我' }}
             </p>
-            <RenderContent :render="{ enable: true, media: false }" readonly :data="msg.content" />
+            <template v-if="msg.content[msg.page]">
+              <div v-for="(block, _ind) in msg.content[msg.page]?.value" :key="_ind">
+                <pre v-if="block.type === 'text'" v-text="block.value" />
+                <div v-else-if="block.type === 'tool'" mt-2 w-max class="tool-card" :data="block.value">
+                  <!-- <i i-carbon:3d-curve-auto-colon block /> -->
+                  <span class="show">已思考: {{ block.data }}</span>
+                  <span op-0>已思考: {{ block.data }}</span>
+                </div>
+                <RenderContent
+                  v-else-if="block.type === 'markdown'" :render="{ enable: true, media: false }" readonly
+                  :data="block.value"
+                />
+              </div>
+            </template>
+            <template v-else>
+              Error: {{ msg }}
+            </template>
           </div>
         </div>
         <div class="Share-Image-Copyright">
@@ -170,6 +196,45 @@ async function duplicatingShearsClick() {
 
 <style lang="scss">
 .Share-Image {
+  .tool-card {
+    span.show {
+      position: absolute;
+
+      top: 50%;
+      transition: 0.0125s 0.1s;
+      transform: translateY(-50%) translateY(0);
+    }
+    position: relative;
+    // display: flex;
+
+    // gap: 0.5rem;
+    // align-items: center;
+
+    padding: 0.25rem 0.5rem;
+
+    height: 32px;
+    // line-height: 20px;
+
+    max-width: 70%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    opacity: 0.75;
+    border-radius: 12px;
+    background-color: var(--el-bg-color);
+  }
+
+  pre {
+    line-height: 32px;
+
+    font-variant-ligatures: no-common-ligatures;
+    font-family: 'Helvetica Neue', 'Luxi Sans', 'DejaVu Sans',
+      'Hiragino Sans GB', 'Microsoft Yahei', sans-serif, 'Apple Color Emoji',
+      'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', 'Android Emoji',
+      'EmojiSymbols';
+  }
+
   &-Copyright {
     margin: 1rem 0 4rem;
     display: flex;
@@ -387,6 +452,10 @@ async function duplicatingShearsClick() {
   background-color: var(--el-bg-color);
   transform: translate(-50%, 20%) scale(0.8);
   transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+}
+
+.gen .tool-card span.show {
+  transform: translateY(-50%) translateY(-8px);
 }
 
 @keyframes share_toolbox_item_join {

@@ -1,50 +1,48 @@
 <script setup lang="ts">
 import HistoryItem from './HistoryItem.vue'
-import type { DisplayHistory, ThHistory } from './history'
+import type { IChatConversation } from '~/composables/api/base/v1/aigc/completion-types'
 
 const props = defineProps<{
   title: string
-  selectIndex: number
-  history: DisplayHistory[]
+  select: string
+  history: IChatConversation[]
 }>()
 
 const emits = defineEmits<{
-  (e: 'select', index: number): void
-  (e: 'delete', index: number): void
+  (e: 'update:select', index: string): void
+  (e: 'delete', index: string): void
 }>()
 
 const route = useRoute()
 const router = useRouter()
 
-const { selectIndex } = useVModels(props, emits)
-const _history = useVModel(props, 'history', emits)
+const { select } = useVModels(props, emits)
 
-watch(() => selectIndex.value, (ind) => {
-  if (ind === -1)
-    return router.push({ query: { index: '', id: '' } })
-
-  const res = [..._history.value].find(item => item.index === ind)
-
-  if (res)
-    router.push({ query: { index: res.index, id: res.id } })
+watchEffect(() => {
+  router.replace({
+    query: {
+      ...route.query,
+      id: select.value || undefined,
+    },
+  })
 })
 
 watch(() => route, () => {
   if (!route.query?.id)
     return
 
-  const { id, index } = route.query
-  if (!index || +index < 0)
+  const { id } = route.query
+  if (!id)
     return
 
-  const res = [..._history.value].find(item => item.index === +index! && item.id === id)
+  const res = [...props.history].find(item => item.id === id)
   if (!res) {
     router.push('/')
 
     return
   }
 
-  selectIndex.value = +index!
+  select.value = id as string
 }, { immediate: true })
 </script>
 
@@ -54,12 +52,12 @@ watch(() => route, () => {
 
     <div class="History-ContentHolder">
       <div
-        v-for="item in _history"
+        v-for="item in history"
         :key="item.id"
         v-wave
-        :class="{ active: selectIndex === item.index }"
+        :class="{ active: select === item.id }"
         class="History-Content-Item"
-        @click="selectIndex = item.index"
+        @click="select = item.id"
       >
         <HistoryItem :model-value="item" @delete="emits('delete', $event)" />
       </div>
@@ -89,7 +87,7 @@ watch(() => route, () => {
     background-size: 4px 4px;
     background-image: radial-gradient(
       transparent 1px,
-      var(--wallpaper-color-light, var(--el-bg-color)) 1px
+      var(--wallpaper-color-light, var(--el-bg-color-page)) 1px
     );
     backdrop-filter: saturate(50%) blur(4px);
 

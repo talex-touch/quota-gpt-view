@@ -11,7 +11,8 @@ export interface TemplateDataHandler<T extends Record<string, any>, PageT extend
    * @returns
    */
   transformSubmitData?: (originData: T, mode: CrudMode) => any
-  getList: (query: Partial<PageT>) => Promise<IPageResponse<T>>
+  postList?:(body: Partial<PageT>)=>Promise<IPageResponse<T>>
+  getList?: (query: Partial<PageT>) => Promise<IPageResponse<T>>
   update?: (id: string | number, data: T) => Promise<IStandardResponse>
   create?: (data: T) => Promise<IStandardResponse>
   delete?: (id: string | number) => Promise<IStandardResponse>
@@ -82,7 +83,7 @@ export function genCmsTemplateData<T extends Record<string, any> & { id?: number
         delete query[key]
     })
 
-    const res = await dataHandler.getList(query as PageT)
+    const res = await dataHandler.getList!(query as PageT)
     if (res.code === 200) {
       list.value = res.data as any
 

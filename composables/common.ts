@@ -90,3 +90,23 @@ export function number2str(number: number): string {
 
   return str
 }
+
+export function encodeText(str: string) {
+  return btoa(encodeURIComponent(str))
+}
+
+export function decodeText(str: string) {
+  return decodeURIComponent(atob(str))
+}
+
+export function encodeObject(obj: any) {
+  return encodeText(JSON.stringify(obj))
+}
+
+export function decodeObject(str: string) {
+  return JSON.parse(decodeText(str))
+}
+
+export function randomStr(len: number = 16) {
+  return Array.from({ length: len }, () => String.fromCharCode(Math.floor(Math.random() * 26) + 97)).join('')
+}

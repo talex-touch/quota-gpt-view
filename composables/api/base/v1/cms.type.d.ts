@@ -57,6 +57,37 @@ export interface IUserModelQuery extends IUserModel {
   pageSize?: number
 }
 
+export interface IAdminOrderQuery extends IAdminOrder {
+  page: number
+  pageSize: number
+  /**
+   * 支付时间范围(max)
+   */
+  maxPayTime: Date
+  /**
+   * 购买金额范围(max)
+   */
+  maxPrice: number
+  /**
+   * 支付时间范围(min)
+   */
+  minPayTime: Date
+  /**
+   * 购买金额范围(min)
+   */
+}
+
+export interface IAdminOrder {
+  additionalInfo: string
+  createdAt: string
+  description: string
+  id: string
+  paymentMethod: number
+  status: number
+  totalAmount: number
+  updatedAt: string
+}
+
 export interface IRoleModel extends Record<string, any> {
   /**
    * 关联菜单、权限编号
@@ -154,8 +185,12 @@ export interface IMenuModelQuery extends IMenuModel {
   pageSize: number
 }
 
+export interface IDeptModelQuery {
+  name: string
+}
+
 export interface IDeptModel extends Record<string, any> {
-  children: DeptEntity[]
+  children: childrenDeptEntity[]
   createdAt: Date
   /**
    * 创建者
@@ -177,6 +212,20 @@ export interface IDeptModel extends Record<string, any> {
    * 更新者
    */
   updater: string
+}
+
+interface childrenDeptEntity extends DeptEntity {
+  parent: DeptEntity
+}
+
+interface DeptEntity {
+  createdAt: string
+  creator: string
+  id: number
+  name: string
+  orderNo: number
+  updatedAt: string
+  updater: null
 }
 
 export interface IParamConfigModel extends Record<string, any> {

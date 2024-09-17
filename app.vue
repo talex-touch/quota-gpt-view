@@ -46,6 +46,18 @@ onMounted(async () => {
       pageOptions.mobile = true
   }
 
+  if (!userStore.value.isLogin) {
+    ElNotification({
+      duration: 60000,
+      title: '科塔智爱体验版',
+      message: h('i', { style: 'color: teal' }, '当前版本处于预览体验版，可能存在部分问题。为了更好地服务您，请您登陆后继续使用！'),
+    })
+
+    pageOptions.model.login = true
+
+    return
+  }
+
   await refreshCurrentUserRPM()
   await refreshUserSubscription()
 
@@ -546,5 +558,20 @@ font.immersive-translate-target-wrapper {
 
 .el-table .error-row {
   --el-table-tr-bg-color: var(--el-color-error-light-9);
+}
+
+.fake-background::after {
+  z-index: -1;
+  content: '';
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  opacity: var(--fake-opacity, 0.25);
+  background-color: var(--fake-color, var(--el-bg-color-page));
 }
 </style>

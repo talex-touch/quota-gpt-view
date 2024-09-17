@@ -4,25 +4,24 @@ import IconButton from '../button/IconButton.vue'
 import Logo from '../chore/Logo.vue'
 import UserAvatar from '../personal/UserAvatar.vue'
 import PremiumButton from '../button/PremiumButton.vue'
-import type { ThHistory } from './history'
-import { chatManager } from '~/composables/chat'
+import { $historyManager, IHistoryStatus } from '~/composables/api/base/v1/aigc/history'
 
 const props = defineProps<{
   expand: boolean
-  selectIndex: number
+  select: string
 }>()
 
 const emits = defineEmits<{
   (e: 'create'): void
-  (e: 'select', index: number): void
-  (e: 'delete', index: number): void
+  (e: 'update:select', index: string): void
+  (e: 'delete', id: string): void
 }>()
 
-function handleDelete(index: number) {
-  emits('delete', index)
+function handleDelete(id: string) {
+  emits('delete', id)
 }
 
-const { expand, selectIndex } = useVModels(props, emits)
+const { expand, select } = useVModels(props, emits)
 
 const categories = [
   {
@@ -52,7 +51,7 @@ const categories = [
 ]
 
 const loadMore = ref()
-const processedHistory = computed(() => [...(chatManager.history.value)].map((item, index) => ({
+const processedHistory = computed(() => [...($historyManager.options.list.values())].map((item, index) => ({
   index,
   ...item,
 })),
@@ -90,7 +89,7 @@ onMounted(() => {
   // observer
   const observer = new IntersectionObserver((entries) => {
     if (entries[0].isIntersecting)
-      chatManager.loadHistories()
+      $historyManager.loadHistories()
   }, {
     threshold: 0,
   })
@@ -98,8 +97,8 @@ onMounted(() => {
   if (el instanceof Element)
     observer.observe(el)
 
-  watch(() => chatManager.historyCompleted.value, (val) => {
-    if (val)
+  watch(() => $historyManager.options.status, (val) => {
+    if (val === IHistoryStatus.COMPLETED)
       observer.unobserve(el)
   }, { immediate: true })
 
@@ -233,14 +232,14 @@ const planProgress = computed(() => {
           <br> -->
 
           <HistorySection
-            v-for="(section, index) in historyList" :key="index" v-model:selectIndex="selectIndex"
+            v-for="(section, index) in historyList" :key="index" v-model:select="select"
             :title="section.title" :history="section.children" @delete="handleDelete"
           />
         </div>
 
         <div
-          v-if="!chatManager.historyCompleted.value" ref="loadMore"
-          :class="{ show: chatManager.loadingHistory.value }" class="loadMore"
+          v-if="$historyManager.options.status !== IHistoryStatus.COMPLETED" ref="loadMore"
+          :class="{ show: $historyManager.options.status === IHistoryStatus.LOADING }" class="loadMore"
         >
           <LoadersEagleRoundLoading />
         </div>
@@ -381,7 +380,7 @@ div.History {
     height: 100%;
 
     opacity: 0.75;
-    background-color: var(--el-bg-color-page);
+    background-color: var(--el-bg-color);
   }
   position: relative;
   padding: 0.25rem 0.5rem;
@@ -412,11 +411,12 @@ div.History {
     bottom: 0px;
 
     width: 100%;
-    height: 10px;
+    height: 20px;
 
+    opacity: 0.25;
     background: linear-gradient(
       to top,
-      var(--wallpaper-color-lighter, var(--el-bg-color)) 0%,
+      var(--wallpaper-color-lighter, var(--el-bg-color-page)) 0%,
       #0000 100%
     );
   }
@@ -555,7 +555,7 @@ div.History {
       backdrop-filter: blur(4px);
     }
 
-    background-color: var(--el-bg-color);
+    background-color: var(--el-bg-color-page);
     // background-size: 4px 4px;
     // background-image: radial-gradient(
     //   transparent 1px,
@@ -642,7 +642,7 @@ div.History {
   opacity: 0;
   pointer-events: none;
   transform: translateX(-100%);
-  background-color: var(--el-bg-color);
+  background-color: var(--el-bg-color-page);
 
   transition:
     0.75s width cubic-bezier(0.785, 0.135, 0.15, 0.86),

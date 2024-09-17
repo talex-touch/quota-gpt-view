@@ -4,21 +4,11 @@ export interface HistoryPostQuery {
   topic: string
   value: string // messages
   meta: string
-  uid: string
+  chat_id: string
 }
 
 export function postHistory(history: HistoryPostQuery) {
   return endHttp.post('aigc/conversations', history)
-}
-
-export interface HistoryQuery {
-  page: number
-  pageSize: number
-  topic: string
-}
-
-export function getConversations(query: Partial<HistoryQuery>) {
-  return endHttp.get('aigc/conversations', query)
 }
 
 export function getPromptTemplate(keyword: string) {

@@ -18,7 +18,7 @@ const $dataApi = $endApi.v1.tools.storage
 
 const templateData = genCmsTemplateData<TemplateType, IStorageModelQuery, null>({
   getDeleteBoxTitles(ids) {
-    return ` 存储设置#${ids} `
+    return ` 存储设置#${ids} `;
   },
   getEmptyModel: () => ({
     id: 0,
@@ -30,19 +30,19 @@ const templateData = genCmsTemplateData<TemplateType, IStorageModelQuery, null>(
     createdAt: '',
     username: '',
     time: [],
-
-
   }),
   onFetchSuccess: async () => {
-
   },
 
   transformSubmitData(originData) {
-    const data = originData
-    return data
+    const data = originData;
+    return data;
   },
   getList: $dataApi.list,
   deletes: $dataApi.del,
+  getDeleteBoxTitle: function (id: string | number): string {
+   return ` 存储设置#${id} `;
+  }
 }, {
 
   /**
