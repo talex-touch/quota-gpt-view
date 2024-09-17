@@ -22,7 +22,11 @@ const expand = ref(false)
 
 .QueryCollapse {
   &-Header {
-    margin: 0.5rem 0;
+    display: flex;
+
+    height: 32px;
+    align-items: center;
+    // margin: 0.5rem 0;
 
     opacity: 0.5;
 
@@ -38,7 +42,7 @@ const expand = ref(false)
   }
   position: relative;
 
-  max-height: 28px;
+  max-height: 32px;
 
   overflow-y: hidden;
 

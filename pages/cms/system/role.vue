@@ -53,6 +53,9 @@ const templateData = genCmsTemplateData<TemplateType, IRoleModelQuery, null>({
   create: $dataApi.create,
   update: $dataApi.update,
   delete: $dataApi.delete,
+  getDeleteBoxTitles: function (ids: Array<number>): string {
+    return ` 角色#${ids.join(',')} `
+  }
 }, {
   name: '',
   value: '',

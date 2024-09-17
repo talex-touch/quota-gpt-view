@@ -1,22 +1,33 @@
 <script name="ThInput" setup lang="ts">
 import { encode } from 'gpt-tokenizer'
-import { inputProperty } from './input'
 import ThInputPlus from './ThInputPlus.vue'
+import type { InputPlusProperty } from './input'
 import { Status } from '~/composables/chat'
+import type { IChatItemStatus } from '~/composables/api/base/v1/aigc/completion-types'
 
 const props = defineProps<{
-  status: Status
+  status: IChatItemStatus
   hide: boolean
   templateEnable: boolean
+  inputProperty: InputPlusProperty
 }>()
 const emits = defineEmits<{
+  (name: 'template', data: any): void
   (name: 'send', data: any, meta: any): void
-  (name: 'clear'): void
+  (name: 'update:inputProperty', value: InputPlusProperty): void
 }>()
+
+const inputProperty = computed({
+  get() {
+    return props.inputProperty
+  },
+  set(value) {
+    emits('update:inputProperty', value)
+  },
+})
 
 const input = ref('')
 const template = ref<any>({})
-const pageOptions: any = inject('pageOptions')
 const nonPlusMode = computed(() => props.templateEnable && !template.value?.title && (input.value.startsWith('/') || input.value.startsWith('@')))
 
 const inputHistories = useLocalStorage<string[]>('inputHistories', [])
@@ -56,10 +67,8 @@ function handleInputKeydown(event: KeyboardEvent) {
     return
 
   if (event.key === 'Backspace') {
-    if (template.value && !input.value) {
+    if (template.value && !input.value)
       template.value = {}
-      pageOptions.template = null
-    }
   }
 
   if (event.key === 'Enter') {
@@ -140,10 +149,16 @@ onMounted(() => {
 })
 
 function handleTemplateSelect(data: any) {
-  pageOptions.template = template.value = data
+  template.value = data
 
   input.value = ''
 }
+
+watch(() => template.value, (val) => {
+  emits('template', val)
+})
+
+const tokenLimit = computed(() => userStore.value.isLogin ? 8192 : 256)
 </script>
 
 <template>
@@ -153,20 +168,14 @@ function handleTemplateSelect(data: any) {
       disabled: hide,
       collapse: nonPlusMode,
       showSend,
-      generating: status === Status.GENERATING,
+      generating: status === 2,
 
     }" class="ThInput" @keydown.enter="handleSend"
   >
-    <div class="ThInput-Float">
-      <div class="ThInput-Float-Start">
-        <span v-if="inputProperty.internet" class="tag">联网模式</span>
-        <!-- <span class="tag">SMART</span> -->
-      </div>
-
+    <div :class="{ show: tokenLimit - len <= tokenLimit * 0.25 }" class="ThInput-Float">
       <div class="ThInput-Float-End">
-        <span class="tag">{{ len }}/
-          <span v-if="userStore.isLogin">8192</span>
-          <span v-else>256</span>
+        即将达到内容框极限 <span class="tag">{{ len }}/
+          {{ tokenLimit }}
         </span>
       </div>
     </div>
@@ -193,7 +202,7 @@ function handleTemplateSelect(data: any) {
           <span flex class="template-tag">@{{ template.title }}</span>
         </template>
         <textarea
-          id="main-input" v-model="input" :maxlength="userStore.isLogin ? 10000 : 256" autofocus
+          id="main-input" v-model="input" autofocus
           autocomplete="off" placeholder="Shift + Enter换行" @keydown="handleInputKeydown"
         />
       </div>
@@ -201,8 +210,10 @@ function handleTemplateSelect(data: any) {
 
     <div class="ThInput-Send" @click="handleSend">
       <div i-carbon:send-alt />
-      <span v-if="status === Status.GENERATING">生成中</span>
+      <span v-if="status === 2" mr-4 text-lg text-black font-bold op-75>生成中</span>
     </div>
+
+    <div class="ThInput-StatusBar" />
   </div>
 </template>
 
@@ -223,18 +234,38 @@ function handleTemplateSelect(data: any) {
 
 .ThInput-Float {
   span.tag {
-    z-index: -1;
-    position: relative;
-    padding: 0.25rem 0.5rem;
+    // z-index: -1;
+    // position: relative;
+    // padding: 0.25rem 0.5rem;
+
+    // top: 0;
+    // left: 0;
+
+    // font-size: 14px;
+
+    // border-radius: 8px;
+    // box-shadow: var(--el-box-shadow);
+    // background: var(--el-bg-color);
+    margin: 0 4px;
+
+    opacity: 0.75;
+    font-weight: 600;
+    color: var(--el-color-danger);
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
 
     top: 0;
     left: 0;
 
-    font-size: 14px;
+    width: 100%;
+    height: 100%;
 
-    border-radius: 8px;
-    box-shadow: var(--el-box-shadow);
-    background: var(--el-bg-color);
+    opacity: 0.25;
+    filter: blur(10px) brightness(120%);
+    background: var(--el-bg-color-page);
   }
 
   & > div {
@@ -247,24 +278,33 @@ function handleTemplateSelect(data: any) {
 
   z-index: -1;
   position: absolute;
-  padding: 0 1rem;
+  // padding: 0 1rem;
   display: flex;
 
   // gap: 0.5rem;
   align-items: center;
   justify-content: space-between;
 
-  bottom: -35px;
-  left: 0;
+  top: -2.5rem;
+  left: 50%;
 
-  width: 100%;
   height: 40px;
 
   border-radius: 14px;
   transition: 0.25s;
+
+  opacity: 0;
+  filter: blur(10px) drop-shadow(0 0 10px var(--el-bg-color-page));
+  pointer-events: none;
+  transform: translateX(-50%);
+  text-shadow: 0 0 10px var(--el-bg-color);
   // box-shadow: var(--el-box-shadow);
   // backdrop-filter: blur(18px);
   // background: var(--el-bg-color-page);
+  &.show {
+    opacity: 1;
+    filter: blur(0) drop-shadow(0 0 5px var(--el-bg-color-page));
+  }
 }
 
 .ThInput {
@@ -363,6 +403,9 @@ function handleTemplateSelect(data: any) {
     &:focus-visible {
       outline: none;
       border: none;
+    }
+    &::placeholder {
+      color: var(--el-text-color-regular);
     }
 
     position: relative;
@@ -534,11 +577,13 @@ function handleTemplateSelect(data: any) {
   align-items: center;
   justify-content: center;
 
-  bottom: 8px;
+  bottom: 10px;
   right: 0.75rem;
 
-  width: 36px;
-  height: 36px;
+  width: 30px;
+  height: 30px;
+
+  font-size: 16px;
 
   cursor: pointer;
   transition:

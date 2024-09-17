@@ -1,24 +1,28 @@
 <script setup lang="ts">
-import type { DisplayHistory } from './history'
+import { type IChatConversation, PersistStatus } from '~/composables/api/base/v1/aigc/completion-types'
+import { $historyManager } from '~/composables/api/base/v1/aigc/history'
 
 const props = defineProps<{
-  modelValue: DisplayHistory
+  modelValue: IChatConversation
 }>()
 
 const emits = defineEmits<{
-  (e: 'delete', index: number): void
-  (e: 'title', title: string): void
+  (e: 'delete', index: string): void
 }>()
-
-const updateConversationTopic: Function = inject('updateConversationTopic')!
 
 const editMode = ref(false)
 const input = ref()
 const topic = ref()
+
+const reactiveConversation = computed(() => $historyManager.options.list.get(props.modelValue.id) || null)
+
 watch(
   () => topic.value,
   (val) => {
-    updateConversationTopic(props.modelValue.index, val)
+    if (reactiveConversation.value) {
+      reactiveConversation.value.topic = val
+      reactiveConversation.value.sync = PersistStatus.MODIFIED
+    }
   },
 )
 const menus = reactive([
@@ -40,10 +44,15 @@ const menus = reactive([
     name: '编辑标题',
     icon: 'i-carbon-edit',
     trigger: () => {
+      if (!reactiveConversation.value) {
+        ElMessage.error('无法修改目标记录!')
+        return
+      }
+
       topic.value = props.modelValue.topic
       editMode.value = true
 
-      setTimeout(() => input.value?.focus())
+      setTimeout(() => input.value?.focus(), 200)
     },
   },
   {
@@ -55,8 +64,8 @@ const menus = reactive([
     name: '删除记录',
     icon: 'i-carbon-close',
     danger: true,
-    trigger: (ind: number) => {
-      emits('delete', ind)
+    trigger: (id: string) => {
+      emits('delete', id)
     },
   },
 ])
@@ -93,7 +102,7 @@ const menus = reactive([
               v-wave
               :class="{ danger: menu.danger }"
               class="History-Content-Menu-Item"
-              @click.stop="menu.trigger(modelValue.index)"
+              @click.stop="menu.trigger(modelValue.id)"
             >
               <div :class="menu.icon" />
               <span v-html="menu.name" />

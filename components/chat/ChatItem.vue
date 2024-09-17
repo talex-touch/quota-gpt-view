@@ -5,76 +5,39 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 import RoundLoading from '../loaders/RoundLoading.vue'
 import TextShaving from '../other/TextShaving.vue'
 import ThWickCheckBox from '../checkbox/ThWickCheckBox.vue'
+import ChatAttachment from './ChatAttachment.vue'
+import ItemModelSelector from './addon/ItemModelSelector.vue'
+import ErrorCard from './attachments/ErrorCard.vue'
+import { type IChatInnerItem, type IChatItem, IChatItemStatus, IChatRole } from '~/composables/api/base/v1/aigc/completion-types'
 
-const props = defineProps<{
-  item: any
+interface IChatItemProp {
+  item: IChatItem
   ind: number
   total: number
   share: boolean
   select: number[]
-}>()
+
+  // 表指应该渲染第几个顺序 由上一级决定
+  meta: {
+    dictIndex: number
+    show: boolean
+  }
+}
+
+const props = defineProps<IChatItemProp>()
 
 const emits = defineEmits<{
   (e: 'select', index: number, checked: boolean): void
+  (e: 'retry', innerItem: IChatInnerItem): void
+  (e: 'update:item', data: IChatItem): void
+  (e: 'update:meta', data: IChatItem): void
 }>()
 
+const msgItem = useVModel(props, 'item', emits)
+const metaModel = useVModel(props, 'meta', emits)
 const dom = ref()
 
 let timer: any
-
-const completed = ref(true)
-
-function handleGeneratingDotUpdate(rootEl: HTMLElement, cursor: HTMLElement) {
-  if (props.ind !== props.total - 1)
-    return
-
-  if (props.item.status !== 1)
-    return
-
-  completed.value = false
-  cursor.style.opacity = '1'
-  timer && clearTimeout(timer)
-  timer = setTimeout(() => {
-    if (props.item.status !== 1)
-      return
-
-    cursor.style.opacity = '0'
-    completed.value = true
-  }, 500)
-
-  const textNode = getLastTextNode(rootEl)
-
-  const tempNode = document.createTextNode('|')
-  if (textNode)
-    textNode.after(tempNode)
-  else
-    rootEl.appendChild(tempNode)
-
-  const range = document.createRange()
-  range.setStart(tempNode, 0)
-  range.setEnd(tempNode, 1)
-  const rect = range.getBoundingClientRect()
-  const textRect = dom.value!.getBoundingClientRect()
-
-  const top = textRect.top - rect.top
-  const left = textRect.left - rect.left
-
-  Object.assign(cursor!.style, {
-    top: `${-top}px`,
-    left: `${-left}px`,
-  })
-
-  tempNode.remove()
-  // setTimeout(() => handleGeneratingDotUpdate(rootEl, cursor), 20)
-}
-
-watch(() => props.item?.content, () => {
-  const rootEl = dom.value?.querySelector('.RenderContent-Inner')
-  const cursor: HTMLElement = dom.value?.querySelector('.Generating-Dot')
-
-  if (rootEl && cursor)
-    setTimeout(() => handleGeneratingDotUpdate(rootEl, cursor), 0)
-})
 
 const settingMode = reactive({
   visible: false,
@@ -86,6 +49,88 @@ const settingMode = reactive({
 dayjs.locale(zhLocale)
 dayjs.extend(relativeTime)
 
+const check = ref(false)
+
+watch(() => check.value, (val) => {
+  emits('select', props.ind, val)
+})
+
+watch(() => props.select, (val) => {
+  check.value = val.includes(props.ind)
+})
+
+const nullLen = computed(() => props.item.content?.filter(item => item === null).length || 0)
+const innerItem = computed(() => props.item.content?.[msgItem.value.page + nullLen.value] || null)
+const timeAgo = computed(() => innerItem.value ? dayjs(innerItem.value.timestamp).fromNow() : '-')
+const isUser = computed(() => props.item.role === IChatRole.USER)
+
+const endStatus = [IChatItemStatus.AVAILABLE, IChatItemStatus.BANNED, IChatItemStatus.CANCELLED, IChatItemStatus.ERROR, IChatItemStatus.REJECTED, IChatItemStatus.TIMEOUT, IChatItemStatus.TOOL_ERROR]
+const isEnd = computed(() => endStatus.includes(innerItem.value!.status))
+
+function handleGeneratingDotUpdate(rootEl: HTMLElement, cursor: HTMLElement) {
+  if (props.ind !== props.total - 1)
+    return
+
+  cursor.style.opacity = '1'
+  cursor.style.animation = 'dot-frames 0.5s infinite'
+  timer && clearTimeout(timer)
+  timer = setTimeout(() => {
+    if (!isEnd.value)
+      return
+
+    cursor.style.opacity = '0'
+    cursor.style.animation = ''
+  }, 500)
+
+  let _remove
+  // 移除 rootEl最后一个TextNode
+  if (rootEl.lastChild?.nodeType === Node.TEXT_NODE) {
+    const data = rootEl.lastChild as Text
+
+    if (!data.nodeValue?.replace('\n', '')) {
+      rootEl.lastChild.remove()
+      _remove = data
+    }
+  }
+
+  const textNode = getLastTextNode(rootEl)
+
+  const tempNode = document.createTextNode('|')
+  if (textNode)
+    textNode.after(tempNode)
+  else
+    rootEl.appendChild(tempNode)
+
+  const range = document.createRange()
+  range.setStart(tempNode, 0)
+  range.setEnd(tempNode, 0)
+  const rect = range.getBoundingClientRect()
+  const textRect = rootEl.getBoundingClientRect()
+  const cursorRect = cursor.getBoundingClientRect()
+
+  const top = rect.top - textRect.top + rect.height / 2 - cursorRect.height / 2
+  const left = rect.left - textRect.left + rect.width / 2
+
+  Object.assign(cursor!.style, {
+    top: `${top}px`,
+    left: `${left}px`,
+  })
+
+  tempNode.remove()
+  if (_remove)
+    rootEl.appendChild(_remove)
+
+  // setTimeout(() => handleGeneratingDotUpdate(rootEl, cursor), 20)
+}
+
+watch(() => [innerItem.value?.value, innerItem.value?.status], () => {
+  const rootEl = dom.value?.querySelector('.RenderContent-Inner')
+  const cursor: HTMLElement = dom.value?.querySelector('.Generating-Dot')
+
+  if (rootEl && cursor)
+    setTimeout(() => handleGeneratingDotUpdate(rootEl, cursor), 0)
+})
+
 const tools = reactive([
   {
     name: '复制',
@@ -95,7 +140,13 @@ const tools = reactive([
       if (!props.item.content || tools[0].icon !== 'i-carbon-copy')
         return
 
-      navigator.clipboard.writeText(props.item.content)
+      let content = ''
+      innerItem.value!.value.forEach((item) => {
+        if (item.type === 'markdown' || item.type === 'text')
+          content += item.value
+      })
+
+      navigator.clipboard.writeText(content)
 
       tools[0].icon = 'i-carbon-checkmark'
 
@@ -114,36 +165,48 @@ const tools = reactive([
     },
   },
   // { name: '朗读', icon: 'i-carbon-user-speaker' },
-  { name: '重新生成', errorHide: false, userIgnored: true, lastShow: true, icon: 'i-carbon-restart' },
 ])
 
-const check = ref(false)
-const timeAgo = computed(() => dayjs(props.item.date, 'YYYY/M/D HH:mm:ss').fromNow())
-
-watch(() => check.value, (val) => {
-  emits('select', props.ind, val)
-})
-
-watch(() => props.select, (val) => {
-  check.value = val.includes(props.ind)
-})
-
-function filterTools(item: any, total: number, ind: number) {
+function filterTools(item: any) {
   return tools.filter((tool) => {
     if (item.status === 2 && tool.errorHide)
       return false
 
     return item.role === 'user'
       ? !tool.userIgnored
-      : tool.lastShow
-        ? total === ind + 1
-        : true
+      : true
   })
 }
+
+function handleRetry() {
+  emits('retry', innerItem.value!)
+
+  msgItem.value.page = props.item.content?.length - 1
+}
+
+watchEffect(() => {
+  if (isUser.value)
+    return
+
+  // const selfIndex = innerItem.value ? props.item.content.findIndex(_ => _?.timestamp === innerItem.value?.timestamp) : 0
+  // console.log('refresh', selfIndex, innerItem.value, props)
+
+  // 计算自己的content中有多少个null
+  metaModel.value.show = !!innerItem.value && metaModel.value.dictIndex <= props.item.page + nullLen.value
+})
+
+// onMounted(() => {
+//   const rootEl = dom.value?.querySelector('.RenderContent-Inner')
+//   const cursor: HTMLElement = dom.value?.querySelector('.Generating-Dot')
+
+//   if (rootEl && cursor)
+//     setTimeout(() => handleGeneratingDotUpdate(rootEl, cursor), 0)
+// })
 </script>
 
 <template>
-  <div :class="{ check, share, user: item.role === 'user' }" class="ChatItem">
+  <!-- {{ meta }} {{ item.page }} - {{ nullLen }} -->
+  <div v-if="metaModel.show" :class="{ check, share, user: isUser }" class="ChatItem">
     <div class="ChatItem-Select">
       <el-checkbox v-model="check" />
     </div>
@@ -151,32 +214,58 @@ function filterTools(item: any, total: number, ind: number) {
     <div class="ChatItem-Avatar">
       <img src="/logo.png">
     </div>
-    <div :class="{ error: item.status === 2, agent: item.agent, settingVisible: settingMode.visible }" class="ChatItem-Wrapper">
+    <!-- error: innerItem.status === IChatItemStatus.ERROR, -->
+    <div
+      v-if="innerItem"
+      :class="{ settingVisible: settingMode.visible }"
+      class="ChatItem-Wrapper"
+    >
       <div class="ChatItem-Agent">
-        <template v-if="item.agent">
+        <!-- <template v-if="item.agent">
           <span v-for="action in item.agent.actions" :key="action" class="ChatItem-AgentList">
             <TextShaving v-if="typeof action === 'string'" :text="action" />
           </span>
-        </template>
+        </template> -->
       </div>
 
       <div class="ChatItem-Content">
-        <div v-if="item.status === 1" class="ChatItem-Generating">
+        <div v-if="innerItem.status === IChatItemStatus.WAITING" class="ChatItem-Generating">
           <div class="ChatItem-GeneratingWrapper">
             <RoundLoading />
           </div>
         </div>
-        <div v-else ref="dom" :class="{ completed, display: !!item.content?.length }" class="ChatItem-Content-Inner">
-          <span v-if="item.role === 'user'">
-            <pre class="inner" v-text="item.content" />
-          </span>
-          <span v-else-if="item.status === 2">
+        <div v-else-if="innerItem.value.length" ref="dom" class="ChatItem-Content-Inner">
+          <!-- <span v-if="innerItem.status === IChatItemStatus.ERROR">
             错误 {{ item.content }}
-          </span>
-          <RenderContent v-else :render="settingMode.render" readonly :data="item.content" />
-          <!-- v-if="generating && !!item.content.length" -->
-          <div v-if="props.ind === props.total - 1" class="Generating-Dot" />
+          </span> -->
+          <div v-for="(block, i) in innerItem.value" :key="i" class="ChatItem-Content-Inner-Block">
+            <span v-if="block.type === 'text'">
+              <pre class="inner" v-text="block.value" />
+            </span>
+
+            <RenderContent
+              v-else-if="block.type === 'markdown'" :render="settingMode.render" readonly
+              :data="block.value"
+            />
+
+            <div v-else-if="block.type === 'card'">
+              Card: {{ block }}
+            </div>
+
+            <div v-else-if="block.type === 'tool'">
+              <ChatAttachment :block="block" />
+            </div>
+
+            <div v-else-if="block.type === 'error'">
+              <ErrorCard :block="block " />
+            </div>
+          </div>
+          <div v-if="!isUser" class="Generating-Dot" />
         </div>
+        <p v-else mt-3>
+          <TextShaving :text="isEnd ? '分析失败' : '正在分析中'" />
+          <br>
+        </p>
 
         <div class="ChatItem-Setting">
           <ThWickCheckBox v-model="settingMode.render.enable">
@@ -193,34 +282,39 @@ function filterTools(item: any, total: number, ind: number) {
 
       <div
         v-if="
-          item.status !== 1
+          isEnd
             && !!item.content?.length
-            && !item.streaming
-        " class="ChatItem-Mention"
+        " class="ChatItem-Mention" :class="{
+          autoHide: isUser || total !== ind + 1,
+        }"
       >
+        <ChatAddonChatPageSelector
+          v-if="!isUser && item.content.length - nullLen > 1" v-model="msgItem.page"
+          :total-page="item.content.length - nullLen"
+        />
+
         <span class="toolbox">
-          <span
-            v-for="tool in filterTools(item, total, ind)" :key="tool.name" class="toolbox-item"
-            @click="tool.trigger"
-          >
+          <span v-for="tool in filterTools(item)" :key="tool.name" class="toolbox-item" @click="tool.trigger">
             <el-tooltip :content="tool.name">
               <i :class="tool.icon" />
             </el-tooltip>
           </span>
         </span>
 
-        <span>
+        <ItemModelSelector v-if="!isUser && total === ind + 1" v-model="innerItem.model" @retry="handleRetry" />
+
+        <span class="info">
           <span class="date">{{ timeAgo }}</span>
           &nbsp;
-          <span v-if="item.content?.length > 30" class="length">{{ item.content.length }} 字</span>
+          <span v-if="innerItem.value?.length > 30" class="length">{{ innerItem.value.length }} 字</span>
           <!-- &nbsp;
           <span class="costs">{{ item.content.length * 2.25 }} tokens</span> -->
         </span>
       </div>
 
-      <div tag="div" class="ChatItem-Reference">
+      <!-- <div tag="div" class="ChatItem-Reference">
         <ChatAttachment :agent="item.agent" />
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
@@ -238,13 +332,29 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
   top: 0;
   left: 0;
 
-  width: 20px;
-  height: 20px;
+  width: 6px;
+  height: 6px;
 
   opacity: 0;
   border-radius: 50%;
   pointer-events: none;
   background-color: var(--el-text-color-primary);
+
+  // animation: dot-frames 0.5s infinite;
+}
+
+@keyframes dot-frames {
+  0% {
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
 }
 
 .ChatItem.share {
@@ -279,7 +389,7 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
   padding: 0.5rem 1rem;
 
   left: 0;
-  bottom: -20px;
+  bottom: -30px;
 
   width: 125px;
   height: 70px;
@@ -320,74 +430,26 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
   left: 10px;
 }
 
-@keyframes join {
-  from {
-    transform: translateY(20%) scale(0.75);
-  }
-
-  to {
-    transform: translateY(0) scale(1);
-  }
-}
-
 .ChatItem-Reference {
   padding-left: 0.5rem;
 }
 
 .ChatItem-Wrapper {
-  &.agent {
-    .ChatItem-Content-Inner {
-      pre {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans',
-          Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
-      }
-
-      &.display {
-        padding-bottom: 24px;
-      }
-
-      &.display.completed {
-        padding-bottom: 0.5rem;
-        box-shadow: var(--el-box-shadow);
-        background-color: var(--el-bg-color);
-        // background-color: var(--el-bg-color);
-      }
-
-      box-shadow: none;
-      background-color: #0000;
-
-      margin-top: 30px;
-    }
-
-    .ChatItem-AgentList {
-      margin-bottom: 10px;
-    }
-
-    .ChatItem-Agent {
-      margin-top: 0px;
-      margin-bottom: -10px;
-      top: 10px;
-
-      opacity: 1;
-    }
+  .ChatItem-AgentList {
+    margin-bottom: 10px;
   }
 
   .ChatItem-Agent {
     position: relative;
     padding-left: 1rem;
-    // margin-top: -30px;
 
     top: 0;
 
-    opacity: 0;
+    opacity: 1;
     transition: 0.25s;
   }
 
   .ChatItem-Content-Inner {
-    .user & {
-      border-radius: 16px;
-    }
-
     pre {
       margin: 0;
       padding: 0;
@@ -409,38 +471,67 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
         'EmojiSymbols';
     }
 
+    .user & {
+      padding: 0.5rem 1rem;
+
+      border-radius: 16px 8px 16px 16px;
+      box-shadow: var(--el-box-shadow);
+      // background-color: var(--el-bg-color);
+      background-color: var(--wallpaper-color-lighter);
+      backdrop-filter: blur(18px) saturate(180%);
+    }
+
     position: relative;
-    margin-top: 20px;
-    padding: 0.5rem 1rem;
+    margin-top: 12px;
 
     top: 0;
+    right: 0;
 
     width: max-content;
     max-width: 100%;
     min-width: 48px;
     height: fit-content;
 
-    border-radius: 8px 16px 16px 16px;
-    box-shadow: var(--el-box-shadow);
-    // background-color: var(--el-bg-color);
-    background-color: var(--wallpaper-color-lighter);
-    backdrop-filter: blur(18px) saturate(180%);
     transition: 0.5s;
   }
 
-  &:hover,
-  &.settingVisible {
+  &:hover {
     .ChatItem-Mention {
-      opacity: 0.75;
+      opacity: 1 !important;
+      .toolbox,
+      .info {
+        opacity: 0.5 !important;
+      }
+
+      .ItemModelSelector {
+        opacity: 1 !important;
+      }
     }
   }
 
   .ChatItem-Mention {
-    & > span {
-      flex: 1;
+    &.autoHide {
+      .ItemModelSelector,
+      .toolbox,
+      .info {
+        opacity: 0;
+      }
+    }
+
+    .user & {
+      opacity: 0;
     }
 
     .toolbox {
+      &-item {
+        &:hover {
+          border-radius: 8px;
+          background-color: var(--el-bg-color-page);
+        }
+        padding: 0.25rem;
+
+        transition: 0.25s;
+      }
       i {
         display: block;
       }
@@ -454,21 +545,32 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
       width: fit-content;
 
       flex: 0;
+      opacity: 0.5;
       cursor: pointer;
+      transition: 0.25s;
+    }
+
+    .info {
+      opacity: 0.5;
+      transition: 0.25s;
     }
 
     .user & {
+      padding: 0.25rem 0.5rem;
       flex-direction: row-reverse;
 
       left: unset;
       float: right;
-      right: 10px !important;
-    }
 
-    z-index: 1;
+      border-radius: 12px;
+      box-shadow: var(--el-box-shadow);
+      background-color: var(--wallpaper-color-lighter);
+      backdrop-filter: blur(18px) saturate(180%);
+      // background-color: var(--el-bg-color-page);
+    }
+    z-index: 2;
     position: relative;
-    margin-bottom: -15px;
-    padding: 0.25rem 0.5rem;
+    margin: 0.25rem 0;
     display: flex;
 
     gap: 0.5rem;
@@ -478,15 +580,11 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
     // height: 32px;
     width: max-content;
 
-    left: 10px;
-    bottom: 10px;
+    left: 0;
+    bottom: 0;
 
-    opacity: 0;
-    font-size: 12px;
+    font-size: 14px;
     box-sizing: border-box;
-    border-radius: 12px;
-    box-shadow: var(--el-box-shadow);
-    background-color: var(--el-bg-color-page);
     transition: 0.25s;
   }
   position: relative;
@@ -504,6 +602,7 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
 .ChatItem {
   &.user {
     z-index: 2;
+
     .ChatItem-Avatar {
       display: none;
     }
@@ -513,6 +612,19 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
 
   .ChatItem-Avatar {
     width: 48px;
+  }
+
+  &-Content {
+    position: relative;
+    display: flex;
+
+    width: 100%;
+
+    .user & {
+      position: relative;
+
+      justify-content: flex-end;
+    }
   }
 
   z-index: 3;
@@ -529,6 +641,8 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
 
   transition: 0.25s;
   box-sizing: border-box;
-  animation: join 0.35s ease-in-out;
+  // animation: join 0.35s ease-in-out;
+
+  // background-color: #ff000010;
 }
 </style>

@@ -110,6 +110,7 @@ const lastEditTime = computed(() => dayjs(userStore.value.updatedAt).format('DD 
         </el-form-item>
       </el-form>
 
+      <ChorePersonalFortuneCard />
       <ChorePersonalInvitationCard />
     </div>
 
