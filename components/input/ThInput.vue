@@ -12,6 +12,7 @@ const props = defineProps<{
   inputProperty: InputPlusProperty
 }>()
 const emits = defineEmits<{
+  (name: 'template', data: any): void
   (name: 'send', data: any, meta: any): void
   (name: 'update:inputProperty', value: InputPlusProperty): void
 }>()
@@ -152,6 +153,10 @@ function handleTemplateSelect(data: any) {
 
   input.value = ''
 }
+
+watch(() => template.value, (val) => {
+  emits('template', val)
+})
 
 const tokenLimit = computed(() => userStore.value.isLogin ? 8192 : 256)
 </script>

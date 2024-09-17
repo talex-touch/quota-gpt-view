@@ -217,22 +217,16 @@ console.log(pageOptions)
 
 <template>
   <div :class="{ expand: pageOptions.expand, empty: !pageOptions.conversation.messages.length }" class="PageContainer">
-    <History
-      v-model:select="pageOptions.select" v-model:expand="pageOptions.expand" class="PageContainer-History"
-      @create="handleCreate" @delete="handleDelete"
-    />
+    <History v-model:select="pageOptions.select" v-model:expand="pageOptions.expand" class="PageContainer-History"
+      @create="handleCreate" @delete="handleDelete" />
 
     <div class="PageContainer-Main">
-      <ThChat
-        ref="chatRef" v-model:messages="pageOptions.conversation" :status="pageOptions.status"
-        @cancel="chatManager.cancelCurrentReq()" @retry="handleRetry"
-      />
+      <ThChat ref="chatRef" v-model:messages="pageOptions.conversation" :status="pageOptions.status"
+        @cancel="chatManager.cancelCurrentReq()" @retry="handleRetry" />
 
-      <ThInput
-        v-model:input-property="pageOptions.inputProperty"
-        :template-enable="!pageOptions.conversation.messages.length" :status="pageOptions.status" :hide="pageOptions.share.enable"
-        @send="handleSend"
-      />
+      <ThInput v-model:input-property="pageOptions.inputProperty"
+        :template-enable="!pageOptions.conversation.messages.length" :status="pageOptions.status"
+        :hide="pageOptions.share.enable" @send="handleSend" @template="pageOptions.template = $event" />
 
       <AigcChatStatusBar>
         <template #start>
@@ -247,10 +241,8 @@ console.log(pageOptions)
             离线模式
           </span>
 
-          <span
-            v-if="!!pageOptions.conversation.messages.length"
-            :class="pageOptions.share.enable ? 'warning shining' : ''" cursor-pointer class="tag" @click="handleShare"
-          >
+          <span v-if="!!pageOptions.conversation.messages.length"
+            :class="pageOptions.share.enable ? 'warning shining' : ''" cursor-pointer class="tag" @click="handleShare">
             <i i-carbon:share />分享对话
           </span>
 
@@ -259,14 +251,17 @@ console.log(pageOptions)
           </span>
         </template>
         <template #end>
-          <ChatHeadTrSyncStatus v-if="!!pageOptions.conversation.messages.length" :status="pageOptions.conversation.sync" @upload="handleSync" />
+          <ChatHeadTrSyncStatus v-if="!!pageOptions.conversation.messages.length"
+            :status="pageOptions.conversation.sync" @upload="handleSync" />
+
+          <span class="tag warning shining">
+            测试版本，不代表最终品质
+          </span>
         </template>
       </AigcChatStatusBar>
 
-      <ShareSection
-        v-if="pageOptions.conversation" :length="pageOptions.conversation.messages.length"
-        :show="pageOptions.share.enable" :selected="pageOptions.share.selected"
-      />
+      <ShareSection v-if="pageOptions.conversation" :length="pageOptions.conversation.messages.length"
+        :show="pageOptions.share.enable" :selected="pageOptions.share.selected" />
 
       <!-- 根据 发送消息超过10次 控制弹窗的显示 -->
       <!-- <FeedBack v-if="showFeedbackForm" @close="showFeedbackForm = false" /> -->

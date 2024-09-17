@@ -95,12 +95,18 @@ async function handleExecutorResult(reader: ReadableStreamDefaultReader<string>,
           continue
 
         const dataItem = arr[3]
+        const v = dataItem.slice(6)
 
-        callback({
-          done: true,
-          error: true,
-          e: dataItem.slice(6),
-        })
+        try {
+          continue
+        }
+        catch (_ignore) {
+          callback({
+            done: true,
+            error: true,
+            e: v,
+          })
+        }
 
         // try {
         //   const data = JSON.parse(item)
