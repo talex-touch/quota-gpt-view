@@ -336,12 +336,18 @@ console.log(pageOptions)
   }
 
   &-Main {
+    .expand & {
+      width: calc(100% - 200px);
+    }
     z-index: 2;
     position: relative;
 
-    flex: 1;
+    // flex: 1;
     width: 100%;
+    max-width: 100%;
     height: 100%;
+
+    overflow: hidden;
   }
 
   &-History {

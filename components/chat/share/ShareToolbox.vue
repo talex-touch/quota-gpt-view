@@ -226,6 +226,9 @@ const filteredMsg = computed(() => shareOptions.messages.filter((msg, index) => 
   }
 
   pre {
+    max-width: 100%;
+    text-wrap: wrap;
+
     line-height: 32px;
 
     font-variant-ligatures: no-common-ligatures;

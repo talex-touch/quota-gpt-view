@@ -89,6 +89,12 @@ async function handleExecutorResult(reader: ReadableStreamDefaultReader<string>,
 
       if (item.startsWith('data: ')) { handleExecutorItem(item.slice(6), callback) }
       else {
+        if (arr.length === 1) {
+          handleExecutorItem(item, callback)
+
+          continue
+        }
+
         const prevItem = arr[1]
 
         if (!prevItem.startsWith('event: error'))
@@ -389,6 +395,11 @@ export const $completion = {
             model: QuotaModel.QUOTA_THIS_NORMAL_TURBO, // TODO
           },
           (res) => {
+            if (res?.code === 401) {
+              res.error = true
+              res.e = res.message
+            }
+
             if (res.error) {
               console.log('res', res)
 

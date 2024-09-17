@@ -128,6 +128,11 @@ onMounted(() => {
 
 .RenderContent {
   position: relative;
+
+  .language-mermaid {
+    min-width: 500px;
+  }
+
   // &-Wrapper {
   //   padding-bottom: 1rem;
   // }

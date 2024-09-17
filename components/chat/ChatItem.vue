@@ -220,14 +220,6 @@ watchEffect(() => {
       :class="{ settingVisible: settingMode.visible }"
       class="ChatItem-Wrapper"
     >
-      <div class="ChatItem-Agent">
-        <!-- <template v-if="item.agent">
-          <span v-for="action in item.agent.actions" :key="action" class="ChatItem-AgentList">
-            <TextShaving v-if="typeof action === 'string'" :text="action" />
-          </span>
-        </template> -->
-      </div>
-
       <div class="ChatItem-Content">
         <div v-if="innerItem.status === IChatItemStatus.WAITING" class="ChatItem-Generating">
           <div class="ChatItem-GeneratingWrapper">
@@ -239,9 +231,9 @@ watchEffect(() => {
             错误 {{ item.content }}
           </span> -->
           <div v-for="(block, i) in innerItem.value" :key="i" class="ChatItem-Content-Inner-Block">
-            <span v-if="block.type === 'text'">
-              <pre class="inner" v-text="block.value" />
-            </span>
+            <!-- <div > -->
+            <pre v-if="block.type === 'text'" class="inner" v-text="block.value" />
+            <!-- </div> -->
 
             <RenderContent
               v-else-if="block.type === 'markdown'" :render="settingMode.render" readonly
@@ -307,14 +299,8 @@ watchEffect(() => {
           <span class="date">{{ timeAgo }}</span>
           &nbsp;
           <span v-if="innerItem.value?.length > 30" class="length">{{ innerItem.value.length }} 字</span>
-          <!-- &nbsp;
-          <span class="costs">{{ item.content.length * 2.25 }} tokens</span> -->
         </span>
       </div>
-
-      <!-- <div tag="div" class="ChatItem-Reference">
-        <ChatAttachment :agent="item.agent" />
-      </div> -->
     </div>
   </div>
 </template>
