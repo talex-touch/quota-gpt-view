@@ -28,7 +28,7 @@ watchEffect(() => {
   const _content = curDoc.value.record?.content || ''
 
   outline.value = ''
-  content.value = _content ? JSON.parse(decodeURI(atob(_content))) : ''
+  content.value = _content ? decodeURIComponent(atob(_content)) : ''
 })
 
 onMounted(async () => {
@@ -82,7 +82,7 @@ function handleScroll(e: any) {
   </DocLayout>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .GuideMain {
   &-Header {
     h1 {
@@ -114,18 +114,27 @@ function handleScroll(e: any) {
   }
 
   display: flex;
+
+  max-width: 1480px;
+
+  margin: 0 auto;
 }
 
 .el-main {
   > ul {
-    width: 30%;
+    flex-shrink: 0;
+    min-width: 200px;
+    // width: 30%;
     max-width: 240px;
 
     border-left: 1px solid var(--el-border-color);
   }
-
+  position: relative;
   display: flex;
   padding: 0;
+
+  // flex-shrink: 0;
+  // width: 100%;
 
   overflow: hidden;
 }
@@ -145,17 +154,19 @@ function handleScroll(e: any) {
 
   width: 100%;
   height: 100%;
+
+  overflow: hidden;
 }
 
 .GuideAside {
-  position: absolute;
+  position: relative;
 
-  width: 200px;
+  min-width: 240px;
   height: 100%;
 
   top: 0;
   left: 0;
 
-  flex: 1;
+  flex-shrink: 0;
 }
 </style>

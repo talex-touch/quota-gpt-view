@@ -58,6 +58,9 @@ function handleClick() {
 
   padding: 0.75rem 2rem;
 
+  gap: 0.5rem;
+  align-items: center;
+
   cursor: pointer;
   transition: max-height 0.2s ease-in-out;
 }

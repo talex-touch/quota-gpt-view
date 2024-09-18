@@ -274,7 +274,7 @@ watch(() => online.value, detectEndStatus)
 }
 
 .DefaultTemplate-Container {
-  .el-aside {
+  & > .el-aside {
     &::before {
       z-index: -2;
       content: '';
@@ -325,7 +325,7 @@ watch(() => online.value, detectEndStatus)
     border-right: 1px solid var(--el-border-color);
   }
 
-  .el-main {
+  & > .el-main {
     z-index: 1;
     position: relative;
     display: flex;
