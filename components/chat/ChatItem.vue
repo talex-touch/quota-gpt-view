@@ -37,8 +37,6 @@ const msgItem = useVModel(props, 'item', emits)
 const metaModel = useVModel(props, 'meta', emits)
 const dom = ref()
 
-let timer: any
-
 const settingMode = reactive({
   visible: false,
   render: {
@@ -67,73 +65,15 @@ const isUser = computed(() => props.item.role === IChatRole.USER)
 const endStatus = [IChatItemStatus.AVAILABLE, IChatItemStatus.BANNED, IChatItemStatus.CANCELLED, IChatItemStatus.ERROR, IChatItemStatus.REJECTED, IChatItemStatus.TIMEOUT, IChatItemStatus.TOOL_ERROR]
 const isEnd = computed(() => endStatus.includes(innerItem.value?.status || 0))
 
-function handleGeneratingDotUpdate(rootEl: HTMLElement, cursor: HTMLElement) {
-  if (isEnd.value)
-    return
+// watch(() => reactive([innerItem.value, innerItem.value?.value, innerItem.value?.status]), () => {
+//   const rootEl = dom.value?.querySelector('.RenderContent-Inner')
+//   const cursor: HTMLElement = dom.value?.querySelector('.Generating-Dot')
 
-  console.log('aaa')
+//   console.log('update', rootEl, cursor)
 
-  cursor.style.opacity = '1'
-  cursor.style.animation = 'dot-frames 0.5s infinite'
-  timer && clearTimeout(timer)
-  timer = setTimeout(() => {
-    if (!isEnd.value)
-      return
-
-    cursor.style.opacity = '0'
-    cursor.style.animation = ''
-  }, 500)
-
-  let _remove
-  // 移除 rootEl最后一个TextNode
-  if (rootEl.lastChild?.nodeType === Node.TEXT_NODE) {
-    const data = rootEl.lastChild as Text
-
-    if (!data.nodeValue?.replace('\n', '')) {
-      rootEl.lastChild.remove()
-      _remove = data
-    }
-  }
-
-  const textNode = getLastTextNode(rootEl)
-
-  const tempNode = document.createTextNode('|')
-  if (textNode)
-    textNode.after(tempNode)
-  else
-    rootEl.appendChild(tempNode)
-
-  const range = document.createRange()
-  range.setStart(tempNode, 0)
-  range.setEnd(tempNode, 0)
-  const rect = range.getBoundingClientRect()
-  const textRect = rootEl.getBoundingClientRect()
-  const cursorRect = cursor.getBoundingClientRect()
-
-  const top = rect.top - textRect.top + rect.height / 2 - cursorRect.height / 2
-  const left = rect.left - textRect.left + rect.width / 2
-
-  Object.assign(cursor!.style, {
-    top: `${top}px`,
-    left: `${left}px`,
-  })
-
-  tempNode.remove()
-  if (_remove)
-    rootEl.appendChild(_remove)
-
-  // setTimeout(() => handleGeneratingDotUpdate(rootEl, cursor), 20)
-}
-
-watch(() => [innerItem.value?.value, innerItem.value?.status], () => {
-  const rootEl = dom.value?.querySelector('.RenderContent-Inner')
-  const cursor: HTMLElement = dom.value?.querySelector('.Generating-Dot')
-
-  console.log('update', rootEl, cursor)
-
-  if (rootEl && cursor)
-    setTimeout(() => handleGeneratingDotUpdate(rootEl, cursor), 0)
-})
+//   if (rootEl && cursor)
+//     setTimeout(() => handleGeneratingDotUpdate(rootEl, cursor), 0)
+// })
 
 const tools = reactive([
   {
@@ -240,7 +180,8 @@ watchEffect(() => {
             <!-- </div> -->
 
             <RenderContent
-              v-else-if="block.type === 'markdown'" :render="settingMode.render" readonly
+              v-else-if="block.type === 'markdown'"
+              :dot-enable="!isEnd" :render="settingMode.render" readonly
               :data="block.value"
             />
 
@@ -256,7 +197,6 @@ watchEffect(() => {
               <ErrorCard :block="block " />
             </div>
           </div>
-          <div v-if="!isUser" class="Generating-Dot" />
         </div>
         <p v-else mt-3>
           <TextShaving :text="isEnd ? '分析失败' : '正在分析中'" />
@@ -314,37 +254,6 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
   box-shadow: var(--el-box-shadow-light);
   backdrop-filter: unset;
   background-color: var(--el-color-danger);
-}
-
-.Generating-Dot {
-  position: absolute;
-
-  top: 0;
-  left: 0;
-
-  width: 6px;
-  height: 6px;
-
-  opacity: 0;
-  border-radius: 50%;
-  pointer-events: none;
-  background-color: var(--el-text-color-primary);
-
-  // animation: dot-frames 0.5s infinite;
-}
-
-@keyframes dot-frames {
-  0% {
-    opacity: 0;
-  }
-
-  50% {
-    opacity: 1;
-  }
-
-  100% {
-    opacity: 0;
-  }
 }
 
 .ChatItem.share {

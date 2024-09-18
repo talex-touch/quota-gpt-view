@@ -9,48 +9,75 @@ const props = defineProps<{
     enable: boolean
     media: boolean
   }
+  dotEnable?: boolean
 }>()
 const color = useColorMode()
 const inner = ref<HTMLDivElement>()
+const dot = ref<HTMLDivElement>()
+
+let timer: any
+
+function handleGeneratingDotUpdate(rootEl: HTMLElement, cursor: HTMLElement) {
+  if (!props.dotEnable)
+    return
+
+  cursor.style.opacity = '1'
+  cursor.style.animation = 'dot-frames 0.5s infinite'
+  timer && clearTimeout(timer)
+  timer = setTimeout(() => {
+    if (props.dotEnable)
+      return
+
+    cursor.style.opacity = '0'
+    cursor.style.animation = ''
+  }, 500)
+
+  let _remove
+  // 移除 rootEl最后一个TextNode
+  if (rootEl.lastChild?.nodeType === Node.TEXT_NODE) {
+    const data = rootEl.lastChild as Text
+
+    if (!data.nodeValue?.replace('\n', '')) {
+      rootEl.lastChild.remove()
+      _remove = data
+    }
+  }
+
+  const textNode = getLastTextNode(rootEl)
+
+  const tempNode = document.createTextNode('|')
+  if (textNode)
+    textNode.after(tempNode)
+  else
+    rootEl.appendChild(tempNode)
+
+  const range = document.createRange()
+  range.setStart(tempNode, 0)
+  range.setEnd(tempNode, 0)
+  const rect = range.getBoundingClientRect()
+  const textRect = rootEl.getBoundingClientRect()
+  // const cursorRect = cursor.getBoundingClientRect()
+
+  const top = rect.top - textRect.top + rect.height / 2 - 4
+  const left = rect.left - textRect.left + rect.width / 2
+
+  Object.assign(cursor!.style, {
+    top: `${top}px`,
+    left: `${left}px`,
+  })
+
+  tempNode.remove()
+  if (_remove)
+    rootEl.appendChild(_remove)
+
+  // setTimeout(() => handleGeneratingDotUpdate(rootEl, cursor), 20)
+}
+
 onMounted(() => {
-  // const vditor = new Vditor(inner.value, {
-  //   cache: {
-  //     enable: false,
-  //   },
-  //   mode: 'wysiwyg',
-  // })
-  // const vditor = new Vditor(inner.value, {
-  //   value: props.data,
-  //   preview: {
-  //     hljs: {
-  //       enable: true,
-  //       lineNumber: true,
-  //       defaultLang: 'bash',
-  //     },
-  //     theme: {
-  //       current: 'Ant Design',
-  //     },
-  //     math: {
-  //       inlineDigit: true,
-  //     },
-  //     render: {
-  //       media: {
-  //         enable: true,
-  //       },
-  //     },
-  //   },
-  //   cache: {
-  //     enable: false,
-  //   },
-  //   // mode: color.value !== 'dark' ? 'light' : 'dark',
-  // })
-
-  // const regex = /\[([^[\]]+)\]/g
-
   watch(
     () => [props.data, color.value, props.render],
     () => {
-      nextTick(() => {
+      nextTick(async () => {
         const data = props.data/* .replaceAll(regex, (content) => {
           let _content = content
           const regex1 = /`([^`]+)`/g
@@ -67,7 +94,7 @@ onMounted(() => {
           return ``
         }
 
-        Vditor.preview(inner.value!, data, {
+        await Vditor.preview(inner.value!, data, {
           hljs: {
             enable: true,
             lineNumber: true,
@@ -77,7 +104,7 @@ onMounted(() => {
             current: 'Ant Design',
           },
           math: {
-            inlineDigit: props.render.umlS ?? true,
+            inlineDigit: true,
           },
           render: {
             media: {
@@ -87,6 +114,9 @@ onMounted(() => {
           mode: color.value !== 'dark' ? 'light' : 'dark',
         })
       })
+
+      if (inner.value && dot.value)
+        setTimeout(() => handleGeneratingDotUpdate(inner.value!, dot.value!), 1000)
 
       // vditor.setValue(props.data, true)
     },
@@ -103,12 +133,45 @@ onMounted(() => {
     <!-- <el-scrollbar>
       <div class="RenderContent-Wrapper"> -->
     <div ref="inner" class="markdown-body RenderContent-Inner" />
+    <div v-if="dotEnable" ref="dot" class="Generating-Dot" />
     <!-- </div>
     </el-scrollbar> -->
   </div>
 </template>
 
 <style lang="scss">
+.Generating-Dot {
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 8px;
+  height: 8px;
+
+  opacity: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  background-color: var(--el-text-color-primary);
+
+  // transition: 0.05s cubic-bezier(0.25, 0.8, 0.25, 1);
+  // animation: dot-frames 0.5s infinite;
+}
+
+@keyframes dot-frames {
+  0% {
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
 .vditor-reset {
   color: var(--el-text-color-primary);
 }
