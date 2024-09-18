@@ -65,11 +65,13 @@ const timeAgo = computed(() => innerItem.value ? dayjs(innerItem.value.timestamp
 const isUser = computed(() => props.item.role === IChatRole.USER)
 
 const endStatus = [IChatItemStatus.AVAILABLE, IChatItemStatus.BANNED, IChatItemStatus.CANCELLED, IChatItemStatus.ERROR, IChatItemStatus.REJECTED, IChatItemStatus.TIMEOUT, IChatItemStatus.TOOL_ERROR]
-const isEnd = computed(() => endStatus.includes(innerItem.value!.status))
+const isEnd = computed(() => endStatus.includes(innerItem.value?.status || 0))
 
 function handleGeneratingDotUpdate(rootEl: HTMLElement, cursor: HTMLElement) {
-  if (props.ind !== props.total - 1)
+  if (isEnd.value)
     return
+
+  console.log('aaa')
 
   cursor.style.opacity = '1'
   cursor.style.animation = 'dot-frames 0.5s infinite'
@@ -126,6 +128,8 @@ function handleGeneratingDotUpdate(rootEl: HTMLElement, cursor: HTMLElement) {
 watch(() => [innerItem.value?.value, innerItem.value?.status], () => {
   const rootEl = dom.value?.querySelector('.RenderContent-Inner')
   const cursor: HTMLElement = dom.value?.querySelector('.Generating-Dot')
+
+  console.log('update', rootEl, cursor)
 
   if (rootEl && cursor)
     setTimeout(() => handleGeneratingDotUpdate(rootEl, cursor), 0)
