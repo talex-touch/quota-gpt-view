@@ -346,7 +346,7 @@ export const $completion = {
             messages: JSON.parse(JSON.stringify(conversation.messages)),
             index: index === -1 ? 0 : index,
             chat_id: conversation.id,
-            model: QuotaModel.QUOTA_THIS_NORMAL_TURBO, // TODO
+            model: QuotaModel.QUOTA_THIS_TITLE,
           },
           (res) => {
             if (res.error) {
@@ -375,6 +375,9 @@ export const $completion = {
               titleOptions.value += res.content
 
               conversation.topic = titleOptions.value
+
+              // 截取前12位
+              conversation.topic = conversation.topic.slice(0, 12)
             }
           },
         )
@@ -392,7 +395,7 @@ export const $completion = {
             messages: JSON.parse(JSON.stringify(conversation.messages)),
             index: index === -1 ? 0 : index,
             chat_id: conversation.id,
-            model: QuotaModel.QUOTA_THIS_NORMAL_TURBO, // TODO
+            model: innerMsg.model, // TODO
           },
           (res) => {
             if (res?.code === 401) {
@@ -481,8 +484,11 @@ export const $completion = {
             }
             else if (event === 'completion') {
               const innerMeta = innerMsg.value.at(-1)
+
               if (innerMeta?.type === 'markdown') {
                 innerMeta.value += res.content
+                if (res.completed)
+                  innerMeta.value = res.content
               }
               else {
                 innerMsg.value.push({

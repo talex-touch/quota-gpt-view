@@ -47,6 +47,7 @@
     "composables",
     "depts",
     "echarts",
+    "Imagable",
     "kwargs",
     "Omni",
     "popconfirm",

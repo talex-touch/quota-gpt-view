@@ -1,8 +1,3 @@
-import Ecs20140526, * as $Ecs20140526 from '@alicloud/ecs20140526'
-import OpenApi, * as $OpenApi from '@alicloud/openapi-client'
-import Util, * as $Util from '@alicloud/tea-util'
-import * as $tea from '@alicloud/tea-typescript'
-import type { EffectScope } from 'vue'
 import { userStore } from '#imports'
 import { $endApi } from '~/composables/api/base'
 import { type IChatConversation, PersistStatus } from '~/composables/api/base/v1/aigc/completion-types'

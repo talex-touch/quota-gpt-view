@@ -2,7 +2,6 @@
 import ThChat from '~/components/chat/ThChat.vue'
 import ThInput from '~/components/input/ThInput.vue'
 import History from '~/components/history/index.vue'
-import { chatManager } from '~/composables/chat'
 import ShareSection from '~/components/chat/ShareSection.vue'
 import type { InputPlusProperty } from '~/components/input/input'
 import { getTargetPrompt } from '~/composables/api/chat'
@@ -186,9 +185,18 @@ async function handleSend(query: string, _meta: any) {
   // getDictMeta
   const shiftItem = i >= 0 ? conversation.messages.at(i) : null
 
+  function getModel() {
+    if (!shiftItem)
+      return QuotaModel.QUOTA_THIS_NORMAL
+
+    const inner = shiftItem.content[shiftItem.page]
+
+    return inner?.model || QuotaModel.QUOTA_THIS_NORMAL
+  }
+
   const chatItem = $completion.emptyChatItem()
   const innerItem = $completion.emptyChatInnerItem({
-    model: QuotaModel.QUOTA_THIS_NORMAL,
+    model: getModel(),
     value: [$completion.initInnerMeta('text', query)],
     meta: {
       temperature: 0,
@@ -214,6 +222,10 @@ function handleShare() {
   pageOptions.share.enable = !pageOptions.share.enable
 }
 
+function handleCancelReq() {
+
+}
+
 console.log(pageOptions)
 </script>
 
@@ -227,7 +239,7 @@ console.log(pageOptions)
     <div class="PageContainer-Main">
       <ThChat
         ref="chatRef" v-model:messages="pageOptions.conversation" :status="pageOptions.status"
-        @cancel="chatManager.cancelCurrentReq()" @retry="handleRetry"
+        @cancel="handleCancelReq" @retry="handleRetry"
       />
 
       <ThInput

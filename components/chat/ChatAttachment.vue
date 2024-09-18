@@ -5,6 +5,7 @@ import QuotaSearchResult from './attachments/QuotaSearchResult.vue'
 import QuotaDateResult from './attachments/QuotaDateResult.vue'
 import QuotaSearchImagesResult from './attachments/QuotaSearchImagesResult.vue'
 import QuotaSearchVideosResult from './attachments/QuotaSearchVideosResult.vue'
+import QuotaVeTool from './attachments/QuotaVeTool.vue'
 import type { IInnerItemMeta } from '~/composables/api/base/v1/aigc/completion-types'
 
 const props = defineProps<{
@@ -47,7 +48,10 @@ const curType = computed(() => typeMapper[props.block.name!])
 
 <template>
   <div class="ChatAttachment fake-background">
-    <template v-if="curType">
+    <template v-if="block?.name === 'Quota_VE_Tool'">
+      <QuotaVeTool :block="block" />
+    </template>
+    <template v-else-if="curType">
       <template v-if="!block.extra?.end">
         <i block :class="curType.icon" />
         <OtherTextShaving :text="block.data || '思考中'" />
