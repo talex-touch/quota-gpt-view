@@ -137,10 +137,10 @@ async function innerSend(conversation: IChatConversation, chatItem: IChatItem, i
 
       $historyManager.syncHistory(conversation)
 
-      setTimeout(() => chatRef.value?.generateScroll(), 200)
+      setTimeout(() => chatRef.value?.generateScroll(), 500)
     },
     onFrequentLimit() {
-      chatManager.cancelCurrentReq()
+      // chatManager.cancelCurrentReq()
     },
   })
 

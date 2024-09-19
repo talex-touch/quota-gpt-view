@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { reduceEachTrailingCommentRange } from 'typescript'
 import CalculatorResult from './attachments/CalculatorResult.vue'
 import WeatherResult from './attachments/WeatherResult.vue'
 import QuotaSearchResult from './attachments/QuotaSearchResult.vue'
@@ -43,13 +44,59 @@ const typeMapper: Record<string, {
   },
 }
 
+const container = ref<HTMLElement>()
 const curType = computed(() => typeMapper[props.block.name!])
+
+async function handleSizable(expand: boolean) {
+  const mainDom = container.value
+  if (!mainDom) {
+    nextTick(() => handleSizable(expand))
+    return
+  }
+
+  const collapseDom = mainDom.querySelector('.QueryCollapse')
+
+  if (!collapseDom) {
+    nextTick(() => handleSizable(expand))
+    return
+  }
+
+  if (expand) {
+    // const headerDom = collapseDom.querySelector('.QueryCollapse-Header')
+
+    // 获得collapseDom最大宽度
+    const prevWidth = mainDom.style.width
+    mainDom.style.width = ''
+
+    const maxWidth = mainDom.clientWidth
+    const width = Math.min(collapseDom.clientWidth + 16, maxWidth)
+
+    mainDom.style.width = prevWidth
+    await sleep(1)
+    // Transform code 2 minor task
+    mainDom.style.width = `${width}px`
+  }
+  else {
+    const headerDom = collapseDom.querySelector('.QueryCollapse-Header')!
+
+    mainDom.style.width = `${headerDom.clientWidth + 16}px`
+  }
+}
+
+const debounceHandleSizable = useDebounceFn(handleSizable, 200)
+
+// lazy watch => block
+watch(() => props.block, () => {
+  setTimeout(() => {
+    debounceHandleSizable(!props.block.extra?.end)
+  }, 1000)
+})
 </script>
 
 <template>
-  <div class="ChatAttachment fake-background">
+  <div ref="container" class="ChatAttachment fake-background">
     <template v-if="block?.name === 'Quota_VE_Tool'">
-      <QuotaVeTool :block="block" />
+      <QuotaVeTool :block="block" @expand="handleSizable" />
     </template>
     <template v-else-if="curType">
       <template v-if="!block.extra?.end">
@@ -57,7 +104,7 @@ const curType = computed(() => typeMapper[props.block.name!])
         <OtherTextShaving :text="block.data || '思考中'" />
       </template>
       <template v-else>
-        <ChatQueryCollapse>
+        <ChatQueryCollapse @expand="handleSizable">
           <template #Header>
             <i block :class="curType.icon" />
             {{ curType.getTitle?.(block) || block.data || '-' }}
@@ -90,6 +137,8 @@ const curType = computed(() => typeMapper[props.block.name!])
   overflow: hidden;
   border-radius: 12px;
   --fake-opacity: 0.75;
+
+  transition: 1s cubic-bezier(0.25, 0.8, 0.25, 1);
   // background-color: var(--el-bg-color-page);
 }
 </style>

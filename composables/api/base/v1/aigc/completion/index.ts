@@ -82,6 +82,19 @@ async function handleExecutorResult(reader: ReadableStreamDefaultReader<string>,
 
     const _value = value
 
+    // const regex = /id:\s*(\d+)\ndata:\s*(\{.*?\})(?:\n|$)/gs
+    // const matches = _value.matchAll(regex)
+    // if (!match) {
+    //   console.error('Invalid format', _value)
+    //   continue
+    // }
+
+    // for (const match of matches) {
+    //   const [, id, dataValue] = match
+
+    //   console.log('---', match, dataValue)
+    // }
+
     const arr = _value.split('\n')
 
     for (let i = 0; i < arr.length; i++) {
@@ -387,6 +400,33 @@ export const $completion = {
       send: async (options?: Partial<ChatCompletionDto>) => {
         innerMsg.status = IChatItemStatus.WAITING
 
+        /**
+         * 当全部解析结束之后，将所有没有返回的工具链设定为超时
+         */
+        function handleEndToolParser() {
+          innerMsg.value.push({
+            type: 'tool',
+            value: data,
+            data: '',
+            name,
+            extra: {
+              end: true,
+            },
+          })
+
+          innerMsg.value.forEach((item) => {
+            if (!item.extra?.end) {
+              item.extra = {
+                ...item.extra,
+                error: {
+                  type: 'timeout',
+                  timestamp: Date.now(),
+                },
+              }
+            }
+          })
+        }
+
         await useCompletionExecutor(
           {
             ...options || {},
@@ -444,18 +484,21 @@ export const $completion = {
 
               if (mappedStatus === IChatItemStatus.TOOL_CALLING) {
                 handler.onToolStart?.(name, data)
-                console.log(res)
+                console.log('tool calling', res)
 
                 innerMsg.value.push({
                   type: 'tool',
                   value: '',
                   data,
                   name,
+                  extra: {
+                    start: Date.now(),
+                  },
                 })
               }
               else if (mappedStatus === IChatItemStatus.TOOL_RESULT) {
                 handler.onToolEnd?.(name, data)
-                console.log(res)
+                console.log('tool result', res)
 
                 // 从最后一个往前找 name 相同的 meta
                 for (let i = innerMsg.value.length - 1; i >= 0; i--) {
@@ -464,7 +507,7 @@ export const $completion = {
                     meta.value = data
                     meta.extra = {
                       ...meta.extra,
-                      end: true,
+                      end: Date.now(),
                     }
                     return
                   }
@@ -477,7 +520,7 @@ export const $completion = {
                   data: '',
                   name,
                   extra: {
-                    end: true,
+                    end: Date.now(),
                   },
                 })
               }

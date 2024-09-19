@@ -1,19 +1,36 @@
 <script setup lang="ts">
 import Imagable from './ve-tool/Imagable.vue'
+import BingSearch from './ve-tool/BingSearch.vue'
+import Calculator from './ve-tool/Calculator.vue'
 import type { IInnerItemMeta } from '~/composables/api/base/v1/aigc/completion-types'
 
 const props = defineProps<{
   block: IInnerItemMeta
 }>()
+const emits = defineEmits<{
+  (e: 'expand', expand: boolean): void
+}>()
 
 const data = computed(() => props.block.data ? JSON.parse(props.block.data) : {})
 const value = computed(() => props.block.value ? JSON.parse(props.block.value) : {})
-const text = computed(() => data.value.arguments?.text || data.value.name)
 
 const compMapper = reactive({
   'ts-ThisAI_StandardImagable-ThisAI_StandardImagable': {
     icon: 'i-carbon:image',
     comp: Imagable,
+    expandable: true,
+    query: computed(() => data.value.arguments?.text || data.value.name),
+  },
+  'biyingsousuo-bingWebSearch': {
+    icon: 'i-carbon:search',
+    comp: BingSearch,
+    query: computed(() => data.value.arguments?.query || data.value.name),
+  },
+  'Wolfram_Alpha-calculate': {
+    icon: 'i-carbon:calculation',
+    comp: Calculator,
+    expandable: true,
+    query: computed(() => data.value.arguments?.input || data.value.name),
   },
 })
 
@@ -23,30 +40,66 @@ const curItem = computed(() => compMapper[data.value.name])
 <template>
   <div :class="{ done: block.value }" class="QuotaVeTool">
     <template v-if="curItem">
-      <div class="Tool-Header">
-        <div class="Tool-Header-Icon">
-          <div :class="curItem.icon" />
-        </div>
-        <OtherTextShaving v-if="!block.value" :text="text" />
-        <p v-else>
-          {{ text }}
-        </p>
-        <div class="Tool-Header-Status">
-          <IconCircleLoader class="Loader" />
-          <div class="_dot" />
-        </div>
-      </div>
+      <template v-if="curItem.expandable">
+        <ChatQueryCollapse @expand="emits('expand', $event)">
+          <template #Header>
+            <div class="Tool-Header">
+              <div class="Tool-Header-Icon">
+                <div :class="curItem.icon" />
+              </div>
+              <OtherTextShaving v-if="!block.value" :text="curItem.query" />
+              <p v-else>
+                {{ curItem.query }}
+              </p>
+              <div class="Tool-Header-Status">
+                <IconCircleLoader class="Loader" />
+                <div class="_dot" />
+              </div>
+            </div>
+          </template>
 
-      <component :is="curItem.comp" :data="data" :value="value" />
+          <div class="Tool-Inner">
+            <el-scrollbar>
+              <component :is="curItem.comp" :data="data" :value="value" />
+            </el-scrollbar>
+          </div>
+        </ChatQueryCollapse>
+      </template>
+      <template v-else>
+        <div class="Tool-Header">
+          <div class="Tool-Header-Icon">
+            <div :class="curItem.icon" />
+          </div>
+          <OtherTextShaving v-if="!block.value" :text="curItem.query" />
+          <p v-else>
+            {{ curItem.query }}
+          </p>
+          <div class="Tool-Header-Status">
+            <IconCircleLoader class="Loader" />
+            <div class="_dot" />
+          </div>
+        </div>
+
+        <component :is="curItem.comp" :data="data" :value="value" />
+      </template>
     </template>
     <template v-else>
       <OtherTextShaving text="无法获取对应数据" />
-      {{ block }}
+      {{ data.value.name }}
     </template>
   </div>
 </template>
 
 <style lang="scss" scoped>
+.Tool-Inner {
+  position: relative;
+
+  max-width: 100%;
+  max-height: 100%;
+
+  overflow: hidden;
+}
+
 .Tool-Header-Status {
   .done & {
     :deep(.loader) {
@@ -94,5 +147,7 @@ const curItem = computed(() => compMapper[data.value.name])
 
 .QuotaVeTool {
   position: relative;
+
+  transition: 0.25s;
 }
 </style>

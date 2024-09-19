@@ -113,10 +113,15 @@ onMounted(() => {
           },
           mode: color.value !== 'dark' ? 'light' : 'dark',
         })
+
+        if (inner.value && dot.value) {
+          // await sleep(10)
+
+          handleGeneratingDotUpdate(inner.value!, dot.value!)
+        }
       })
 
-      if (inner.value && dot.value)
-        setTimeout(() => handleGeneratingDotUpdate(inner.value!, dot.value!), 1000)
+      // setTimeout(() => , 100)
 
       // vditor.setValue(props.data, true)
     },
@@ -154,7 +159,7 @@ onMounted(() => {
   pointer-events: none;
   background-color: var(--el-text-color-primary);
 
-  // transition: 0.05s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: 0.05s cubic-bezier(0.25, 0.8, 0.25, 1);
   // animation: dot-frames 0.5s infinite;
 }
 
