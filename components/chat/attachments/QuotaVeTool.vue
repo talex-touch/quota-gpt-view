@@ -2,6 +2,10 @@
 import Imagable from './ve-tool/Imagable.vue'
 import BingSearch from './ve-tool/BingSearch.vue'
 import Calculator from './ve-tool/Calculator.vue'
+import Music from './ve-tool/Music.vue'
+import Lucky from './ve-tool/Lucky.vue'
+import Weather from './ve-tool/Weather.vue'
+import Flight from './ve-tool/Flight.vue'
 import type { IInnerItemMeta } from '~/composables/api/base/v1/aigc/completion-types'
 
 const props = defineProps<{
@@ -32,13 +36,46 @@ const compMapper = reactive({
     expandable: true,
     query: computed(() => data.value.arguments?.input || data.value.name),
   },
+  'AIledui-lyrics_to_song': {
+    icon: 'i-carbon:music',
+    comp: Music,
+    expandable: true,
+    query: computed(() => data.value ? '已生成' : '生成中'),
+  },
+  'xingzuoyunshi-star': {
+    icon: 'i-carbon:bee',
+    comp: Lucky,
+    expandable: true,
+    query: computed(() => data.value.arguments?.consName || data.value.name),
+  },
+  'mojitianqi-DayWeather': {
+    icon: 'i-carbon:cloud',
+    comp: Weather,
+    expandable: true,
+    query: computed(() => ((data.value.arguments?.province || '') + (data.value.arguments?.city || '') + (data.value.arguments?.towns || '')) || data.value.name),
+  },
+  'feichangzhun-getRoute': {
+    icon: 'i-carbon:plane',
+    comp: Flight,
+    expandable: true,
+    query: computed(() => `${data.value.arguments.dep} ➜ ${data.value.arguments.arr}` || data.value.name),
+  },
 })
 
-const curItem = computed(() => compMapper[data.value.name])
+const curItem = computed(() => compMapper?.[data.value.name] || null)
+const timeCost = computed(() => {
+  const start = props.block.extra?.start || -1
+  const end = props.block.extra?.end || -1
+
+  if (start === -1 || end === -1)
+    return ''
+
+  return `Costs: ${((end - start) / 1000).toFixed(2)}s`
+})
 </script>
 
 <template>
-  <div :class="{ done: block.value }" class="QuotaVeTool">
+  <div :class="{ done: block.extra?.end }" class="QuotaVeTool">
     <template v-if="curItem">
       <template v-if="curItem.expandable">
         <ChatQueryCollapse @expand="emits('expand', $event)">
@@ -53,7 +90,9 @@ const curItem = computed(() => compMapper[data.value.name])
               </p>
               <div class="Tool-Header-Status">
                 <IconCircleLoader class="Loader" />
-                <div class="_dot" />
+                <el-tooltip placement="top" :content="timeCost">
+                  <div class="_dot" />
+                </el-tooltip>
               </div>
             </div>
           </template>
@@ -85,7 +124,7 @@ const curItem = computed(() => compMapper[data.value.name])
     </template>
     <template v-else>
       <OtherTextShaving text="无法获取对应数据" />
-      {{ data.value.name }}
+      {{ data }}
     </template>
   </div>
 </template>

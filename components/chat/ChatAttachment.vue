@@ -77,6 +77,7 @@ async function handleSizable(expand: boolean) {
     mainDom.style.width = `${width}px`
   }
   else {
+    await sleep(1)
     const headerDom = collapseDom.querySelector('.QueryCollapse-Header')!
 
     mainDom.style.width = `${headerDom.clientWidth + 16}px`
@@ -86,9 +87,13 @@ async function handleSizable(expand: boolean) {
 const debounceHandleSizable = useDebounceFn(handleSizable, 200)
 
 // lazy watch => block
-watch(() => props.block, () => {
+watchEffect(() => {
+  const block = props.block
+
+  handleSizable(!block.extra?.end)
+
   setTimeout(() => {
-    debounceHandleSizable(!props.block.extra?.end)
+    handleSizable(!block.extra?.end)
   }, 1000)
 })
 </script>

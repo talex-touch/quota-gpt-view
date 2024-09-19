@@ -30,7 +30,7 @@ function handleGeneratingDotUpdate(rootEl: HTMLElement, cursor: HTMLElement) {
 
     cursor.style.opacity = '0'
     cursor.style.animation = ''
-  }, 500)
+  }, 2200)
 
   let _remove
   // 移除 rootEl最后一个TextNode
@@ -59,7 +59,7 @@ function handleGeneratingDotUpdate(rootEl: HTMLElement, cursor: HTMLElement) {
   // const cursorRect = cursor.getBoundingClientRect()
 
   const top = rect.top - textRect.top + rect.height / 2 - 4
-  const left = rect.left - textRect.left + rect.width / 2
+  const left = rect.left - textRect.left + rect.width / 2 + 4
 
   Object.assign(cursor!.style, {
     top: `${top}px`,
