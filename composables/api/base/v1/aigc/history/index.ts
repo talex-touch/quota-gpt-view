@@ -85,6 +85,15 @@ export class HistoryManager implements IHistoryManager {
   //     }
   //   })
   // }
+
+  async searchHistories(query: string) {
+    return $endApi.v1.aigc.getConversations({
+      pageSize: 25,
+      page: 1,
+      topic: query
+    })
+  }
+
   async loadHistories() {
     if (!userStore.value.isLogin)
       return

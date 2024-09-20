@@ -5,6 +5,7 @@ import Logo from '../chore/Logo.vue'
 import UserAvatar from '../personal/UserAvatar.vue'
 import PremiumButton from '../button/PremiumButton.vue'
 import { $historyManager, IHistoryStatus } from '~/composables/api/base/v1/aigc/history'
+import type { IChatConversation } from '~/composables/api/base/v1/aigc/completion-types'
 
 const props = defineProps<{
   expand: boolean
@@ -51,6 +52,17 @@ const categories = [
 ]
 
 const loadMore = ref()
+const searchedList = reactive<{
+  enable: boolean
+  loading: boolean
+  select: string
+  list: Array<IChatConversation>
+}>({
+  enable: false,
+  loading: false,
+  list: [],
+  select: '',
+})
 const processedHistory = computed(() => [...($historyManager.options.list.values())].map((item, index) => ({
   index,
   ...item,
@@ -207,6 +219,25 @@ const planProgress = computed(() => {
 
   return { text, progress }
 })
+
+async function handleSearchHistory(query: string) {
+  if (!query) {
+    searchedList.enable = false
+    searchedList.list = []
+    return
+  }
+
+  searchedList.enable = true
+  searchedList.loading = true
+
+  await sleep(200)
+
+  const res = await $historyManager.searchHistories(query)
+
+  searchedList.list = res.data.items
+
+  searchedList.loading = false
+}
 </script>
 
 <template>
@@ -227,10 +258,19 @@ const planProgress = computed(() => {
         </ButtonWavingButton>
       </div>
 
-      <InputSearchable />
+      <InputSearchable @search="handleSearchHistory" />
     </div>
 
-    <div class="History-Wrapper">
+    <div :class="{ searchable: searchedList.enable }" class="History-Wrapper">
+      <div v-loader="searchedList.loading" class="History-SearchableContent">
+        <el-scrollbar>
+          <HistorySection
+            v-model:select="searchedList.select"
+            title="已搜索" :history="searchedList.list" @delete="handleDelete"
+          />
+        </el-scrollbar>
+      </div>
+
       <el-scrollbar>
         <div class="History-Content">
           <!-- <div style="margin: 0 0.5rem" class="History-Content-Item active" @click="emits('create')">
@@ -268,6 +308,29 @@ const planProgress = computed(() => {
 </template>
 
 <style lang="scss">
+.History-SearchableContent {
+  .searchable & {
+    transform: translateX(0);
+  }
+  .HistorySection {
+    --history-title-height: 0;
+  }
+  z-index: 2;
+  position: absolute;
+  padding: 0.5rem;
+
+  top: var(--history-title-height);
+  left: 0;
+
+  width: 100%;
+  height: calc(100% - var(--history-title-height));
+
+  transform: translateX(100%);
+  background-color: var(--el-bg-color-page);
+
+  transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+}
+
 .History-Bottom {
   .plan {
     .progress-bar {
@@ -649,6 +712,7 @@ div.History {
   transform: translateX(-100%);
   background-color: var(--el-bg-color-page);
 
+  overflow: hidden;
   transition:
     0.75s width cubic-bezier(0.785, 0.135, 0.15, 0.86),
     0.5s opacity cubic-bezier(0.785, 0.135, 0.15, 0.86),

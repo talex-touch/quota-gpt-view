@@ -1,9 +1,11 @@
 <script setup lang="ts">
 const emits = defineEmits<{
-  (e: 'search', query: string)
+  (e: 'search', query: string): void
 }>()
 
 const query = ref('')
+
+watch(() => query.value, val => emits('search', val))
 </script>
 
 <template>
@@ -46,7 +48,7 @@ const query = ref('')
     height: 100%;
 
     // flex: 1;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: normal;
 
     transition: 0.25s;
@@ -57,13 +59,18 @@ const query = ref('')
     &:hover {
       background-color: var(--el-color-danger);
     }
+    display: flex;
     margin-left: 0;
     padding: 0;
 
     width: 0;
 
+    align-items: center;
+    justify-content: center;
+
     cursor: pointer;
 
+    font-size: 16px;
     overflow: hidden;
     transition: 0.25s;
     border-radius: 50%;
