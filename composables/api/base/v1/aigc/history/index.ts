@@ -99,8 +99,14 @@ export class HistoryManager implements IHistoryManager {
 
     this.options.status = IHistoryStatus.DONE
 
-    if (res.code !== 200)
-      return ElMessage.error('获取历史记录失败!所有操作不会被保存!')
+    if (res.code !== 200) {
+      return ElMessage({
+        message: `获取历史记录失败!所有操作不会被保存!`,
+        grouping: true,
+        type: 'error',
+        plain: true,
+      })
+    }
 
     const totalPages = res.data.meta.totalPages
     if (totalPages <= this.options.page) {

@@ -40,7 +40,12 @@ async function trySetWallpaper(paper: any, event: Event) {
     return
 
   if (!paper.free && !userStore.value.subscription?.type) {
-    ElMessage.error('很抱歉，此墙纸只供订阅用户使用！')
+    ElMessage({
+      message: `很抱歉，此墙纸只供订阅用户使用！`,
+      grouping: true,
+      type: 'error',
+      plain: true,
+    })
     return
   }
 

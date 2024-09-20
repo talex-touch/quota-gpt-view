@@ -53,8 +53,14 @@ $event.on('USER_LOGOUT_SUCCESS', () => { pageOptions.conversation = $completion.
 
 async function handleDelete(id: string) {
   const res: any = await $endApi.v1.aigc.deleteConversation(id)
-  if (res.code !== 200)
-    return ElMessage.error(`删除失败(${res.message})`)
+  if (res.code !== 200) {
+    return ElMessage({
+      message: `删除失败(${res.message})！`,
+      grouping: true,
+      type: 'error',
+      plain: true,
+    })
+  }
 
   if (id === pageOptions.select)
     handleCreate()

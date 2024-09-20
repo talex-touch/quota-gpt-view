@@ -60,8 +60,14 @@ const CROPPER = ref<any>()
 async function handleUpload(event: Event) {
   const input = event.target as HTMLInputElement
   const files = input!.files
-  if (files?.length !== 1)
-    return ElMessage.error('只能选择一张图片')
+  if (files?.length !== 1) {
+    return ElMessage({
+      message: '无法选中多张图片来操作！',
+      grouping: true,
+      type: 'error',
+      plain: true,
+    })
+  }
 
   options.loading = true
 
@@ -128,9 +134,21 @@ async function handleEditDone() {
 
       options.visible = false
 
-      ElMessage.success('上传成功!')
+      ElMessage({
+        message: '上传成功！',
+        grouping: true,
+        type: 'success',
+        plain: true,
+      })
     }
-    else { ElMessage.error(res.message || '上传失败!') }
+    else {
+      ElMessage({
+        message: res.message || '上传失败！',
+        grouping: true,
+        type: 'error',
+        plain: true,
+      })
+    }
   })
 }
 </script>

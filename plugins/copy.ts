@@ -6,7 +6,12 @@ function copyValue(bindings: any) {
       // copy to clipboard
       navigator.clipboard.writeText(bindings.value)
 
-      ElMessage.success('复制成功！')
+      ElMessage({
+        message: `已成功复制到剪贴板！`,
+        grouping: true,
+        type: 'success',
+        plain: true,
+      })
     }
   }
 }

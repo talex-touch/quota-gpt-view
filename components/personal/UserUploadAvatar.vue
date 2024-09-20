@@ -32,12 +32,22 @@ const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
 
   // limit format
   if (!/^image\/(png|jpe?g|gif)$/.test(rawFile.type)) {
-    ElMessage.error('上传头像图片只能是 JPG、JPEG、PNG、GIF 格式!')
+    ElMessage({
+      message: '上传头像图片只能是 JPG、JPEG、PNG、GIF 格式！',
+      grouping: true,
+      type: 'error',
+      plain: true,
+    })
     return false
   }
 
   if (rawFile.size / 1024 / 1024 > 2) {
-    ElMessage.error('头像不得大于 2MB!')
+    ElMessage({
+      message: '头像不得大于 2MB！',
+      grouping: true,
+      type: 'error',
+      plain: true,
+    })
     return false
   }
 

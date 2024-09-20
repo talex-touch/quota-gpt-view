@@ -45,7 +45,12 @@ const menus = reactive([
     icon: 'i-carbon-edit',
     trigger: () => {
       if (!reactiveConversation.value) {
-        ElMessage.error('无法修改目标记录!')
+        ElMessage({
+          message: '无法修改目标记录!',
+          grouping: true,
+          type: 'error',
+          plain: true,
+        })
         return
       }
 

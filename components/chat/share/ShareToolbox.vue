@@ -102,7 +102,12 @@ async function duplicatingShearsClick() {
     }),
   ])
 
-  ElMessage.success('复制成功')
+  ElMessage({
+    message: '对话记录已成功复制到剪贴板！',
+    grouping: true,
+    type: 'success',
+    plain: true,
+  })
 
   shareOptions.display = false
   setTimeout(() => {

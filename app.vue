@@ -254,6 +254,10 @@ span.premium-end {
   }
 }
 
+.el-message {
+  border-radius: 16px;
+}
+
 .el-menu {
   padding-left: 5% !important;
   padding-right: 10% !important;

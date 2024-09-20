@@ -34,20 +34,35 @@ onMounted(async () => {
 
 async function bindCouponCode() {
   if (bindModel.value?.length !== 35 && bindModel.value?.length !== 22) {
-    ElMessage.error('优惠券码格式不正确')
+    ElMessage({
+      message: `优惠券码格式不正确！`,
+      grouping: true,
+      type: 'error',
+      plain: true,
+    })
     return
   }
 
   const res: any = await userBindCoupon(bindModel.value)
 
   if (!res.data) {
-    ElMessage.error(res.message || '绑定失败！')
+    ElMessage({
+      message: `绑定失败(${res.message || 'error'})！`,
+      grouping: true,
+      type: 'error',
+      plain: true,
+    })
     return
   }
 
   coupons.push(res.data)
 
-  ElMessage.success('绑定成功！')
+  ElMessage({
+    message: `绑定成功！`,
+    grouping: true,
+    type: 'success',
+    plain: true,
+  })
 }
 </script>
 

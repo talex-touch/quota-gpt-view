@@ -28,7 +28,14 @@ async function fetchData() {
       index.value = 0
     else index.value = -1
   }
-  else { ElMessage.error(res.message || '无法搜索模板！') }
+  else {
+    ElMessage({
+      message: res.message || '无法搜索模板！',
+      grouping: true,
+      type: 'error',
+      plain: true,
+    })
+  }
 }
 
 function handleSelect(ind: number) {

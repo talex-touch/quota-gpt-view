@@ -206,7 +206,12 @@ onMounted(() => {
     setTimeout(async () => {
       const res = await getOrderStatus(route.query?.orderId as string)
       if (!res.data) {
-        ElMessage.error('订单不存在')
+        ElMessage({
+          message: '订单不存在！',
+          grouping: true,
+          type: 'error',
+          plain: true,
+        })
         router.back()
         return
       }
@@ -216,7 +221,12 @@ onMounted(() => {
       const info = data.additionalInfo ? JSON.parse(`${decodeURIComponent(atob(data.additionalInfo))}`) : {}
 
       if (!info) {
-        ElMessage.error('获取订单信息异常')
+        ElMessage({
+          message: '获取订单信息异常！',
+          grouping: true,
+          type: 'error',
+          plain: true,
+        })
         return
       }
 
@@ -282,7 +292,12 @@ const countdownObj = computed(() => {
 
 async function paySuccess(data: any) {
   if (data.status !== 1) {
-    ElMessage.error('支付失败，请联系管理员！')
+    ElMessage({
+      message: '支付失败，请联系管理员！',
+      grouping: true,
+      type: 'error',
+      plain: true,
+    })
 
     setTimeout(async () => await router.push({
       path: '/',
@@ -296,7 +311,12 @@ async function paySuccess(data: any) {
 
   // buyEffect()
 
-  ElMessage.success('支付成功！')
+  ElMessage({
+    message: '支付成功！',
+    grouping: true,
+    type: 'success',
+    plain: true,
+  })
 
   setTimeout(() => location.reload(), 1200)
 }
