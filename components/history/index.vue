@@ -216,10 +216,15 @@ const planProgress = computed(() => {
     </teleport>
 
     <div class="History-Title">
-      <div class="History-Title-Head" flex items-center gap-2 @click="emits('create')">
-        <img src="/logo.png">
+      <div class="History-Title-Head" @click="emits('create')">
+        <!-- <img src="/logo.png">
         <span>创建新对话</span>
-        <div i-carbon-add mr-2 />
+        <div i-carbon-add mr-2 /> -->
+        <ButtonWavingButton flex items-center justify-between gap-2>
+          <img src="/logo.png">
+          <span>创建新对话</span>
+          <div i-carbon-add mr-2 />
+        </ButtonWavingButton>
       </div>
     </div>
 
@@ -347,11 +352,8 @@ div.History {
 }
 
 .History-Title-Head {
-  &:hover {
-    cursor: pointer;
-    background-color: var(--el-fill-color);
-  }
   &::before {
+    z-index: -1;
     content: '';
     position: absolute;
 
@@ -361,7 +363,9 @@ div.History {
     width: 100%;
     height: 100%;
 
-    opacity: 0.25;
+    opacity: 0.125;
+    overflow: hidden;
+    border-radius: 16px;
     background-size: cover;
     background-position: 64px 0;
     filter: blur(18px) saturate(180%);
@@ -380,20 +384,15 @@ div.History {
     height: 100%;
 
     opacity: 0.75;
+    border-radius: 16px;
     background-color: var(--el-bg-color);
   }
   position: relative;
-  padding: 0.25rem 0.5rem;
-  display: flex;
-
-  justify-content: space-between;
 
   width: 100%;
 
-  font-size: 14px;
-  font-weight: 600;
-  overflow: hidden;
-  border-radius: 16px;
+  // overflow: hidden;
+  // border-radius: 16px;
 
   img {
     width: 32px;
