@@ -36,6 +36,7 @@ watchEffect(() => {
     }
 
     fixPointerPos(0)
+    handleScroll()
   }, 200)
 })
 

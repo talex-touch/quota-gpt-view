@@ -115,18 +115,20 @@ function handleScroll(e: any) {
 
   display: flex;
 
-  max-width: 1480px;
+  width: 100%;
+  // max-width: 1480px;
 
-  margin: 0 auto;
+  // margin: 0 auto;
 }
 
 .el-main {
-  > ul {
-    flex-shrink: 0;
-    min-width: 200px;
+  :deep(> ul) {
+    // flex-shrink: 0;
+    min-width: 220px;
     // width: 30%;
-    max-width: 240px;
+    max-width: 280px;
 
+    flex: 1;
     border-left: 1px solid var(--el-border-color);
   }
   position: relative;
