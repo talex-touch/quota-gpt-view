@@ -226,6 +226,8 @@ const planProgress = computed(() => {
           <div i-carbon-add mr-2 />
         </ButtonWavingButton>
       </div>
+
+      <InputSearchable />
     </div>
 
     <div class="History-Wrapper">
@@ -424,7 +426,7 @@ div.History {
   position: relative;
 
   width: 100%;
-  height: calc(100% - 70px);
+  height: calc(100% - var(--history-title-height));
 
   box-sizing: border-box;
 }
@@ -524,7 +526,7 @@ div.History {
   display: flex;
   // padding-left: 0.5rem;
   // padding-right: 0.5rem;
-  padding-top: 80px;
+  padding-top: calc(var(--history-title-height) + 30px);
   padding-bottom: 2rem;
   flex-direction: column;
 
@@ -532,6 +534,8 @@ div.History {
 }
 
 .History {
+  --history-title-height: 125px;
+
   &-Title {
     z-index: 3;
     position: absolute;
@@ -540,11 +544,13 @@ div.History {
     font-size: 24px;
 
     width: 100%;
-    height: 70px;
+    height: var(--history-title-height);
 
+    gap: 1rem;
     font-weight: 600;
     text-align: center;
     align-items: center;
+    flex-direction: column;
     justify-content: space-between;
 
     .wallpaper & {

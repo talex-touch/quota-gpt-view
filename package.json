@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@element-plus/nuxt": "^1.0.9",
+    "@floating-ui/vue": "^1.1.5",
     "@milkdown/core": "^7.4.0",
     "@milkdown/ctx": "^7.4.0",
     "@milkdown/plugin-clipboard": "^7.5.0",
