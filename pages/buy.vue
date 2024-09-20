@@ -543,7 +543,8 @@ watch(() => payOptions.code, () => {
     </div>
 
     <BuyDialog
-      v-model="payOptions.dialog" :coupon-code="payOptions.code" :countdown="countdownObj"
+      v-model="payOptions.dialog"
+      z-2 :coupon-code="payOptions.code" :countdown="countdownObj"
       :type="payOptions.type" :time="payOptions.time" :price="payOptions.price" :method="payments.select"
       @order="handleOrderEstablished"
     />
