@@ -61,11 +61,11 @@ const menus = reactive([
       setTimeout(() => input.value?.focus(), 200)
     },
   },
-  {
-    name: '分享记录',
-    icon: 'i-carbon-share',
-    trigger: () => { },
-  },
+  // {
+  //   name: '分享记录',
+  //   icon: 'i-carbon-share',
+  //   trigger: () => { },
+  // },
   {
     name: '删除记录',
     icon: 'i-carbon-close',

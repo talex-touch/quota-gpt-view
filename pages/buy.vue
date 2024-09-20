@@ -148,9 +148,11 @@ function parseDataInfo(data: any) {
   })
 }
 
-function selectPlan(_plan: any) {
-  payOptions.type = _plan.type
-  payOptions.time = _plan.time
+function selectPlan(_plan?: any) {
+  if (_plan) {
+    payOptions.type = _plan.type
+    payOptions.time = _plan.time
+  }
 
   // get plan
   const plan = plans.find(plan => plan.type === payOptions.type && plan.time === payOptions.time)
@@ -163,18 +165,26 @@ function selectPlan(_plan: any) {
     orderDetail.loading = true
 
     // fetch data
-    const res = await getOrderPlanPrice(payOptions.type as any, payOptions.time)
+    const res = await getOrderPlanPrice(payOptions.type as any, payOptions.time, payOptions.code)
+
+    orderDetail.loading = false
 
     if (!res.data) {
       payOptions.unavailable = true
+
+      ElMessage({
+        message: res.message || '出现未知错误！',
+        grouping: true,
+        type: 'error',
+        plain: true,
+      })
+
       return
     }
 
     payOptions.unavailable = false
 
     const { data } = res
-
-    orderDetail.loading = false
 
     parseDataInfo(data)
   })
@@ -359,6 +369,10 @@ function handleOrderEstablished(data: any) {
     }
   }
 }
+
+watch(() => payOptions.code, () => {
+  selectPlan()
+})
 </script>
 
 <template>
@@ -373,150 +387,155 @@ function handleOrderEstablished(data: any) {
           </span>
         </template>
       </el-page-header>
-
-      <PersonalAccountAvatar />
     </div>
 
-    <div class="ProfileWrapper-Main">
-      <p>
-        结账
-        <span v-if="payOptions?.success" style="font-size: 18px;font-weight: normal;opacity: 0.65">您已成功完成支付，
-          订单到账可能会有一定延迟。
-        </span>
-        <span
-          v-else-if="subscriptionMode"
-          style="font-size: 18px;font-weight: normal;opacity: 0.65"
-        >现在选择适合你的订阅，邀请用户可得返现哦。</span>
-        <span v-else style="font-size: 18px;font-weight: normal;opacity: 0.65">平台倡导量入为出，请理性消费。未成年人下单前必须由监护人同意。</span>
-      </p>
+    <div class="ProfileWrapper-MainContainer">
+      <el-scrollbar>
+        <div class="ProfileWrapper-Main">
+          <p>
+            结账
+            <span v-if="payOptions?.success" style="font-size: 18px;font-weight: normal;opacity: 0.65">您已成功完成支付，
+              订单到账可能会有一定延迟。
+            </span>
+            <span
+              v-else-if="subscriptionMode"
+              style="font-size: 18px;font-weight: normal;opacity: 0.65"
+            >现在选择适合你的订阅，邀请用户可得返现哦。</span>
+            <span
+              v-else
+              style="font-size: 18px;font-weight: normal;opacity: 0.65"
+            >平台倡导量入为出，请理性消费。未成年人下单前必须由监护人同意。</span>
+          </p>
 
-      <div class="ProfileWrapper-Content">
-        <div class="ProfileWrapper-ContentInner">
-          <OtherWarnAlert v-if="countdownObj?.expired" icon="i-carbon:information" title="订单超时">
-            订单已关闭
-          </OtherWarnAlert>
-          <OtherWarnAlert v-else-if="orderDetail.id && countdownObj" icon="i-carbon:information" title="您的订单将被保留">
-            我们将您的订单保留至 {{ countdownObj.uptoText }}。你可以随时继续支付这个订单。
-          </OtherWarnAlert>
+          <div class="ProfileWrapper-Content">
+            <div class="ProfileWrapper-ContentInner">
+              <OtherWarnAlert v-if="countdownObj?.expired" icon="i-carbon:information" title="订单超时">
+                订单已关闭
+              </OtherWarnAlert>
+              <OtherWarnAlert v-else-if="orderDetail.id && countdownObj" icon="i-carbon:information" title="您的订单将被保留">
+                我们将您的订单保留至 {{ countdownObj.uptoText }}。你可以随时继续支付这个订单。
+              </OtherWarnAlert>
 
-          <div v-if="subscriptionMode && !orderDetail.id" class="ProfileWrapper-Content-Info Options">
-            <p>选择订阅</p>
-            <ul>
-              <li
-                v-for="plan in plans" :key="plan.name"
-                :class="{ trial: plan.trial, active: payOptions.time === plan.time && payOptions.type === plan.type }"
-                @click="selectPlan(plan)"
+              <div v-if="subscriptionMode && !orderDetail.id" class="ProfileWrapper-Content-Info Options">
+                <p>选择订阅</p>
+                <ul>
+                  <li
+                    v-for="plan in plans" :key="plan.name"
+                    :class="{ trial: plan.trial, active: payOptions.time === plan.time && payOptions.type === plan.type }"
+                    @click="selectPlan(plan)"
+                  >
+                    {{ plan.name }}
+                  </li>
+                </ul>
+              </div>
+              <div v-else-if="!orderDetail.id" class="ProfileWrapper-Content-Info">
+                <p>充值余额</p>
+              </div>
+              <div v-if="!payOptions.unavailable" class="ProfileWrapper-Content-Info">
+                <div class="title">
+                  订单详情<span v-if="orderDetail.id">#{{ orderDetail.id }}</span>
+
+                  <div v-if="payOptions.success" class="pay-stamp">
+                    <TextShaving text="已支付" />
+                  </div>
+                </div>
+                <ul v-loading="orderDetail.loading">
+                  <li v-for="line in orderDetail.info" :key="line.name" :class="{ free: line.free }">
+                    <span>{{ line.name }}</span>
+                    <span v-if="!line.free">{{ (line.price / 100).toFixed(2) }}￥</span>
+                    <span v-else>附赠</span>
+                  </li>
+                </ul>
+              </div>
+              <div
+                v-if="!payOptions.unavailable" v-loading="orderDetail.loading"
+                class="ProfileWrapper-Content-Info Payments"
               >
-                {{ plan.name }}
-              </li>
-            </ul>
-          </div>
-          <div v-else-if="!orderDetail.id" class="ProfileWrapper-Content-Info">
-            <p>充值余额</p>
-          </div>
-          <div v-if="!payOptions.unavailable" class="ProfileWrapper-Content-Info">
-            <div class="title">
-              订单详情<span v-if="orderDetail.id">#{{ orderDetail.id }}</span>
-
-              <div v-if="payOptions.success" class="pay-stamp">
-                <TextShaving text="已支付" />
+                <p>支付方式</p>
+                <ul>
+                  <li
+                    v-for="payment in payments.children" :key="payment.value"
+                    :class="{ active: payments.select === payment.value, disabled: countdownObj?.expired || payOptions.success }"
+                    @click="payments.select = payment.value"
+                  >
+                    <img :src="payment.svg">{{ payment.name }}
+                  </li>
+                </ul>
+              </div>
+              <div class="ProfileWrapper-Content-Info">
+                <OtherDefaultAlert icon="i-carbon:manage-protection" title="随时取消政策">
+                  在科塔锐行，我们深知计划可能随时发生变化。为此，我们特别设计了一套取消政策，旨在为您带来最大的灵活性与安心保障。当您选择我们时，您将享有充分的自由度来调整或取消预订，无需担心任何取消费用。我们的政策允许您在购买后<span
+                    font-bold
+                  >3 小时</span>内免费修改订单，确保您的计划能够灵活适应各种突发状况。<el-link type="primary">
+                    了解更多
+                  </el-link>
+                </OtherDefaultAlert>
               </div>
             </div>
-            <ul v-loading="orderDetail.loading">
-              <li v-for="line in orderDetail.info" :key="line.name" :class="{ free: line.free }">
-                <span>{{ line.name }}</span>
-                <span v-if="!line.free">{{ (line.price / 100).toFixed(2) }}￥</span>
-                <span v-else>附赠</span>
-              </li>
-            </ul>
-          </div>
-          <div
-            v-if="!payOptions.unavailable" v-loading="orderDetail.loading"
-            class="ProfileWrapper-Content-Info Payments"
-          >
-            <p>支付方式</p>
-            <ul>
-              <li
-                v-for="payment in payments.children" :key="payment.value"
-                :class="{ active: payments.select === payment.value, disabled: countdownObj?.expired || payOptions.success }"
-                @click="payments.select = payment.value"
+            <div class="ProfileWrapper-Aside">
+              <!-- && !payOptions.unavailable -->
+              <div
+                v-if="!payOptions?.success && !countdownObj?.expired" v-loading="orderDetail.loading"
+                class="ProfileWrapper-Content-Info"
               >
-                <img :src="payment.svg">{{ payment.name }}
-              </li>
-            </ul>
-          </div>
-          <div class="ProfileWrapper-Content-Info">
-            <OtherDefaultAlert icon="i-carbon:manage-protection" title="随时取消政策">
-              在科塔锐行，我们深知计划可能随时发生变化。为此，我们特别设计了一套取消政策，旨在为您带来最大的灵活性与安心保障。当您选择我们时，您将享有充分的自由度来调整或取消预订，无需担心任何取消费用。我们的政策允许您在购买后<span
-                font-bold
-              >3 小时</span>内免费修改订单，确保您的计划能够灵活适应各种突发状况。<el-link type="primary">
-                了解更多
-              </el-link>
-            </OtherDefaultAlert>
+                <p>优惠券码</p>
+                <ChoreCouponSelector v-model="payOptions.code" placeholder="可选" />
+              </div>
+              <div v-if="!payOptions.unavailable" v-loading="orderDetail.loading" class="ProfileWrapper-Content-Info">
+                <ul v-for="item in orderInfo" :key="item.label" :class="{ line: item.value }">
+                  <p>{{ item.label }}</p>
+                  <template v-if="item.children">
+                    <li v-for="line in item.children" :key="line.name" :class="{ discount: +line.value < 0 }">
+                      <span op-75>
+                        {{ line.name }}
+                      </span>
+                      <span>
+                        {{ line.value }}
+                        <span v-if="item.price" class="price">￥</span>
+                      </span>
+                    </li>
+                  </template>
+                  <span v-else-if="item.value">
+                    {{ item.value }}
+                  </span>
+                </ul>
+              </div>
+
+              <div
+                v-if="payOptions?.success" v-loading="orderDetail.loading" flex items-center
+                class="ProfileWrapper-Content-Info Confirm"
+              >
+                <div flex items-center>
+                  <ThCheckBox v-model="payOptions.agreement" />&nbsp;使用即代表您已阅读同意《使用服务协议》和《订单退款协议》
+                </div>
+                <ShiningButton :class="{ shrink: !payOptions.agreement }">
+                  售后咨询
+                </ShiningButton>
+              </div>
+              <div
+                v-else-if="!countdownObj?.expired && !payOptions.unavailable" v-loading="orderDetail.loading"
+                class="ProfileWrapper-Content-Info Confirm"
+              >
+                <div flex items-center>
+                  <ThCheckBox v-model="payOptions.agreement" />&nbsp;购买即代表您已阅读同意《使用服务协议》和《用户隐私协议》
+                </div>
+                <ShiningButton :class="{ shrink: !payOptions.agreement }" @click="submit">
+                  {{ orderDetail.id ? '继续支付' : '确认支付' }}
+                </ShiningButton>
+              </div>
+              <div
+                v-else-if="countdownObj?.expired" v-loading="orderDetail.loading" flex items-center
+                class="ProfileWrapper-Content-Info Confirm"
+              >
+                <TextShaving style="width: max-content" text="订单已失效" />
+              </div>
+              <div v-else v-loading="orderDetail.loading" flex items-center class="ProfileWrapper-Content-Info Confirm">
+                <TextShaving style="width: max-content" text="当前计划不可用" />
+              </div>
+            </div>
           </div>
         </div>
-        <div class="ProfileWrapper-Aside">
-          <div v-if="!payOptions.unavailable" v-loading="orderDetail.loading" class="ProfileWrapper-Content-Info">
-            <ul v-for="item in orderInfo" :key="item.label" :class="{ line: item.value }">
-              <p>{{ item.label }}</p>
-              <template v-if="item.children">
-                <li v-for="line in item.children" :key="line.name" :class="{ discount: +line.value < 0 }">
-                  <span op-75>
-                    {{ line.name }}
-                  </span>
-                  <span>
-                    {{ line.value }}
-                    <span v-if="item.price" class="price">￥</span>
-                  </span>
-                </li>
-              </template>
-              <span v-else-if="item.value">
-                {{ item.value }}
-              </span>
-            </ul>
-          </div>
-
-          <div
-            v-if="!payOptions?.success && !countdownObj?.expired && !payOptions.unavailable"
-            v-loading="orderDetail.loading" class="ProfileWrapper-Content-Info"
-          >
-            <p>优惠券码</p>
-            <el-input v-model="payOptions.code" placeholder="可选" />
-          </div>
-
-          <div
-            v-if="payOptions?.success" v-loading="orderDetail.loading" flex items-center
-            class="ProfileWrapper-Content-Info Confirm"
-          >
-            <div flex items-center>
-              <ThCheckBox v-model="payOptions.agreement" />&nbsp;使用即代表您已阅读同意《使用服务协议》和《订单退款协议》
-            </div>
-            <ShiningButton :class="{ shrink: !payOptions.agreement }">
-              售后咨询
-            </ShiningButton>
-          </div>
-          <div
-            v-else-if="!countdownObj?.expired && !payOptions.unavailable" v-loading="orderDetail.loading"
-            class="ProfileWrapper-Content-Info Confirm"
-          >
-            <div flex items-center>
-              <ThCheckBox v-model="payOptions.agreement" />&nbsp;购买即代表您已阅读同意《使用服务协议》和《用户隐私协议》
-            </div>
-            <ShiningButton :class="{ shrink: !payOptions.agreement }" @click="submit">
-              {{ orderDetail.id ? '继续支付' : '确认支付' }}
-            </ShiningButton>
-          </div>
-          <div
-            v-else-if="countdownObj?.expired" v-loading="orderDetail.loading" flex items-center
-            class="ProfileWrapper-Content-Info Confirm"
-          >
-            <TextShaving style="width: max-content" text="订单已失效" />
-          </div>
-          <div v-else v-loading="orderDetail.loading" flex items-center class="ProfileWrapper-Content-Info Confirm">
-            <TextShaving style="width: max-content" text="当前计划不可用" />
-          </div>
-        </div>
-      </div>
+      </el-scrollbar>
     </div>
 
     <div class="ProfileWrapper-Footer">
@@ -524,8 +543,9 @@ function handleOrderEstablished(data: any) {
     </div>
 
     <BuyDialog
-      v-model="payOptions.dialog" :coupon-code="payOptions.code" :countdown="countdownObj" :type="payOptions.type"
-      :time="payOptions.time" :price="payOptions.price" :method="payments.select" @order="handleOrderEstablished"
+      v-model="payOptions.dialog" :coupon-code="payOptions.code" :countdown="countdownObj"
+      :type="payOptions.type" :time="payOptions.time" :price="payOptions.price" :method="payments.select"
+      @order="handleOrderEstablished"
     />
   </div>
 </template>
@@ -540,6 +560,51 @@ function handleOrderEstablished(data: any) {
 </style>
 
 <style lang="scss" scoped>
+.ProfileWrapper-MainContainer {
+  z-index: 1;
+  position: absolute;
+  // padding: 1rem 0;
+  display: flex;
+
+  align-items: center;
+
+  top: 0px;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  top: 50%;
+  left: 50%;
+
+  transform: translate(-50%, -50%);
+}
+
+.ProfileWrapper-Main {
+  & > p {
+    text-indent: 0.5rem;
+
+    font-size: 28px;
+    font-weight: 600;
+  }
+  position: relative;
+  padding: 3rem 0;
+  display: flex;
+
+  width: 60%;
+  min-width: 1080px;
+  height: 100%;
+
+  top: 60px;
+  left: 50%;
+
+  gap: 0.5rem;
+  flex-direction: column;
+  justify-content: center;
+
+  transform: translate(-50%, 0%);
+}
+
 .pay-stamp {
   position: absolute;
   padding: 0.25rem 0.5rem;
@@ -559,6 +624,7 @@ function handleOrderEstablished(data: any) {
 }
 
 .ProfileWrapper-Header {
+  z-index: 2;
   position: absolute;
   padding: 1rem 2rem;
   display: flex;
@@ -574,6 +640,7 @@ function handleOrderEstablished(data: any) {
 
   height: 60px;
 
+  background-color: var(--el-bg-color);
   border-bottom: 1px solid var(--el-border-color);
 }
 
@@ -742,33 +809,10 @@ div.Confirm {
   border: 1px solid var(--el-border-color);
 }
 
-.ProfileWrapper-Main {
-  & > p {
-    text-indent: 0.5rem;
-
-    font-size: 28px;
-    font-weight: 600;
-  }
-
-  position: absolute;
-  display: flex;
-
-  width: 60%;
-  min-width: 1080px;
-
-  top: 50%;
-  left: 50%;
-
-  gap: 1rem;
-  flex-direction: column;
-
-  transform: translate(-50%, -50%);
-}
-
 .ProfileWrapper-Content {
   display: flex;
 
-  gap: 3rem;
+  gap: 1rem;
 
   justify-content: space-between;
 }

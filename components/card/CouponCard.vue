@@ -3,6 +3,7 @@ const props = defineProps<{
   newUsersOnly: boolean
   code: string
   disabled: boolean
+  selectable?: boolean
 }>()
 </script>
 
@@ -28,7 +29,11 @@ const props = defineProps<{
       </span>
     </div>
 
-    <div v-if="!disabled" v-copy="code" class="mask">
+    <div v-if="!disabled && selectable" class="mask">
+      点击选择
+      <div i-carbon:3d-cursor />
+    </div>
+    <div v-else-if="!disabled" v-copy="code" class="mask">
       点击复制
       <div i-carbon:copy />
     </div>

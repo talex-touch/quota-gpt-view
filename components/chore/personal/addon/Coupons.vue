@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import { getCouponList, userBindCoupon } from '~/composables/api/account'
 
+const props = defineProps<{
+  selectable?: boolean
+}>()
+
+const emits = defineEmits<{
+  (e: 'selectable', value: string): void
+}>()
+
 const bindModel = ref('')
 const coupons = reactive<any>([])
 
@@ -64,6 +72,20 @@ async function bindCouponCode() {
     plain: true,
   })
 }
+
+function handleSelectable(couponCode: string) {
+  if (!props.selectable)
+    return
+
+  emits('selectable', couponCode)
+
+  ElMessage({
+    message: '已选择该优惠券！',
+    grouping: true,
+    type: 'success',
+    plain: true,
+  })
+}
 </script>
 
 <template>
@@ -80,8 +102,10 @@ async function bindCouponCode() {
       <div v-if="coupons.length" class="CouponsList-Wrapper">
         <CardCouponCard
           v-for="coupon in orderedCoupons"
-          :key="coupon.id" :disabled="coupon.usedCount >= coupon.maxUsage || coupon.endDate && new Date(coupon.endDate).getTime() < new Date().getTime()" :code="coupon.mainCode"
-          :new-users-only="coupon.newUserOnly"
+          :key="coupon.id"
+          :selectable="selectable"
+          :disabled="coupon.usedCount >= coupon.maxUsage || coupon.endDate && new Date(coupon.endDate).getTime() < new Date().getTime()" :code="coupon.mainCode" :new-users-only="coupon.newUserOnly"
+          @click="handleSelectable(coupon.mainCode)"
         >
           <template #price>
             <span v-if="coupon.discountAmount > 0">

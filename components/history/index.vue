@@ -489,7 +489,7 @@ div.History {
   position: relative;
 
   width: 100%;
-  height: calc(100% - var(--history-title-height));
+  height: calc(100% - var(--history-title-height) + 70px);
 
   box-sizing: border-box;
 }
