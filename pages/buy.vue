@@ -191,9 +191,10 @@ function selectPlan(_plan?: any) {
 }
 
 let func: any
+let leave = false
 
 function timer() {
-  if (payOptions.success)
+  if (leave || payOptions.success)
     return
 
   payOptions.now = Date.now()
@@ -210,6 +211,8 @@ function timer() {
 
   setTimeout(timer, 100)
 }
+
+onBeforeMount(() => leave = true)
 
 onMounted(() => {
   if (route.query?.orderId) {

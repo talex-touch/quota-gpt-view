@@ -314,6 +314,7 @@ watch(() => select.value, val => curMenu.value = val)
 
 .CmsMain {
   position: relative;
+  padding: 0;
 
   flex: 1;
   width: 100%;
