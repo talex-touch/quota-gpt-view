@@ -11,6 +11,10 @@ import type {
   IDictTypeModelQuery,
   IDoc,
   IDocQuery,
+
+  IFeedbackModel,
+  IFeedbackModelQuery,
+
   IMenuModel,
   IMenuModelQuery,
   IParamConfigModel,
@@ -74,10 +78,10 @@ export default {
       return endHttp.get(`system/users/search?query=${query}`) as Promise<IDataResponse<[IUserModel[], number]>>
     },
   },
-  order:{
-    list(body: Partial<IAdminOrderQuery>){
-      return endHttp.post('order/admin/list',body) as Promise<IPageResponse<IAdminOrder>>
-    }
+  order: {
+    list(body: Partial<IAdminOrderQuery>) {
+      return endHttp.post('order/admin/list', body) as Promise<IPageResponse<IAdminOrder>>
+    },
 
   },
 
@@ -118,7 +122,7 @@ export default {
     /* 获取后端定义的所有权限集
      *
      */
-    getPermissions(id: number | string) {
+    getPermissions() {
       return endHttp.get('system/menus/permissions') as Promise<{ data: [] }>
     },
   },
@@ -236,4 +240,18 @@ export default {
       return endHttp.get(`subscribe/update?uid=${uid}`) as Promise<IStandardResponse>
     },
   },
+
+  feedback: {
+    list(query: Partial<IFeedbackModelQuery>) {
+      return endHttp.post('feedback/listAll', query) as Promise<IPageResponse<IFeedbackModel>>
+    },
+    update(id: number | string, data: IFeedbackModel) {
+      return endHttp.put(`feedback/${id}`, data) as Promise<IStandardResponse>
+    },
+    delete(id: number | string) {
+      return endHttp.get(`feedback/${id}`) as Promise<IStandardResponse>
+    },
+
+  },
+
 }

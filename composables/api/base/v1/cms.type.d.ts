@@ -658,3 +658,21 @@ export interface ISubscriptionPlanQuery extends ISubscriptionPlan {
   page: number
   pageSize: number
 }
+
+export interface IFeedbackModelQuery extends IFeedbackModel {
+  page: number
+  pageSize: number
+}
+
+export interface IFeedbackModel {
+
+  allRate?: number
+  feedDesc?: string
+  feedID?: string
+  feedSuggestion?: null | string
+  feedType?: string
+
+  id?: number
+  updatedAt?: string
+  createdAt?: string
+}
