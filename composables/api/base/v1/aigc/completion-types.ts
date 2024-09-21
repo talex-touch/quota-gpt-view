@@ -54,6 +54,11 @@ export enum IChatItemStatus {
   TOOL_ERROR,
 
   /**
+   * 工具调用结束，获得结果
+   */
+  TOOL_RESULT,
+
+  /**
    * 未知错误
    */
   ERROR,
@@ -74,12 +79,22 @@ export interface IChatInnerItemMeta {
   // TODO: context memory
 }
 
+export type IInnerItemType = 'markdown' | 'text' | 'tool' | 'card' | 'error'
+
+export interface IInnerItemMeta {
+  type: IInnerItemType
+  name?: string
+  data?: string
+  value: string
+  extra?: any
+}
+
 export interface IChatInnerItem {
   model: QuotaModel
   status: IChatItemStatus
   timestamp: number
 
-  value: string
+  value: IInnerItemMeta[]
   meta: IChatInnerItemMeta
 }
 
@@ -130,6 +145,8 @@ export interface IChatBody {
   messages: IChatItem[]
   temperature: number
   templateId: number
+
+  generateTitle?: boolean
 }
 
 export interface IHistoryUploadQuery {
@@ -172,9 +189,9 @@ export interface IToolHandler {
   onToolEnd: (name: string, output?: string) => void
 }
 
-interface ITransmissionFormat {
-  id: string // 单聊天ID
-  role: ITransmissionRole
-  event: IFormatEvent
-  chat_id: string // 对话ID
-}
+// interface ITransmissionFormat {
+//   id: string // 单聊天ID
+//   role: ITransmissionRole
+//   event: IFormatEvent
+//   chat_id: string // 对话ID
+// }

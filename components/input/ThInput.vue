@@ -3,14 +3,16 @@ import { encode } from 'gpt-tokenizer'
 import ThInputPlus from './ThInputPlus.vue'
 import type { InputPlusProperty } from './input'
 import { Status } from '~/composables/chat'
+import type { IChatItemStatus } from '~/composables/api/base/v1/aigc/completion-types'
 
 const props = defineProps<{
-  status: Status
+  status: IChatItemStatus
   hide: boolean
   templateEnable: boolean
   inputProperty: InputPlusProperty
 }>()
 const emits = defineEmits<{
+  (name: 'template', data: any): void
   (name: 'send', data: any, meta: any): void
   (name: 'update:inputProperty', value: InputPlusProperty): void
 }>()
@@ -152,6 +154,10 @@ function handleTemplateSelect(data: any) {
   input.value = ''
 }
 
+watch(() => template.value, (val) => {
+  emits('template', val)
+})
+
 const tokenLimit = computed(() => userStore.value.isLogin ? 8192 : 256)
 </script>
 
@@ -162,7 +168,7 @@ const tokenLimit = computed(() => userStore.value.isLogin ? 8192 : 256)
       disabled: hide,
       collapse: nonPlusMode,
       showSend,
-      generating: status === Status.GENERATING,
+      generating: status === 2,
 
     }" class="ThInput" @keydown.enter="handleSend"
   >
@@ -204,7 +210,7 @@ const tokenLimit = computed(() => userStore.value.isLogin ? 8192 : 256)
 
     <div class="ThInput-Send" @click="handleSend">
       <div i-carbon:send-alt />
-      <span v-if="status === Status.GENERATING">生成中</span>
+      <span v-if="status === 2" mr-4 text-lg text-black font-bold op-75>生成中</span>
     </div>
 
     <div class="ThInput-StatusBar" />

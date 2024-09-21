@@ -18,7 +18,7 @@ const props = defineProps<{
 const emits = defineEmits<{
   (e: 'update:messages', messages: IChatConversation): void
   (e: 'cancel'): void
-  (e: 'retry', index: number, innerItem: IChatInnerItem): Promise<void>
+  (e: 'retry', index: number, page: number, innerItem: IChatInnerItem): Promise<void>
 }>()
 
 const scrollbar = ref()
@@ -101,16 +101,6 @@ function handleBackToTop() {
   })
 }
 
-defineExpose({
-  handleBackToBottom,
-  generateScroll: () => {
-    handleScroll()
-
-    if (!options.backToBottom)
-      handleBackToBottom()
-  },
-})
-
 const stop = computed(() =>
   props.status === IChatItemStatus.GENERATING || props.status === IChatItemStatus.WAITING,
 )
@@ -123,7 +113,11 @@ function getDictIndex(ind: number) {
   if (ind % 2 === 0)
     return getDictIndex(ind + 1)
 
+  // console.log('mm', messagesModel, ind)
   const msg = messagesModel.value.messages[ind]
+  if (!msg)
+    return 0
+
   // 如果本来就是 0 直接返回
   if (ind === 1)
     return msg.page
@@ -146,7 +140,7 @@ const msgMeta = computed(() => {
   }[]>([])
   const msgList = messagesModel.value.messages
 
-  for (let i = msgList.length - 1; i >= 0; i -= 2) {
+  for (let i = 0; i < msgList.length - 1; i += 2) {
     const dictIndex = getDictIndex(i)
 
     const obj = reactive({
@@ -159,6 +153,31 @@ const msgMeta = computed(() => {
 
   return meta
 })
+
+defineExpose({
+  handleBackToBottom,
+  generateScroll: () => {
+    handleScroll()
+
+    if (!options.backToBottom)
+      handleBackToBottom()
+  },
+  getDictMeta: () => msgMeta,
+})
+
+function handleRetry(ind: number, item: IChatInnerItem) {
+  const chat = messagesModel.value.messages[ind]
+
+  console.log('a', ind, item)
+
+  // const index = chat.content.findIndex(_ => _?.value === item.value)
+  // chat.content.push({
+  //   ...item,
+  //   value: [],
+  // })
+
+  emits('retry', ind, chat.content.length, item)
+}
 </script>
 
 <template>
@@ -170,6 +189,7 @@ const msgMeta = computed(() => {
     </div>
 
     <div class="ThChat-Container" :class="{ stop, backToBottom: options.backToBottom }">
+      <!-- {{ messagesModel }} -->
       <div :class="{ in: options.backToTop }" class="ToTop only-pc-display" @click="handleBackToTop">
         <div i-carbon:arrow-up />
         查看{{ messagesModel.messages.length }}条历史消息
@@ -182,7 +202,7 @@ const msgMeta = computed(() => {
             :key="message.id" v-model:item="messagesModel.messages[ind]" v-model:meta="msgMeta[ind]"
             :ind="ind" :total="messages.messages.length" :share="options.share.enable"
             :select="options.share.selected" @select="handleSelectShareItem"
-            @retry="emits('retry', ind, $event)"
+            @retry="handleRetry(ind, $event)"
           />
 
           <!-- 统一 error / warning mention -->
@@ -193,12 +213,7 @@ const msgMeta = computed(() => {
 
         <EmptyGuide :show="!!messages.messages?.length" />
 
-        <br>
-        <br>
-        <br>
-        <br>
-        <br>
-        <br>
+        <br v-for="i in 20" :key="i">
       </el-scrollbar>
 
       <div class="ThChat-BackToBottom" @click="handleBackToBottom()">

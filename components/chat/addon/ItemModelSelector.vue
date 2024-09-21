@@ -134,6 +134,7 @@ const curModel = computed(() => models.find(_model => _model.value === model.val
       i {
         display: block;
       }
+      // z-index: 1;
       position: relative;
       display: flex;
 
@@ -192,7 +193,7 @@ const curModel = computed(() => models.find(_model => _model.value === model.val
 
       opacity: 0;
       filter: blur(18px);
-      background-color: var(--el-bg-color-page);
+      background-color: var(--el-overlay-color);
     }
   }
 

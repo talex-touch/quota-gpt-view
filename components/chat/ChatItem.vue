@@ -5,7 +5,9 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 import RoundLoading from '../loaders/RoundLoading.vue'
 import TextShaving from '../other/TextShaving.vue'
 import ThWickCheckBox from '../checkbox/ThWickCheckBox.vue'
+import ChatAttachment from './ChatAttachment.vue'
 import ItemModelSelector from './addon/ItemModelSelector.vue'
+import ErrorCard from './attachments/ErrorCard.vue'
 import { type IChatInnerItem, type IChatItem, IChatItemStatus, IChatRole } from '~/composables/api/base/v1/aigc/completion-types'
 
 interface IChatItemProp {
@@ -62,6 +64,9 @@ const innerItem = computed(() => props.item.content?.[msgItem.value.page + nullL
 const timeAgo = computed(() => innerItem.value ? dayjs(innerItem.value.timestamp).fromNow() : '-')
 const isUser = computed(() => props.item.role === IChatRole.USER)
 
+const endStatus = [IChatItemStatus.AVAILABLE, IChatItemStatus.BANNED, IChatItemStatus.CANCELLED, IChatItemStatus.ERROR, IChatItemStatus.REJECTED, IChatItemStatus.TIMEOUT, IChatItemStatus.TOOL_ERROR]
+const isEnd = computed(() => endStatus.includes(innerItem.value!.status))
+
 function handleGeneratingDotUpdate(rootEl: HTMLElement, cursor: HTMLElement) {
   if (props.ind !== props.total - 1)
     return
@@ -70,12 +75,12 @@ function handleGeneratingDotUpdate(rootEl: HTMLElement, cursor: HTMLElement) {
   cursor.style.animation = 'dot-frames 0.5s infinite'
   timer && clearTimeout(timer)
   timer = setTimeout(() => {
-    if (innerItem.value!.status === IChatItemStatus.GENERATING)
+    if (!isEnd.value)
       return
 
     cursor.style.opacity = '0'
     cursor.style.animation = ''
-  }, 200)
+  }, 500)
 
   let _remove
   // 移除 rootEl最后一个TextNode
@@ -104,7 +109,7 @@ function handleGeneratingDotUpdate(rootEl: HTMLElement, cursor: HTMLElement) {
   const cursorRect = cursor.getBoundingClientRect()
 
   const top = rect.top - textRect.top + rect.height / 2 - cursorRect.height / 2
-  const left = rect.left - textRect.left + rect.width / 2 - cursorRect.width / 2
+  const left = rect.left - textRect.left + rect.width / 2
 
   Object.assign(cursor!.style, {
     top: `${top}px`,
@@ -135,7 +140,13 @@ const tools = reactive([
       if (!props.item.content || tools[0].icon !== 'i-carbon-copy')
         return
 
-      navigator.clipboard.writeText(innerItem.value!.value)
+      let content = ''
+      innerItem.value!.value.forEach((item) => {
+        if (item.type === 'markdown' || item.type === 'text')
+          content += item.value
+      })
+
+      navigator.clipboard.writeText(content)
 
       tools[0].icon = 'i-carbon-checkmark'
 
@@ -177,8 +188,11 @@ watchEffect(() => {
   if (isUser.value)
     return
 
+  // const selfIndex = innerItem.value ? props.item.content.findIndex(_ => _?.timestamp === innerItem.value?.timestamp) : 0
+  // console.log('refresh', selfIndex, innerItem.value, props)
+
   // 计算自己的content中有多少个null
-  metaModel.value.show = !!innerItem.value && metaModel.value.dictIndex >= props.item.page + nullLen.value
+  metaModel.value.show = !!innerItem.value && metaModel.value.dictIndex <= props.item.page + nullLen.value
 })
 
 // onMounted(() => {
@@ -191,6 +205,7 @@ watchEffect(() => {
 </script>
 
 <template>
+  <!-- {{ meta }} {{ item.page }} - {{ nullLen }} -->
   <div v-if="metaModel.show" :class="{ check, share, user: isUser }" class="ChatItem">
     <div class="ChatItem-Select">
       <el-checkbox v-model="check" />
@@ -199,9 +214,10 @@ watchEffect(() => {
     <div class="ChatItem-Avatar">
       <img src="/logo.png">
     </div>
+    <!-- error: innerItem.status === IChatItemStatus.ERROR, -->
     <div
       v-if="innerItem"
-      :class="{ error: innerItem.status === IChatItemStatus.ERROR, settingVisible: settingMode.visible }"
+      :class="{ settingVisible: settingMode.visible }"
       class="ChatItem-Wrapper"
     >
       <div class="ChatItem-Agent">
@@ -218,20 +234,38 @@ watchEffect(() => {
             <RoundLoading />
           </div>
         </div>
-        <div v-else ref="dom" class="ChatItem-Content-Inner">
-          <span v-if="item.role === 'user'">
-            <pre class="inner" v-text="innerItem.value" />
-          </span>
-          <span v-else-if="innerItem.status === IChatItemStatus.ERROR">
+        <div v-else-if="innerItem.value.length" ref="dom" class="ChatItem-Content-Inner">
+          <!-- <span v-if="innerItem.status === IChatItemStatus.ERROR">
             错误 {{ item.content }}
-          </span>
-          <RenderContent
-            v-else-if="item.content?.length" :render="settingMode.render" readonly
-            :data="innerItem.value"
-          />
-          <!-- v-if="generating && !!item.content.length" -->
+          </span> -->
+          <div v-for="(block, i) in innerItem.value" :key="i" class="ChatItem-Content-Inner-Block">
+            <span v-if="block.type === 'text'">
+              <pre class="inner" v-text="block.value" />
+            </span>
+
+            <RenderContent
+              v-else-if="block.type === 'markdown'" :render="settingMode.render" readonly
+              :data="block.value"
+            />
+
+            <div v-else-if="block.type === 'card'">
+              Card: {{ block }}
+            </div>
+
+            <div v-else-if="block.type === 'tool'">
+              <ChatAttachment :block="block" />
+            </div>
+
+            <div v-else-if="block.type === 'error'">
+              <ErrorCard :block="block " />
+            </div>
+          </div>
           <div v-if="!isUser" class="Generating-Dot" />
         </div>
+        <p v-else mt-3>
+          <TextShaving :text="isEnd ? '分析失败' : '正在分析中'" />
+          <br>
+        </p>
 
         <div class="ChatItem-Setting">
           <ThWickCheckBox v-model="settingMode.render.enable">
@@ -248,9 +282,8 @@ watchEffect(() => {
 
       <div
         v-if="
-          innerItem.status !== IChatItemStatus.GENERATING
+          isEnd
             && !!item.content?.length
-            && innerItem.status !== IChatItemStatus.WAITING
         " class="ChatItem-Mention" :class="{
           autoHide: isUser || total !== ind + 1,
         }"

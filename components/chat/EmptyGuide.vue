@@ -106,7 +106,7 @@ const sections = reactive([
 .EmptyGuide {
   &.show {
     h1 {
-      opacity: 0.25;
+      opacity: 0.025;
       filter: grayscale(100%);
     }
     top: 60%;

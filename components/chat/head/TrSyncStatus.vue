@@ -6,6 +6,10 @@ const props = defineProps < {
   status: C.PersistStatus
 }>()
 
+const emits = defineEmits <{
+  (e: 'upload'): void
+}>()
+
 const sync = computed(() => props.status === C.PersistStatus.SUCCESS)
 const syncing = computed(() => props.status === C.PersistStatus.PENDING)
 const failed = computed(() => props.status === C.PersistStatus.FAILED)
@@ -14,8 +18,9 @@ const modified = computed(() => props.status === C.PersistStatus.MODIFIED)
 
 <template>
   <span
-    :class="{ shining: syncing, error: failed, warning: syncing || modified, syncing, sync }"
+    :class="{ cursorPointer: failed || modified, shining: syncing, error: failed, warning: syncing || modified, syncing, sync }"
     class="tag TrSyncStatus"
+    @click="emits('upload')"
   >
     <template v-if="syncing">
       <i i-carbon:renew block class="sync-loading-icon" />
@@ -49,6 +54,9 @@ const modified = computed(() => props.status === C.PersistStatus.MODIFIED)
 }
 
 .TrSyncStatus {
+  &.cursorPointer {
+    cursor: pointer;
+  }
   position: relative;
   display: flex;
   padding: 0.25rem;

@@ -22,6 +22,17 @@ async function detectEndStatus() {
 
 onBeforeMount(detectEndStatus)
 watch(() => online.value, detectEndStatus)
+
+// const content = computed(() => {
+//   if (userStore.value.isLogin) {
+//     return [
+//       'ThisAI Beta',
+//       `${userStore.value.nickname}`,
+//     ]
+//   }
+//   return ['ThisAI Beta',
+//   ]
+// })
 </script>
 
 <template>

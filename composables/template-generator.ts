@@ -85,7 +85,11 @@ export function genCmsTemplateData<T extends Record<string, any> & { id?: number
 
     const res = await dataHandler.getList!(query as PageT)
     if (res.code === 200) {
+      console.log('res', res.data)
+
       list.value = res.data as any
+
+      console.log('list', list.value)
 
       dataHandler.onFetchSuccess?.()
     }
