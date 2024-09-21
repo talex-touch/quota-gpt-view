@@ -47,6 +47,7 @@ async function handleDrop(e: DragEvent) {
     const res = await $endApi.v1.common.upload(file)
     if (res.code === 200) {
       // res.data.filename
+      console.log('upload success',res.data)
     }
   }
 
