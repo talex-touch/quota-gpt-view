@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import PopoverComp from '../template/PopoverComp.vue'
 import { type IChatConversation, PersistStatus } from '~/composables/api/base/v1/aigc/completion-types'
 import { $historyManager } from '~/composables/api/base/v1/aigc/history'
 
@@ -45,7 +46,12 @@ const menus = reactive([
     icon: 'i-carbon-edit',
     trigger: () => {
       if (!reactiveConversation.value) {
-        ElMessage.error('无法修改目标记录!')
+        ElMessage({
+          message: '无法修改目标记录!',
+          grouping: true,
+          type: 'error',
+          plain: true,
+        })
         return
       }
 
@@ -55,11 +61,11 @@ const menus = reactive([
       setTimeout(() => input.value?.focus(), 200)
     },
   },
-  {
-    name: '分享记录',
-    icon: 'i-carbon-share',
-    trigger: () => {},
-  },
+  // {
+  //   name: '分享记录',
+  //   icon: 'i-carbon-share',
+  //   trigger: () => { },
+  // },
   {
     name: '删除记录',
     icon: 'i-carbon-close',
@@ -74,42 +80,32 @@ const menus = reactive([
 <template>
   <div class="HistoryItem" :class="{ edit: editMode }">
     <span class="content-wrapper">
-      <input
-        v-if="editMode"
-        ref="input"
-        v-model="topic"
-        @blur="editMode = false"
-        @keydown.enter="editMode = false"
-      >
+      <input v-if="editMode" ref="input" v-model="topic" @blur="editMode = false" @keydown.enter="editMode = false">
       <span v-else class="content">{{ modelValue.topic }}</span></span>
     <div class="History-Content-Fixed">
-      <el-popover
-        transition="th-zoom"
-        :show-arrow="false"
-        popper-class="History-Content-MenuWrapper"
-        placement="bottom-start"
-        :width="200"
-        trigger="hover"
-      >
-        <template #reference>
+      <PopoverComp popper-class="History-Content-MenuWrapper">
+        <template #inner>
           <div class="i-carbon:overflow-menu-horizontal" />
         </template>
         <div class="History-Content-MenuWrapper">
           <div class="History-Content-Menu">
             <div
-              v-for="menu in menus"
-              :key="menu.name"
-              v-wave
-              :class="{ danger: menu.danger }"
-              class="History-Content-Menu-Item"
-              @click.stop="menu.trigger(modelValue.id)"
+              v-for="menu in menus" :key="menu.name" v-wave :class="{ danger: menu.danger }"
+              class="History-Content-Menu-Item" @click.stop="menu.trigger(modelValue.id)"
             >
               <div :class="menu.icon" />
               <span v-html="menu.name" />
             </div>
           </div>
         </div>
-      </el-popover>
+      </PopoverComp>
+      <!-- <el-popover transition="th-zoom" :show-arrow="false" popper-class="History-Content-MenuWrapper"
+        placement="bottom-start" :width="200" trigger="hover">
+        <template #reference>
+
+        </template>
+
+      </el-popover> -->
     </div>
   </div>
 </template>

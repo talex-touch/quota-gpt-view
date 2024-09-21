@@ -2,7 +2,6 @@
 import ThChat from '~/components/chat/ThChat.vue'
 import ThInput from '~/components/input/ThInput.vue'
 import History from '~/components/history/index.vue'
-import { chatManager } from '~/composables/chat'
 import ShareSection from '~/components/chat/ShareSection.vue'
 import type { InputPlusProperty } from '~/components/input/input'
 import { getTargetPrompt } from '~/composables/api/chat'
@@ -54,8 +53,14 @@ $event.on('USER_LOGOUT_SUCCESS', () => { pageOptions.conversation = $completion.
 
 async function handleDelete(id: string) {
   const res: any = await $endApi.v1.aigc.deleteConversation(id)
-  if (res.code !== 200)
-    return ElMessage.error(`删除失败(${res.message})`)
+  if (res.code !== 200) {
+    return ElMessage({
+      message: `删除失败(${res.message})！`,
+      grouping: true,
+      type: 'error',
+      plain: true,
+    })
+  }
 
   if (id === pageOptions.select)
     handleCreate()
@@ -138,10 +143,10 @@ async function innerSend(conversation: IChatConversation, chatItem: IChatItem, i
 
       $historyManager.syncHistory(conversation)
 
-      setTimeout(() => chatRef.value?.generateScroll(), 200)
+      setTimeout(() => chatRef.value?.generateScroll(), 500)
     },
     onFrequentLimit() {
-      chatManager.cancelCurrentReq()
+      // chatManager.cancelCurrentReq()
     },
   })
 
@@ -186,9 +191,18 @@ async function handleSend(query: string, _meta: any) {
   // getDictMeta
   const shiftItem = i >= 0 ? conversation.messages.at(i) : null
 
+  function getModel() {
+    if (!shiftItem)
+      return QuotaModel.QUOTA_THIS_NORMAL
+
+    const inner = shiftItem.content[shiftItem.page]
+
+    return inner?.model || QuotaModel.QUOTA_THIS_NORMAL
+  }
+
   const chatItem = $completion.emptyChatItem()
   const innerItem = $completion.emptyChatInnerItem({
-    model: QuotaModel.QUOTA_THIS_NORMAL,
+    model: getModel(),
     value: [$completion.initInnerMeta('text', query)],
     meta: {
       temperature: 0,
@@ -214,6 +228,10 @@ function handleShare() {
   pageOptions.share.enable = !pageOptions.share.enable
 }
 
+function handleCancelReq() {
+
+}
+
 console.log(pageOptions)
 </script>
 
@@ -227,7 +245,7 @@ console.log(pageOptions)
     <div class="PageContainer-Main">
       <ThChat
         ref="chatRef" v-model:messages="pageOptions.conversation" :status="pageOptions.status"
-        @cancel="chatManager.cancelCurrentReq()" @retry="handleRetry"
+        @cancel="handleCancelReq" @retry="handleRetry"
       />
 
       <ThInput
@@ -336,12 +354,18 @@ console.log(pageOptions)
   }
 
   &-Main {
+    .expand & {
+      width: calc(100% - 200px);
+    }
     z-index: 2;
     position: relative;
 
-    flex: 1;
+    // flex: 1;
     width: 100%;
+    max-width: 100%;
     height: 100%;
+
+    overflow: hidden;
   }
 
   &-History {

@@ -81,13 +81,23 @@ const data = reactive({
 function handleSendCode() {
   data.mode = 'code'
   if (!data.agreement) {
-    ElMessage.info('请先同意协议！')
+    ElMessage({
+      message: '请先同意协议！',
+      grouping: true,
+      type: 'info',
+      plain: true,
+    })
     return
   }
 
   const phone = data.account.replaceAll(' ', '')
   if (phone.length !== 11) {
-    ElMessage.error('请输入正确的手机号！')
+    ElMessage({
+      message: '请输入正确的手机号！',
+      grouping: true,
+      type: 'error',
+      plain: true,
+    })
     return
   }
 
@@ -98,18 +108,33 @@ function handleSendCode() {
 async function handleLogin() {
   data.mode = 'login'
   if (!data.agreement) {
-    ElMessage.info('请先同意协议！')
+    ElMessage({
+      message: '请先同意协议！',
+      grouping: true,
+      type: 'info',
+      plain: true,
+    })
     return
   }
 
   const phone = data.account.replaceAll(' ', '')
   if (phone.length !== 11) {
-    ElMessage.error('请输入正确的手机号！')
+    ElMessage({
+      message: '请输入正确的手机号！',
+      grouping: true,
+      type: 'error',
+      plain: true,
+    })
     return
   }
 
   if (+data.code < 100000 || +data.code > 999999) {
-    ElMessage.error('请输入正确的验证码！')
+    ElMessage({
+      message: '请输入正确的验证码！',
+      grouping: true,
+      type: 'error',
+      plain: true,
+    })
     return
   }
 
@@ -175,20 +200,35 @@ onMounted(async () => {
             _res.captchaResult = true
 
           if (result.message === 'sms-sent-err') {
-            ElMessage.error('无法向目标手机号发送消息，请稍后重试！')
+            ElMessage({
+              message: '无法向目标手机号发送消息，请稍后重试！',
+              grouping: true,
+              type: 'error',
+              plain: true,
+            })
           }
           else if (result.code === 200) {
             smsOptions.lastSent = Date.now()
 
             refreshSmsTitle()
 
-            ElMessage.success('发送成功！')
+            ElMessage({
+              message: '发送成功！',
+              grouping: true,
+              type: 'success',
+              plain: true,
+            })
           }
         }
-        catch (e) {
+        catch (e: any) {
           console.error(e)
 
-          ElMessage.error('发送失败！')
+          ElMessage({
+            message: `发送失败(${e.message || 'error'})！`,
+            grouping: true,
+            type: 'error',
+            plain: true,
+          })
         }
 
         smsOptions.loading = false
@@ -203,14 +243,24 @@ onMounted(async () => {
           if (result.code !== 1002)
             _res.captchaResult = true
 
-          if (result.code === 1003)
-            ElMessage.error('短信验证码有误')
-          else
-            _res.bizResult = true
+          if (result.code === 1003) {
+            ElMessage({
+              message: '短信验证码有误！',
+              grouping: true,
+              type: 'error',
+              plain: true,
+            })
+          }
+          else { _res.bizResult = true }
 
           if (result.code === 200) {
             if (!result.data) {
-              ElMessage.error(result.message)
+              ElMessage({
+                message: result.message,
+                grouping: true,
+                type: 'error',
+                plain: true,
+              })
               smsOptions.smsLogin = false
             }
             else {
@@ -219,7 +269,12 @@ onMounted(async () => {
 
                 $handleUserLogin(result.data)
 
-                ElMessage.info('登录成功！')
+                ElMessage({
+                  message: '登录成功！',
+                  grouping: true,
+                  type: 'success',
+                  plain: true,
+                })
 
                 show.value = false
               }, 200)
@@ -228,10 +283,15 @@ onMounted(async () => {
 
           console.error(result)
         }
-        catch (e) {
+        catch (e: any) {
           console.error(e)
 
-          ElMessage.error('发送失败！')
+          ElMessage({
+            message: `发送失败(${e.message || 'error'})！`,
+            grouping: true,
+            type: 'error',
+            plain: true,
+          })
         }
       }
 
@@ -311,7 +371,12 @@ watch(() => codeStatus.value, async (status) => {
   localStorage.removeItem('code-data')
 
   if (res.code !== 200) {
-    ElMessage.error(res.message || '登录失败！')
+    ElMessage({
+      message: `登录失败(${res.message || 'error'})！`,
+      grouping: true,
+      type: 'error',
+      plain: true,
+    })
     return
   }
 
@@ -319,10 +384,15 @@ watch(() => codeStatus.value, async (status) => {
     await $handleUserLogin(res.data)
     // userStore.value.token = (res.data.token)
 
-    ElMessage.info('登录成功！')
+    ElMessage({
+      message: `已成功登录！`,
+      grouping: true,
+      type: 'success',
+      plain: true,
+    })
 
     show.value = false
-  }, 500)
+  }, 800)
 })
 
 // @ts-expect-error force exist
@@ -390,12 +460,12 @@ const codeUrl = computed(() => `https://mp.weixin.qq.com/cgi-bin/showqrcode?tick
               <p>需要绑定</p>
               <span>请输入手机号进行绑定</span>
             </div>
-            <div v-else-if="codeStatus === 3" class="scanned">
+            <div v-else-if="codeStatus === 3" cursor-pointer class="scanned" @click="fetchCode">
               <div i-carbon:devices />
               <p>正在登录</p>
               <span>请稍等，正在登录...</span>
             </div>
-            <div v-else-if="codeStatus !== 0" class="scanned">
+            <div v-else-if="codeStatus !== 0" cursor-pointer class="scanned" @click="fetchCode">
               <div i-carbon:checkmark-filled />
               <p>已扫码</p>
               <span>请在手机上确认登录</span>

@@ -11,6 +11,7 @@ useHead({
 })
 
 const pageOptions = reactive({
+  tutorialShow: false,
   model: {
     login: false,
   },
@@ -32,6 +33,10 @@ globalOptions.onUpdateUrl((url: string) => {
 globalOptions.setEndsUrl(globalOptionsStore.value.url)
 
 onMounted(async () => {
+  setTimeout(() => {
+    pageOptions.tutorialShow = true
+  }, 1200)
+
   if (window.h5sdk)
     feishuInit(router)
 
@@ -81,6 +86,7 @@ provide('appOptions', pageOptions)
     <NuxtPage />
   </NuxtLayout>
 
+  <!-- <ChoreTutorial v-model:show="pageOptions.tutorialShow" /> -->
   <Login v-if="!userStore.isLogin" v-model:show="pageOptions.model.login" />
 </template>
 
@@ -252,6 +258,10 @@ span.premium-end {
   .only-pc-display {
     display: none !important;
   }
+}
+
+.el-message {
+  border-radius: 16px;
 }
 
 .el-menu {

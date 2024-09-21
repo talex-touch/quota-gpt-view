@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { InputPlusProperty } from './input'
-import { chatManager } from '~/composables/chat'
 
 const props = defineProps<{
   modelValue: InputPlusProperty
@@ -28,9 +27,6 @@ const options: any = reactive([
     type: 'checkbox',
     label: '联网能力',
     onclick: () => {
-      if (chatManager.messages.value.model === 'this-normal')
-        return
-
       property.value.internet = !property.value.internet
     },
     checked: () => property.value.internet,
@@ -42,12 +38,6 @@ const options: any = reactive([
     model: property.value.temperature,
   },
 ])
-
-watch(() => chatManager.messages.value.model, (val) => {
-  // 强制开启internet
-  if (val === 'this-normal')
-    property.value.internet = true
-})
 </script>
 
 <template>

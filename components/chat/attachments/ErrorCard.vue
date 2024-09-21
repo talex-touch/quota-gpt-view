@@ -54,6 +54,8 @@ const description = computed(() => {
     return [1, '您已达到限制，升级订阅计划以继续使用科塔智爱。为确保服务不受影响，建议您尽快完成订阅计划升级。如有任何疑问，欢迎随时联系客服咨询。感谢您的支持与理解。']
   else if (+_text.value[1]! === 503)
     return [2, '当前模型的使用需升级至更高级的订阅计划。请前往订阅页面选择合适的套餐进行升级，以便继续使用该模型的所有功能。感谢您的理解和支持。']
+  else if (title.includes('未登录'))
+    return [3, '您尚未登录，请先登录以继续使用科塔智爱系统的全部功能。为确保正常体验，请前往登录页面完成登录操作。如有任何疑问，欢迎联系客服获取帮助。感谢您的理解与支持。']
   else if (+_text.value[1]! === 500)
     return [0, '发生未知错误，请联系管理员以获取进一步支持。我们将尽快为您解决问题，感谢您的理解和配合。']
 
@@ -107,6 +109,9 @@ const description = computed(() => {
       <div class="primary bg" />
 
       <span text-white font-bold><i i-carbon:upgrade block /> 立即升级</span>
+    </template>
+    <template v-if="+description[0] === 3">
+      <i i-carbon:login block /> 立即登录
     </template>
   </div>
 </template>

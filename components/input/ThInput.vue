@@ -2,8 +2,7 @@
 import { encode } from 'gpt-tokenizer'
 import ThInputPlus from './ThInputPlus.vue'
 import type { InputPlusProperty } from './input'
-import { Status } from '~/composables/chat'
-import type { IChatItemStatus } from '~/composables/api/base/v1/aigc/completion-types'
+import { IChatItemStatus } from '~/composables/api/base/v1/aigc/completion-types'
 
 const props = defineProps<{
   status: IChatItemStatus
@@ -37,7 +36,7 @@ const showSend = computed(() => input.value.trim().length)
 function handleSend(event: Event) {
   if (!showSend.value)
     return
-  if (props.status !== Status.AVAILABLE)
+  if (props.status !== IChatItemStatus.AVAILABLE)
     return
 
   if (input.value.startsWith('@'))

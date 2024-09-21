@@ -5,6 +5,7 @@ import Logo from '../chore/Logo.vue'
 import UserAvatar from '../personal/UserAvatar.vue'
 import PremiumButton from '../button/PremiumButton.vue'
 import { $historyManager, IHistoryStatus } from '~/composables/api/base/v1/aigc/history'
+import type { IChatConversation } from '~/composables/api/base/v1/aigc/completion-types'
 
 const props = defineProps<{
   expand: boolean
@@ -51,6 +52,17 @@ const categories = [
 ]
 
 const loadMore = ref()
+const searchedList = reactive<{
+  enable: boolean
+  loading: boolean
+  select: string
+  list: Array<IChatConversation>
+}>({
+  enable: false,
+  loading: false,
+  list: [],
+  select: '',
+})
 const processedHistory = computed(() => [...($historyManager.options.list.values())].map((item, index) => ({
   index,
   ...item,
@@ -207,6 +219,25 @@ const planProgress = computed(() => {
 
   return { text, progress }
 })
+
+async function handleSearchHistory(query: string) {
+  if (!query) {
+    searchedList.enable = false
+    searchedList.list = []
+    return
+  }
+
+  searchedList.enable = true
+  searchedList.loading = true
+
+  await sleep(200)
+
+  const res = await $historyManager.searchHistories(query)
+
+  searchedList.list = res.data.items
+
+  searchedList.loading = false
+}
 </script>
 
 <template>
@@ -216,14 +247,30 @@ const planProgress = computed(() => {
     </teleport>
 
     <div class="History-Title">
-      <div class="History-Title-Head" flex items-center gap-2 @click="emits('create')">
-        <img src="/logo.png">
+      <div class="History-Title-Head" @click="emits('create')">
+        <!-- <img src="/logo.png">
         <span>创建新对话</span>
-        <div i-carbon-add mr-2 />
+        <div i-carbon-add mr-2 /> -->
+        <ButtonWavingButton flex items-center justify-between gap-2>
+          <img src="/logo.png">
+          <span>创建新对话</span>
+          <div i-carbon-add mr-2 />
+        </ButtonWavingButton>
       </div>
+
+      <InputSearchable @search="handleSearchHistory" />
     </div>
 
-    <div class="History-Wrapper">
+    <div :class="{ searchable: searchedList.enable }" class="History-Wrapper">
+      <div v-loader="searchedList.loading" class="History-SearchableContent">
+        <el-scrollbar>
+          <HistorySection
+            v-model:select="searchedList.select"
+            title="已搜索" :history="searchedList.list" @delete="handleDelete"
+          />
+        </el-scrollbar>
+      </div>
+
       <el-scrollbar>
         <div class="History-Content">
           <!-- <div style="margin: 0 0.5rem" class="History-Content-Item active" @click="emits('create')">
@@ -261,6 +308,29 @@ const planProgress = computed(() => {
 </template>
 
 <style lang="scss">
+.History-SearchableContent {
+  .searchable & {
+    transform: translateX(0);
+  }
+  .HistorySection {
+    --history-title-height: 0;
+  }
+  z-index: 2;
+  position: absolute;
+  padding: 0.5rem;
+
+  top: var(--history-title-height);
+  left: 0;
+
+  width: 100%;
+  height: calc(100% - var(--history-title-height));
+
+  transform: translateX(100%);
+  background-color: var(--el-bg-color-page);
+
+  transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+}
+
 .History-Bottom {
   .plan {
     .progress-bar {
@@ -347,11 +417,8 @@ div.History {
 }
 
 .History-Title-Head {
-  &:hover {
-    cursor: pointer;
-    background-color: var(--el-fill-color);
-  }
   &::before {
+    z-index: -1;
     content: '';
     position: absolute;
 
@@ -361,7 +428,9 @@ div.History {
     width: 100%;
     height: 100%;
 
-    opacity: 0.25;
+    opacity: 0.125;
+    overflow: hidden;
+    border-radius: 16px;
     background-size: cover;
     background-position: 64px 0;
     filter: blur(18px) saturate(180%);
@@ -380,20 +449,15 @@ div.History {
     height: 100%;
 
     opacity: 0.75;
+    border-radius: 16px;
     background-color: var(--el-bg-color);
   }
   position: relative;
-  padding: 0.25rem 0.5rem;
-  display: flex;
-
-  justify-content: space-between;
 
   width: 100%;
 
-  font-size: 14px;
-  font-weight: 600;
-  overflow: hidden;
-  border-radius: 16px;
+  // overflow: hidden;
+  // border-radius: 16px;
 
   img {
     width: 32px;
@@ -425,7 +489,7 @@ div.History {
   position: relative;
 
   width: 100%;
-  height: calc(100% - 70px);
+  height: calc(100% - var(--history-title-height) + 70px);
 
   box-sizing: border-box;
 }
@@ -525,7 +589,7 @@ div.History {
   display: flex;
   // padding-left: 0.5rem;
   // padding-right: 0.5rem;
-  padding-top: 80px;
+  padding-top: calc(var(--history-title-height) + 30px);
   padding-bottom: 2rem;
   flex-direction: column;
 
@@ -533,6 +597,8 @@ div.History {
 }
 
 .History {
+  --history-title-height: 125px;
+
   &-Title {
     z-index: 3;
     position: absolute;
@@ -541,11 +607,13 @@ div.History {
     font-size: 24px;
 
     width: 100%;
-    height: 70px;
+    height: var(--history-title-height);
 
+    gap: 1rem;
     font-weight: 600;
     text-align: center;
     align-items: center;
+    flex-direction: column;
     justify-content: space-between;
 
     .wallpaper & {
@@ -644,6 +712,7 @@ div.History {
   transform: translateX(-100%);
   background-color: var(--el-bg-color-page);
 
+  overflow: hidden;
   transition:
     0.75s width cubic-bezier(0.785, 0.135, 0.15, 0.86),
     0.5s opacity cubic-bezier(0.785, 0.135, 0.15, 0.86),

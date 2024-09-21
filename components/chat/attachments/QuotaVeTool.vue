@@ -1,0 +1,192 @@
+<script setup lang="ts">
+import Imagable from './ve-tool/Imagable.vue'
+import BingSearch from './ve-tool/BingSearch.vue'
+import Calculator from './ve-tool/Calculator.vue'
+import Music from './ve-tool/Music.vue'
+import Lucky from './ve-tool/Lucky.vue'
+import Weather from './ve-tool/Weather.vue'
+import Flight from './ve-tool/Flight.vue'
+import type { IInnerItemMeta } from '~/composables/api/base/v1/aigc/completion-types'
+
+const props = defineProps<{
+  block: IInnerItemMeta
+}>()
+const emits = defineEmits<{
+  (e: 'expand', expand: boolean): void
+}>()
+
+const data = computed(() => props.block.data ? JSON.parse(props.block.data) : {})
+const value = computed(() => props.block.value ? JSON.parse(props.block.value) : {})
+
+const compMapper = reactive({
+  'ts-ThisAI_StandardImagable-ThisAI_StandardImagable': {
+    icon: 'i-carbon:image',
+    comp: Imagable,
+    expandable: true,
+    query: computed(() => data.value.arguments?.text || data.value.name),
+  },
+  'biyingsousuo-bingWebSearch': {
+    icon: 'i-carbon:search',
+    comp: BingSearch,
+    query: computed(() => data.value.arguments?.query || data.value.name),
+  },
+  'Wolfram_Alpha-calculate': {
+    icon: 'i-carbon:calculation',
+    comp: Calculator,
+    expandable: true,
+    query: computed(() => data.value.arguments?.input || data.value.name),
+  },
+  'AIledui-lyrics_to_song': {
+    icon: 'i-carbon:music',
+    comp: Music,
+    expandable: true,
+    query: computed(() => data.value ? '已生成' : '生成中'),
+  },
+  'xingzuoyunshi-star': {
+    icon: 'i-carbon:bee',
+    comp: Lucky,
+    expandable: true,
+    query: computed(() => data.value.arguments?.consName || data.value.name),
+  },
+  'mojitianqi-DayWeather': {
+    icon: 'i-carbon:cloud',
+    comp: Weather,
+    expandable: true,
+    query: computed(() => ((data.value.arguments?.province || '') + (data.value.arguments?.city || '') + (data.value.arguments?.towns || '')) || data.value.name),
+  },
+  'feichangzhun-getRoute': {
+    icon: 'i-carbon:plane',
+    comp: Flight,
+    expandable: true,
+    query: computed(() => `${data.value.arguments.dep} ➜ ${data.value.arguments.arr}` || data.value.name),
+  },
+})
+
+const curItem = computed(() => compMapper?.[data.value.name] || null)
+const timeCost = computed(() => {
+  const start = props.block.extra?.start || -1
+  const end = props.block.extra?.end || -1
+
+  if (start === -1 || end === -1)
+    return ''
+
+  return `Costs: ${((end - start) / 1000).toFixed(2)}s`
+})
+</script>
+
+<template>
+  <div :class="{ done: block.extra?.end }" class="QuotaVeTool">
+    <template v-if="curItem">
+      <template v-if="curItem.expandable">
+        <ChatQueryCollapse @expand="emits('expand', $event)">
+          <template #Header>
+            <div class="Tool-Header">
+              <div class="Tool-Header-Icon">
+                <div :class="curItem.icon" />
+              </div>
+              <OtherTextShaving v-if="!block.value" :text="curItem.query" />
+              <p v-else>
+                {{ curItem.query }}
+              </p>
+              <div class="Tool-Header-Status">
+                <IconCircleLoader class="Loader" />
+                <el-tooltip placement="top" :content="timeCost">
+                  <div class="_dot" />
+                </el-tooltip>
+              </div>
+            </div>
+          </template>
+
+          <div class="Tool-Inner">
+            <el-scrollbar>
+              <component :is="curItem.comp" :data="data" :value="value" />
+            </el-scrollbar>
+          </div>
+        </ChatQueryCollapse>
+      </template>
+      <template v-else>
+        <div class="Tool-Header">
+          <div class="Tool-Header-Icon">
+            <div :class="curItem.icon" />
+          </div>
+          <OtherTextShaving v-if="!block.value" :text="curItem.query" />
+          <p v-else>
+            {{ curItem.query }}
+          </p>
+          <div class="Tool-Header-Status">
+            <IconCircleLoader class="Loader" />
+            <div class="_dot" />
+          </div>
+        </div>
+
+        <component :is="curItem.comp" :data="data" :value="value" />
+      </template>
+    </template>
+    <template v-else>
+      <OtherTextShaving text="无法获取对应数据" />
+      {{ data }}
+    </template>
+  </div>
+</template>
+
+<style lang="scss" scoped>
+.Tool-Inner {
+  position: relative;
+
+  max-width: 100%;
+  max-height: 100%;
+
+  overflow: hidden;
+}
+
+.Tool-Header-Status {
+  .done & {
+    :deep(.loader) {
+      transform: scale(0);
+    }
+
+    ._dot {
+      opacity: 1;
+    }
+  }
+  ._dot {
+    position: absolute;
+
+    top: 50%;
+    left: 50%;
+
+    width: 10px;
+    height: 10px;
+
+    opacity: 0;
+    transition: 0.25s;
+    border-radius: 50%;
+    filter: brightness(90%);
+    transform: translate(-50%, -50%);
+    background-color: var(--el-color-success);
+  }
+  position: relative;
+  display: flex;
+
+  width: 40px;
+
+  align-items: center;
+}
+
+.Tool-Header {
+  :deep(.loader) {
+    transition: 0.25s;
+    transform: scale(0.75);
+  }
+  display: flex;
+
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.QuotaVeTool {
+  position: relative;
+
+  transition: 0.25s;
+}
+</style>

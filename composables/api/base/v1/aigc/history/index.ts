@@ -1,8 +1,3 @@
-import Ecs20140526, * as $Ecs20140526 from '@alicloud/ecs20140526'
-import OpenApi, * as $OpenApi from '@alicloud/openapi-client'
-import Util, * as $Util from '@alicloud/tea-util'
-import * as $tea from '@alicloud/tea-typescript'
-import type { EffectScope } from 'vue'
 import { userStore } from '#imports'
 import { $endApi } from '~/composables/api/base'
 import { type IChatConversation, PersistStatus } from '~/composables/api/base/v1/aigc/completion-types'
@@ -90,6 +85,15 @@ export class HistoryManager implements IHistoryManager {
   //     }
   //   })
   // }
+
+  async searchHistories(query: string) {
+    return $endApi.v1.aigc.getConversations({
+      pageSize: 25,
+      page: 1,
+      topic: query
+    })
+  }
+
   async loadHistories() {
     if (!userStore.value.isLogin)
       return
@@ -104,8 +108,14 @@ export class HistoryManager implements IHistoryManager {
 
     this.options.status = IHistoryStatus.DONE
 
-    if (res.code !== 200)
-      return ElMessage.error('获取历史记录失败!所有操作不会被保存!')
+    if (res.code !== 200) {
+      return ElMessage({
+        message: `获取历史记录失败!所有操作不会被保存!`,
+        grouping: true,
+        type: 'error',
+        plain: true,
+      })
+    }
 
     const totalPages = res.data.meta.totalPages
     if (totalPages <= this.options.page) {
