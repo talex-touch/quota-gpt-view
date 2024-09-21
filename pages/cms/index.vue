@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { UserFilled } from '@element-plus/icons-vue'
+import { ref } from 'vue'
 
 definePageMeta({
   layout: 'cms',
@@ -7,29 +7,11 @@ definePageMeta({
     name: 'rotate',
   },
 })
-import { ref } from "vue";
-// import { ElMessage } from 'element-plus'
-import { Edit } from '@element-plus/icons-vue'
 
 const showDetails = ref(false)
 </script>
 
 <template>
-<<<<<<< HEAD
-  <!-- <div class="Cms">
-    <el-empty />
-  </div> -->
-  <div class="Allpage">
-
-      <div class="One">
-        <!-- <div class="cir"></div> -->
-        <el-button class="btn" :icon="Edit" circle />
-      
-      </div>
-    </div>
-    <div class="bottom">
-
-=======
   <div class="Cms">
     <!-- <el-empty /> -->
     <div class="page">
@@ -64,7 +46,6 @@ const showDetails = ref(false)
         <div>3</div>
       </div>
     </div>
->>>>>>> 409006896cf5f7aa0954b2c2b4c7fbd94be299c1
   </div>
 </template>
 
@@ -182,7 +163,7 @@ const showDetails = ref(false)
 .Allpage {
   width: 100%;
 }
-.One{
+.One {
   background-color: aquamarine;
   width: 400px;
   height: 50px;
@@ -190,7 +171,7 @@ const showDetails = ref(false)
   border-radius: 5px;
   display: flex;
 }
-.btn{
+.btn {
   display: flex;
   justify-content: start;
   align-items: flex;
