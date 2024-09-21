@@ -1,9 +1,8 @@
 <script lang="ts" setup>
-
 import type { FormRules } from 'element-plus'
 
-import { $endApi } from '~/composables/api/base';
-import type { IParamConfigModel, IParamConfigModelQuery } from '~/composables/api/base/index.type';
+import { $endApi } from '~/composables/api/base'
+import type { IParamConfigModel, IParamConfigModelQuery } from '~/composables/api/base/index.type'
 
 definePageMeta({
   name: '参数配置',
@@ -16,20 +15,19 @@ definePageMeta({
 type TemplateType = IParamConfigModel
 const $dataApi = $endApi.v1.cms.paramConfig
 
-
 const templateData = genCmsTemplateData<TemplateType, IParamConfigModelQuery, null>({
   getDeleteBoxTitle(id) {
     return ` 参数配置#${id} `
   },
   getEmptyModel: () => ({
 
-    key: "",
-    value: "",
-    name: "",
-    remark: "",
+    key: '',
+    value: '',
+    name: '',
+    remark: '',
     id: 0,
-    createdAt: "",
-    updatedAt: ""
+    createdAt: '',
+    updatedAt: '',
   }),
   onFetchSuccess: async () => {
 
@@ -49,34 +47,29 @@ const templateData = genCmsTemplateData<TemplateType, IParamConfigModelQuery, nu
   name: '',
   order: '',
   updatedAt: '',
-  createdAt: ''
+  createdAt: '',
 })
 
-
 const { list, listForm, fetchData, handleCrudDialog, handleDeleteData } = templateData
-
 
 onMounted(fetchData)
 
 const rules = reactive<FormRules<TemplateType>>({
   id: [
     { required: true, message: '请输入参数名称', trigger: 'blur' },
-  ]
+  ],
 })
-
 </script>
 
 <template>
-
   <TemplateStandardCms :rules="rules" :list="list" :template-data="templateData" name="参数配置项">
     <template #QueryForm>
       <el-form-item label="参数名称">
         <el-input v-model="listForm.name" placeholder="参数名称" clearable />
       </el-form-item>
-
     </template>
     <template #TableColumn>
-      <el-table-column width="100px" type="index" label="序号" />
+      <el-table-column width="100px" prop="id" label="序号" />
       <el-table-column prop="name" label="参数名称">
         <template #default="{ row }">
           {{ row.name }}
@@ -102,11 +95,8 @@ const rules = reactive<FormRules<TemplateType>>({
           {{ formatDate(scope.row.updatedAt) }}
         </template>
       </el-table-column>
-
     </template>
     <template #CrudForm="{ data }">
-
-
       <el-form-item prop="name" label="参数名称">
         <el-input v-model="data.name" />
       </el-form-item>
@@ -122,13 +112,8 @@ const rules = reactive<FormRules<TemplateType>>({
       <el-form-item prop="remark" label="备注">
         <el-input v-model="data.remark" />
       </el-form-item>
-
     </template>
   </TemplateStandardCms>
-
-
-
-
 </template>
 
 <style lang="scss"></style>

@@ -348,7 +348,7 @@ async function handlePublishVersion(id: number) {
 
       <ClientOnly>
         <el-table v-if="docs?.items" table-layout="auto" fit :data="docs.items" style="width: 100%">
-          <el-table-column type="index" label="序号" width="80" />
+          <el-table-column prop="id" label="序号" />
           <el-table-column label="文档名">
             <template #default="{ row }">
               {{ row.title }}
@@ -420,7 +420,7 @@ async function handlePublishVersion(id: number) {
         <el-pagination
           v-if="docs?.meta" v-model:current-page="docs.meta.currentPage"
           v-model:page-size="docs.meta.itemsPerPage" :disabled="formLoading" float-right my-4
-          :page-sizes="[15, 30, 50, 100]" layout="total, sizes, prev, pager, next, jumper" :total="docs.meta.totalItems"
+          :page-sizes="[20, 40, 60, 80]" layout="total, sizes, prev, pager, next, jumper" :total="docs.meta.totalItems"
           @change="fetchData"
         />
       </ClientOnly>
