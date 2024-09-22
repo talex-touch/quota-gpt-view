@@ -23,7 +23,7 @@ const bannerList = useVModel(props, 'modelValue', emits)
 
     <div
       v-for="banner in bannerList" :key="banner.id" v-wave :class="{ active: _select === banner.id }"
-      class="BannerList-Item" @click="_select = banner.id!"
+      class="BannerList-Item" @click="_select === banner.id ? _select = -1 : _select = banner.id!"
     >
       {{ banner.name }}
     </div>

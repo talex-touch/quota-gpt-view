@@ -541,10 +541,11 @@ div.History {
     left: 50%;
 
     width: 8px;
-    height: 28px;
+    height: 32px;
 
     border-radius: 4px;
-    background-color: var(--el-text-color-primary);
+    box-shadow: var(--el-box-shadow);
+    background-color: var(--el-fill-color);
     transform: translate(-50%, -50%);
     transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
   }
