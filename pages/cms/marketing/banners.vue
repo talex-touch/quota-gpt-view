@@ -146,7 +146,7 @@ onMounted(() => {
             </el-form>
           </div>
 
-          <ChoreBannerGroup />
+          <ChoreBannerGroup v-model="curBanner" />
 
           <div class="CmsBanners-Main-Content-Footer">
             <p class="title">

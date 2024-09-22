@@ -11,10 +11,10 @@ export interface IBannerGroup extends Record<string, any> {
   name: string
   startAt: number
   endAt: number
-  posters: []
   property: string
   user_subscribe: SubscribeType
   user_mode: BannerMode
+  posters: any[]
 }
 
 export interface IBannerModelQuery extends IBannerGroup {
