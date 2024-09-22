@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { definePageMeta } from 'vue'
 
 definePageMeta({
   layout: 'cms',
@@ -7,13 +7,10 @@ definePageMeta({
     name: 'rotate',
   },
 })
-
-const showDetails = ref(false)
 </script>
 
 <template>
   <div class="Cms">
-    <!-- <el-empty /> -->
     <div class="page">
       <div class="top">
         <div class="luik">
@@ -54,126 +51,105 @@ const showDetails = ref(false)
   display: flex;
   justify-content: center;
   align-items: center;
-  // height: 100vh;
+  height: 100vh;
 }
+
 .page {
   display: grid;
-  // grid-gap: 1rem;
-  grid-gap: 10px 10px;
+  grid-gap: 2rem;
+  width: 100%;
+  max-width: 1000px; /* 增加最大宽度 */
 }
+
 .top {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  grid-template-rows: 25px;
-  width: 600px;
-  height: 25px;
-  grid-gap: 10px 10px;
-  grid-auto-flow: row;
+  grid-template-rows: 75px; /* 增加高度 */
+  grid-gap: 2rem;
+  width: 100%;
+  height: auto;
 }
+
 .top > div {
   background-color: #fff;
   border: 1px solid #000;
-  // grid-gap: 10px 10px;
   border-radius: 4px;
+  padding: 15px; /* 增加内边距 */
+  font-size: 1.2em; /* 增加字体大小 */
 }
+
 .next {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: 75px;
-  width: 600px;
-  height: 75px;
-  grid-gap: 10px 10px;
-  grid-auto-flow: row;
+  grid-template-rows: 175px; /* 增加高度 */
+  grid-gap: 2rem;
+  width: 100%;
+  height: auto;
 }
+
 .next > div {
   background-color: #fff;
   border: 1px solid #000;
-  // grid-gap: 10px 10px;
   border-radius: 4px;
+  padding: 15px; /* 增加内边距 */
+  font-size: 1.2em; /* 增加字体大小 */
 }
+
 .rix {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: 75px;
-  width: 600px;
-  height: 75px;
-  grid-gap: 10px 10px;
-  grid-auto-flow: row;
+  grid-template-rows: 175px; /* 增加高度 */
+  grid-gap: 2rem;
+  width: 100%;
+  height: auto;
 }
+
 .rix > div {
   background-color: #fff;
   border: 1px solid #000;
-  // grid-gap: 10px 10px;
   border-radius: 4px;
+  padding: 15px; /* 增加内边距 */
+  font-size: 1.2em; /* 增加字体大小 */
 }
+
 .box1 {
   grid-column: 1 / 3;
 }
+
 .button {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: 75px;
-  width: 600px;
-  height: 75px;
-  grid-gap: 10px 10px;
-  grid-auto-flow: row;
+  grid-template-rows: 175px; /* 增加高度 */
+  grid-gap: 2rem;
+  width: 100%;
+  height: auto;
 }
+
 .button > div {
   background-color: #fff;
   border: 1px solid #000;
-  // grid-gap: 10px 10px;
   border-radius: 4px;
+  padding: 15px; /* 增加内边距 */
+  font-size: 1.2em; /* 增加字体大小 */
 }
+
 .box2 {
   grid-column: 1 / 3;
 }
+
 .luik {
   display: flex;
-  // justify-content: start;
   justify-content: space-around;
   align-items: center;
-}
-.circle1 {
-  // display: flex;
-  // justify-content: center;
-  // align-items: center;
-  border-radius: 100%;
-  width: 20px;
-  height: 20px;
-  background-color: #000;
-}
-.circle2 {
-  // display: flex;
-  // justify-content: center;
-  // align-items: center;
-  border-radius: 100%;
-  width: 20px;
-  height: 20px;
-  // background-color: #000;
-}
-.circle3 {
-  // display: flex;
-  // justify-content: center;
-  // align-items: center;
-  border-radius: 100%;
-  width: 20px;
-  height: 20px;
-  // background-color: #000;
-}
-.Allpage {
   width: 100%;
 }
-.One {
-  background-color: aquamarine;
-  width: 400px;
-  height: 50px;
-  border: 1px solid #111111;
-  border-radius: 5px;
-  display: flex;
-}
-.btn {
-  display: flex;
-  justify-content: start;
-  align-items: flex;
+
+.circle1,
+.circle2,
+.circle3 {
+  border-radius: 100%;
+  width: 60px; /* 增加宽度 */
+  height: 60px; /* 增加高度 */
+  background-color: #000;
 }
 </style>
