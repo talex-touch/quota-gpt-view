@@ -1,5 +1,9 @@
 export * from './v1/auth.type'
+export * from './v1/common.type'
+export * from './v1/account.type'
+export * from './v1/tool.type'
 export * from './v1/cms.type'
+export * from './v1/banner.type'
 export * from './v1/aigc/chat.type'
 
 export interface IStandardResponse {

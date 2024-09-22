@@ -659,6 +659,11 @@ export interface ISubscriptionPlanQuery extends ISubscriptionPlan {
   pageSize: number
 }
 
+export enum SubscribeType {
+  STANDARD = 'STANDARD', // 标准订阅计划
+  ULTIMATE = 'ULTIMATE', // 旗舰订阅计划
+}
+
 export interface IFeedbackModelQuery extends IFeedbackModel {
   page: number
   pageSize: number

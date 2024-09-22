@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import type { IBannerGroup, SubscribeType } from '~/composables/api/base/index.type'
+import { BannerMode } from '~/composables/api/base/v1/banner.type.d.ts'
+
 definePageMeta({
   layout: 'cms',
   pageTransition: {
@@ -6,34 +9,23 @@ definePageMeta({
   },
 })
 
-enum BannerMode {
-  WHITELIST,
-  BLACKLIST,
-}
-
-
-enum SubscribeType {
-  STANDARD = 'STANDARD', // 标准订阅计划
-  ULTIMATE = 'ULTIMATE', // 旗舰订阅计划
-}
-
-//时间搓，所以字符串
-interface IBannerGroup {
-  name: string
-  startAt?:string
-  endAt?: string
-  posters: []
-  property?: string
-  user_subscribe?: SubscribeType
-  user_mode?: BannerMode
-}
-
+const select = ref(-1)
 const bannerList = reactive<IBannerGroup[]>([
-
+  {
+    id: 1,
+    name: 'test',
+    startAt: -1,
+    endAt: -1,
+    posters: [],
+    property: '',
+    user_subscribe: '' as SubscribeType,
+    user_mode: BannerMode.WHITELIST,
+  },
 ])
 
+const curBanner = computed(() => select.value !== -1 ? bannerList.find(item => item.id === select.value) : null)
 
-const bannerform = reactive({
+const bannerForm = reactive({
   name: '',
   startAt: '',
   endAt: '',
@@ -43,45 +35,25 @@ const bannerform = reactive({
   user_mode: BannerMode.WHITELIST,
 })
 
-
-watch(() => bannerform, (newValue) => {
+watch(() => bannerForm, (newValue) => {
   console.log(newValue)
   const allValuesNotEmpty = Object.values(newValue).every((value) => {
-    if (Array.isArray(value)) {
+    if (Array.isArray(value))
       return value.length > 0
-    } else if (typeof value === 'string' || typeof value === 'number') {
-      return value !== '';
-    }
+    else if (typeof value === 'string' || typeof value === 'number')
+      return value !== ''
 
-   
-  
-    return true;
-  });
-
-  
+    return true
+  })
 
   if (allValuesNotEmpty) {
-    // 将整个 bannerform 对象推入 bannerList
+    // 将整个 bannerForm 对象推入 bannerList
 
-    bannerList.push(newValue);
-   
-    
-    
+    bannerList.push(newValue)
   }
-
-
-
-
-
-
-
-
-
 }, {
-  deep: true
+  deep: true,
 })
-
-
 
 onMounted(() => {
 
@@ -105,93 +77,96 @@ onMounted(() => {
 <template>
   <div class="CmsBanners">
     <div class="CmsBanners-Aside">
-      1
+      <ChoreBannerList v-model:select="select" v-model="bannerList" />
     </div>
     <div class="CmsBanners-Main">
-      <div class="CmsBanners-Main-Content">
-        <div class="CmsBanners-Main-Header">
-          <el-form :model="bannerform" label-width="auto">
+      <template v-if="curBanner">
+        <div class="CmsBanners-Main-Content">
+          <div class="CmsBanners-Main-Header">
+            <el-form :model="bannerForm" label-width="auto">
+              <el-row :gutter="15">
+                <el-col :span="4">
+                  <el-form-item label="分组名单 ">
+                    <el-select v-model="bannerForm.user_mode" placeholder="please select your zone">
+                      <el-option label="黑名单" value="BLACKLIST" />
+                      <el-option label="白名单" value="WHITELIST" />
+                    </el-select>
+                  </el-form-item>
+                </el-col>
 
+                <el-col :span="4">
+                  <el-form-item label="用户订阅分组" :inline="false">
+                    <el-select v-model="bannerForm.user_subscribe" placeholder="please select your zone">
+                      <el-option label="标准订阅计划" value="STANDARD" />
+                      <el-option label="旗舰订阅计划" value="ULTIMATE" />
+                    </el-select>
+                  </el-form-item>
+                </el-col>
 
-            <el-row :gutter="15">
-              <el-col :span="4">
-                <el-form-item label="分组名单 ">
-                  <el-select v-model="bannerform.user_mode" placeholder="please select your zone">
-                    <el-option label="黑名单" value="BLACKLIST" />
-                    <el-option label="白名单" value="WHITELIST" />
-                  </el-select>
-                </el-form-item>
-              </el-col>
+                <el-col :span="8">
+                  <el-form-item label="生效时间">
+                    <el-col :span="11">
+                      <el-date-picker
+                        v-model="bannerForm.startAt" value-format="“timestamp”" type="date"
+                        placeholder="生效时间" style="width: 100%"
+                      />
+                    </el-col>
+                    <el-col :span="1" class="text-center">
+                      <span class="text-gray-500">-</span>
+                    </el-col>
+                    <el-col :span="11">
+                      <el-time-picker
+                        v-model="bannerForm.startAt" value-format="“timestamp”" placeholder="结束时间"
+                        style="width: 100%"
+                      />
+                    </el-col>
+                  </el-form-item>
+                </el-col>
 
-              <el-col :span="4">
+                <el-col :span="8">
+                  <el-form-item label="结束时间">
+                    <el-col :span="11">
+                      <el-date-picker
+                        v-model="bannerForm.endAt" value-format="“timestamp”" type="date"
+                        placeholder="生效时间" style="width: 100%"
+                      />
+                    </el-col>
+                    <el-col :span="1" class="text-center">
+                      <span class="text-gray-500">-</span>
+                    </el-col>
+                    <el-col :span="11">
+                      <el-time-picker
+                        v-model="bannerForm.endAt" value-format="“timestamp”" placeholder="结束时间"
+                        style="width: 100%"
+                      />
+                    </el-col>
+                  </el-form-item>
+                </el-col>
+              </el-row>
+            </el-form>
+          </div>
 
-                <el-form-item label="用户订阅分组" :inline="false">
-                  <el-select v-model="bannerform.user_subscribe" placeholder="please select your zone">
-                    <el-option label="标准订阅计划" value="STANDARD" />
-                    <el-option label="旗舰订阅计划" value="ULTIMATE" />
-                  </el-select>
-                </el-form-item>
-              </el-col>
+          <ChoreBannerGroup />
 
+          <div class="CmsBanners-Main-Content-Footer">
+            <p class="title">
+              横幅编辑
+            </p>
 
-
-              <el-col :span="8">
-                <el-form-item label="生效时间">
-                  <el-col :span="11">
-                    <el-date-picker value-format=“timestamp” v-model="bannerform.startAt" type="date" placeholder="生效时间" style="width: 100%" />
-                  </el-col>
-                  <el-col :span="1" class="text-center">
-                    <span class="text-gray-500">-</span>
-                  </el-col>
-                  <el-col :span="11">
-                    <el-time-picker value-format=“timestamp” v-model="bannerform.startAt" placeholder="结束时间" style="width: 100%" />
-                  </el-col>
-                </el-form-item>
-              </el-col>
-
-              <el-col :span="8">
-                <el-form-item label="结束时间">
-                  <el-col :span="11">
-                    <el-date-picker value-format=“timestamp” v-model="bannerform.endAt" type="date" placeholder="生效时间" style="width: 100%" />
-                  </el-col>
-                  <el-col :span="1" class="text-center">
-                    <span class="text-gray-500">-</span>
-                  </el-col>
-                  <el-col :span="11">
-                    <el-time-picker value-format=“timestamp” v-model="bannerform.endAt" placeholder="结束时间" style="width: 100%" />
-                  </el-col>
-                </el-form-item>
-              </el-col>
-            </el-row>
-
-
-
-
-
-
-
-
-
-
-          </el-form>
-        </div>
-
-        <ChoreBannerGroup />
-
-        <div class="CmsBanners-Main-Content-Footer">
-          <p class="title">
-            横幅编辑
-          </p>
-
-          <div class="banner-edit-inner">
-            到时候做成可拖拽顺序的
+            <div class="banner-edit-inner">
+              到时候做成可拖拽顺序的
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="CmsBanners-Main-ViceContent">
-        1
-      </div>
+        <div class="CmsBanners-Main-ViceContent">
+          1
+        </div>
+      </template>
+
+      <template v-else>
+        <el-empty description="新增横幅组以编辑" />
+      </template>
     </div>
   </div>
 </template>

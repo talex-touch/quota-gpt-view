@@ -37,7 +37,7 @@ watch(() => route, () => {
 
   const res = [...props.history].find(item => item.id === id)
   if (!res) {
-    router.push('/')
+    select.value = ''
 
     return
   }
