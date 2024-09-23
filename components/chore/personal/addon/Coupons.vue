@@ -17,7 +17,7 @@ const coupons = reactive<any>([])
 const orderedCoupons = computed(() => {
   // const now = Date.now()
 
-  return [...coupons].sort((a: any, b: any) => {
+  const res = [...coupons].sort((a: any, b: any) => {
     // 如果已经使用过或者已经失效了 直接放到最后
     if (a.usedCount >= a.maxUsage || a.endDate && new Date(a.endDate).getTime() < new Date().getTime())
       return 1
@@ -34,6 +34,11 @@ const orderedCoupons = computed(() => {
     else
       return new Date(b.updatedAt).getTime() - new Date().getTime()
   })
+
+  if (props.selectable)
+    return res.filter(item => item.usedCount < item.maxUsage && (!item.endDate || new Date(item.endDate).getTime() >= new Date().getTime()))
+
+  return res
 })
 
 onMounted(async () => {
@@ -146,7 +151,7 @@ function handleSelectable(couponCode: string) {
           </template>
         </CardCouponCard>
 
-        <span op-50>共计 {{ coupons.length }} 个券码.</span>
+        <span op-50>共计 {{ orderedCoupons.length }} 个券码.</span>
       </div>
       <el-empty v-else description="暂无优惠券" />
       <!-- </el-scrollbar> -->
