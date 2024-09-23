@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { definePageMeta } from 'vue'
-
 definePageMeta({
   layout: 'cms',
   pageTransition: {

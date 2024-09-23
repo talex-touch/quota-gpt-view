@@ -568,6 +568,7 @@ div.History {
   height: 50px;
 
   opacity: 0;
+  mix-blend-mode: difference;
   cursor: pointer;
   transform: translateX(0px) translateY(-50%);
   transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
