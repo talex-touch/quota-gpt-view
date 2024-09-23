@@ -65,6 +65,7 @@ const rules = reactive<FormRules<TemplateType>>({
         </el-form-item>
       </template>
       <template #TableColumn>
+        <el-table-column label="ID" prop="id" />
         <el-table-column label="名字" prop="name" />
         <el-table-column label="优先级" prop="orderNo" />
         <el-table-column label="更新者" prop="updater" />

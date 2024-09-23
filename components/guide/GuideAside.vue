@@ -25,7 +25,7 @@ function handleSelect(data: any) {
 <template>
   <div class="GuideAside">
     <div class="GuideAside-Title">
-      <h1>This!AI.</h1>
+      <h1>Guide.</h1>
     </div>
 
     <div class="GuideAside-Wrapper">

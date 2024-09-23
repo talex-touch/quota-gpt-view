@@ -700,10 +700,11 @@ export function delParam(Path: number) {
 }
 
 // 订单
-export function getOrderPlanPrice(type: 'STANDARD' | 'ULTIMATE', time: string) {
+export function getOrderPlanPrice(type: 'STANDARD' | 'ULTIMATE', time: string, code: string) {
   return endHttp.get(`order/price?_time=${Date.now()}`, {
     type,
     time,
+    couponCode: code || '',
     payMethod: 2,
   })
 }

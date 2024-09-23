@@ -1,6 +1,9 @@
 <script lang="ts" setup>
 import { CaretBottom, CaretTop, Warning } from '@element-plus/icons-vue'
-import { Static } from 'vue';
+import { Static } from 'vue'
+
+import { $endApi } from '~/composables/api/base'
+import type { IAdminOrder, IAdminOrderQuery } from '~/composables/api/base/v1/cms.type'
 
 definePageMeta({
   name: '订单管理',
@@ -9,9 +12,6 @@ definePageMeta({
     name: 'rotate',
   },
 })
-
-import { $endApi } from '~/composables/api/base';
-import type { IAdminOrder, IAdminOrderQuery } from '~/composables/api/base/v1/cms.type';
 
 const statistics = ref({
   orders: [],
@@ -28,10 +28,9 @@ const statistics = ref({
 type TemplateType = IAdminOrder
 const $dataApi = $endApi.v1.cms.order
 
-
 const templateData = genCmsTemplateData<TemplateType, IAdminOrderQuery, null>({
   getDeleteBoxTitle(id) {
-    return ` 订单#${id} `;
+    return ` 订单#${id} `
   },
   getEmptyModel: () => ({
     id: 'string',
@@ -41,19 +40,17 @@ const templateData = genCmsTemplateData<TemplateType, IAdminOrderQuery, null>({
     paymentMethod: 0,
     additionalInfo: 'string',
     createdAt: 'string',
-    updatedAt: 'string'
+    updatedAt: 'string',
   }),
   onFetchSuccess: async () => {
-
     Object.assign(statistics.value, list)
 
     const _orders = statistics.value.orders.map((item: any) => {
       const additionalInfo = parseAdditionalInfo(item.additionalInfo)
       return {
         ...item,
-        additionalInfo
+        additionalInfo,
       }
-
     })
     statistics.value.payStatus.other = 0
 
@@ -62,40 +59,30 @@ const templateData = genCmsTemplateData<TemplateType, IAdminOrderQuery, null>({
       else {
         statistics.value.payStatus.other++
         return a
-
       }
     }, 0) / 100
     statistics.value.price.submit = statistics.value.totalPrice / 100
-    console.log("======= statistics.value.price.submit =======\n", statistics.value.price.submit);
-
-
+    console.log('======= statistics.value.price.submit =======\n', statistics.value.price.submit)
   },
   transformSubmitData(originData) {
-
-
 
   },
   handleCrudDialog(data) {
     // data.menuIds = data.menus.map((item: any) => item.id)
   },
   getList: $dataApi.list,
-  getDeleteBoxTitles: function (ids: Array<number>): string {
-    throw new Error('Function not implemented.');
-  }
+  getDeleteBoxTitles(ids: Array<number>): string {
+    throw new Error('Function not implemented.')
+  },
 }, {
 
-
 })
-
 
 const { list, listForm, fetchData } = templateData
 
 function StatisticsData() {
 
 }
-
-
-
 
 const formLoading = ref(false)
 const orders = ref({
@@ -110,10 +97,6 @@ const orders = ref({
   },
 })
 
-
-
-
-
 const formInline = reactive({
   user: '',
   email: '',
@@ -127,10 +110,7 @@ function handleReset() {
 }
 onMounted(async () => {
   fetchData()
-
 })
-
-
 
 // async function fetchData() {
 //   formLoading.value = true
@@ -211,7 +191,7 @@ function parseAdditionalInfo(info: string) {
 </script>
 
 <template>
-  <TemplateStandardCms identifier="order" :crudController="CurdController.REVIEW | CurdController.UPDATE" :list="list" :template-data="templateData" name="订单">
+  <TemplateStandardCms identifier="order" :crud-controller="CurdController.REVIEW | CurdController.UPDATE" :list="list" :template-data="templateData" name="订单">
     <template #IHeade>
       <div class="CmsOrder-Statistics">
         <el-row :gutter="16">
@@ -274,7 +254,7 @@ function parseAdditionalInfo(info: string) {
       </div>
     </template>
     <template #TableColumn>
-      <el-table-column type="index" label="序号" />
+      <el-table-column prop="id" label="序号" />
       <el-table-column label="订单号">
         <template #default="{ row }">
           #{{ row.id }}
@@ -410,9 +390,7 @@ function parseAdditionalInfo(info: string) {
     </template>
   </TemplateStandardCms>
 
-
   <!-- <el-container class="CmsOrder">
-  
 
     <el-main>
       <el-form v-if="false" :disabled="formLoading" :inline="true" :model="formInline">
@@ -432,7 +410,7 @@ function parseAdditionalInfo(info: string) {
 
       <ClientOnly>
         <el-table v-if="orders?.items" height="85%" table-layout="auto" :data="orders.items" style="width: 100%">
-     
+
           <el-table-column fixed="right" label="操作">
             <template #default="{ row }">
               <el-button plain text size="small" @click="handleDialog(row, 'read')">
@@ -461,7 +439,7 @@ function parseAdditionalInfo(info: string) {
           :content="[userStore.nickname!, 'ThisAI OrderSystem']">
           <el-form v-if="dialogOptions.data" :disabled="dialogOptions.loading || dialogOptions.mode === 'read'"
             style="max-width: 600px" :model="dialogOptions.data" label-width="auto" status-icon>
-          
+
           </el-form>
         </el-watermark>
       </template>

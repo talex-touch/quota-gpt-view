@@ -1,4 +1,5 @@
 export enum QuotaModel {
+  QUOTA_THIS_TITLE = 'this-title',
   // 普通版本，纯问答（类豆包，普通联网）
   QUOTA_THIS_NORMAL = 'this-normal',
   // 中级模型，中级会员可用 （上下文更强，普通联网）

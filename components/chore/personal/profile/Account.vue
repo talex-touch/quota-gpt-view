@@ -53,12 +53,22 @@ async function submitForm(formEl: FormInstance | undefined) {
     if (valid) {
       const res: any = await updateAccountDetail({ avatar: ruleForm.avatar, nickname: ruleForm.nickname })
       if (res.code === 200) {
-        ElMessage.success('更新成功')
+        ElMessage({
+          message: `更新成功！`,
+          grouping: true,
+          type: 'success',
+          plain: true,
+        })
         await getAccountDetail()
       }
     }
     else {
-      ElMessage.error('请填写正确的信息')
+      ElMessage({
+        message: `请填写正确的信息`,
+        grouping: true,
+        type: 'error',
+        plain: true,
+      })
 
       console.error('error submit!', fields)
     }

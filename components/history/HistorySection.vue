@@ -37,7 +37,7 @@ watch(() => route, () => {
 
   const res = [...props.history].find(item => item.id === id)
   if (!res) {
-    router.push('/')
+    select.value = ''
 
     return
   }
@@ -75,7 +75,7 @@ watch(() => route, () => {
     z-index: 1;
     position: sticky;
 
-    top: 70px;
+    top: var(--history-title-height);
 
     margin: 0.75rem 0 0.5rem;
     padding: 0.5rem 1.5rem;
@@ -106,10 +106,10 @@ watch(() => route, () => {
   gap: 0.5rem;
 }
 
-.th-zoom-enter-from,
-.th-zoom-leave-to {
-  transform: scale(0);
-}
+// .th-zoom-enter-from,
+// .th-zoom-leave-to {
+//   transform: scale(0);
+// }
 
 .History-Content-MenuWrapper {
   &.el-popover.el-popper {

@@ -3,18 +3,19 @@ import Login from '~/components/chore/Login.vue'
 import { appName, globalOptions } from '~/constants'
 import 'element-plus/theme-chalk/dark/css-vars.css'
 import { _setWallpaper, detectWallpaper } from '~/composables/theme/colors'
-import { UAParser } from 'ua-parser-js'
 import feishuInit from '~/composables/feishu/init'
+import { useDeviceAdapter } from './composables/hook/device-adapter'
 
 useHead({
   title: appName,
 })
 
+const { isMobile, isTablet } = useDevice()
 const pageOptions = reactive({
+  tutorialShow: false,
   model: {
     login: false,
   },
-  mobile: false,
 })
 
 const router = useRouter()
@@ -32,19 +33,15 @@ globalOptions.onUpdateUrl((url: string) => {
 globalOptions.setEndsUrl(globalOptionsStore.value.url)
 
 onMounted(async () => {
+  setTimeout(() => {
+    pageOptions.tutorialShow = true
+  }, 1200)
+
   if (window.h5sdk)
     feishuInit(router)
 
   detectWallpaper()
-
-  const deviceObj = UAParser(navigator.userAgent)
-
-  if (deviceObj.device?.type) {
-    document.body.classList.add(deviceObj.device.type)
-
-    if (deviceObj.device.type === 'mobile')
-      pageOptions.mobile = true
-  }
+  // useDeviceAdapter()
 
   if (!userStore.value.isLogin) {
     ElNotification({
@@ -73,18 +70,42 @@ router.afterEach(() => {
 })
 
 provide('appOptions', pageOptions)
+// const { width, height } = useWindowSize()
+// const computedStyle = computed(() => {
+//   return `width: ${width.value}px;height: ${height.value}px`
+// })
 </script>
 
 <template>
+  <!-- :class="{ tablet: isTablet, mobile: isMobile }" -->
+  <!-- <div class="AppContainer"> -->
   <VitePwaManifest />
   <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>
 
+  <!-- <div absolute left-50 top-10 z-100 bg-red color-blue>
+      {{ width }} - {{ height }}
+    </div> -->
+
+  <!-- <ChoreTutorial v-model:show="pageOptions.tutorialShow" /> -->
   <Login v-if="!userStore.isLogin" v-model:show="pageOptions.model.login" />
+  <!-- </div> -->
 </template>
 
 <style style="scss">
+/* .AppContainer {
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  overflow: hidden;
+} */
+
 .ULTIMATE {
   --plan-color: #299b4850;
 }
@@ -124,6 +145,13 @@ body,
     --wallpaper-color-light,
     var(--el-color-primary-light-5)
   );
+}
+
+body.touchable {
+  -webkit-overflow-scrolling: touch;
+
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 body.mobile {
@@ -252,6 +280,10 @@ span.premium-end {
   .only-pc-display {
     display: none !important;
   }
+}
+
+.el-message {
+  border-radius: 16px;
 }
 
 .el-menu {

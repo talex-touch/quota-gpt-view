@@ -53,9 +53,9 @@ const templateData = genCmsTemplateData<TemplateType, IRoleModelQuery, null>({
   create: $dataApi.create,
   update: $dataApi.update,
   delete: $dataApi.delete,
-  getDeleteBoxTitles: function (ids: Array<number>): string {
+  getDeleteBoxTitles(ids: Array<number>): string {
     return ` 角色#${ids.join(',')} `
-  }
+  },
 }, {
   name: '',
   value: '',
@@ -110,7 +110,7 @@ const menuListTreeProps = {
       </el-form-item>
     </template>
     <template #TableColumn>
-      <el-table-column width="100px" type="index" label="序号" />
+      <el-table-column width="100px" prop="id" label="序号" />
       <el-table-column prop="username" label="角色名称">
         <template #default="{ row }">
           {{ row.name }}

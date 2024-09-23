@@ -82,6 +82,19 @@ async function handleExecutorResult(reader: ReadableStreamDefaultReader<string>,
 
     const _value = value
 
+    // const regex = /id:\s*(\d+)\ndata:\s*(\{.*?\})(?:\n|$)/gs
+    // const matches = _value.matchAll(regex)
+    // if (!match) {
+    //   console.error('Invalid format', _value)
+    //   continue
+    // }
+
+    // for (const match of matches) {
+    //   const [, id, dataValue] = match
+
+    //   console.log('---', match, dataValue)
+    // }
+
     const arr = _value.split('\n')
 
     for (let i = 0; i < arr.length; i++) {
@@ -89,6 +102,12 @@ async function handleExecutorResult(reader: ReadableStreamDefaultReader<string>,
 
       if (item.startsWith('data: ')) { handleExecutorItem(item.slice(6), callback) }
       else {
+        if (arr.length === 1) {
+          handleExecutorItem(item, callback)
+
+          continue
+        }
+
         const prevItem = arr[1]
 
         if (!prevItem.startsWith('event: error'))
@@ -340,7 +359,7 @@ export const $completion = {
             messages: JSON.parse(JSON.stringify(conversation.messages)),
             index: index === -1 ? 0 : index,
             chat_id: conversation.id,
-            model: QuotaModel.QUOTA_THIS_NORMAL_TURBO, // TODO
+            model: QuotaModel.QUOTA_THIS_TITLE,
           },
           (res) => {
             if (res.error) {
@@ -369,6 +388,9 @@ export const $completion = {
               titleOptions.value += res.content
 
               conversation.topic = titleOptions.value
+
+              // 截取前12位
+              conversation.topic = conversation.topic.slice(0, 12)
             }
           },
         )
@@ -378,6 +400,33 @@ export const $completion = {
       send: async (options?: Partial<ChatCompletionDto>) => {
         innerMsg.status = IChatItemStatus.WAITING
 
+        /**
+         * 当全部解析结束之后，将所有没有返回的工具链设定为超时
+         */
+        function handleEndToolParser() {
+          innerMsg.value.push({
+            type: 'tool',
+            value: data,
+            data: '',
+            name,
+            extra: {
+              end: true,
+            },
+          })
+
+          innerMsg.value.forEach((item) => {
+            if (!item.extra?.end) {
+              item.extra = {
+                ...item.extra,
+                error: {
+                  type: 'timeout',
+                  timestamp: Date.now(),
+                },
+              }
+            }
+          })
+        }
+
         await useCompletionExecutor(
           {
             ...options || {},
@@ -386,9 +435,14 @@ export const $completion = {
             messages: JSON.parse(JSON.stringify(conversation.messages)),
             index: index === -1 ? 0 : index,
             chat_id: conversation.id,
-            model: QuotaModel.QUOTA_THIS_NORMAL_TURBO, // TODO
+            model: innerMsg.model, // TODO
           },
           (res) => {
+            if (res?.code === 401) {
+              res.error = true
+              res.e = res.message
+            }
+
             if (res.error) {
               console.log('res', res)
 
@@ -430,18 +484,21 @@ export const $completion = {
 
               if (mappedStatus === IChatItemStatus.TOOL_CALLING) {
                 handler.onToolStart?.(name, data)
-                console.log(res)
+                console.log('tool calling', res)
 
                 innerMsg.value.push({
                   type: 'tool',
                   value: '',
                   data,
                   name,
+                  extra: {
+                    start: Date.now(),
+                  },
                 })
               }
               else if (mappedStatus === IChatItemStatus.TOOL_RESULT) {
                 handler.onToolEnd?.(name, data)
-                console.log(res)
+                console.log('tool result', res)
 
                 // 从最后一个往前找 name 相同的 meta
                 for (let i = innerMsg.value.length - 1; i >= 0; i--) {
@@ -450,7 +507,7 @@ export const $completion = {
                     meta.value = data
                     meta.extra = {
                       ...meta.extra,
-                      end: true,
+                      end: Date.now(),
                     }
                     return
                   }
@@ -463,15 +520,18 @@ export const $completion = {
                   data: '',
                   name,
                   extra: {
-                    end: true,
+                    end: Date.now(),
                   },
                 })
               }
             }
             else if (event === 'completion') {
               const innerMeta = innerMsg.value.at(-1)
+
               if (innerMeta?.type === 'markdown') {
                 innerMeta.value += res.content
+                if (res.completed)
+                  innerMeta.value = res.content
               }
               else {
                 innerMsg.value.push({

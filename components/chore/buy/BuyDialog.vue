@@ -70,7 +70,12 @@ async function fetchData() {
 
 async function syncLocalData(res: any) {
   if (!res.data) {
-    ElMessage.error(res.message || '获取失败')
+    ElMessage({
+      message: `获取失败(${res.message || 'error'})！`,
+      grouping: true,
+      type: 'error',
+      plain: true,
+    })
     console.error('res', res)
 
     show.value = false
