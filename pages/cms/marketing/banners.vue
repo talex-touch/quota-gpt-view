@@ -66,16 +66,26 @@ async function fetchData() {
   bannerList.push(...res.data.items)
 }
 
-async function saveData() {
+async function _saveData() {
   if (!curBanner.value)
     return
 
-  const res = await $endApi.v1.market.banner.update(curBanner.value.id!, curBanner.value)
+  const _: IBannerGroup = {
+    ...curBanner.value,
+    posters: curBanner.value?.posters?.map(item => ({
+      ...item,
+      url: decodeURIComponent(item.url),
+    })) || [],
+  }
+
+  const res = await $endApi.v1.market.banner.update(curBanner.value.id!, _)
 
   responseMessage(res, {
     success: '保存成功！',
   })
 }
+
+const saveData = useDebounceFn(_saveData)
 
 watch(() => curBanner.value, (newVal, oldVal) => {
   if (!oldVal)

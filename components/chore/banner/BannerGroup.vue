@@ -38,58 +38,78 @@ const dragger = ref<HTMLElement>()
 const inner = ref<HTMLElement>()
 
 const pendingList = computed(() => options.upload.pending.filter((item: any) => !item.sync))
+const errorList = computed(() => options.upload.pending.filter((item: any) => item.error))
 
 async function handleDrop(e: DragEvent) {
   e.preventDefault()
 
+  if (errorList.value.length > 0) {
+    // 查询是否有未上传的文件
+    if (pendingList.value.length === errorList.value.length) {
+      ElMessage({
+        message: '已自动清空上传失败文件！',
+        grouping: true,
+        type: 'info',
+        plain: true,
+      })
+
+      // 清空未上传的文件
+      options.upload.pending = []
+    }
+  }
+
   const files = e.dataTransfer!.files
 
   // force to asynchronism
-  await sleep(1)
+  options.dragging = false
 
-  console.log('files', files)
+  const pending = []
 
   for (const file of files) {
-    const fileReader = new FileReader()
+    // const fileReader = new FileReader()
 
     const obj = reactive<any>({
       error: '',
       sync: false,
-      reader: fileReader,
+      // reader: fileReader,
     })
 
     options.upload.pending.push(obj)
 
-    fileReader.onload = function (event) {
-      obj.result = event.target?.result
-    }
+    // fileReader.onload = function (event) {
+    //   obj.result = event.target?.result
+    // }
 
-    fileReader.readAsDataURL(file)
+    // fileReader.readAsDataURL(file)
 
     // upload
-    const res = await $endApi.v1.common.upload(file)
+    pending.push(async () => {
+      const res = await $endApi.v1.common.upload(file)
 
-    responseMessage(res)
+      responseMessage(res)
 
-    if (res.code === 200) {
-      options.images.push({
-        url: `${globalOptions.getEndsUrl()}${res.data.filename}`,
-      })
+      if (res.code === 200) {
+        options.images.push({
+          url: encodeURIComponent(`${globalOptions.getEndsUrl()}${res.data.filename}`),
+        })
 
-      obj.sync = true
+        obj.sync = true
 
-      saveData()
-    }
-    else {
-      obj.error = res.message
-    }
+        saveData()
+      }
+      else {
+        obj.error = res.message
+      }
+    })
   }
 
-  options.dragging = false
+  await Promise.all(pending.map(fn => fn()))
 }
 
 async function saveData() {
   banner.value.posters = [...options.images]
+
+  moveTo(banner.value.posters.length - 1)
 
   // const res = await $endApi.v1.market.banner.update(banner.value.id!, banner.value)
 
@@ -162,6 +182,8 @@ async function _timer() {
 }
 
 _timer()
+
+const progress = computed(() => pendingList.value.length !== 0 ? ((pendingList.value.length / options.upload.pending.length) * 100) : 0)
 </script>
 
 <template>
@@ -180,12 +202,15 @@ _timer()
       <OtherTextShaving text="拖拽添加图片以继续." />
     </div>
 
-    <div :class="{ show: !!pendingList.length }" class="BannerGroup-Badge fake-background transition-cubic">
+    <div :style="`--progress: ${100 - progress}%`" :class="{ show: !!pendingList.length }" class="BannerGroup-Badge fake-background transition-cubic">
       正在上传 {{ pendingList.length }} 个文件
+      <span v-if="errorList.length" mx-2>
+        <span class="text-red-500">{{ errorList.length }} 个文件上传失败</span>
+      </span>
     </div>
 
     <div ref="inner" class="BannerGroup-Inner">
-      <div class="BannerGroup-Item end">
+      <div v-if="options.images.length" class="BannerGroup-Item end">
         <!-- <span>{{ index }}</span> -->
         <img :src="decodeURIComponent(options.images.at(-1).url)" :alt="`Banner${options.images.length - 1}`">
       </div>
@@ -210,9 +235,23 @@ _timer()
 
 <style lang="scss">
 .BannerGroup-Badge {
+  &::before {
+    z-index: -1;
+    content: '';
+    position: absolute;
+
+    inset: 0;
+    width: var(--progress);
+
+    opacity: 0.5;
+    transition: 0.25s;
+    background-color: var(--theme-color);
+  }
+
   &.show {
     opacity: 1;
   }
+
   z-index: 3;
   position: absolute;
   padding: 0.25rem 0.5rem;
@@ -239,6 +278,7 @@ _timer()
   &.show {
     opacity: 1;
   }
+
   position: absolute;
   display: flex;
 
@@ -269,6 +309,7 @@ _timer()
     border-radius: 50%;
     backdrop-filter: blur(5px);
   }
+
   z-index: 3;
   position: absolute;
   display: flex;
@@ -286,6 +327,7 @@ _timer()
     &.end {
       margin-left: -100%;
     }
+
     position: relative;
 
     top: 0;
@@ -302,6 +344,7 @@ _timer()
       .animation & {
         transform: scale(0.9);
       }
+
       width: 100%;
       height: 100%;
 
