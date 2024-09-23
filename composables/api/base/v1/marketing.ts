@@ -1,24 +1,25 @@
-//营销管理
+// 营销管理
 
 import { endHttp } from '../../axios'
-import type { IBannerGroupQuery, ICreateBannerGroupDto, IUpdateBannerGroupDto } from './marketing.type'
+import type { IDataResponse, IPageResponse, IStandardResponse } from '../index.type'
+import type { IBannerGroup, IBannerGroupQuery } from './marketing.type'
 
 export default {
   banner: {
-    list(data: IBannerGroupQuery) {
-      endHttp.get('marketing/banner/list', data)
+    list(data: Partial<IBannerGroup>) {
+      return endHttp.get('marketing/banner/list', data) as Promise<IPageResponse<IBannerGroup>>
     },
 
-    create(data: ICreateBannerGroupDto) {
-      return endHttp.post('marketing/banner', data)
+    create(data: IBannerGroup) {
+      return endHttp.post('marketing/banner', data) as Promise<IDataResponse<IBannerGroup>>
     },
 
-    update(id: number, data: IUpdateBannerGroupDto) {
-      return endHttp.put(`marketing/banner/${id}`, data)
+    update(id: number, data: IBannerGroup) {
+      return endHttp.put(`marketing/banner/${id}`, data) as Promise<IDataResponse<IBannerGroup>>
     },
 
     delete(id: number) {
-      return endHttp.del(`marketing/banner/${id}`)
+      return endHttp.del(`marketing/banner/${id}`) as Promise<IStandardResponse>
     },
   },
 }

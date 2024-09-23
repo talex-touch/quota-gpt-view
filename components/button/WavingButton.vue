@@ -6,9 +6,7 @@ const props = defineProps<{
 
 <template>
   <div class="WavingButton" flex items-center gap-2>
-    <img src="/logo.png">
-    <span>创建新对话</span>
-    <div i-carbon-add mr-2 />
+    <slot />
   </div>
 </template>
 

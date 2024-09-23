@@ -7,6 +7,7 @@ import { ENDS_URL, globalOptions } from '~/constants'
 import { getAccountMenuList } from '~/composables/api/account'
 import { $endApi } from '~/composables/api/base'
 
+const { isChrome, isDesktop } = useDevice()
 const route = useRoute()
 const router = useRouter()
 
@@ -26,11 +27,23 @@ const menus = ref()
 const menuOpened = ref<any[]>([])
 onBeforeMount(async () => {
   if (!userStore.value.isAdmin) {
-    console.log('a')
+    console.log('push admin')
 
     router.push('/')
 
     return false
+  }
+
+  if (isDesktop && !isChrome) {
+    ElNotification({
+      duration: 60000,
+      title: '使用 Chrome 以继续',
+      message: h('i', { style: 'color: teal' }, '请勿使用未受信任的浏览器操作！'),
+    })
+
+    router.back()
+
+    return
   }
 
   const res = await getAccountMenuList()

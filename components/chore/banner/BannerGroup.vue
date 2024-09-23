@@ -1,8 +1,21 @@
 <script setup lang="ts">
+import { endHttp } from '~/composables/api/axios'
 import { $endApi } from '~/composables/api/base'
+import type { IBannerGroup } from '~/composables/api/base/v1/marketing.type'
+import { globalOptions } from '~/constants'
 import blocks from '~/public/backgrounds/blocks.jpg'
 import earth from '~/public/backgrounds/earth.jpg'
 import grass from '~/public/backgrounds/grass.jpg'
+
+const props = defineProps<{
+  modelValue: IBannerGroup
+}>()
+
+const emits = defineEmits<{
+  (e: 'update:modelValue', value: IBannerGroup): void
+}>()
+
+const banner = useVModel(props, 'modelValue', emits)
 
 const options = reactive<any>({
   animation: false,
@@ -13,17 +26,26 @@ const options = reactive<any>({
   index: 0,
   incTime: 0,
   duration: 3000,
-  images: [blocks, earth, grass],
+  images: [],
+})
+
+watchEffect(() => {
+  options.images = banner.value.posters || []
 })
 
 const container = ref<HTMLElement>()
 const dragger = ref<HTMLElement>()
 const inner = ref<HTMLElement>()
 
+const pendingList = computed(() => options.upload.pending.filter((item: any) => !item.sync))
+
 async function handleDrop(e: DragEvent) {
   e.preventDefault()
 
   const files = e.dataTransfer!.files
+
+  // force to asynchronism
+  await sleep(1)
 
   console.log('files', files)
 
@@ -31,6 +53,7 @@ async function handleDrop(e: DragEvent) {
     const fileReader = new FileReader()
 
     const obj = reactive<any>({
+      error: '',
       sync: false,
       reader: fileReader,
     })
@@ -45,13 +68,34 @@ async function handleDrop(e: DragEvent) {
 
     // upload
     const res = await $endApi.v1.common.upload(file)
+
+    responseMessage(res)
+
     if (res.code === 200) {
-      // res.data.filename
-      console.log('upload success',res.data)
+      options.images.push({
+        url: `${globalOptions.getEndsUrl()}${res.data.filename}`,
+      })
+
+      obj.sync = true
+
+      saveData()
+    }
+    else {
+      obj.error = res.message
     }
   }
 
   options.dragging = false
+}
+
+async function saveData() {
+  banner.value.posters = [...options.images]
+
+  // const res = await $endApi.v1.market.banner.update(banner.value.id!, banner.value)
+
+  // responseMessage(res, {
+  //   success: '保存成功！',
+  // })
 }
 
 function handleDragOver(e: DragEvent) {
@@ -132,18 +176,22 @@ _timer()
       松手以添加到组
     </div>
 
-    <div :class="{ show: !!options.upload.pending.length }" class="BannerGroup-Badge fake-background transition-cubic">
-      正在上传 {{ options.upload.pending.length }} 个文件
+    <div :class="{ show: !options.images.length }" class="BannerGroup-Empty transition-cubic">
+      <OtherTextShaving text="拖拽添加图片以继续." />
+    </div>
+
+    <div :class="{ show: !!pendingList.length }" class="BannerGroup-Badge fake-background transition-cubic">
+      正在上传 {{ pendingList.length }} 个文件
     </div>
 
     <div ref="inner" class="BannerGroup-Inner">
       <div class="BannerGroup-Item end">
         <!-- <span>{{ index }}</span> -->
-        <img :src="options.images.at(-1)" :alt="`Banner${options.images.length - 1}`">
+        <img :src="decodeURIComponent(options.images.at(-1).url)" :alt="`Banner${options.images.length - 1}`">
       </div>
       <div v-for="(image, index) in options.images" :id="`banner-item-${index}`" :key="index" class="BannerGroup-Item">
-        <!-- <span>{{ index }}</span> -->
-        <img :src="image" :alt="`Banner${index + 1}`">
+        <!-- <span>{{ image }}</span> -->
+        <img :src="decodeURIComponent(image.url)" :alt="`Banner${index + 1}`">
       </div>
       <!-- <div class="BannerGroup-Item first">
         <img :src="options.images[0]" alt="Banner0">
@@ -153,9 +201,8 @@ _timer()
     <div class="BannerGroup-Indicator">
       <!-- :style="`z-index: ${options.images.length - index}`" -->
       <div
-        v-for="(_, index) in options.images" :key="index"
-        cursor-pointer :class="{ active: index === options.index }" class="fake-background BannerGroup-Indicator-Item transition-cubic"
-        @click="options.index = index"
+        v-for="(_, index) in options.images" :key="index" cursor-pointer :class="{ active: index === options.index }"
+        class="fake-background BannerGroup-Indicator-Item transition-cubic" @click="options.index = index"
       />
     </div>
   </div>
@@ -186,6 +233,23 @@ _timer()
   overflow: hidden;
   border-radius: 12px;
   backdrop-filter: blur(18px) saturate(180%) brightness(150%);
+}
+
+.BannerGroup-Empty {
+  &.show {
+    opacity: 1;
+  }
+  position: absolute;
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  inset: 0;
+
+  opacity: 0;
+  font-size: 20px;
+  pointer-events: none;
 }
 
 .BannerGroup-Indicator {

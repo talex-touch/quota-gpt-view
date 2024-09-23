@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import type { IBannerGroup, SubscribeType } from '~/composables/api/base/index.type'
-import { BannerMode } from '~/composables/api/base/v1/banner.type.d.ts'
+import { $endApi } from '~/composables/api/base'
+import type { IStandardPageModel, SubscribeType } from '~/composables/api/base/index.type'
+import type { IBannerGroup } from '~/composables/api/base/v1/marketing.type'
+import { BannerMode } from '~/composables/api/base/v1/marketing.type'
 
 definePageMeta({
   layout: 'cms',
@@ -11,18 +13,17 @@ definePageMeta({
 
 const select = ref(-1)
 const bannerList = reactive<IBannerGroup[]>([
-  {
-    id: 1,
-    name: 'test',
-    startAt: -1,
-    endAt: -1,
-    posters: [],
-    property: '',
-    user_subscribe: '' as SubscribeType,
-    user_mode: BannerMode.WHITELIST,
-  },
+  // {
+  //   id: 1,
+  //   name: 'test',
+  //   startAt: -1,
+  //   endAt: -1,
+  //   posters: [],
+  //   property: '',
+  //   user_subscribe: '' as SubscribeType,
+  //   user_mode: BannerMode.WHITELIST,
+  // },
 ])
-
 const curBanner = computed(() => select.value !== -1 ? bannerList.find(item => item.id === select.value) : null)
 
 const bannerForm = reactive({
@@ -55,23 +56,40 @@ watch(() => bannerForm, (newValue) => {
   deep: true,
 })
 
-onMounted(() => {
+onMounted(fetchData)
 
-})
+async function fetchData() {
+  const res = await $endApi.v1.market.banner.list({})
+  if (!res.data)
+    return
 
-// const { data: bannerGroups } = await useAsyncData<IBannerGroup[]>(
-//   'banner-groups',
-//   () =>
-//     api.bannerGroup.list().then((res) => {
-//       return res.data.map((item) => {
-//         return {
-//           ...item,
-//           startTimeStamp: new Date(item.startTimeStamp),
-//           endTimeStamp: new Date(item.endTimeStamp),
-//         }
-//       })
-//     })
-// )
+  bannerList.push(...res.data.items)
+}
+
+async function saveData() {
+  if (!curBanner.value)
+    return
+
+  const res = await $endApi.v1.market.banner.update(curBanner.value.id!, curBanner.value)
+
+  responseMessage(res, {
+    success: '保存成功！',
+  })
+}
+
+watch(() => curBanner.value, (newVal, oldVal) => {
+  if (!oldVal)
+    return
+
+  saveData()
+}, { deep: true })
+
+function removeItem(index: number) {
+  if (!curBanner.value)
+    return
+
+  curBanner.value?.posters!.splice(index, 1)
+}
 </script>
 
 <template>
@@ -153,8 +171,18 @@ onMounted(() => {
               横幅编辑
             </p>
 
-            <div class="banner-edit-inner">
-              到时候做成可拖拽顺序的
+            <div class="banner-edit-wrapper">
+              <el-scrollbar>
+                <div class="banner-edit-inner">
+                  <div v-for="(item, index) in curBanner.posters" :key="item.url" class="banner-item">
+                    <img :src="decodeURIComponent(item.url)" :alt="`Banner${index}`">
+
+                    <div v-wave class="closable" @click="removeItem(index)">
+                      <div i-carbon:close />
+                    </div>
+                  </div>
+                </div>
+              </el-scrollbar>
             </div>
           </div>
         </div>
@@ -173,15 +201,100 @@ onMounted(() => {
 
 <style lang="scss">
 .CmsBanners-Main-Content-Footer {
+  .closable {
+    &:hover {
+      background-color: var(--el-color-danger);
+
+      width: 100%;
+      height: 100%;
+
+      opacity: 0.75 !important;
+      font-size: 36px;
+      border-radius: 16px;
+    }
+
+    position: absolute;
+    display: flex;
+
+    top: 0;
+    right: 0;
+
+    width: 24px;
+    height: 24px;
+
+    cursor: pointer;
+
+    align-items: center;
+    justify-content: center;
+
+    opacity: 0;
+    transition: 0.25s;
+    border-radius: 50%;
+    // transform: translate(50%, -50%);
+    background-color: var(--el-bg-color-page);
+  }
+
+  .banner-item {
+    &:hover .closable {
+      opacity: 1;
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+
+      object-fit: cover;
+      border-radius: 16px;
+    }
+    position: relative;
+
+    width: 20%;
+    // height: 100%;
+
+    flex-shrink: 0;
+
+    aspect-ratio: 16 / 9;
+
+    border-radius: 16px;
+    box-shadow: var(--el-box-shadow);
+  }
+
+  .banner-edit-inner {
+    position: relative;
+    // padding: 0.5rem 0;
+    display: flex;
+
+    gap: 0.5rem;
+  }
+
+  .banner-edit-wrapper {
+    position: absolute;
+    padding: 1rem;
+
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
+  }
+
+  p.title {
+    margin: 1rem 1rem 0.5rem;
+
+    font-size: 20px;
+    font-weight: 600;
+  }
+
   position: relative;
-  padding: 0.5rem;
+  // padding: 1rem;
 
   width: 100%;
+  max-width: 100%;
   height: 300px;
   max-height: 30%;
 
   bottom: 0;
 
+  // overflow: hidden;
   background-color: var(--el-bg-color);
   border-top: 1px solid var(--el-border-color);
 }
