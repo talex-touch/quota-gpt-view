@@ -4,7 +4,7 @@ import CommonApi from './v1/common'
 import ToolsApi from './v1/tools'
 import AigcApi from './v1/aigc'
 import AccountApi from './v1/account'
-import BannerApi from './v1/banner'
+import MarketAPi from './v1/marketing'
 
 export const $endApi = {
   v1: {
@@ -14,6 +14,6 @@ export const $endApi = {
     common: CommonApi,
     tools: ToolsApi,
     aigc: AigcApi,
-    banner: BannerApi,
+    market: MarketAPi,
   },
 }
