@@ -558,6 +558,10 @@ div.History {
     transform: translate(-50%, -50%) translateY(-10px) rotate(0);
   }
 
+  .wallpaper & {
+    mix-blend-mode: unset;
+  }
+
   z-index: 2;
   position: absolute;
 
