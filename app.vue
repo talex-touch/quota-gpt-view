@@ -19,18 +19,6 @@ const pageOptions = reactive({
 })
 
 const router = useRouter()
-const globalOptionsStore = useLocalStorage('global-options', {
-  url: '',
-})
-
-if (!globalOptionsStore.value.url)
-  globalOptionsStore.value.url = globalOptions.getEndsUrl()
-
-globalOptions.onUpdateUrl((url: string) => {
-  globalOptionsStore.value.url = url
-})
-
-globalOptions.setEndsUrl(globalOptionsStore.value.url)
 
 onMounted(async () => {
   setTimeout(() => {
