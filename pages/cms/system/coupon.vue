@@ -218,8 +218,10 @@ function handleTableRowClass(data: any) {
       </el-form>
 
       <ClientOnly>
-        <el-table v-if="coupons?.items" :row-class-name="handleTableRowClass" border height="90%" :data="coupons.items"
-          table-layout="auto" style="width: 100%">
+        <el-table
+          v-if="coupons?.items" :row-class-name="handleTableRowClass" border height="90%" :data="coupons.items"
+          table-layout="auto" style="width: 100%"
+        >
           <el-table-column width="60px" label="编号">
             <template #default="{ row }">
               {{ row.id }}
@@ -304,9 +306,11 @@ function handleTableRowClass(data: any) {
           </el-table-column>
         </el-table>
 
-        <el-pagination :disabled="formLoading" v-if="coupons?.meta" v-model:current-page="coupons.meta.currentPage"
-          v-model:page-size="coupons.meta.itemsPerPage" float-right my-4 :page-sizes="[50, 100, 200, 300, 500, 1000]"
-          layout="total, sizes, prev, pager, next, jumper" :total="coupons.meta.totalItems" @change="fetchData" />
+        <el-pagination
+          v-if="coupons?.meta" v-model:current-page="coupons.meta.currentPage" v-model:page-size="coupons.meta.itemsPerPage"
+          :disabled="formLoading" float-right my-4 :page-sizes="[20, 40, 60, 80, 100, 120]"
+          layout="total, sizes, prev, pager, next, jumper" :total="coupons.meta.totalItems" @change="fetchData"
+        />
       </ClientOnly>
     </el-main>
 
@@ -319,9 +323,11 @@ function handleTableRowClass(data: any) {
         </h4>
       </template>
       <template #default>
-        <el-form v-if="dialogOptions.data" ref="ruleFormRef"
+        <el-form
+          v-if="dialogOptions.data" ref="ruleFormRef"
           :disabled="dialogOptions.loading || dialogOptions.mode === 'read'" style="max-width: 600px"
-          :model="dialogOptions.data" :rules="rules" label-width="auto" status-icon>
+          :model="dialogOptions.data" :rules="rules" label-width="auto" status-icon
+        >
           <template v-if="dialogOptions.mode === 'read'">
             <el-form-item label="卡券码">
               <span>{{ dialogOptions.data.mainCode }}</span>
@@ -393,13 +399,17 @@ function handleTableRowClass(data: any) {
           </template>
 
           <template v-else>
-            <el-form-item label="优惠码前缀" prop="prefix"
-              :rules="[{ required: true, message: '请输入6位优惠码前缀', min: 6, max: 6 }]">
+            <el-form-item
+              label="优惠码前缀" prop="prefix"
+              :rules="[{ required: true, message: '请输入6位优惠码前缀', min: 6, max: 6 }]"
+            >
               <el-input v-model="dialogOptions.data.prefix" style="width: 100px" maxlength="6" />
             </el-form-item>
 
-            <el-form-item label="优惠码数量" prop="quantity"
-              :rules="[{ required: true, message: '请输入优惠码数量' }, { type: 'number', min: 1, max: 1000, message: '数量必须在1到1000之间' }]">
+            <el-form-item
+              label="优惠码数量" prop="quantity"
+              :rules="[{ required: true, message: '请输入优惠码数量' }, { type: 'number', min: 1, max: 1000, message: '数量必须在1到1000之间' }]"
+            >
               <el-input-number v-model="dialogOptions.data.quantity" :min="1" :max="1000" />
             </el-form-item>
 

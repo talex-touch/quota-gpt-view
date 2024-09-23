@@ -295,6 +295,7 @@ const menuWithRoot = computed(() => ([{ id: -1, name: '根目录', children: [..
             v-if="menus" table-layout="auto" row-key="id" default-expand-all border :data="menus"
             style="width: 100%"
           >
+            <el-table-column label="序号" prop="id" />
             <el-table-column label="名称" prop="name" />
             <el-table-column label="图标">
               <template #default="{ row }">

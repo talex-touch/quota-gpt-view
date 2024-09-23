@@ -1,8 +1,21 @@
 <script setup lang="ts">
+import { endHttp } from '~/composables/api/axios'
 import { $endApi } from '~/composables/api/base'
+import type { IBannerGroup } from '~/composables/api/base/v1/marketing.type'
+import { globalOptions } from '~/constants'
 import blocks from '~/public/backgrounds/blocks.jpg'
 import earth from '~/public/backgrounds/earth.jpg'
 import grass from '~/public/backgrounds/grass.jpg'
+
+const props = defineProps<{
+  modelValue: IBannerGroup
+}>()
+
+const emits = defineEmits<{
+  (e: 'update:modelValue', value: IBannerGroup): void
+}>()
+
+const banner = useVModel(props, 'modelValue', emits)
 
 const options = reactive<any>({
   animation: false,
@@ -13,44 +26,96 @@ const options = reactive<any>({
   index: 0,
   incTime: 0,
   duration: 3000,
-  images: [blocks, earth, grass],
+  images: [],
+})
+
+watchEffect(() => {
+  options.images = banner.value.posters || []
 })
 
 const container = ref<HTMLElement>()
 const dragger = ref<HTMLElement>()
 const inner = ref<HTMLElement>()
 
+const pendingList = computed(() => options.upload.pending.filter((item: any) => !item.sync))
+const errorList = computed(() => options.upload.pending.filter((item: any) => item.error))
+
 async function handleDrop(e: DragEvent) {
   e.preventDefault()
 
+  if (errorList.value.length > 0) {
+    // 查询是否有未上传的文件
+    if (pendingList.value.length === errorList.value.length) {
+      ElMessage({
+        message: '已自动清空上传失败文件！',
+        grouping: true,
+        type: 'info',
+        plain: true,
+      })
+
+      // 清空未上传的文件
+      options.upload.pending = []
+    }
+  }
+
   const files = e.dataTransfer!.files
 
-  console.log('files', files)
+  // force to asynchronism
+  options.dragging = false
+
+  const pending = []
 
   for (const file of files) {
-    const fileReader = new FileReader()
+    // const fileReader = new FileReader()
 
     const obj = reactive<any>({
+      error: '',
       sync: false,
-      reader: fileReader,
+      // reader: fileReader,
     })
 
     options.upload.pending.push(obj)
 
-    fileReader.onload = function (event) {
-      obj.result = event.target?.result
-    }
+    // fileReader.onload = function (event) {
+    //   obj.result = event.target?.result
+    // }
 
-    fileReader.readAsDataURL(file)
+    // fileReader.readAsDataURL(file)
 
     // upload
-    const res = await $endApi.v1.common.upload(file)
-    if (res.code === 200) {
-      // res.data.filename
-    }
+    pending.push(async () => {
+      const res = await $endApi.v1.common.upload(file)
+
+      responseMessage(res)
+
+      if (res.code === 200) {
+        options.images.push({
+          url: encodeURIComponent(`${globalOptions.getEndsUrl()}${res.data.filename}`),
+        })
+
+        obj.sync = true
+
+        saveData()
+      }
+      else {
+        obj.error = res.message
+      }
+    })
   }
 
-  options.dragging = false
+  await Promise.all(pending.map(fn => fn()))
+}
+
+async function saveData() {
+  banner.value.posters = [...options.images]
+
+  moveTo(banner.value.posters.length - 1)
+
+  // const res = await $endApi.v1.market.banner.update(banner.value.id!, banner.value)
+
+  // responseMessage(res, {
+  //   success: '保存成功！',
+  // })
 }
 
 function handleDragOver(e: DragEvent) {
@@ -117,6 +182,8 @@ async function _timer() {
 }
 
 _timer()
+
+const progress = computed(() => pendingList.value.length !== 0 ? ((pendingList.value.length / options.upload.pending.length) * 100) : 0)
 </script>
 
 <template>
@@ -131,18 +198,25 @@ _timer()
       松手以添加到组
     </div>
 
-    <div :class="{ show: !!options.upload.pending.length }" class="BannerGroup-Badge fake-background transition-cubic">
-      正在上传 {{ options.upload.pending.length }} 个文件
+    <div :class="{ show: !options.images.length }" class="BannerGroup-Empty transition-cubic">
+      <OtherTextShaving text="拖拽添加图片以继续." />
+    </div>
+
+    <div :style="`--progress: ${100 - progress}%`" :class="{ show: !!pendingList.length }" class="BannerGroup-Badge fake-background transition-cubic">
+      正在上传 {{ pendingList.length }} 个文件
+      <span v-if="errorList.length" mx-2>
+        <span class="text-red-500">{{ errorList.length }} 个文件上传失败</span>
+      </span>
     </div>
 
     <div ref="inner" class="BannerGroup-Inner">
-      <div class="BannerGroup-Item end">
+      <div v-if="options.images.length" class="BannerGroup-Item end">
         <!-- <span>{{ index }}</span> -->
-        <img :src="options.images.at(-1)" :alt="`Banner${options.images.length - 1}`">
+        <img :src="decodeURIComponent(options.images.at(-1).url)" :alt="`Banner${options.images.length - 1}`">
       </div>
       <div v-for="(image, index) in options.images" :id="`banner-item-${index}`" :key="index" class="BannerGroup-Item">
-        <!-- <span>{{ index }}</span> -->
-        <img :src="image" :alt="`Banner${index + 1}`">
+        <!-- <span>{{ image }}</span> -->
+        <img :src="decodeURIComponent(image.url)" :alt="`Banner${index + 1}`">
       </div>
       <!-- <div class="BannerGroup-Item first">
         <img :src="options.images[0]" alt="Banner0">
@@ -152,9 +226,8 @@ _timer()
     <div class="BannerGroup-Indicator">
       <!-- :style="`z-index: ${options.images.length - index}`" -->
       <div
-        v-for="(_, index) in options.images" :key="index"
-        cursor-pointer :class="{ active: index === options.index }" class="fake-background BannerGroup-Indicator-Item transition-cubic"
-        @click="options.index = index"
+        v-for="(_, index) in options.images" :key="index" cursor-pointer :class="{ active: index === options.index }"
+        class="fake-background BannerGroup-Indicator-Item transition-cubic" @click="options.index = index"
       />
     </div>
   </div>
@@ -162,9 +235,23 @@ _timer()
 
 <style lang="scss">
 .BannerGroup-Badge {
+  &::before {
+    z-index: -1;
+    content: '';
+    position: absolute;
+
+    inset: 0;
+    width: var(--progress);
+
+    opacity: 0.5;
+    transition: 0.25s;
+    background-color: var(--theme-color);
+  }
+
   &.show {
     opacity: 1;
   }
+
   z-index: 3;
   position: absolute;
   padding: 0.25rem 0.5rem;
@@ -187,6 +274,24 @@ _timer()
   backdrop-filter: blur(18px) saturate(180%) brightness(150%);
 }
 
+.BannerGroup-Empty {
+  &.show {
+    opacity: 1;
+  }
+
+  position: absolute;
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  inset: 0;
+
+  opacity: 0;
+  font-size: 20px;
+  pointer-events: none;
+}
+
 .BannerGroup-Indicator {
   &-Item {
     &.active {
@@ -204,6 +309,7 @@ _timer()
     border-radius: 50%;
     backdrop-filter: blur(5px);
   }
+
   z-index: 3;
   position: absolute;
   display: flex;
@@ -221,6 +327,7 @@ _timer()
     &.end {
       margin-left: -100%;
     }
+
     position: relative;
 
     top: 0;
@@ -237,6 +344,7 @@ _timer()
       .animation & {
         transform: scale(0.9);
       }
+
       width: 100%;
       height: 100%;
 

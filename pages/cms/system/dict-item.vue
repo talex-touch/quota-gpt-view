@@ -28,8 +28,8 @@ const templateData = genCmsTemplateData<TemplateType, IDictItemModelQuery, null>
     typeId: 0,
     remark: '',
     menuIds: [],
-    createdAt: '' ,
-    type:{
+    createdAt: '',
+    type: {
       id: 0,
       name: '',
       code: '',
@@ -39,8 +39,8 @@ const templateData = genCmsTemplateData<TemplateType, IDictItemModelQuery, null>
       createdAt: '',
       updatedAt: '',
       creator: '',
-      updater: '',  
-    }
+      updater: '',
+    },
   }),
   onFetchSuccess: async () => {
 
@@ -53,8 +53,8 @@ const templateData = genCmsTemplateData<TemplateType, IDictItemModelQuery, null>
   update: $dataApi.update,
   delete: $dataApi.delete,
 }, {
-  label: '' ,
-  value:'',
+  label: '',
+  value: '',
   typeid: 1,
 })
 const { list, listForm, fetchData, handleCrudDialog, handleDeleteData } = templateData
@@ -89,7 +89,7 @@ const rules = reactive<FormRules<TemplateType>>({
       </el-form-item>
     </template>
     <template #TableColumn>
-      <el-table-column width="100px" type="index" label="序号" />
+      <el-table-column width="100px" prop="id" label="序号" />
       <el-table-column prop="username" label="角色名称">
         <template #default="{ row }">
           {{ row.name }}

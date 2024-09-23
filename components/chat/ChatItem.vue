@@ -295,6 +295,7 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
   // display: flex;
 
   transition: 0.25s;
+  user-select: none;
   border-radius: 18px;
   transform-origin: left top;
   box-shadow: var(--el-box-shadow);

@@ -658,3 +658,26 @@ export interface ISubscriptionPlanQuery extends ISubscriptionPlan {
   page: number
   pageSize: number
 }
+
+export enum SubscribeType {
+  STANDARD = 'STANDARD', // 标准订阅计划
+  ULTIMATE = 'ULTIMATE', // 旗舰订阅计划
+}
+
+export interface IFeedbackModelQuery extends IFeedbackModel {
+  page: number
+  pageSize: number
+}
+
+export interface IFeedbackModel {
+
+  allRate?: number
+  feedDesc?: string
+  feedID?: string
+  feedSuggestion?: null | string
+  feedType?: string
+
+  id?: number
+  updatedAt?: string
+  createdAt?: string
+}

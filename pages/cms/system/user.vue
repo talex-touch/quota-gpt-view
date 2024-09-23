@@ -280,9 +280,11 @@ function filterNode(value: string, data: any) {
         <el-input v-model="treeFilterQuery" style="width: 200px" placeholder="搜索部门" />
       </el-header>
 
-      <el-tree ref="treeDom" :filter-node-method="filterNode" :default-expand-all="true" :highlight-current="true"
+      <el-tree
+        ref="treeDom" :filter-node-method="filterNode" :default-expand-all="true" :highlight-current="true"
         :current-node-key="formInline.deptId" node-key="id" :check-on-click-node="true" style="max-width: 600px"
-        :data="depts" :props="defaultProps" @node-click="handleNodeClick" />
+        :data="depts" :props="defaultProps" @node-click="handleNodeClick"
+      />
     </el-aside>
 
     <el-main>
@@ -315,7 +317,7 @@ function filterNode(value: string, data: any) {
 
       <ClientOnly>
         <el-table v-if="users?.items" :data="users.items" height="90%">
-          <el-table-column type="index" label="序号" width="60" />
+          <el-table-column prop="id" label="序号" width="60" />
           <el-table-column prop="date" label="头像" width="80">
             <template #default="scope">
               <UserAvatar :avatar="scope.row.avatar" />
@@ -367,21 +369,27 @@ function filterNode(value: string, data: any) {
               <el-button plain text size="small" @click="handleDialog(row, 'read')">
                 详情
               </el-button>
-              <el-button v-permission="`system:user:update`" plain text size="small" type="warning"
-                @click="handleDialog(row, 'edit')">
+              <el-button
+                v-permission="`system:user:update`" plain text size="small" type="warning"
+                @click="handleDialog(row, 'edit')"
+              >
                 编辑
               </el-button>
-              <el-button v-permission="`system:user:delete`" plain text size="small" type="danger"
-                @click="handleDeleteUser(row.id, row)">
+              <el-button
+                v-permission="`system:user:delete`" plain text size="small" type="danger"
+                @click="handleDeleteUser(row.id, row)"
+              >
                 删除
               </el-button>
             </template>
           </el-table-column>
         </el-table>
 
-        <el-pagination :disabled="formLoading" v-if="users?.meta" v-model:current-page="users.meta.currentPage"
-          v-model:page-size="users.meta.itemsPerPage" float-right my-4 :page-sizes="[15, 30, 50, 100]"
-          layout="total, sizes, prev, pager, next, jumper" :total="users.meta.totalItems" @change="fetchData" />
+        <el-pagination
+          v-if="users?.meta" v-model:current-page="users.meta.currentPage" v-model:page-size="users.meta.itemsPerPage"
+          :disabled="formLoading" float-right my-4 :page-sizes="[20, 40, 60, 80]"
+          layout="total, sizes, prev, pager, next, jumper" :total="users.meta.totalItems" @change="fetchData"
+        />
       </ClientOnly>
     </el-main>
 
@@ -395,12 +403,16 @@ function filterNode(value: string, data: any) {
         </h4>
       </template>
       <template #default>
-        <el-form v-if="dialogOptions.data" ref="ruleFormRef"
+        <el-form
+          v-if="dialogOptions.data" ref="ruleFormRef"
           :disabled="dialogOptions.loading || dialogOptions.mode === 'read'" style="max-width: 600px"
-          :model="dialogOptions.data" :rules="rules" label-width="auto" status-icon>
+          :model="dialogOptions.data" :rules="rules" label-width="auto" status-icon
+        >
           <el-form-item label="用户头像" prop="avatar">
-            <UserUploadAvatar v-model="dialogOptions.data.avatar"
-              :disabled="dialogOptions.loading || dialogOptions.mode === 'read'" />
+            <UserUploadAvatar
+              v-model="dialogOptions.data.avatar"
+              :disabled="dialogOptions.loading || dialogOptions.mode === 'read'"
+            />
           </el-form-item>
           <el-form-item label="用户名称" prop="username">
             <el-input v-model="dialogOptions.data.username" :disabled="dialogOptions.mode !== 'new'" />
@@ -421,9 +433,11 @@ function filterNode(value: string, data: any) {
             <el-input v-model="dialogOptions.data.phone" />
           </el-form-item>
           <el-form-item label="用户部门" prop="dept">
-            <el-tree-select v-model="dialogOptions.data.deptId" :default-expand-all="true" :highlight-current="true"
+            <el-tree-select
+              v-model="dialogOptions.data.deptId" :default-expand-all="true" :highlight-current="true"
               node-key="id" :check-on-click-node="true" :props="defaultProps" :data="depts"
-              :render-after-expand="false" />
+              :render-after-expand="false"
+            />
           </el-form-item>
           <el-form-item label="用户角色" prop="roles">
             <el-select v-model="dialogOptions.data.roleIds" multiple placeholder="请选择角色">

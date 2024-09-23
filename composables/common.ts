@@ -1,6 +1,7 @@
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import gsap from 'gsap'
+import type { IStandardResponse } from './api/base/index.type'
 
 dayjs.extend(duration)
 
@@ -109,4 +110,29 @@ export function decodeObject(str: string) {
 
 export function randomStr(len: number = 16) {
   return Array.from({ length: len }, () => String.fromCharCode(Math.floor(Math.random() * 26) + 97)).join('')
+}
+
+export function responseMessage(res: IStandardResponse, options = {
+  success: '操作成功',
+}) {
+  if (res.code === 200) {
+    ElMessage({
+      message: options.success,
+      grouping: true,
+      type: 'success',
+      plain: true,
+    })
+
+    return true
+  }
+  else {
+    ElMessage({
+      message: `操作失败(${res.message})！`,
+      grouping: true,
+      type: 'error',
+      plain: true,
+    })
+
+    return false
+  }
 }
