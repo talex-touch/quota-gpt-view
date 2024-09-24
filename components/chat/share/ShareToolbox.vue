@@ -159,8 +159,8 @@ const filteredMsg = computed(() => shareOptions.messages.filter((msg, index) => 
                 <pre v-if="block.type === 'text'" v-text="block.value" />
                 <div v-else-if="block.type === 'tool'" mt-2 w-max class="tool-card" :data="block.value">
                   <!-- <i i-carbon:3d-curve-auto-colon block /> -->
-                  <span class="show">已思考: {{ block.data }}</span>
-                  <span op-0>已思考: {{ block.data }}</span>
+                  <span class="show">已思考</span>
+                  <span op-0>已思考</span>
                 </div>
                 <RenderContent
                   v-else-if="block.type === 'markdown'" :render="{ enable: true, media: false }" readonly

@@ -23,7 +23,7 @@ const compMapper = reactive({
     icon: 'i-carbon:image',
     comp: Imagable,
     expandable: true,
-    query: computed(() => data.value.arguments?.text || data.value.name),
+    query: computed(() => data.value.arguments?.text || (data.value ? '已生成图像' : `生成图像中`)),
   },
   'biyingsousuo-bingWebSearch': {
     icon: 'i-carbon:search',
