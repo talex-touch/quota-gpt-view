@@ -1,90 +1,115 @@
-<script setup>
+<script lang="ts" setup>
 import { ref } from 'vue'
 
-const showDetails = ref(false)
+const container = ref<HTMLElement>()
 
-function toggleDetails() {
-  showDetails.value = !showDetails.value
-}
+const form = reactive({
+  rating: 0,
+  type: '',
+  lack: '',
+  desc: '',
+})
 
-const form = ref({
-  starRating: 3.5,
-  feedbackDesc: '',
-  feedbackSuggestion: '',
+const typeList = ['使用流畅', '功能完善', '界面美观', '操作简便']
+
+// function handleClick() {
+//   const el = container.value
+//   if (!el)
+//     return
+
+//   el.style.height = `${el.scrollHeight}px`
+// }
+
+watch(() => form.rating, (val) => {
+  const el = container.value
+  if (!el)
+    return
+
+  if (val <= 4.5) {
+    el.style.width = `${el.scrollWidth}px`
+    el.style.height = `${el.scrollHeight}px`
+  }
+  else {
+    el.style.width = ''
+    el.style.height = ''
+  }
 })
 </script>
 
 <template>
-  <div class="feedback-form" :class="{ expand: showDetails }">
-    <!--
-    <button @click="toggleDetails">
-      <span v-if="showDetails">收起</span>
-      <span v-else>展开</span>
-    </button> -->
+  <div ref="container" class="FeedBack transition-cubic fake-background">
+    <p class="title">
+      使用反馈
+    </p>
 
-    <el-form :mode="form" style="max-width: 600px">
-      <el-form-item label="整体评价:" label-position="top">
-        <div class="stars" @click="toggleDetails">
-          <!-- <el-rate v-model="form.starRating"/> -->
-          <el-rate v-model="form.starRating" show-score text-color="#ff9900" score-template="{value} points" />
+    <el-rate v-model="form.rating" show-score text-color="#ff9900" score-template="{value} 分" />
+
+    <div class="FeedBack-Form">
+      <div class="form-item">
+        <p>比较满意</p>
+        <div class="form-inner">
+          <el-segmented v-model="form.type" :options="typeList" />
         </div>
-      </el-form-item>
-
-      <div v-if="showDetails">
-        <el-form-item label="反馈类型:" label-position="top">
-          <div>
-            <!-- <button type="primary" v-for="(type, index) in ['bug', 'fature', 'Other']" @click="FeedType(type)">{{ type }} -->
-            <button />
-          </div>
-        </el-form-item>
-
-        <el-form-item label="反馈描述:" label-position="top">
-          <textarea v-model="form.feedbackDesc" />
-        </el-form-item>
-
-        <el-form-item label="?改进建议" label-position="top">
-          <textarea v-model="form.feedbackSuggestion" />
-        </el-form-item>
       </div>
-    </el-form>
+      <div class="form-item">
+        <p>仍然不足</p>
+        <div class="form-inner">
+          <el-segmented v-model="form.lack" :options="typeList" />
+        </div>
+      </div>
+      <div class="form-item">
+        <p>我的建议</p>
+        <div class="form-inner">
+          <el-input v-model="form.desc" style="min-width: 315px" type="textarea" placeholder="输入你的建议内容" />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
-<style>
-.box {
-  display: flex;
-  justify-content: center;
-}
+<style lang="scss">
+.FeedBack {
+  &-Form {
+    .form-item {
+      p {
+        opacity: 0.75;
+      }
+      margin: 0.5rem 0;
+      display: flex;
 
-.jj {
-  background-color: aqua;
-}
+      gap: 0.5rem;
+    }
 
-.feedback-form {
-  position: absolute;
-  padding: 1rem 2rem;
-  z-index: 10;
+    position: relative;
+    margin: 1rem 0;
 
-  /* right: 1rem;
-  bottom: 1rem; */
+    width: max-content;
 
-  width: 600px;
-  height: 100px;
-
-  &.expand {
-    height: 500px;
+    overflow: hidden;
   }
 
+  p.title {
+    margin: 0.5rem 0 1rem;
+
+    font-weight: 600;
+    font-size: 1.25rem;
+  }
+  z-index: 10;
+  position: absolute;
+  padding: 1rem 2rem;
+
+  right: 2rem;
+  bottom: 2rem;
+
+  width: 250px;
+  height: 120px;
+
   overflow: hidden;
-  transition: 0.25s;
+  text-align: center;
+  border-radius: 18px;
 
-  border-radius: 16px;
-
-  display: flex;
-  justify-content: center;
-
-  background-color: yellow;
-  /* box-shadow: var(-- el-box-shadow);
-  background-color: var(-- el-bg-color) */
+  --fake-opacity: 0.85;
+  box-shadow: var(--el-box-shadow);
+  backdrop-filter: blur(18px) saturate(180%);
 }
 </style>

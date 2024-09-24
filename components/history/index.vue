@@ -496,7 +496,7 @@ div.History {
 
 .History-Indicator {
   &:hover {
-    opacity: 0.75;
+    opacity: 1;
 
     cursor: pointer;
     transform: translateX(2px) translateY(-50%);
@@ -544,8 +544,8 @@ div.History {
     height: 32px;
 
     border-radius: 4px;
-    box-shadow: var(--el-box-shadow);
-    background-color: var(--el-fill-color);
+    // box-shadow: var(--el-box-shadow);
+    background-color: var(--el-text-color-primary);
     transform: translate(-50%, -50%);
     transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
   }
@@ -558,9 +558,10 @@ div.History {
     transform: translate(-50%, -50%) translateY(-10px) rotate(0);
   }
 
-  .wallpaper & {
-    mix-blend-mode: unset;
-  }
+  // .wallpaper &,
+  // .dark & {
+  //   mix-blend-mode: unset;
+  // }
 
   z-index: 2;
   position: absolute;
@@ -572,8 +573,9 @@ div.History {
   height: 50px;
 
   opacity: 0;
-  mix-blend-mode: difference;
+  // mix-blend-mode: difference;
   cursor: pointer;
+  filter: drop-shadow(0 0 8px var(--el-mask-color-extra-light));
   transform: translateX(0px) translateY(-50%);
   transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
 
@@ -586,7 +588,7 @@ div.History {
   }
 
   to {
-    opacity: 0.5;
+    opacity: 0.85;
   }
 }
 

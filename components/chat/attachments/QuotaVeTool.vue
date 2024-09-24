@@ -6,6 +6,8 @@ import Music from './ve-tool/Music.vue'
 import Lucky from './ve-tool/Lucky.vue'
 import Weather from './ve-tool/Weather.vue'
 import Flight from './ve-tool/Flight.vue'
+import Job from './ve-tool/Job.vue'
+import Data from './ve-tool/Data.vue'
 import type { IInnerItemMeta } from '~/composables/api/base/v1/aigc/completion-types'
 
 const props = defineProps<{
@@ -23,11 +25,12 @@ const compMapper = reactive({
     icon: 'i-carbon:image',
     comp: Imagable,
     expandable: true,
-    query: computed(() => data.value.arguments?.text || data.value.name),
+    query: computed(() => data.value.arguments?.text || (data.value ? '已生成图像' : `生成图像中`)),
   },
   'biyingsousuo-bingWebSearch': {
     icon: 'i-carbon:search',
     comp: BingSearch,
+    expandable: true,
     query: computed(() => data.value.arguments?.query || data.value.name),
   },
   'Wolfram_Alpha-calculate': {
@@ -60,9 +63,33 @@ const compMapper = reactive({
     expandable: true,
     query: computed(() => `${data.value.arguments.dep} ➜ ${data.value.arguments.arr}` || data.value.name),
   },
+  'liepin-job_recommendation': {
+    icon: 'i-carbon:recommend',
+    comp: Job,
+    expandable: true,
+    query: computed(() => data.value ? '已完成搜索' : '搜索中'),
+  },
+  'ts-ThisAI_Standard-ThisAI_Standard': {
+    icon: 'i-carbon:unknown',
+    comp: Data,
+    expandable: true,
+    query: computed(() => data.value ? '已思考完成' : '思考中'),
+  },
 })
 
-const curItem = computed(() => compMapper?.[data.value.name] || null)
+const curItem = computed(() => {
+  const compName: string = data.value.name
+
+  console.log('a', compName)
+
+  if (!compName)
+    return compMapper['ts-ThisAI_Standard-ThisAI_Standard']
+
+  if (!Object.keys(compMapper).includes(compName))
+    return compMapper['ts-ThisAI_Standard-ThisAI_Standard']
+
+  return compMapper[compName]
+})
 const timeCost = computed(() => {
   const start = props.block.extra?.start || -1
   const end = props.block.extra?.end || -1
@@ -77,7 +104,7 @@ const timeCost = computed(() => {
 <template>
   <div :class="{ done: block.extra?.end }" class="QuotaVeTool">
     <template v-if="curItem">
-      <template v-if="curItem.expandable">
+      <template v-if="curItem?.expandable">
         <ChatQueryCollapse @expand="emits('expand', $event)">
           <template #Header>
             <div class="Tool-Header">
@@ -105,20 +132,6 @@ const timeCost = computed(() => {
         </ChatQueryCollapse>
       </template>
       <template v-else>
-        <div class="Tool-Header">
-          <div class="Tool-Header-Icon">
-            <div :class="curItem.icon" />
-          </div>
-          <OtherTextShaving v-if="!block.value" :text="curItem.query" />
-          <p v-else>
-            {{ curItem.query }}
-          </p>
-          <div class="Tool-Header-Status">
-            <IconCircleLoader class="Loader" />
-            <div class="_dot" />
-          </div>
-        </div>
-
         <component :is="curItem.comp" :data="data" :value="value" />
       </template>
     </template>

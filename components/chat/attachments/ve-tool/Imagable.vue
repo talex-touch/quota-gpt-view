@@ -113,6 +113,7 @@ const props = defineProps<{
   }
 
   position: relative;
+  margin-right: 0.5rem;
   margin-bottom: 0.5rem;
 
   width: 20rem;
