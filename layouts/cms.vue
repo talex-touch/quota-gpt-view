@@ -19,9 +19,6 @@ definePageMeta({
 })
 
 const cur = ref()
-watch(() => route.fullPath, () => {
-  cur.value = route.meta?.name
-}, { immediate: true })
 
 const menus = ref()
 const menuOpened = ref<any[]>([])
@@ -62,7 +59,13 @@ onBeforeMount(async () => {
 })
 
 const color = useColorMode()
-
+const tabOptions = useLocalStorage<{
+  active: string
+  tabs: { name: string, path: string }[]
+}>('tab-stashed', {
+  active: '',
+  tabs: [],
+})
 const font = reactive({
   color: 'rgba(0, 0, 0, .15)',
 })
@@ -119,6 +122,86 @@ const select = computed(() => {
 })
 
 watch(() => select.value, val => curMenu.value = val)
+
+function clickTab(tab: any) {
+  const tabPath = tab.paneName
+
+  const selectTab = tabOptions.value.tabs.find(_tab => tabPath === _tab.path)
+
+  if (selectTab)
+    changeActiveRoute(tabOptions.value.active = selectTab.path)
+}
+
+function changeActiveRoute(path: string) {
+  tabOptions.value.active = path
+
+  router.push(path)
+}
+
+function removeTab(targetPath: any) {
+  const tabs = tabOptions.value.tabs
+
+  let activePath = tabOptions.value.active
+
+  if (activePath === targetPath) {
+    tabs.forEach((tab, index) => {
+      if (tab.path === targetPath) {
+        // 下一个 tab：索引-1或者索引+1
+        const nextTab = tabs[index + 1] || tabs[index - 1]
+        // 如果存在就激活 Tab，存储激活的 Tab，跳转页面
+        if (nextTab) {
+          activePath = nextTab.path
+          changeActiveRoute(nextTab.path)
+        }
+        else {
+          changeActiveRoute('/cms')
+        }
+      }
+    })
+  }
+
+  tabOptions.value.active = activePath
+
+  tabOptions.value.tabs = tabs.filter(tab => tab.path !== targetPath)
+}
+
+router.afterEach((to) => {
+  const { path, name } = to
+  if (path === tabOptions.value.active)
+    return
+
+  cur.value = name
+
+  setTimeout(() => {
+    changeActiveRoute(path)
+    // tabOptions.value.active = path
+
+    const index = tabOptions.value.tabs.findIndex(item => item.name === cur.value)
+
+    if (index === -1)
+      tabOptions.value.tabs.push({ path, name })
+  }, 200)
+})
+
+// watch(() => route.fullPath, () => {
+//   console.log('a', route)
+
+//   // const path = route.fullPath
+
+//   cur.value = route.meta?.name
+
+//   console.log('aaaaa')
+//   // setTimeout(() => {
+//   //   console.log('a')
+
+//   //   changeActiveRoute(path)
+
+//   //   const index = tabOptions.value.tabs.findIndex(item => item.name === cur.value)
+
+//   //   if (index === -1)
+//   //     tabOptions.value.tabs.push({ path, name: route.meta.name! })
+//   // }, 200)
+// }, { immediate: true })
 </script>
 
 <template>
@@ -155,7 +238,10 @@ watch(() => select.value, val => curMenu.value = val)
     <el-container class="CmsContainer">
       <el-aside class="CmsAside" width="280px">
         <div class="MenuIcon">
-          <div v-for="item in menus" :key="item.id" :class="{ active: curMenu?.id === item.id }" class="MenuIcon-Item" @click="curMenu = item">
+          <div
+            v-for="item in menus" :key="item.id" :class="{ active: curMenu?.id === item.id }" class="MenuIcon-Item"
+            @click="curMenu = item"
+          >
             <div :class="item.meta.icon" />
             <span>{{ item.name }}</span>
           </div>
@@ -165,8 +251,7 @@ watch(() => select.value, val => curMenu.value = val)
             <template v-if="curMenu?.children">
               <CmsMenuItem
                 v-for="subMenu in filterSubMenus(curMenu.children)" :key="subMenu.id"
-                :path="`/cms${subMenu.path}`"
-                :external="subMenu.path"
+                :path="`/cms${subMenu.path}`" :external="subMenu.path"
               >
                 <div flex items-center gap-2>
                   <div :class="subMenu.meta.icon" />{{ subMenu.name }}
@@ -199,8 +284,22 @@ watch(() => select.value, val => curMenu.value = val)
         </template> -->
       </el-aside>
       <el-main class="CmsMain">
+        <div class="CmsMain-Tabs">
+          <el-tabs
+            v-if="tabOptions.tabs.length > 0" v-model="tabOptions.active" type="card" closable @tab-click="clickTab"
+            @tab-remove="removeTab"
+          >
+            <el-tab-pane v-for="item in tabOptions.tabs" :key="item.path" :label="item.name" :name="item.path" />
+          </el-tabs>
+        </div>
         <el-watermark :font="font" :z-index="100" class="watermark" :content="[userStore.nickname!, 'ThisAI CMS']">
-          <slot />
+          <router-view v-slot="{ Component }">
+            <transition name="rotate">
+              <keep-alive>
+                <component :is="Component" />
+              </keep-alive>
+            </transition>
+          </router-view>
         </el-watermark>
       </el-main>
     </el-container>
@@ -208,6 +307,14 @@ watch(() => select.value, val => curMenu.value = val)
 </template>
 
 <style lang="scss">
+.CmsMain-Tabs {
+  .el-tabs__header {
+    margin: 0;
+  }
+
+  background-color: var(--el-bg-color-page);
+}
+
 .CmsAside {
   .MenuIcon {
     &-Item {
@@ -239,6 +346,7 @@ watch(() => select.value, val => curMenu.value = val)
       box-sizing: border-box;
       // background-color: var(--el-bg-color-page);
     }
+    position: relative;
     padding: 0.5rem;
     gap: 0.5rem;
 
@@ -249,7 +357,7 @@ watch(() => select.value, val => curMenu.value = val)
 
     width: 96px;
 
-    background-color: var(--el-bg-color-overlay);
+    background-color: var(--el-overlay-color);
     border-right: 1px solid var(--el-border-color);
   }
   .Menu-Sub {
@@ -278,6 +386,8 @@ watch(() => select.value, val => curMenu.value = val)
   }
 
   display: flex;
+
+  background-color: var(--el-bg-color-page);
 }
 
 /* ... */
@@ -322,7 +432,7 @@ watch(() => select.value, val => curMenu.value = val)
   height: 100%;
 
   align-self: flex-start;
-  border: 1px solid var(--el-border-color);
+  border-right: 1px solid var(--el-border-color);
 }
 
 .CmsMain {
@@ -412,8 +522,9 @@ watch(() => select.value, val => curMenu.value = val)
 
     width: 100%;
 
-    box-shadow: var(--el-box-shadow);
-    // border-bottom: 1px solid var(--el-border-color);
+    // box-shadow: var(--el-box-shadow);
+    background-color: var(--el-bg-color-page);
+    border-bottom: 1px solid var(--el-border-color);
   }
 
   .el-container {
