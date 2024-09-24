@@ -23,10 +23,6 @@ export const ENDS_URL = {
 
 let _ENDS_URL = ''
 
-const globalOptionsStore = useLocalStorage('global-options', {
-  url: '',
-})
-
 // Object.assign(globalThis, '$ENDS_URL', {
 //   get() {
 //     return _ENDS_URL
@@ -66,6 +62,9 @@ export class GlobalOptions {
   }
 
   getEndsUrl() {
+    if (!_ENDS_URL) {
+      return (import.meta.env.DEV) ? ENDS_URL.dev.value : ENDS_URL.prod.value
+    }
 
     return _ENDS_URL
   }
@@ -85,12 +84,3 @@ export class GlobalOptions {
 }
 
 export const globalOptions = new GlobalOptions()
-
-if (!globalOptionsStore.value.url)
-  globalOptionsStore.value.url = globalOptions.getEndsUrl()
-
-globalOptions.onUpdateUrl((url: string) => {
-  globalOptionsStore.value.url = url
-})
-
-globalOptions.setEndsUrl(globalOptionsStore.value.url)
