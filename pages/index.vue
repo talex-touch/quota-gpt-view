@@ -28,7 +28,11 @@ const pageOptions = reactive<{
   inputProperty: InputPlusProperty
   share: any
   status: IChatItemStatus
+  feedback: any
 }>({
+  feedback: {
+    visible: true,
+  },
   settingDialog: false,
   expand: true,
   select: '',
@@ -296,7 +300,7 @@ console.log(pageOptions)
       />
 
       <!-- 根据 发送消息超过10次 控制弹窗的显示 -->
-      <!-- <FeedBack v-if="showFeedbackForm" @close="showFeedbackForm = false" /> -->
+      <FeedBack v-model:show="pageOptions.feedback.visible" />
 
       <ChorePersonalDialog v-if="userStore.isLogin" v-model="pageOptions.settingDialog" />
     </div>

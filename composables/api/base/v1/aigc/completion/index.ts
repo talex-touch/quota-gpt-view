@@ -471,8 +471,8 @@ export const $completion = {
             const { event, name, data } = res
             if (event === 'status_updated') {
               const mappedStatus = mapStrStatus(res.status)
-              if (mappedStatus === IChatItemStatus.GENERATING && innerMsg.status !== IChatItemStatus.WAITING)
-                return
+              // if (mappedStatus === IChatItemStatus.GENERATING && innerMsg.status !== IChatItemStatus.WAITING)
+              //   return
               innerMsg.status = mappedStatus
               handler?.onTriggerStatus?.(mappedStatus)
 
