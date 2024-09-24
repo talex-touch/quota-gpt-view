@@ -676,6 +676,7 @@ export interface IFeedbackModel {
   feedID?: string
   feedSuggestion?: null | string
   feedType?: string
+  user?:any
 
   id?: number
   updatedAt?: string

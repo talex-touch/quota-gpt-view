@@ -41,7 +41,7 @@ const airlines: Record<string, string> = {
 
           <div class="Flight-Start">
             <p class="time">
-              {{ formatDate(flight.departureActualTimestamp * 1000, 'HH:mm') }}
+              {{ formatDate((flight.departureActualTimestamp || flight.departurePlanTimestamp) * 1000, 'HH:mm') }}
             </p>
             <p class="name">
               <template v-if="flight.departureCn">
@@ -54,7 +54,7 @@ const airlines: Record<string, string> = {
           </div>
           <div class="Flight-Info">
             <p class="cost-time">
-              {{ calcMin(flight.arrivalActualTimestamp - flight.departureActualTimestamp) }}
+              {{ calcMin((flight.arrivalActualTimestamp || flight.arrivalPlanTimestamp) - (flight.departureActualTimestamp || flight.departurePlanTimestamp)) }}
             </p>
             <div class="flight-indicator" />
             <p class="info">
@@ -63,7 +63,7 @@ const airlines: Record<string, string> = {
           </div>
           <div class="Flight-Start">
             <p class="time">
-              {{ formatDate(flight.arrivalActualTimestamp * 1000, 'HH:mm') }}
+              {{ formatDate((flight.arrivalActualTimestamp || flight.arrivalPlanTimestamp) * 1000, 'HH:mm') }}
             </p>
             <p class="name">
               <template v-if="flight.arrivalCn">
