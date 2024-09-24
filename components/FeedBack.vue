@@ -8,6 +8,7 @@ const form = reactive({
   type: '',
   lack: '',
   desc: '',
+  loading: false,
 })
 
 const typeList = ['使用流畅', '功能完善', '界面美观', '操作简便']
@@ -34,10 +35,18 @@ watch(() => form.rating, (val) => {
     el.style.height = ''
   }
 })
+
+async function submit() {
+  form.loading = true
+
+  await sleep(3000)
+
+  form.loading = false
+}
 </script>
 
 <template>
-  <div ref="container" class="FeedBack transition-cubic fake-background">
+  <div ref="container" v-loader="form.loading" class="FeedBack transition-cubic fake-background">
     <p class="title">
       使用反馈
     </p>
@@ -63,6 +72,10 @@ watch(() => form.rating, (val) => {
           <el-input v-model="form.desc" style="min-width: 315px" type="textarea" placeholder="输入你的建议内容" />
         </div>
       </div>
+
+      <el-button v-wave :loading="form.loading" size="large" type="primary" w-full style="border-radius: 10px" @click="submit">
+        提交
+      </el-button>
     </div>
   </div>
 </template>

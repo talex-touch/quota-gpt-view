@@ -2,7 +2,7 @@
 
 import { endHttp } from '../../axios'
 import type { IDataResponse, IPageResponse, IStandardResponse } from '../index.type'
-import type { IBannerGroup, IBannerGroupQuery } from './marketing.type'
+import type { IBannerGroup } from './marketing.type'
 
 export default {
   banner: {

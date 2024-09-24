@@ -1,4 +1,4 @@
-import type { extend } from 'dayjs'
+
 
 export interface IUserModel extends Record<string, any> {
   /**

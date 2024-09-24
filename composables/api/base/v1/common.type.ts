@@ -6,9 +6,3 @@ export interface IUploadResponse extends IStandardResponse {
   }
 }
 
-export interface FeedbackQuery {
-  allRate: number
-  feedType: string
-  feedDesc: string
-  feedSuggestion: string
-}
