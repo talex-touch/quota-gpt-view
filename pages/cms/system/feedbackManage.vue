@@ -14,36 +14,36 @@ definePageMeta({
 type TemplateType = IFeedbackModel
 const $dataApi = $endApi.v1.cms.feedback
 
-const templateData = genCmsTemplateData<TemplateType, IFeedbackModelQuery, null>({
-  getDeleteBoxTitle(id) {
-    return ` 反馈管理#${id} `
-  },
-  getEmptyModel: () => ({
-    id: 0,
-    allRate: 0,
-    feedDesc: '',
-    feedType: '',
-    feedID: '',
-    feedSuggestion: '',
-    createdAt: '',
-    updatedAt: '',
-  }),
-  onFetchSuccess: async () => {
+const templateData = genCmsTemplateData<TemplateType, IFeedbackModelQuery, null>(
+  {
+    getDeleteBoxTitle(id) {
+      return ` 反馈管理#${id} `
+    },
+    getEmptyModel: () => ({
+      id: 0,
+      user: {},
+      allRate: 0,
+      feedDesc: '',
+      feedType: '',
+      feedID: '',
+      feedSuggestion: '',
+      createdAt: '',
+      updatedAt: '',
+    }),
+    onFetchSuccess: async () => {},
 
+    handleCrudDialog() {
+      // data.menuIds = data.menus.map((item: any) => item.id)
+    },
+    getList: $dataApi.list,
+    update: $dataApi.update,
+    delete: $dataApi.delete,
+    getDeleteBoxTitles(ids: Array<number>): string {
+      return ` 反馈管理#${ids.join(',')} `
+    },
   },
-
-  handleCrudDialog() {
-    // data.menuIds = data.menus.map((item: any) => item.id)
-  },
-  getList: $dataApi.list,
-  update: $dataApi.update,
-  delete: $dataApi.delete,
-  getDeleteBoxTitles(ids: Array<number>): string {
-    return ` 反馈管理#${ids.join(',')} `
-  },
-}, {
-
-})
+  {}
+)
 const { list, listForm, fetchData } = templateData
 
 onMounted(fetchData)
@@ -63,7 +63,7 @@ onMounted(fetchData)
 </script>
 
 <template>
-  <TemplateStandardCms identifier="role" :list="list" :template-data="templateData" name="角色">
+  <TemplateStandardCms identifier="role" :list="list" :template-data="templateData" name="反馈">
     <template #QueryForm>
       <!-- <el-form-item label="角色名称">
         <el-input v-model="listForm." placeholder="角色名称" clearable />
@@ -115,26 +115,25 @@ onMounted(fetchData)
     </template>
     <template #CrudForm="{ data }">
       <div class="formItemInline">
-      <!-- <el-form-item label="角色名称" inline>
-          <el-input v-model="data.name" placeholder="请输入角色名称..." clearable />
+
+        <el-form-item label="反馈人" inline>
+          <el-input v-model="data.user.nickname" placeholder="请输入整体评价..." clearable  disabled/>
+        </el-form-item>
+        <el-form-item label="整体评价" inline>
+          <el-input v-model="data.allRate" placeholder="请输入整体评价..." clearable  disabled />
         </el-form-item>
 
-        <el-form-item label="角色值" inline>
-
-          <el-input v-model="data.value" placeholder="请输入角色值..." clearable />
+        <el-form-item label="反馈类型" inline>
+          <el-input v-model="data.feedType" placeholder="请输入反馈类型..." clearable  />
         </el-form-item>
-      </div> -->
 
-      <!-- <el-form-item label="状态">
-        <el-radio-group v-model="data.status">
-          <el-radio-button :value="0">
-            已禁用
-          </el-radio-button>
-          <el-radio-button :value="1">
-            未禁用
-          </el-radio-button>
-        </el-radio-group>
-      </el-form-item> -->
+        <el-form-item label="反馈描述" inline>
+          <el-input v-model="data.feedDesc" placeholder="请输入反馈描述..." clearable disabled />
+        </el-form-item>
+
+        <el-form-item label="反馈建议" inline>
+          <el-input v-model="data.feedSuggestion" placeholder="请输入反馈建议..." clearable disabled />
+        </el-form-item>
       </div>
     </template>
   </TemplateStandardCms>
