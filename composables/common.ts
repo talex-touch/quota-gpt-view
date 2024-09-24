@@ -136,3 +136,8 @@ export function responseMessage(res: IStandardResponse, options = {
     return false
   }
 }
+
+// 1000 -> 1,000
+export function formatNumber(num: string) {
+  return `${num}`.replace(/(\d)(?=(?:\d{3})+$)/g, '$1,')
+}

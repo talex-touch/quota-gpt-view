@@ -13,4 +13,11 @@ export default {
   deleteConversation(id: string) {
     return endHttp.del(`aigc/conversations/${id}`)
   },
+  getPrompt(page: number) {
+    return endHttp.get('aigc/prompts/search', {
+      page,
+      pageSize: 25,
+      keyword: '',
+    }) as Promise<IPageResponse<any>>
+  },
 }

@@ -471,7 +471,7 @@ const codeUrl = computed(() => `https://mp.weixin.qq.com/cgi-bin/showqrcode?tick
               <span>请在手机上确认登录</span>
             </div>
 
-            <el-image style=" border-radius: 12px;" :src="codeUrl" />
+            <el-image style=" border-radius: 12px;aspect-ratio: 1 / 1;min-height: 120px;" :src="codeUrl" />
           </div>
         </div>
       </div>
