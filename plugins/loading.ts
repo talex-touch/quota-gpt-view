@@ -18,6 +18,7 @@ const loadingDirective = {
     }
 
     wrapper.style.opacity = '0'
+    wrapper.style.pointerEvents = 'none'
     app.mount(wrapper)
   },
   beforeUpdate(el: HTMLElement, binding: any) {
