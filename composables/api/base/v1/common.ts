@@ -16,11 +16,5 @@ export default {
     return endHttp.post('tools/upload', formData)
   },
 
-  Feedback: {
-    create(data: FeedbackQuery) {
-      return endHttp.post('feedback', data)
-    },
 
-    list() {},
-  },
 }
