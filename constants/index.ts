@@ -23,6 +23,10 @@ export const ENDS_URL = {
 
 let _ENDS_URL = ''
 
+const globalOptionsStore = useLocalStorage('global-options', {
+  url: '',
+})
+
 // Object.assign(globalThis, '$ENDS_URL', {
 //   get() {
 //     return _ENDS_URL
@@ -50,7 +54,7 @@ export class GlobalOptions {
    * import.meta.env 只能访问到 Vite 自动注入的环境变量，
    */
   constructor() {
-    this.setEndsUrl((import.meta.env.DEV) ? ENDS_URL.dev.value : ENDS_URL.prod.value)
+    // this.setEndsUrl((import.meta.env.DEV) ? ENDS_URL.dev.value : ENDS_URL.prod.value)
   }
 
   setEndsUrl(url: string) {
@@ -62,6 +66,7 @@ export class GlobalOptions {
   }
 
   getEndsUrl() {
+
     return _ENDS_URL
   }
 
@@ -80,3 +85,12 @@ export class GlobalOptions {
 }
 
 export const globalOptions = new GlobalOptions()
+
+if (!globalOptionsStore.value.url)
+  globalOptionsStore.value.url = globalOptions.getEndsUrl()
+
+globalOptions.onUpdateUrl((url: string) => {
+  globalOptionsStore.value.url = url
+})
+
+globalOptions.setEndsUrl(globalOptionsStore.value.url)
