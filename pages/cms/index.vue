@@ -9,71 +9,77 @@ definePageMeta({
 
 <template>
   <div class="Cms">
-    <div class="page">
-      <div class="top">
-        <div class="luik">
-          <div class="circle1" />
-          <div class="circle2" />
-          <div class="circle3" />
+    <div class="CmsData">
+      <div v-for="i in 4" :key="i" class="CmsData-Item">
+        <div class="CmsData-Item-Avatar">
+          <el-img>
+            Random
+          </el-img>
         </div>
-        <div>2</div>
-        <div>3</div>
-        <div>4</div>
-        <div>5</div>
-        <div>6</div>
       </div>
-      <div class="next">
-        <div>a</div>
-        <div>b</div>
+    </div>
+    <div class="next">
+      <div>a</div>
+      <div>b</div>
+    </div>
+    <div class="rix">
+      <div class="box1">
+        1
       </div>
-      <div class="rix">
-        <div class="box1">
-          1
-        </div>
-        <div>2</div>
-        <div>3</div>
+      <div>2</div>
+      <div>3</div>
+    </div>
+    <div class="button">
+      <div class="box2">
+        1
       </div>
-      <div class="button">
-        <div class="box2">
-          1
-        </div>
-        <div>2</div>
-        <div>3</div>
-      </div>
+      <div>2</div>
+      <div>3</div>
     </div>
   </div>
 </template>
 
 <style lang="scss">
 .Cms {
+  padding: 1rem;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
 
-.page {
-  display: grid;
-  grid-gap: 2rem;
   width: 100%;
-  max-width: 1000px; /* 增加最大宽度 */
+  height: 100%;
+
+  gap: 0.5rem;
+  flex-direction: column;
+
+  justify-content: space-between;
 }
 
-.top {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  grid-template-rows: 75px; /* 增加高度 */
-  grid-gap: 2rem;
+.CmsData {
+  display: flex;
+
+  gap: 1rem;
   width: 100%;
-  height: auto;
-}
 
-.top > div {
-  background-color: #fff;
-  border: 1px solid #000;
-  border-radius: 4px;
-  padding: 15px; /* 增加内边距 */
-  font-size: 1.2em; /* 增加字体大小 */
+  &-Item {
+    &-Avatar {
+      display: flex;
+
+      font-size: 12px;
+      align-items: center;
+      justify-content: center;
+
+      width: 64px;
+      height: 64px;
+
+      border-radius: 50%;
+      border: 1px solid var(--el-text-color-primary);
+    }
+    padding: 1rem 0.5rem;
+
+    flex: 1;
+
+    border-radius: 18px;
+    background-color: var(--el-fill-color-light);
+  }
 }
 
 .next {
