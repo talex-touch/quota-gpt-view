@@ -89,7 +89,7 @@ onMounted(fetchData)
       <el-table-column prop="rating" label="整体评价" />
       <el-table-column prop="type" label="比较满意类型" />
       <el-table-column prop="lack" label="仍不满足" />
-      <el-table-column prop="Suggestion" label="我的建议" />
+      <el-table-column prop="suggestion" label="我的建议" />
 
       <el-table-column prop="createdAt" label="创建时间">
         <template #default="scope">

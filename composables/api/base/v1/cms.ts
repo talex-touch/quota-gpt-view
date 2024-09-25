@@ -30,6 +30,7 @@ import type {
   ServeStatInfo,
 } from './cms.type'
 
+
 export default {
   doc: {
     deployedList(query: Partial<IDocQuery>) {
@@ -242,6 +243,10 @@ export default {
   },
 
   feedback: {
+
+    create(data: IFeedbackModel) {
+      return endHttp.post('feedback/create', data) as Promise<IStandardResponse>
+    },
     list(query: Partial<IFeedbackModelQuery>) {
       return endHttp.post('feedback/listAll', query) as Promise<IPageResponse<IFeedbackModel>>
     },
@@ -249,7 +254,7 @@ export default {
       return endHttp.put(`feedback/${id}`, data) as Promise<IStandardResponse>
     },
     delete(id: number | string) {
-      return endHttp.get(`feedback/${id}`) as Promise<IStandardResponse>
+      return endHttp.del(`feedback/${id}`) as Promise<IStandardResponse>
     },
 
   },
