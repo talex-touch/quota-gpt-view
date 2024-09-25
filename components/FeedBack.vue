@@ -1,6 +1,16 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 
+const props = defineProps<{
+  show: boolean
+}>()
+
+const emits = defineEmits<{
+  (e: 'update:show'): void
+}>()
+
+const visible = useVModel(props, 'show', emits)
+
 const container = ref<HTMLElement>()
 
 const form = reactive({
@@ -46,7 +56,7 @@ async function submit() {
 </script>
 
 <template>
-  <div ref="container" v-loader="form.loading" class="FeedBack transition-cubic fake-background">
+  <div ref="container" v-loader="form.loading" :class="{ visible }" class="FeedBack transition-cubic fake-background">
     <p class="title">
       使用反馈
     </p>
@@ -121,8 +131,15 @@ async function submit() {
   text-align: center;
   border-radius: 18px;
 
+  opacity: 0;
+  transform: translateX(150%);
+
   --fake-opacity: 0.85;
   box-shadow: var(--el-box-shadow);
   backdrop-filter: blur(18px) saturate(180%);
+  &.visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 </style>

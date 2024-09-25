@@ -251,7 +251,7 @@ async function handleSearchHistory(query: string) {
         <!-- <img src="/logo.png">
         <span>创建新对话</span>
         <div i-carbon-add mr-2 /> -->
-        <ButtonWavingButton flex items-center justify-between gap-2>
+        <ButtonWavingButton v-wave flex items-center justify-between gap-2>
           <img src="/logo.png">
           <span>创建新对话</span>
           <div i-carbon-add mr-2 />

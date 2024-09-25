@@ -353,7 +353,7 @@ export const $completion = {
         if (item.type !== 'tool')
           return
 
-        console.log('aaa', item)
+        // console.log('aaa', item)
 
         if (!item.extra?.end) {
           item.extra = {
@@ -478,7 +478,7 @@ export const $completion = {
             }
 
             const { event, name, data } = res
-            console.log('RES', res, res.event)
+            // console.log('RES', res, res.event)
             if (event === 'status_updated') {
               const mappedStatus = mapStrStatus(res.status)
               // if (mappedStatus === IChatItemStatus.GENERATING && innerMsg.status !== IChatItemStatus.WAITING)
