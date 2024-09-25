@@ -357,7 +357,7 @@ router.afterEach((to) => {
 
     width: 96px;
 
-    background-color: var(--el-overlay-color);
+    // background-color: var(--el-overlay-color);
     border-right: 1px solid var(--el-border-color);
   }
   .Menu-Sub {
