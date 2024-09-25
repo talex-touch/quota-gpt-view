@@ -7,7 +7,7 @@ const form = reactive({
   rating: 0,
   type: '',
   lack: '',
-  desc: '',
+  Suggestion: '',
   loading: false,
 })
 
@@ -69,7 +69,7 @@ async function submit() {
       <div class="form-item">
         <p>我的建议</p>
         <div class="form-inner">
-          <el-input v-model="form.desc" style="min-width: 315px" type="textarea" placeholder="输入你的建议内容" />
+          <el-input v-model="form.Suggestion" style="min-width: 315px" type="textarea" placeholder="输入你的建议内容" />
         </div>
       </div>
 
