@@ -149,7 +149,7 @@ watchEffect(() => {
 </script>
 
 <template>
-  <!-- {{ meta }} {{ item.page }} - {{ nullLen }} -->
+  <span v-if="!isUser">{{ meta }} {{ item.page }} - {{ nullLen }}</span>
   <div v-if="metaModel.show" :class="{ check, share, user: isUser }" class="ChatItem">
     <div class="ChatItem-Select">
       <el-checkbox v-model="check" />
@@ -159,11 +159,7 @@ watchEffect(() => {
       <img src="/logo.png">
     </div>
     <!-- error: innerItem.status === IChatItemStatus.ERROR, -->
-    <div
-      v-if="innerItem"
-      :class="{ settingVisible: settingMode.visible }"
-      class="ChatItem-Wrapper"
-    >
+    <div v-if="innerItem" :class="{ settingVisible: settingMode.visible }" class="ChatItem-Wrapper">
       <div class="ChatItem-Content">
         <div v-if="innerItem.status === IChatItemStatus.WAITING" class="ChatItem-Generating">
           <div class="ChatItem-GeneratingWrapper">
@@ -180,9 +176,8 @@ watchEffect(() => {
             <!-- </div> -->
 
             <RenderContent
-              v-else-if="block.type === 'markdown'"
-              :dot-enable="!isEnd" :render="settingMode.render" readonly
-              :data="block.value"
+              v-else-if="block.type === 'markdown'" :dot-enable="!isEnd" :render="settingMode.render"
+              readonly :data="block.value"
             />
 
             <div v-else-if="block.type === 'card'">

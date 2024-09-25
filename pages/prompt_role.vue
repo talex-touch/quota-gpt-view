@@ -106,7 +106,7 @@ onMounted(() => {
           </p>
         </div>
 
-        <br v-for="i in 4">
+        <br v-for="i in 4" :key="i">
       </el-scrollbar>
     </div>
   </div>

@@ -62,7 +62,11 @@ watch(() => online.value, detectEndStatus)
           </div>
         </el-aside>
         <el-main>
-          <slot />
+          <router-view v-slot="{ Component }">
+            <transition name="slide">
+              <component :is="Component" />
+            </transition>
+          </router-view>
         </el-main>
 
         <div class="Offline" :class="{ display: status }">
