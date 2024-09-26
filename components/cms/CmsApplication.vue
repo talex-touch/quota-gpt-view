@@ -32,9 +32,10 @@ async function fetchData() {
     return item
   })
 }
+fetchData()
 
 const router = useRouter()
-const personalApps = reactive<any[]>([])
+// const personalApps = reactive<any[]>(userConfig.value.pri_info.cms.apps)
 const tempPersonalApps = reactive<any[]>([])
 const curMenu = ref()
 
@@ -44,13 +45,16 @@ watch(() => menus.value.visible, (visible) => {
 
   fetchData()
 
-  Object.assign(tempPersonalApps, personalApps)
+  Object.assign(tempPersonalApps, [...userConfig.value.pri_info.cms.apps])
 })
 
-function saveApps() {
-  Object.assign(personalApps, tempPersonalApps)
+async function saveApps() {
+  // Object.assign(personalApps, tempPersonalApps)
 
-  menus.value.visible = false
+  userConfig.value.pri_info.cms.apps = [...tempPersonalApps]
+
+  if (await saveUserConfig())
+    menus.value.visible = false
 }
 
 function selectMenu(item: any) {
@@ -64,7 +68,7 @@ function handleAddMenu(item: any) {
     Object.assign(tempPersonalApps, tempPersonalApps.filter(id => id !== item.id))
 }
 
-const filteredIcons = computed(() => [...menus.value.origin].filter((item: any) => personalApps.includes(item.id)))
+const filteredIcons = computed(() => [...menus.value.origin].filter((item: any) => userConfig.value.pri_info.cms.apps.includes(item.id)))
 
 function goRouter(item: any) {
   if (item.path?.startsWith('http'))
@@ -105,7 +109,7 @@ function goRouter(item: any) {
       v-model="menus.visible" width="40%" :close-on-press-escape="false" :close-on-click-modal="false"
       title="应用菜单"
     >
-      <el-container v-loader="menus.loading">
+      <el-container v-loader="menus.loading || userConfig.loading">
         <el-aside width="200px">
           <div v-for="item in menus.list" :key="item.id" class="CmsApplication-MenuItem">
             <CmsMenuItem :active="item === curMenu" @click="selectMenu(item)">
@@ -138,10 +142,13 @@ function goRouter(item: any) {
       </el-container>
 
       <template #footer>
-        <el-button v-wave plain @click="menus.visible = false">
+        <el-button v-wave :disabled="userConfig.loading" plain @click="menus.visible = false">
           取消
         </el-button>
-        <el-button v-wave plain type="primary" @click="saveApps">
+        <el-button
+          v-wave :disabled="userConfig.loading" :loading="userConfig.loading" plain type="primary"
+          @click="saveApps"
+        >
           保存
         </el-button>
       </template>

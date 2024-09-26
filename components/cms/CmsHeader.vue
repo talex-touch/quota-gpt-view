@@ -53,15 +53,24 @@ watch(() => endUrl.value, async (val) => {
 
     <div class="CmsHeader-End">
       <div class="head-func">
-        <p>
-          <i i-carbon:app block />
-        </p>
-        <p>
+        <el-popover
+          popper-class="cms-card"
+          placement="bottom" :width="200" trigger="hover"
+        >
+          <template #reference>
+            <p>
+              <i i-carbon:app block />
+            </p>
+          </template>
+          <CmsApplication />
+        </el-popover>
+
+        <!-- <p>
           <i i-carbon:renew block />
         </p>
         <p>
           <i i-carbon:locked block />
-        </p>
+        </p> -->
       </div>
       <!-- 设置全局环境地址 -->
       <el-select v-model="endUrl" placeholder="选择系统环境" style="width: 200px">
@@ -107,7 +116,7 @@ watch(() => endUrl.value, async (val) => {
     var(--theme-color)
   );
   background-color: var(--el-bg-color-page);
-  border-bottom: 1px solid var(--el-border-color);
+  // border-bottom: 1px solid var(--el-border-color);
 }
 
 .CmsHeader-End {

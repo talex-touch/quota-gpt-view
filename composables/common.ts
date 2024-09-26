@@ -116,12 +116,14 @@ export function responseMessage(res: IStandardResponse, options = {
   success: '操作成功',
 }) {
   if (res.code === 200) {
-    ElMessage({
-      message: options.success,
-      grouping: true,
-      type: 'success',
-      plain: true,
-    })
+    if (options.success) {
+      ElMessage({
+        message: options.success,
+        grouping: true,
+        type: 'success',
+        plain: true,
+      })
+    }
 
     return true
   }
