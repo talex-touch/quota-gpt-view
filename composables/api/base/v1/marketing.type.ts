@@ -6,8 +6,8 @@ import type { SubscribeType } from '../index.type'
  * 分组黑名单或白名单
  */
 export enum BannerMode {
-  WHITELIST,
-  BLACKLIST,
+  WHITELIST=1,
+  BLACKLIST=0,
 }
 
 
