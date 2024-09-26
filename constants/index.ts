@@ -63,7 +63,7 @@ export class GlobalOptions {
 
   getEndsUrl() {
     if (!_ENDS_URL) {
-      return (import.meta.env.DEV) ? ENDS_URL.dev.value : ENDS_URL.prod.value
+      return (import.meta.env.DEV) ? ENDS_URL.local.value : ENDS_URL.prod.value
     }
 
     return _ENDS_URL

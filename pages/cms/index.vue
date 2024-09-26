@@ -1,5 +1,6 @@
 <script setup lang="ts">
 definePageMeta({
+  name: '管理中心',
   layout: 'cms',
   pageTransition: {
     name: 'rotate',

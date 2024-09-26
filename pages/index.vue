@@ -31,7 +31,7 @@ const pageOptions = reactive<{
   feedback: any
 }>({
   feedback: {
-    visible: true,
+    visible: false,
   },
   settingDialog: false,
   expand: true,

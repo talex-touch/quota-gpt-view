@@ -5,6 +5,8 @@ import { Plus } from '@element-plus/icons-vue'
 import type { UploadProps } from 'element-plus'
 import type { ILivechat, ILivechatQuery } from '~/composables/api/base/v1/wechat.type'
 import { $endApi } from '~/composables/api/base'
+import { globalOptions } from '~/constants'
+
 definePageMeta({
   name: '客服管理',
   layout: 'cms',
@@ -33,6 +35,7 @@ const templateData = genCmsTemplateData<TemplateType, ILivechatQuery, null>(
     handleCrudDialog() {
       // data.menuIds = data.menus.map((item: any) => item.id)
     },
+    create: $dataApi.create,
     getList: $dataApi.list,
     update: $dataApi.update,
     delete: $dataApi.delete,
@@ -44,12 +47,26 @@ const templateData = genCmsTemplateData<TemplateType, ILivechatQuery, null>(
 )
 const { list, listForm, fetchData } = templateData
 onMounted(fetchData)
+const listform1 = toRefs(listForm);
+
+//上传图片
+function getUploadUrl(data:any) {
+  data.qrcode =url.value
+  return `${globalOptions.getEndsUrl()}api/tools/upload`
+}
 
 const imageUrl = ref('')
 
+//中转回传图片url
+const url = ref('')
+
 const handleAvatarSuccess: UploadProps['onSuccess'] = (response, uploadFile) => {
   imageUrl.value = URL.createObjectURL(uploadFile.raw!)
-  console.log(response, uploadFile)
+  console.log('uploadFile', uploadFile)
+  ElMessage.success('上传成功')
+  //上传图片的url赋值给上传表单
+  url.value = response.data.filename
+
 }
 
 const headers = {
@@ -86,7 +103,12 @@ const handleBeforeUpload: UploadProps['beforeUpload'] = (file) => {
 
       <el-table-column prop="phone" label="反馈单号" />
 
-      <el-table-column prop="qrcode" label="二维码" />
+      <el-table-column prop="qrcode" label="二维码">
+        <template #default="{ row }">
+ 
+          <img :src="`${globalOptions.getEndsUrl()}` + row.qrcode" alt="二维码" width="50px" height="50px" />
+        </template>
+      </el-table-column>
 
       <el-table-column prop="createdAt" label="创建时间">
         <template #default="scope">
@@ -106,19 +128,12 @@ const handleBeforeUpload: UploadProps['beforeUpload'] = (file) => {
         </el-form-item>
 
         <el-form-item label="电话" inline>
-          <el-input v-model="data.value" placeholder="请输入电话..." clearable />
+          <el-input v-model="data.phone" placeholder="请输入电话..." clearable />
         </el-form-item>
 
         <el-form-item label="二维码" inline>
-          <el-upload
-            class="avatar-uploader"
-            :headers="headers"
-            action="api/tools/upload"
-            :show-file-list="false"
-            :on-success="handleAvatarSuccess"
-            :before-upload="handleBeforeUpload"
-          >
-            <img v-if="imageUrl" :src="imageUrl" class="avatar" />
+          <el-upload class="avatar-uploader" :headers="headers"      :action="getUploadUrl(data)" :show-file-list="false" :on-success="handleAvatarSuccess" :before-upload="handleBeforeUpload">
+            <img v-if="imageUrl" :src="imageUrl" class="avatar"  />
             <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
           </el-upload>
         </el-form-item>

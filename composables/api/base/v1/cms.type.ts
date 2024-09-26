@@ -369,7 +369,7 @@ export interface DictTypeEntity {
   updatedAt: Date
 }
 
-export interface IDictItemModelQuery extends IDictItemModel {
+export interface IDictItemModelQuery extends Partial<IDictItemModel> {
   page: number
   pageSize: number
 
@@ -664,20 +664,28 @@ export enum SubscribeType {
   ULTIMATE = 'ULTIMATE', // 旗舰订阅计划
 }
 
-export interface IFeedbackModelQuery extends IFeedbackModel {
+
+
+
+
+
+
+
+export interface IFeedbackModelQuery extends Partial<IFeedbackModel> {
   page: number
   pageSize: number
 }
 
+
+
+
 export interface IFeedbackModel {
-
-  allRate?: number
-  feedDesc?: string
   feedID?: string
-  feedSuggestion?: null | string
-  feedType?: string
+  rating?: number
+  type?: string
+  lack?:string
+  suggestion?: null | string
   user?:any
-
   id?: number
   updatedAt?: string
   createdAt?: string

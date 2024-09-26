@@ -20,17 +20,17 @@ watch(() => route.fullPath, () => {
     select.value = route.query.data === props.query
 }, { immediate: true })
 
-function handleClick() {
+async function handleClick() {
   if (props.external) {
     if (props.external.startsWith('http'))
       return window.open(props.external, '_blank')
   }
 
   if (props.path)
-    router.push(props.path)
+    await router.push(props.path)
 
   if (props.query)
-    router.push({ query: { data: props.query } })
+    await router.push({ query: { data: props.query } })
 }
 </script>
 

@@ -3,21 +3,78 @@ defineProps<{
   show: boolean
 }>()
 
-const sections = reactive([
+// 1.全景墙纸 何止是身临其境
+// 2.万象卡片 万象再万象，就是亿象
+// 3.无极缩放 称心称手，万事顺意
+// 4.无限创作 就是无极限
+// 5.百变角色 狠角色，很绝色
+// 6.妙灵生图 挥毫泼墨，心意随行
+// 7.涟漪搜索 几度涟漪，几多信息
+// 8.神仙指算 今照有指今朝算
+// 9.一休夫子 会教的才叫夫子
+// 10.如流设计 弥散流动 生态设计
+
+const features = reactive([
   {
-    title: '数学专家',
-    desc:
-      '是人工智能领域的专业人士，具有深厚的数学知识和技能。运用数学原理和算法解决复杂的机器学习和数据分析问题，推动人工智能技术的发展和应用。在科研机构、高校或科技公司工作，致力于创新和推动人工智能技术。',
+    title: '全景墙纸',
+    desc: '何止是身临其境',
+    style: '--c1: rgb(65, 88, 188); --c2: rgb(200, 80, 172); --c3: rgb(235, 204, 112)',
   },
   {
-    title: '通用智能',
-    desc:
-      '作为通用智能领域的专业人士，具备深厚的数学知识和技能。运用数学原理和算法解决复杂的机器学习和数据分析问题，推动人工智能技术的发展和应用。在科研机构、高校或科技公司工作，致力于创新和推动人工智能技术的不断进步。旨在探索人工智能领域的前沿技术，',
+    title: '万象卡片',
+    desc: '万象再万象，就是亿象',
+    style: 'background: radial-gradient(circle at 100% 107%, #ff89cc 0%, #9cb8ec 30%, #00ffee80 60%, #62c2feE0 100%);',
   },
   {
-    title: '专业作家',
-    desc:
-      '作为写作大师角色，是文字的舞者，用笔墨描绘出丰富多彩的世界。擅长运用各种文学技巧和修辞手法，将思想和情感准确、生动地表达出来。无论是散文、小说、诗歌还是剧本，文字流畅优美，富有情感和思想深度，能够触动读者的心灵，引起共鸣。',
+    title: '无极缩放',
+    desc: '称心称手，万事顺意',
+    style: 'background: linear-gradient(-45deg, #f89b29 0%, #ff0f7b 100% );',
+  },
+  {
+    title: '无限创作',
+    desc: '就是无极限',
+    style: `background-color: #4158D0;
+  background-image: linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);`,
+  },
+  {
+    title: '百变角色',
+    desc: '狠角色，很绝色',
+    style: `background-color: var(--el-fill-color);
+  background-image: radial-gradient(
+      at 88% 40%,
+      var(--el-fill-color) 0px,
+      transparent 85%
+    ),
+    radial-gradient(at 49% 30%, var(--theme-color) 0px, transparent 85%),
+    radial-gradient(at 14% 26%, var(--el-fill-color) 0px, transparent 85%),
+    radial-gradient(at 0% 64%, hsla(263, 93%, 56%, 1) 0px, transparent 85%),
+    radial-gradient(at 41% 94%, hsla(284, 100%, 84%, 1) 0px, transparent 85%),
+    radial-gradient(at 100% 99%, hsla(306, 100%, 57%, 1) 0px, transparent 85%);`,
+  },
+  {
+    title: '妙灵生图',
+    desc: '挥毫泼墨，心意随行',
+    style: 'background: radial-gradient(#f588d8, #c0a3e5)',
+  },
+  {
+    title: '涟漪搜索',
+    desc: '几度涟漪，几多信息',
+    style: 'background-image: linear-gradient(15deg, #13547a80 0%, #80d0c780 100%);',
+  },
+  {
+    title: '神仙指算',
+    desc: '今照有指今朝算',
+    style: 'background: linear-gradient(10deg, #FF6B30 0%, #D220B9 100%);',
+  },
+  {
+    title: '一休夫子',
+    desc: '会教的才叫夫子',
+    style: 'background: linear-gradient(to right, rgb(34, 197, 94), rgb(132, 204, 22))',
+  },
+  {
+    title: '如流设计',
+    desc: '弥散流动 生态设计',
+    style: 'background: linear-gradient(40deg, rgba(131,58,180,1) 0%, rgba(253,29,29,1) 50%, rgba(252,176,69,1) 100%);',
   },
 ])
 </script>
@@ -27,12 +84,38 @@ const sections = reactive([
     <h1 text-16 font-bold>
       This!&nbsp;<span class="ai-underline">AI</span>.
     </h1>
-    <p>现在就试试下面的功能</p>
 
     <div class="EmptyGuide-Section">
-      <div v-for="item in sections" :key="item.title" class="EmptyGuide-Section-Item">
-        <p>{{ item.title }}</p>
-        <span>{{ item.desc }}</span>
+      <div class="EmptyGuide-Banner fake-background">
+        <div class="banner-outer" />
+        <el-carousel motion-blur>
+          <el-carousel-item v-for="item in 4" :key="item">
+            <h3 class="small justify-center" text="2xl">
+              {{ item }}
+            </h3>
+          </el-carousel-item>
+        </el-carousel>
+      </div>
+      <div class="EmptyGuide-News fake-background">
+        <p v-for="i in 5" :key="i">
+          {{ i }}.科塔锐行正式官宣——ThisAI国庆上线
+        </p>
+      </div>
+    </div>
+
+    <div class="EmptyGuide-Feature">
+      <div class="EmptyGuide-FeatureInner">
+        <div
+          v-for="feature in [...features, ...features]" :key="feature.title" :style="feature.style"
+          class="EmptyGuide-FeatureItem"
+        >
+          <p class="title">
+            {{ feature.title }}
+          </p>
+          <p class="desc">
+            {{ feature.desc }}
+          </p>
+        </div>
       </div>
     </div>
 
@@ -43,7 +126,143 @@ const sections = reactive([
 </template>
 
 <style lang="scss">
+@keyframes transforming {
+  from {
+    transform: translate(0);
+  }
+
+  to {
+    transform: translate(-50%);
+  }
+}
+
+.EmptyGuide-Feature {
+  .EmptyGuide-FeatureItem {
+    p.title {
+      color: #fff;
+      font-weight: 600;
+    }
+    p.desc {
+      color: #eee;
+      opacity: 0.85;
+      font-size: 14px;
+    }
+    &::after {
+      content: '';
+      position: absolute;
+
+      top: 0.125rem;
+      right: 1rem;
+
+      width: 64px;
+      height: 64px;
+
+      opacity: 0.75;
+      filter: blur(15px) brightness(100%);
+      background-image: radial-gradient(
+        circle at center,
+        var(--c, var(--theme-color)) 0%,
+        #0000 50%,
+        #0000 50%,
+        #0000 100%
+      );
+    }
+    position: relative;
+    padding: 0.5rem 1rem;
+
+    width: 180px;
+
+    text-align: left;
+    border-radius: 12px;
+    background: linear-gradient(
+      43deg,
+      var(--c1) 0%,
+      var(--c2) 46%,
+      var(--c3) 100%
+    );
+    backdrop-filter: blur(18px) saturate(180%);
+    // background-color: var(--el-fill-color);
+  }
+
+  .EmptyGuide-FeatureInner {
+    display: flex;
+
+    gap: 0.5rem;
+    width: max-content;
+
+    animation: transforming 15s infinite linear;
+  }
+  // &::before {
+  //   z-index: 1;
+  //   content: '';
+  //   position: absolute;
+
+  //   top: 0;
+  //   left: 0;
+
+  //   width: 10px;
+  //   height: 100%;
+
+  //   background-image: linear-gradient(to right, var(--theme-color), #0000);
+  // }
+  position: relative;
+  padding: 0.25rem 0;
+
+  left: 50%;
+  width: 100%;
+
+  overflow: hidden;
+  border-radius: 18px;
+  transform: translate(-50%);
+  backdrop-filter: blur(18px) saturate(180%);
+}
+
 .EmptyGuide-Section {
+  .EmptyGuide-Banner {
+    .banner-outer {
+      margin-bottom: calc(var(--vh, 1vh) * -20);
+      padding-top: calc(var(--vh, 1vh) * 20);
+    }
+    .el-carousel__item {
+      background-color: var(--el-fill-color);
+    }
+    position: relative;
+    // padding: 1rem;
+
+    max-width: 70%;
+
+    flex: 1;
+    overflow: hidden;
+    border-radius: 18px;
+    backdrop-filter: blur(18px) saturate(180%);
+  }
+
+  .EmptyGuide-News {
+    p {
+      // margin: 0.5rem 0;
+      font-size: 18px;
+
+      max-width: 100%;
+
+      cursor: pointer;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    position: relative;
+    display: flex;
+    padding: 1rem;
+
+    flex-direction: column;
+    justify-content: space-around;
+    max-width: 30%;
+
+    flex: 1;
+    overflow: hidden;
+    border-radius: 18px;
+    backdrop-filter: blur(18px) saturate(180%);
+  }
+
   &-Item {
     p {
       font-size: 22px;
@@ -82,14 +301,13 @@ const sections = reactive([
     border-radius: 16px;
   }
   display: flex;
-  margin-top: 1rem;
+  margin: 1rem 0;
 
   gap: 2rem;
-
-  justify-content: center;
+  width: 100%;
 }
 
-@media (max-width: 1280px) {
+@media (max-width: 1440px) {
   .EmptyGuide-Section-Item span {
     display: none;
   }
@@ -113,6 +331,7 @@ const sections = reactive([
 
     transform: translate(-50%, -50%);
     .EmptyGuide-Section,
+    .EmptyGuide-Feature,
     p {
       opacity: 0;
     }
@@ -132,7 +351,7 @@ const sections = reactive([
         height: 5px;
 
         border-radius: 16px;
-        background-color: var(--el-color-primary);
+        background-color: var(--theme-color);
       }
       position: relative;
 
@@ -160,8 +379,11 @@ const sections = reactive([
   position: absolute;
   padding: 0.5rem;
 
-  top: 20%;
+  top: 5%;
   left: 50%;
+
+  width: 70%;
+  max-width: 1280px;
 
   text-align: center;
   transition: 0.25s;

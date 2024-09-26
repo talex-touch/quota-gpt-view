@@ -239,7 +239,7 @@ function handleTableRowClass(data: any) {
                 {{ (row.discountAmount / 100).toFixed(2) }}￥
               </el-tag>
               <el-tag v-else>
-                {{ row.discountAmount * -100 }}%
+                {{ row.discountAmount * -1 }}%
               </el-tag>
               &nbsp;
               <el-tag v-if="row.minimumSpend > 0" type="warning">

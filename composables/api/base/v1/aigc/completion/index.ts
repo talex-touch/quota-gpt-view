@@ -97,6 +97,8 @@ async function handleExecutorResult(reader: ReadableStreamDefaultReader<string>,
 
     const arr = _value.split('\n')
 
+    // console.log('a', arr, _value)
+
     for (let i = 0; i < arr.length; i++) {
       const item = arr[i]
 
@@ -333,7 +335,41 @@ export const $completion = {
       handler.onTriggerStatus?.(status)
     })
 
+    /**
+     * 当全部解析结束之后，将所有没有返回的工具链设定为超时
+     */
+    function handleEndToolParser() {
+      // innerMsg.value.push({
+      //   type: 'tool',
+      //   value: data,
+      //   data: '',
+      //   name,
+      //   extra: {
+      //     end: true,
+      //   },
+      // })
+
+      innerMsg.value.forEach((item) => {
+        if (item.type !== 'tool')
+          return
+
+        // console.log('aaa', item)
+
+        if (!item.extra?.end) {
+          item.extra = {
+            ...item.extra,
+            error: {
+              type: 'timeout',
+              timestamp: Date.now(),
+            },
+          }
+        }
+      })
+    }
+
     function complete() {
+      handleEndToolParser()
+
       setTimeout(() => {
         handler.onReqCompleted?.()
       }, 200)
@@ -400,33 +436,6 @@ export const $completion = {
       send: async (options?: Partial<ChatCompletionDto>) => {
         innerMsg.status = IChatItemStatus.WAITING
 
-        /**
-         * 当全部解析结束之后，将所有没有返回的工具链设定为超时
-         */
-        function handleEndToolParser() {
-          innerMsg.value.push({
-            type: 'tool',
-            value: data,
-            data: '',
-            name,
-            extra: {
-              end: true,
-            },
-          })
-
-          innerMsg.value.forEach((item) => {
-            if (!item.extra?.end) {
-              item.extra = {
-                ...item.extra,
-                error: {
-                  type: 'timeout',
-                  timestamp: Date.now(),
-                },
-              }
-            }
-          })
-        }
-
         await useCompletionExecutor(
           {
             ...options || {},
@@ -469,6 +478,7 @@ export const $completion = {
             }
 
             const { event, name, data } = res
+            // console.log('RES', res, res.event)
             if (event === 'status_updated') {
               const mappedStatus = mapStrStatus(res.status)
               // if (mappedStatus === IChatItemStatus.GENERATING && innerMsg.status !== IChatItemStatus.WAITING)
