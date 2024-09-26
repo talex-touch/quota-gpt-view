@@ -19,7 +19,7 @@ async function fetchData() {
   if (res.code !== 200)
     return responseMessage(res)
 
-  menus.value.origin = [...(res.data.map(item => item.children || []).flat())]
+  menus.value.origin = [...(res.data.map((item: any) => item.children || []).flat())]
 
   function _sort(arr: any[]) {
     return arr.sort((a, b) => b.orderNo - a.orderNo)
