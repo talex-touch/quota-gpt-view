@@ -5,9 +5,14 @@ const props = defineProps<{
   query?: string
   danger?: boolean
   emphasis?: boolean
+  active?: boolean
 }>()
 
 const select = ref(false)
+
+watchEffect(() => {
+  select.value = props.active
+})
 
 const router = useRouter()
 const route = useRoute()

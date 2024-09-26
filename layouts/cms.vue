@@ -17,12 +17,8 @@ definePageMeta({
 
 const cur = ref()
 
-const menus = ref()
-const menuOpened = ref<any[]>([])
 onBeforeMount(async () => {
   if (!userStore.value.isAdmin) {
-    console.log('push admin')
-
     router.push('/')
 
     return false
@@ -36,23 +32,7 @@ onBeforeMount(async () => {
     })
 
     router.back()
-
-    return
   }
-
-  const res = await getAccountMenuList()
-
-  // 将menu的每一项都排序 (orderNo)
-  function _sort(arr: any[]) {
-    return arr.sort((a, b) => b.orderNo - a.orderNo)
-  }
-
-  menus.value = _sort(res.data).map((item: any) => {
-    if (item.children)
-      _sort(item.children) && menuOpened.value.push(item.path)
-
-    return item
-  })
 })
 
 const color = useColorMode()
@@ -78,26 +58,6 @@ watch(
     immediate: true,
   },
 )
-
-function filterSubMenus(menu: any) {
-  return [...menu].filter(item => item.meta?.show)
-}
-
-const curMenu = ref()
-const select = computed(() => {
-  // 根据 route 来判断当前选中的是哪个menu 以及对应的parent
-  const path = route.fullPath.replace('/cms', '')
-
-  const result = [...(menus.value || [])].filter(item => path.startsWith(item.path))
-  if (!result.length)
-    return null
-
-  const item = result.at(-1)
-
-  return item
-})
-
-watch(() => select.value, val => curMenu.value = val)
 
 function clickTab(tab: any) {
   const tabPath = tab.paneName
@@ -158,79 +118,12 @@ router.afterEach((to) => {
       tabOptions.value.tabs.push({ path, name })
   }, 200)
 })
-
-// watch(() => route.fullPath, () => {
-//   console.log('a', route)
-
-//   // const path = route.fullPath
-
-//   cur.value = route.meta?.name
-
-//   console.log('aaaaa')
-//   // setTimeout(() => {
-//   //   console.log('a')
-
-//   //   changeActiveRoute(path)
-
-//   //   const index = tabOptions.value.tabs.findIndex(item => item.name === cur.value)
-
-//   //   if (index === -1)
-//   //     tabOptions.value.tabs.push({ path, name: route.meta.name! })
-//   // }, 200)
-// }, { immediate: true })
 </script>
 
 <template>
   <el-container class="CmsTemplate">
     <CmsHeader :cur="cur" />
     <el-container class="CmsContainer">
-      <el-aside class="CmsAside" width="280px">
-        <div class="MenuIcon">
-          <div
-            v-for="item in menus" :key="item.id" :class="{ active: curMenu?.id === item.id }" class="MenuIcon-Item"
-            @click="curMenu = item"
-          >
-            <div :class="item.meta.icon" />
-            <span>{{ item.name }}</span>
-          </div>
-        </div>
-        <div class="Menu-Sub">
-          <div class="Menu-Sub-Container">
-            <template v-if="curMenu?.children">
-              <CmsMenuItem
-                v-for="subMenu in filterSubMenus(curMenu.children)" :key="subMenu.id"
-                :path="`/cms${subMenu.path}`" :external="subMenu.path"
-              >
-                <div flex items-center gap-2>
-                  <div :class="subMenu.meta.icon" />{{ subMenu.name }}
-                </div>
-              </CmsMenuItem>
-            </template>
-          </div>
-        </div>
-
-        <!-- <template v-for="item in menus" :key="item.id">
-          <CmsMenu v-if="false && item.children?.length" :expandable="item.children?.length">
-            <template #header>
-              <div :class="item.meta.icon" />
-              <span>{{ item.name }}</span>
-            </template>
-            <CmsMenuItem
-              v-for="subMenu in filterSubMenus(item.children)" :key="subMenu.id"
-              :path="`/cms${subMenu.path}`"
-            >
-              <div flex items-center gap-2>
-                <div :class="subMenu.meta.icon" />{{ subMenu.name }}
-              </div>
-            </CmsMenuItem>
-          </CmsMenu>
-          <CmsMenuItem v-else :key="item.id" :path="`/cms${item.path}`">
-            <div flex items-center gap-2>
-              <div :class="item.meta.icon" />{{ item.name }}
-            </div>
-          </CmsMenuItem>
-        </template> -->
-      </el-aside>
       <el-main class="CmsMain">
         <div class="CmsMain-Tabs">
           <el-tabs

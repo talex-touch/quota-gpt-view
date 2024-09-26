@@ -200,6 +200,10 @@ html.dark {
   transition: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
+div.el-dialog {
+  --el-dialog-border-radius: 16px;
+}
+
 @keyframes CenterFrameLoad {
   from {
     opacity: 0;

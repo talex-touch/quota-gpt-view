@@ -54,10 +54,13 @@ watch(() => endUrl.value, async (val) => {
     <div class="CmsHeader-End">
       <div class="head-func">
         <p>
-          <i i-carbon:renew block />刷新
+          <i i-carbon:app block />
         </p>
         <p>
-          <i i-carbon:security block />锁定
+          <i i-carbon:renew block />
+        </p>
+        <p>
+          <i i-carbon:locked block />
         </p>
       </div>
       <!-- 设置全局环境地址 -->
