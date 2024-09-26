@@ -33,6 +33,7 @@ async function fetchData() {
   })
 }
 
+const router = useRouter()
 const personalApps = reactive<any[]>([])
 const tempPersonalApps = reactive<any[]>([])
 const curMenu = ref()
@@ -64,6 +65,14 @@ function handleAddMenu(item: any) {
 }
 
 const filteredIcons = computed(() => [...menus.value.origin].filter((item: any) => personalApps.includes(item.id)))
+
+function goRouter(item: any) {
+  if (item.path?.startsWith('http'))
+    return window.open(item.external, '_blank')
+
+  if (item.path)
+    router.push(`/cms${item.path}`)
+}
 </script>
 
 <template>
@@ -84,7 +93,7 @@ const filteredIcons = computed(() => [...menus.value.origin].filter((item: any) 
       <el-empty v-if="!filteredIcons?.length" description="内容空空如也" />
       <el-scrollbar v-else>
         <div my-2 class="CmsApplication-MainInner">
-          <div v-for="item in filteredIcons" :key="item.id" class="AppMenu-Item display" @click="handleAddMenu(item)">
+          <div v-for="item in filteredIcons" :key="item.id" class="AppMenu-Item display" @click="goRouter(item)">
             <MimicIcon color="var(--el-text-color-primary)" :class="item.meta?.icon" />
             <span>{{ item.name }}</span>
           </div>
