@@ -6,15 +6,16 @@ definePageMeta({
     name: 'rotate',
   },
 })
+const Avatar = ref(['os', 'arch', 'nodeVersion', 'npmVersion'])
 </script>
 
 <template>
   <div class="Cms">
     <div class="CmsData">
-      <div v-for="i in 4" :key="i" class="CmsData-Item">
+      <div v-for="i in Avatar" :key="i" class="CmsData-Item">
         <div class="CmsData-Item-Avatar">
           <el-img>
-            Random
+            {{ i }}
           </el-img>
         </div>
       </div>

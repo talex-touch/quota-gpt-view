@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
+import { $endApi } from '~/composables/api/base'
 
 const props = defineProps<{
   show: boolean
@@ -17,7 +18,7 @@ const form = reactive({
   rating: 0,
   type: '',
   lack: '',
-  desc: '',
+  suggestion: '',
   loading: false,
 })
 
@@ -31,28 +32,57 @@ const typeList = ['使用流畅', '功能完善', '界面美观', '操作简便'
 //   el.style.height = `${el.scrollHeight}px`
 // }
 
-watch(() => form.rating, (val) => {
-  const el = container.value
-  if (!el)
-    return
+watch(
+  () => form.rating,
+  (val) => {
+    const el = container.value
+    if (!el) return
 
-  if (val <= 4.5) {
-    el.style.width = `${el.scrollWidth}px`
-    el.style.height = `${el.scrollHeight}px`
+    if (val <= 4.5) {
+      el.style.width = `${el.scrollWidth}px`
+      el.style.height = `${el.scrollHeight}px`
+    } else {
+      el.style.width = ''
+      el.style.height = ''
+    }
   }
-  else {
-    el.style.width = ''
-    el.style.height = ''
-  }
-})
+)
 
 async function submit() {
-  form.loading = true
-
-  await sleep(3000)
-
-  form.loading = false
+  try {
+    form.loading = true
+    const res = await $endApi.v1.cms.feedback.create(form)
+    console.log('res', res)
+    if (res.code === 200) {
+      form.loading = false
+      // 清空表单
+      form.rating = 0
+      form.type = ''
+      form.lack = ''
+      form.suggestion = ''
+      // 通知父组件关闭弹窗
+      emits('update:show')
+      
+    } else {
+      ElMessage({
+        message: '提交失败，请重试',
+        type: 'error',
+        plain: true,
+      })
+      form.loading = false
+    }
+  } catch (error) {
+    ElMessage({
+      message: '提交失败，请重试',
+      type: 'error',
+      plain: true,
+    })
+    form.loading = false
+  }
 }
+
+try {
+} catch (error) {}
 </script>
 
 <template>
@@ -79,11 +109,11 @@ async function submit() {
       <div class="form-item">
         <p>我的建议</p>
         <div class="form-inner">
-          <el-input v-model="form.desc" style="min-width: 315px" type="textarea" placeholder="输入你的建议内容" />
+          <el-input v-model="form.suggestion" style="min-width: 315px;" type="textarea" placeholder="输入你的建议内容" />
         </div>
       </div>
 
-      <el-button v-wave :loading="form.loading" size="large" type="primary" w-full style="border-radius: 10px" @click="submit">
+      <el-button v-wave :loading="form.loading" size="large" type="primary" w-full style="border-radius: 10px;" @click="submit">
         提交
       </el-button>
     </div>
