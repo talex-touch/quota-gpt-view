@@ -81,6 +81,7 @@ export default defineNuxtConfig({
         // { async: true, src: 'https://lf1-cdn-tos.bytegoofy.com/goofy/lark/op/h5-js-sdk-1.5.30.js' },
         // { async: true, src: 'https://sf1-scmcdn-cn.feishucdn.com/obj/feishu-static/op/fe/devtools_frontend/remote-debug-0.0.1-alpha.6.js' },
         // { async: true, src: 'https://unpkg.com/vconsole/dist/vconsole.min.js' },
+        // 百度统计
         { async: true, src: 'https://hm.baidu.com/hm.js?6830ca6f4f5dae8e112f5912e489d5eb' },
       ],
     },
