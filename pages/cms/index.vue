@@ -11,40 +11,47 @@ const Avatar = ref(['os', 'arch', 'nodeVersion', 'npmVersion'])
 
 <template>
   <div class="Cms">
-    <div class="CmsData">
-      <div v-for="i in Avatar" :key="i" class="CmsData-Item">
-        <div class="CmsData-Item-Avatar">
-          <el-img>
-            {{ i }}
-          </el-img>
+    <div class="Cms-Wrapper">
+      <div class="CmsData">
+        <div v-for="i in Avatar" :key="i" class="CmsData-Item">
+          <div class="CmsData-Item-Avatar">
+            <el-img>
+              {{ i }}
+            </el-img>
+          </div>
+        </div>
+      </div>
+      <div class="CmsAnalyze">
+        <div />
+        <div />
+      </div>
+      <div class="CmsDisplay">
+        <div class="CmsDisplay-Greater" />
+
+        <div h-full flex flex-1 gap-4>
+          <div class="CmsDisplay-Lesser1" />
+          <div class="CmsDisplay-Lesser2" />
+        </div>
+      </div>
+      <div class="CmsDisplay2">
+        <div class="CmsDisplay2-Greater" />
+        <div h-full flex flex-1 gap-4>
+          <div class="CmsDisplay-Lesser1" />
+          <div class="CmsDisplay-Lesser2" />
         </div>
       </div>
     </div>
-    <div class="CmsAnalyze">
-      <div />
-      <div />
-    </div>
-    <div class="CmsDisplay">
-      <div class="CmsDisplay-Greater" />
 
-      <div h-full flex flex-1 gap-4>
-        <div class="CmsDisplay-Lesser1" />
-        <div class="CmsDisplay-Lesser2" />
-      </div>
-    </div>
-    <div class="CmsDisplay2">
-      <div class="CmsDisplay2-Greater" />
-      <div h-full flex flex-1 gap-4>
-        <div class="CmsDisplay-Lesser1" />
-        <div class="CmsDisplay-Lesser2" />
-      </div>
+    <div class="Cms-UserMessage">
+      <div class="Cms-UserMessage-Avatar" />
+      <div class="Cms-UserMessage-Schedule" />
+      <div class="Cms-UserMessage-Rules" />
     </div>
   </div>
 </template>
 
 <style lang="scss">
-.Cms {
-  padding: 1rem;
+.Cms-Wrapper {
   display: flex;
 
   width: 100%;
@@ -52,6 +59,28 @@ const Avatar = ref(['os', 'arch', 'nodeVersion', 'npmVersion'])
 
   gap: 1rem;
   flex-direction: column;
+
+  justify-content: space-between;
+}
+
+.Cms {
+  .Cms-UserMessage {
+    padding: 1rem;
+
+    min-width: 200px;
+    width: 15%;
+    max-width: 480px;
+
+    border-radius: 16px;
+    background-color: var(--el-fill-color-light);
+  }
+  padding: 1rem;
+  display: flex;
+
+  width: 100%;
+  height: 100%;
+
+  gap: 1rem;
 
   justify-content: space-between;
 }
@@ -182,5 +211,13 @@ const Avatar = ref(['os', 'arch', 'nodeVersion', 'npmVersion'])
 //   width: 60px; /* 增加宽度 */
 //   height: 60px; /* 增加高度 */
 //   background-color: #000;
+// }
+// .UserMessage {
+//   display: flex;
+//   gap: 1rem;
+//   width: 30%;
+//   height: 100%;
+//   flex: 1;
+//   column:;
 // }
 </style>
