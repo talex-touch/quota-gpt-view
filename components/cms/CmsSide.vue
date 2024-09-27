@@ -308,7 +308,7 @@ div.CmsSide {
   // mix-blend-mode: difference;
   cursor: pointer;
   filter: drop-shadow(0 0 8px var(--el-mask-color-extra-light));
-  transform: translateX(0px) translateY(-50%);
+  transform: translateX(0px) translateY(-50%) translateY(-33px);
   transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
 
   animation: indicator_form 0.25s 1s forwards;
