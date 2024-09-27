@@ -10,15 +10,16 @@ import Appearance from '~/components/chore/personal/profile/Appearance.vue'
 import Developer from '~/components/chore/personal/profile/Developer.vue'
 import Link from '~/components/chore/personal/profile/Link.vue'
 
-const props = defineProps<{
-  modelValue: boolean
-}>()
+// const props = defineProps<{
+//   modelValue: boolean
+// }>()
 
-const emits = defineEmits<{
-  (e: 'update:modelValue', value: boolean): void
-}>()
+// const emits = defineEmits<{
+//   (e: 'update:modelValue', value: boolean): void
+// }>()
 
-const show = useVModel(props, 'modelValue', emits)
+// const show = useVModel(props, 'modelValue', emits)
+const show = ref(false)
 
 const route = useRoute()
 
@@ -47,7 +48,7 @@ watch(
   () => {
     const data = route.query.data
 
-    if (data) {
+    if (data && route.query?.c === 'property') {
       show.value = true
       expand.value = data === 'plan'
     }

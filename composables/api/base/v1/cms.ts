@@ -30,7 +30,6 @@ import type {
   ServeStatInfo,
 } from './cms.type'
 
-
 export default {
   doc: {
     deployedList(query: Partial<IDocQuery>) {

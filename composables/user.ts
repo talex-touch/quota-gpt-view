@@ -41,9 +41,15 @@ export const userConfig = ref<{
     cms: {
       apps: [],
     },
+    home: {
+      index: {},
+      chat: {},
+    },
   },
   loading: false,
 })
+
+console.log('u', userConfig)
 
 watch(() => userStore.value.token?.accessToken, (token) => {
   userStore.value.isLogin = !!token
@@ -127,12 +133,8 @@ export async function refreshCurrentUserRPM() {
 
   const config = (await $endApi.v1.account.getUserConfig()).data || {}
 
-  const _config = {
-    pub_info: JSON.parse(config.pub_info || ''),
-    pri_info: JSON.parse(config.pri_info || ''),
-  }
-
-  Object.assign(userConfig.value, _config)
+  Object.assign(userConfig.value.pri_info, JSON.parse(config.pri_info || ''))
+  Object.assign(userConfig.value.pub_info, JSON.parse(config.pub_info || ''))
 }
 
 export function updateAccountDetail(obj: { nickname: string, avatar: string }) {

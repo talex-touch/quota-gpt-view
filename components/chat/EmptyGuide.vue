@@ -190,7 +190,7 @@ const features = reactive([
     gap: 0.5rem;
     width: max-content;
 
-    animation: transforming 15s infinite linear;
+    animation: transforming 30s infinite linear;
   }
   // &::before {
   //   z-index: 1;

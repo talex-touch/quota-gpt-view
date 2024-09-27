@@ -25,7 +25,7 @@ const props = defineProps<{
   height: 20px;
 
   color: currentColor;
-  border-radius: 4px;
+  border-radius: 6px;
   background-color: var(--c);
   box-shadow: var(--el-box-shadow-light);
 }

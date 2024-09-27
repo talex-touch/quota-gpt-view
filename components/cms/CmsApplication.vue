@@ -83,7 +83,7 @@ function goRouter(item: any) {
   <div class="CmsApplication-Main">
     <div class="CmsApplication-Header cms-header">
       <div class="CmsApplication-Start cms-start">
-        <IconMimicIcon color="#334C9F" icon="i-carbon:application-web" />
+        <IconMimicIcon color="var(--el-color-primary);color: #fff" icon="i-carbon:application-web" />
         我的应用
       </div>
 
@@ -98,7 +98,9 @@ function goRouter(item: any) {
       <el-scrollbar v-else>
         <div my-2 class="CmsApplication-MainInner">
           <div v-for="item in filteredIcons" :key="item.id" class="AppMenu-Item display" @click="goRouter(item)">
-            <MimicIcon color="var(--el-text-color-primary)" :class="item.meta?.icon" />
+            <div class="AppMenu-Item-Wrapper">
+              <MimicIcon color="var(--el-text-color-primary)" :class="item.meta?.icon" />
+            </div>
             <span>{{ item.name }}</span>
           </div>
         </div>
@@ -157,6 +159,49 @@ function goRouter(item: any) {
 </template>
 
 <style lang="scss">
+.AppMenu-Item-Wrapper {
+  &::before {
+    content: '';
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    opacity: 0;
+    transition: 0.25s;
+    border-radius: 50%;
+    transform: scale(1.1);
+    border: 1px solid var(--theme-color);
+  }
+
+  .AppMenu-Item:hover & {
+    &::before {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    transform: scale(0.95);
+    background-color: #0000;
+  }
+  position: relative;
+  display: flex;
+
+  width: 48px;
+  height: 48px;
+  min-height: 48px;
+
+  align-items: center;
+  justify-content: center;
+
+  transition: 0.25s;
+  border-radius: 50%;
+  transform: scale(1);
+  background-color: var(--el-bg-color);
+}
+
 .CmsApplication-MainInner {
   display: grid;
 
@@ -255,7 +300,7 @@ function goRouter(item: any) {
     opacity: 0;
     transition: 0.25s;
     border-radius: 12px;
-    background-color: var(--el-overlay-color);
+    background-color: var(--el-bg-color-page);
   }
   span {
     text-wrap: nowrap;

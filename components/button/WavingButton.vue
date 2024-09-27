@@ -60,7 +60,7 @@ const props = defineProps<{
     width: 100%;
     height: 100%;
 
-    filter: blur(10px) saturate(180%);
+    filter: blur(2px) saturate(180%);
     // overflow: hidden;
     border-radius: 16px;
     background-image: linear-gradient(

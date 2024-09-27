@@ -91,6 +91,7 @@ provide('appOptions', pageOptions)
 
   <!-- <ChoreTutorial v-model:show="pageOptions.tutorialShow" /> -->
   <Login v-if="!userStore.isLogin" v-model:show="pageOptions.model.login" />
+  <ChorePersonalDialog v-if="userStore.isLogin" />
   <!-- </div> -->
 </template>
 

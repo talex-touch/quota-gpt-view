@@ -21,9 +21,7 @@ definePageMeta({
     </div>
 
     <div class="Cms-User">
-      <div class="Cms-User-Avatar" />
-      <div class="Cms-User-Schedule" />
-      <div class="Cms-User-Rules" />
+      <LazyCmsUser />
     </div>
   </div>
 </template>
@@ -49,8 +47,10 @@ definePageMeta({
   }
   padding: 0.5rem 1rem;
 
+  flex-shrink: 0;
+
   overflow: hidden;
-  border-radius: 16px;
+  border-radius: 2px;
   background-color: var(--el-fill-color);
 }
 
@@ -72,14 +72,9 @@ definePageMeta({
 }
 
 .Cms-User {
-  padding: 1rem;
-
   min-width: 200px;
-  width: 15%;
+  width: 30%;
   max-width: 480px;
-
-  border-radius: 16px;
-  background-color: var(--el-fill-color-light);
 }
 
 .Cms {
