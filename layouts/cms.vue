@@ -1,11 +1,6 @@
 <script setup lang="ts">
-import { ENDS_URL, globalOptions } from '~/constants'
-
-import { getAccountMenuList } from '~/composables/api/account'
-import { $endApi } from '~/composables/api/base'
-
 const { isChrome, isDesktop } = useDevice()
-const route = useRoute()
+const expand = ref(userConfig.value.pri_info.cms.expand)
 const router = useRouter()
 
 definePageMeta({
@@ -121,9 +116,11 @@ router.afterEach((to) => {
 </script>
 
 <template>
-  <el-container class="CmsTemplate">
+  <el-container :class="{ expand }" class="CmsTemplate">
     <CmsHeader :cur="cur" />
     <el-container class="CmsContainer">
+      <LazyCmsSide v-model:expand="expand" />
+
       <el-main class="CmsMain">
         <div class="CmsMain-Tabs">
           <el-tabs
@@ -152,81 +149,6 @@ router.afterEach((to) => {
   .el-tabs__header {
     margin: 0;
   }
-
-  background-color: var(--el-bg-color-page);
-}
-
-.CmsAside {
-  .MenuIcon {
-    &-Item {
-      span {
-        font-size: 12px;
-      }
-      div {
-        flex: 1;
-      }
-      &:hover {
-        color: var(--el-color-primary);
-      }
-      &.active {
-        color: var(--el-color-primary);
-        background-color: var(--el-color-primary-light-9);
-      }
-      padding: 0.5rem;
-      display: flex;
-      flex-direction: column;
-
-      width: 64px;
-      height: 64px;
-
-      align-items: center;
-      justify-content: space-between;
-
-      cursor: pointer;
-      border-radius: 8px;
-      box-sizing: border-box;
-      // background-color: var(--el-bg-color-page);
-    }
-    position: relative;
-    padding: 0.5rem;
-    gap: 0.5rem;
-
-    display: flex;
-    flex-direction: column;
-
-    align-items: center;
-
-    width: 96px;
-
-    // background-color: var(--el-overlay-color);
-    border-right: 1px solid var(--el-border-color);
-  }
-  .Menu-Sub {
-    width: 100%;
-  }
-  .CmsMenuItem {
-    &::after {
-      content: '';
-      position: absolute;
-
-      top: 0;
-      right: 0;
-      width: 2px;
-
-      height: 100%;
-
-      transition: 0.25s;
-      transform: scale(0);
-
-      background-color: var(--el-color-primary);
-    }
-    &.select::after {
-      transform: scale(1);
-    }
-    position: relative;
-  }
-
-  display: flex;
 
   background-color: var(--el-bg-color-page);
 }
@@ -265,22 +187,17 @@ router.afterEach((to) => {
   transform: translateX(1%);
 }
 
-.CmsAside {
-  .el-menu {
+.CmsMain {
+  section.el-container {
+    &.CmsStandard {
+      padding: 1rem;
+    }
     height: 100%;
   }
-
-  height: 100%;
-
-  align-self: flex-start;
-  border-right: 1px solid var(--el-border-color);
-}
-
-.CmsMain {
   position: relative;
   padding: 0;
 
-  flex: 1;
+  // flex: 1;
   width: 100%;
   height: 100%;
 
@@ -290,10 +207,16 @@ router.afterEach((to) => {
 }
 
 .CmsContainer {
-  position: relative;
+  position: absolute;
+  display: flex;
+
+  top: 65px;
 
   width: 100%;
+  min-width: 100%;
   height: 100%;
+  min-height: calc(100% - 65px);
+  max-height: 100%;
 
   flex: 1;
   overflow: hidden;
@@ -304,27 +227,13 @@ router.afterEach((to) => {
 }
 
 .CmsTemplate {
-  .el-container {
-    position: relative;
-    display: flex;
-
-    top: 0;
-    left: 0;
-
-    width: 100%;
-    height: 100%;
-  }
-
   position: absolute;
-  display: flex;
-
-  align-items: center;
-  flex-direction: column;
-  justify-content: center;
 
   width: 100%;
   height: 100%;
+  min-height: 100%;
 
+  overflow: hidden;
   background-color: var(--el-bg-color);
 }
 </style>
