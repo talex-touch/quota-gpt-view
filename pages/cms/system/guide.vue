@@ -107,7 +107,7 @@ const dialogOptions = reactive<{
   },
 })
 
-async function handleDialog(data: Partial<IDoc>, mode: 'edit' | 'read' | 'new') {
+async function handleDialog(data: Partial<IDoc>, mode: 'edit' | 'read' | 'new', addon?: 'copy' | 'download') {
   dialogOptions.mode = mode
 
   if (mode !== 'new') {
@@ -126,6 +126,37 @@ async function handleDialog(data: Partial<IDoc>, mode: 'edit' | 'read' | 'new') 
     }
 
     data.record = res.data[1] as any
+
+    if (addon === 'copy') {
+      const source = decodeText(data.record!.content)
+
+      const { copy, copied } = useClipboard({ source })
+
+      await copy(source)
+
+      if (copied.value)
+        ElMessage.success('复制成功！')
+      else
+        ElMessage.error('复制失败！')
+
+      return
+    }
+    else if (addon === 'download') {
+      const source = decodeText(data.record!.content)
+
+      // 转存为md文件
+      const blob = new Blob([source], { type: 'text/plain;charset=utf-8' })
+
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      document.body.appendChild(a)
+
+      a.href = url
+      a.download = `${data.title}.md`
+      a.click()
+
+      return
+    }
   }
 
   dialogOptions.data
@@ -320,6 +351,10 @@ async function handlePublishVersion(id: number) {
 
   fetchData()
 }
+
+function downloadDoc(data: IDoc) {
+
+}
 </script>
 
 <template>
@@ -392,9 +427,23 @@ async function handlePublishVersion(id: number) {
           </el-table-column>
           <el-table-column fixed="right" label="操作">
             <template #default="{ row }">
-              <el-button v-if="row.status !== 0" plain text size="small" @click="handleDialog(row, 'read')">
-                详情
-              </el-button>
+              <el-popover placement="bottom" :width="200" trigger="hover">
+                <template #reference>
+                  <el-button v-if="row.status !== 0" plain text size="small">
+                    更多
+                  </el-button>
+                </template>
+                <el-button plain text size="small" @click="handleDialog(row, 'read')">
+                  详情
+                </el-button>
+                <el-button plain text size="small" @click="handleDialog(row, 'read', 'download')">
+                  下载
+                </el-button>
+                <el-button plain text size="small" @click="handleDialog(row, 'read', 'copy')">
+                  复制
+                </el-button>
+              </el-popover>
+
               <el-button
                 v-if="row.status !== 3" plain text size="small" type="warning"
                 @click="handleDialog(row, 'edit')"
