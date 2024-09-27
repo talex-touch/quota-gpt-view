@@ -45,6 +45,9 @@ export const userConfig = ref<{
       index: {},
       chat: {},
     },
+    info: {
+      tutorial: true,
+    },
   },
   loading: false,
 })
@@ -133,8 +136,13 @@ export async function refreshCurrentUserRPM() {
 
   const config = (await $endApi.v1.account.getUserConfig()).data || {}
 
-  Object.assign(userConfig.value.pri_info, JSON.parse(config.pri_info || ''))
+  const priConfig = JSON.parse(config.pri_info || '')
+
+  Object.assign(userConfig.value.pri_info, priConfig)
   Object.assign(userConfig.value.pub_info, JSON.parse(config.pub_info || ''))
+
+  if (!priConfig?.info?.tutorial)
+    userConfig.value.pri_info.info.tutorial = false
 }
 
 export function updateAccountDetail(obj: { nickname: string, avatar: string }) {

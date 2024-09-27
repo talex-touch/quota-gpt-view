@@ -12,7 +12,6 @@ useHead({
 
 const { isMobile, isTablet } = useDevice()
 const pageOptions = reactive({
-  tutorialShow: false,
   model: {
     login: false,
   },
@@ -89,7 +88,7 @@ provide('appOptions', pageOptions)
       {{ width }} - {{ height }}
     </div> -->
 
-  <!-- <ChoreTutorial v-model:show="pageOptions.tutorialShow" /> -->
+  <ChoreTutorial />
   <Login v-if="!userStore.isLogin" v-model:show="pageOptions.model.login" />
   <ChorePersonalDialog v-if="userStore.isLogin" />
   <!-- </div> -->

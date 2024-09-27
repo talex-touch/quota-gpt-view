@@ -73,12 +73,9 @@ function handleGeneratingDotUpdate(rootEl: HTMLElement, cursor: HTMLElement) {
   // setTimeout(() => handleGeneratingDotUpdate(rootEl, cursor), 20)
 }
 
-onMounted(() => {
-  watch(
-    () => [props.data, color.value, props.render],
-    () => {
-      nextTick(async () => {
-        const data = props.data/* .replaceAll(regex, (content) => {
+function _render() {
+  nextTick(async () => {
+    const data = props.data/* .replaceAll(regex, (content) => {
           let _content = content
           const regex1 = /`([^`]+)`/g
           if (regex1.test(content))
@@ -89,37 +86,46 @@ onMounted(() => {
           return _content
         }) */
 
-        if (!(props.render.enable ?? true)) {
-          inner.value!.textContent = data
-          return ``
-        }
+    if (!(props.render.enable ?? true)) {
+      inner.value!.textContent = data
+      return ``
+    }
 
-        await Vditor.preview(inner.value!, data, {
-          hljs: {
-            enable: true,
-            lineNumber: true,
-            defaultLang: 'bash',
-          },
-          theme: {
-            current: 'Ant Design',
-          },
-          math: {
-            inlineDigit: true,
-          },
-          render: {
-            media: {
-              enable: props.render.media ?? true,
-            },
-          },
-          mode: color.value !== 'dark' ? 'light' : 'dark',
-        })
+    await Vditor.preview(inner.value!, data, {
+      hljs: {
+        enable: true,
+        lineNumber: true,
+        defaultLang: 'bash',
+      },
+      theme: {
+        current: 'Ant Design',
+      },
+      math: {
+        inlineDigit: true,
+      },
+      render: {
+        media: {
+          enable: props.render.media ?? true,
+        },
+      },
+      mode: color.value !== 'dark' ? 'light' : 'dark',
+    })
 
-        if (inner.value && dot.value) {
-          // await sleep(10)
+    if (inner.value && dot.value) {
+      // await sleep(10)
 
-          handleGeneratingDotUpdate(inner.value!, dot.value!)
-        }
-      })
+      handleGeneratingDotUpdate(inner.value!, dot.value!)
+    }
+  })
+}
+
+const render = useDebounceFn(_render, 100)
+
+onMounted(() => {
+  watch(
+    () => [props.data, color.value, props.render],
+    () => {
+      render()
 
       // setTimeout(() => , 100)
 

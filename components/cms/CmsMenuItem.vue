@@ -35,7 +35,7 @@ async function handleClick() {
     await router.push(props.path)
 
   if (props.query)
-    await router.push({ query: { data: props.query } })
+    await router.push({ query: { ...route.query, data: props.query } })
 }
 </script>
 

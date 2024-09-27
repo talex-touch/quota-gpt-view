@@ -246,7 +246,7 @@ onBeforeUnmount(() => dispose.value = true)
 </script>
 
 <template>
-  <div ref="dom" class="History" :class="{ plan: userStore.subscription }">
+  <div ref="dom" class="History" :class="{ plan: userStore.subscription, searchable: searchedList.enable }">
     <teleport :disabled="dispose" to="body">
       <div v-if="!dispose" :class="{ expand }" class="History-Indicator" @click="expand = !expand" />
     </teleport>
@@ -263,7 +263,7 @@ onBeforeUnmount(() => dispose.value = true)
       <InputSearchable @search="handleSearchHistory" />
     </div>
 
-    <div :class="{ searchable: searchedList.enable }" class="History-Wrapper">
+    <div class="History-Wrapper">
       <div v-loader="searchedList.loading" class="History-SearchableContent">
         <el-scrollbar>
           <HistorySection
@@ -628,11 +628,15 @@ div.History {
       backdrop-filter: blur(4px);
     }
 
-    // background-color: var(--el-fill-color);
+    .searchable & {
+      background-color: var(--el-bg-color-page);
+    }
+
+    // background-color: var(--el-bg-color-page);
     background-size: 4px 4px;
     background-image: radial-gradient(
       transparent 1px,
-      var(--wallpaper-color-light, var(--el-bg-color)) 1px
+      var(--wallpaper-color-light, var(--el-bg-color-page)) 1px
     );
     backdrop-filter: saturate(50%) blur(4px);
   }

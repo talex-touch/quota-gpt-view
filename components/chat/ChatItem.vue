@@ -149,7 +149,7 @@ watchEffect(() => {
 </script>
 
 <template>
-  <span v-if="!isUser">{{ meta }} {{ item.page }} - {{ nullLen }}</span>
+  <!-- <span v-if="!isUser">{{ meta }} {{ item.page }} - {{ nullLen }}</span> -->
   <div v-if="metaModel.show" :class="{ check, share, user: isUser }" class="ChatItem">
     <div class="ChatItem-Select">
       <el-checkbox v-model="check" />

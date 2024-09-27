@@ -37,6 +37,7 @@ watch(() => query.value, val => emits('search', val))
   input {
     &:focus-within {
       outline: none;
+      box-shadow: 0 0 2px 1px var(--theme-color);
     }
     position: relative;
     padding: 0.25rem 0.5rem;
@@ -53,7 +54,11 @@ watch(() => query.value, val => emits('search', val))
 
     transition: 0.25s;
     border-radius: 16px;
-    background-color: var(--el-fill-color);
+    background-color: #eeeeee80;
+    .dark & {
+      background-color: #00000080;
+    }
+    // background-color: var(--el-fill-color);
   }
   &-Clear {
     &:hover {
@@ -82,7 +87,7 @@ watch(() => query.value, val => emits('search', val))
   width: 100%;
   height: 36px;
 
-  overflow: hidden;
+  // overflow: hidden;
   // border-radius: 12px;
   // background-color: var(--el-fill-color);
 }
