@@ -231,7 +231,7 @@ div.CmsSide {
     opacity: 1;
 
     cursor: pointer;
-    transform: translateX(2px) translateY(-50%);
+    transform: translateX(2px) translateY(-50%) translateY(-33px);
 
     &::before {
       width: 5px;

@@ -119,7 +119,7 @@ router.afterEach((to) => {
   <el-container :class="{ expand }" class="CmsTemplate">
     <CmsHeader :cur="cur" />
     <el-container class="CmsContainer">
-      <LazyCmsSide v-model:expand="expand" />
+      <CmsSide v-model:expand="expand" />
 
       <el-main class="CmsMain">
         <div class="CmsMain-Tabs">

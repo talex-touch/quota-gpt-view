@@ -65,7 +65,7 @@ watch(
 
 <template>
   <el-container :class="{ show, expand }" class="PersonalTemplate">
-    <div class="BuyDialog-Close" @click="$router.push('/')">
+    <div class="BuyDialog-Close" @click="$router.push({ query: { ...route.query, c: null, data: null } })">
       <div i-carbon:close />
     </div>
 
