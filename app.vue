@@ -13,6 +13,7 @@ useHead({
 const { isMobile, isTablet } = useDevice()
 const pageOptions = reactive({
   model: {
+    personal: '',
     login: false,
   },
 })
@@ -33,7 +34,6 @@ globalOptions.setEndsUrl(globalOptionsStore.value.url)
 const router = useRouter()
 
 onMounted(async () => {
-  // 每当用户离开页面时，保存用户配置
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden')
       saveUserConfig()
@@ -44,18 +44,6 @@ onMounted(async () => {
 
   detectWallpaper()
   // useDeviceAdapter()
-
-  // if (!userStore.value.isLogin) {
-  //   // ElNotification({
-  //   //   duration: 60000,
-  //   //   title: '科塔智爱体验版',
-  //   //   message: h('i', { style: 'color: teal' }, '当前版本处于预览体验版，可能存在部分问题。为了更好地服务您，请您登陆后继续使用！'),
-  //   // })
-
-  //   pageOptions.model.login = true
-
-  //   return
-  // }
 
   await refreshCurrentUserRPM()
   await refreshUserSubscription()
@@ -72,10 +60,6 @@ router.afterEach(() => {
 })
 
 provide('appOptions', pageOptions)
-// const { width, height } = useWindowSize()
-// const computedStyle = computed(() => {
-//   return `width: ${width.value}px;height: ${height.value}px`
-// })
 </script>
 
 <template>
@@ -86,13 +70,9 @@ provide('appOptions', pageOptions)
     <NuxtPage />
   </NuxtLayout>
 
-  <!-- <div absolute left-50 top-10 z-100 bg-red color-blue>
-      {{ width }} - {{ height }}
-    </div> -->
-
   <ChoreTutorial />
   <Login v-if="!userStore.isLogin" v-model:show="pageOptions.model.login" />
-  <ChorePersonalDialog v-if="userStore.isLogin" />
+  <ChorePersonalDialog v-if="userStore.isLogin" v-model="pageOptions.model.personal" />
   <!-- </div> -->
 </template>
 

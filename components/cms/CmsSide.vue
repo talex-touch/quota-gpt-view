@@ -22,10 +22,8 @@ onMounted(() => {
 
 const dom = ref()
 const menus = ref()
-onBeforeMount(async () => {
+onMounted(async () => {
   const res = await getAccountMenuList()
-
-  console.log('res', res)
 
   // 将menu的每一项都排序 (orderNo)
   function _sort(arr: any[]) {

@@ -21,7 +21,7 @@ async function push(path: string) {
     <AnimateIcon :active="route.name === 'guide'" @click="push('/guide')">
       <IconSvgDocSvg />
     </AnimateIcon>
-    <AnimateIcon v-if="userStore.isAdmin" @click="push('/cms')">
+    <AnimateIcon v-if="userStore.isAdmin" @click="$router.push('/cms')">
       <IconSvgCopSvg />
     </AnimateIcon>
   </div>

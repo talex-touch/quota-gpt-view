@@ -143,7 +143,7 @@ export async function refreshCurrentUserRPM() {
   Object.assign(userConfig.value.pri_info, priConfig)
   Object.assign(userConfig.value.pub_info, JSON.parse(config.pub_info || '{}'))
 
-  if (!priConfig?.info?.tutorial)
+  if (userStore.value.isLogin && !priConfig?.info?.tutorial)
     userConfig.value.pri_info.info.tutorial = false
 }
 

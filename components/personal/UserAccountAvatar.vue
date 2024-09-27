@@ -5,6 +5,7 @@ import { $handleUserLogout } from '~/composables/user'
 import { globalOptions } from '~/constants'
 
 const router = useRouter()
+const pageOptions = inject<any>('appOptions')!
 
 const menus = reactive([
   {
@@ -12,12 +13,7 @@ const menus = reactive([
     label: '个人资料',
     show: true,
     click: () => {
-      router.push({
-        query: {
-          c: 'property',
-          data: 'account',
-        },
-      })
+      pageOptions.model.personal = 'account'
     },
   },
   {

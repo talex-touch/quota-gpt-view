@@ -379,7 +379,7 @@ const features = reactive([
   position: absolute;
   padding: 0.5rem;
 
-  top: 5%;
+  top: 50%;
   left: 50%;
 
   width: 70%;

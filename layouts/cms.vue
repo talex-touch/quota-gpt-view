@@ -5,16 +5,13 @@ const router = useRouter()
 
 definePageMeta({
   layout: 'cms',
-  layoutTransition: {
-    name: 'rotate',
-  },
 })
 
 const cur = ref()
 
 onBeforeMount(async () => {
   if (!userStore.value.isAdmin) {
-    router.push('/')
+    router.back()
 
     return false
   }
@@ -133,7 +130,7 @@ router.afterEach((to) => {
         <el-watermark :font="font" :z-index="100" class="watermark" :content="[userStore.nickname!, 'ThisAI CMS']">
           <router-view v-slot="{ Component }">
             <transition name="rotate">
-              <keep-alive>
+              <keep-alive :exclude="['index']">
                 <component :is="Component" />
               </keep-alive>
             </transition>

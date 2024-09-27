@@ -3,6 +3,7 @@ import ThChat from '~/components/chat/ThChat.vue'
 import ThInput from '~/components/input/ThInput.vue'
 import History from '~/components/history/index.vue'
 import ShareSection from '~/components/chat/ShareSection.vue'
+import ModelSelector from '~/components/model/ModelSelector.vue'
 import type { InputPlusProperty } from '~/components/input/input'
 import { getTargetPrompt } from '~/composables/api/chat'
 import { $completion } from '~/composables/api/base/v1/aigc/completion'
@@ -244,7 +245,16 @@ function handleCancelReq() {
 
 }
 
-console.log(pageOptions)
+console.log('PO', pageOptions)
+
+const mount = ref(false)
+function mounter() {
+  setTimeout(() => {
+    mount.value = true
+  }, 200)
+}
+onActivated(mounter)
+onMounted(mounter)
 </script>
 
 <template>
@@ -260,7 +270,7 @@ console.log(pageOptions)
         @cancel="handleCancelReq" @retry="handleRetry"
       >
         <template #model>
-          <ModelSelector v-model="pageOptions.model" />
+          <ModelSelector v-if="mount" v-model="pageOptions.model" />
         </template>
       </ThChat>
 
@@ -314,6 +324,14 @@ console.log(pageOptions)
 </template>
 
 <style lang="scss">
+// .ModelSelector {
+//   z-index: 10;
+//   position: absolute;
+
+//   top: 0.5rem;
+//   right: 0.5rem;
+// }
+
 .PageContainer {
   &::before {
     z-index: -2;

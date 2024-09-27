@@ -4,7 +4,6 @@ import ChatItem from './ChatItem.vue'
 import EmptyGuide from './EmptyGuide.vue'
 import TrChatTitle from './head/TrChatTitle.vue'
 import TrSyncStatus from './head/TrSyncStatus.vue'
-import ModelSelector from '~/components/model/ModelSelector.vue'
 import AccountAvatar from '~/components/personal/AccountAvatar.vue'
 import IconButton from '~/components/button/IconButton.vue'
 import { type IChatConversation, type IChatInnerItem, IChatItemStatus } from '~/composables/api/base/v1/aigc/completion-types'
@@ -182,9 +181,8 @@ function handleRetry(ind: number, item: IChatInnerItem) {
 <template>
   <div class="ThChat">
     <div v-if="messages" :class="{ show: messages.messages?.length > 1 }" class="ThChat-Title">
-      <span v-if="messagesModel.messages" class="model">
+      <span class="model">
         <slot name="model" />
-        <!-- <ModelSelector v-model="messagesModel.model" /> -->
       </span>
     </div>
 

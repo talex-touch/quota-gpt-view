@@ -1,15 +1,9 @@
-<template>
-  <div ref="dom" class="UserAnimate-Container" :class="{ animate }">
-
-  </div>
-</template>
-
 <script setup>
-import { defineProps, ref, onMounted, onBeforeMount } from 'vue'
+import { defineProps, onBeforeMount, onMounted, ref } from 'vue'
 import { throttleRef } from './../../../plugins/Common'
 
 const props = defineProps({
-  parentAmo: Number
+  parentAmo: Number,
 })
 
 const dom = ref(null)
@@ -18,175 +12,140 @@ let target
 const animate = throttleRef(false, 200)
 
 function focus() {
-
   animate.value = true
-
 }
 
 function blur(e) {
-
   animate.value = false
-
 }
 
 onMounted(() => {
+  let el = dom.value; let amo = props.parentAmo
 
-  let el = dom.value, amo = props.parentAmo
-
-  while( amo ) {
-
+  while (amo) {
     el = el.parentElement
 
     --amo
-
   }
 
   target = el
 
-  el.addEventListener( 'focus', focus)
-  el.addEventListener( 'click', focus)
-  window.addEventListener( 'click', blur)
-
+  el.addEventListener('focus', focus)
+  el.addEventListener('click', focus)
+  window.addEventListener('click', blur)
 })
 
-onBeforeMount(() => {
+onBeforeUnmount(() => {
+  if (!target)
+    return
 
-  if( !target ) return
-
-  target.removeEventListener( 'focus', focus)
-  target.removeEventListener( 'click', focus)
-  window.removeEventListener( 'click', blur)
-
+  target.removeEventListener('focus', focus)
+  target.removeEventListener('click', focus)
+  window.removeEventListener('click', blur)
 })
-
 </script>
 
 <script>
 export default {
-  name: "UserAnimate"
+  name: 'UserAnimate',
 }
 </script>
 
+<template>
+  <div ref="dom" class="UserAnimate-Container" :class="{ animate }" />
+</template>
+
 <style lang="scss" scoped>
 .UserAnimate-Container.animate {
-
   &:before {
-
     animation: userAnimation 20s ease-in-out infinite;
-
   }
-
 }
 
 @keyframes userAnimation {
-
-  0%, 18%, 100% {
-
+  0%,
+  18%,
+  100% {
     transform: translate(-50%, -50%) scaleY(0);
-
   }
 
   20% {
-
     transform: translate(-50%, -50%) scaleY(1);
-
   }
 
   24% {
-
-    transform: translate(-50%, -50%) scaleY(.8);
-
+    transform: translate(-50%, -50%) scaleY(0.8);
   }
 
   27% {
-
     transform: translate(-50%, -50%) scaleY(0);
-
   }
 
-  30%, 34%, 72%, 78%, 94% {
-
+  30%,
+  34%,
+  72%,
+  78%,
+  94% {
     transform: translate(-50%, -50%) translateX(-2px);
-
   }
 
-  32%, 74%, 84%, 98% {
-
+  32%,
+  74%,
+  84%,
+  98% {
     transform: translate(-50%, -50%) translateX(2px);
-
   }
 
   34% {
-
     transform-origin: 2px 2px;
     transform: translate(-50%, -50%) rotate(120deg);
-
   }
 
   38% {
-
     transform-origin: 2px 2px;
     transform: translate(-50%, -50%) rotate(-160deg);
-
   }
 
   43% {
-
     transform-origin: 2px 2px;
     transform: translate(-50%, -50%) rotate(360deg);
-
   }
 
   45% {
-
-    transform: translate(-50%, -50%) scaleY(.35);
-
+    transform: translate(-50%, -50%) scaleY(0.35);
   }
 
   47% {
-
-    transform: translate(-50%, -50%) scale(1.15, .8);
-
+    transform: translate(-50%, -50%) scale(1.15, 0.8);
   }
 
   50% {
-
     transform: translate(-50%, -50%) scale(1.15);
-
   }
 
   60% {
-
-    transform: translate(-50%, -50%) scale(.75);
-
+    transform: translate(-50%, -50%) scale(0.75);
   }
 
   70% {
-
     box-shadow: 0 0 1px 2px var(--el-text-color-regular);
     transform: translate(-50%, -50%) scale(1.125);
-
   }
 
   85% {
-
     box-shadow: 0 0 4px 6px var(--el-text-color-regular);
-    transform: translate(-50%, -50%) scale(.25);
-
+    transform: translate(-50%, -50%) scale(0.25);
   }
 
   90% {
-
     box-shadow: 0 0 2px 4px var(--el-text-color-regular);
-    transform: translate(-50%, -50%) scale(.5);
-
+    transform: translate(-50%, -50%) scale(0.5);
   }
-
 }
 
 .UserAnimate-Container {
   &:before {
-    content: "";
+    content: '';
     position: absolute;
 
     width: 5px;
@@ -200,7 +159,7 @@ export default {
     transform: translate(-50%, -50%);
   }
   &:after {
-    content: "";
+    content: '';
     position: absolute;
 
     width: 20px;

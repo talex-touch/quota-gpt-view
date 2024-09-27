@@ -10,19 +10,19 @@ import Appearance from '~/components/chore/personal/profile/Appearance.vue'
 import Developer from '~/components/chore/personal/profile/Developer.vue'
 import Link from '~/components/chore/personal/profile/Link.vue'
 
-// const props = defineProps<{
-//   modelValue: boolean
-// }>()
+const props = defineProps<{
+  modelValue: string
+}>()
 
-// const emits = defineEmits<{
-//   (e: 'update:modelValue', value: boolean): void
-// }>()
+const emits = defineEmits<{
+  (e: 'update:modelValue', value: string): void
+}>()
 
-// const show = useVModel(props, 'modelValue', emits)
+const data = useVModel(props, 'modelValue', emits)
 const show = ref(false)
 
 const route = useRoute()
-const router = useRouter()
+// const router = useRouter()
 
 const privacyPhone = computed(() => {
   const phone = userStore.value?.phone
@@ -44,12 +44,8 @@ const queryComponentMapper: Record<string, any> = {
   // notification: empty,
 }
 
-router.afterEach(() => {
-  console.log('a', route.query)
-
-  const data = route.query.data
-
-  if (data && route.query?.c === 'property') {
+watch(() => data.value, (data) => {
+  if (data) {
     show.value = true
     expand.value = data === 'plan'
   }
@@ -61,18 +57,15 @@ router.afterEach(() => {
   comp.value = queryComponentMapper[data as string]
 })
 
-// watch(
-//   () => route.fullPath,
-//   () => {
-
-//   },
-//   { immediate: true },
-// )
+function handleClose() {
+  data.value = ''
+  // router.push({ query: { ...route.query, c: null, data: null } })
+}
 </script>
 
 <template>
   <el-container :class="{ show, expand }" class="PersonalTemplate">
-    <div class="BuyDialog-Close" @click="$router.push({ query: { ...route.query, c: null, data: null } })">
+    <div class="BuyDialog-Close" @click="handleClose">
       <div i-carbon:close />
     </div>
 
@@ -89,11 +82,11 @@ router.afterEach(() => {
         </div>
 
         <div class="PersonalWrapper-AsideMenu">
-          <CmsMenuItem query="account">
+          <CmsMenuItem :active="data === 'account'" @click="data = 'account'">
             <div i-carbon-user />
             账号资料
           </CmsMenuItem>
-          <CmsMenuItem emphasis query="plan">
+          <CmsMenuItem :active="data === 'plan'" emphasis @click="data = 'plan'">
             <div i-carbon:document-multiple-01 />
             订阅计划
           </CmsMenuItem>
@@ -104,25 +97,25 @@ router.afterEach(() => {
             <div i-carbon-notification />
             通知设置
           </CmsMenuItem> -->
-          <CmsMenuItem query="appearance">
+          <CmsMenuItem :active="data === 'appearance'" @click="data = 'appearance'">
             <div i-carbon-moon />
             外观设置
           </CmsMenuItem>
-          <CmsMenuItem query="link">
+          <CmsMenuItem :active="data === 'link'" @click="data = 'link'">
             <div i-carbon-attachment />
             三方绑定
           </CmsMenuItem>
           <!-- <CmsMenuItem danger path="/profile/password">
             <div i-carbon-password />修改密码
           </CmsMenuItem> -->
-          <CmsMenuItem query="history">
+          <CmsMenuItem :active="data === 'history'" @click="data = 'history'">
             <div i-carbon-data-table />
             登录历史
           </CmsMenuItem>
           <!-- <CmsMenuItem path="/profile/mf2a">
             <div i-carbon-tablet />MF2A
           </CmsMenuItem> -->
-          <CmsMenuItem danger query="developer">
+          <CmsMenuItem :active="data === 'developer'" danger @click="data = 'developer'">
             <div i-carbon-code />
             开发者设置
           </CmsMenuItem>

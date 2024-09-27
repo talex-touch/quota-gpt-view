@@ -20,7 +20,7 @@ async function detectEndStatus() {
   status.value = res?.data?.message === 'OK'
 }
 
-onBeforeMount(detectEndStatus)
+onMounted(detectEndStatus)
 watch(() => online.value, detectEndStatus)
 
 // const content = computed(() => {
