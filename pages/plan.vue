@@ -1,19 +1,8 @@
 <script setup lang="ts">
-import type { TableColumnCtx } from 'element-plus'
-import PlanCard from '~/components/card/PlanCard.vue'
+import ShiningButton from '~/components/button/ShiningButton.vue'
 import { price } from '~/constants/price'
 
 const router = useRouter()
-
-const plans = computed(() => price.map((item, index) => ({
-  ...item,
-  price: {
-    discount: item.price.discounted / item.price.origin,
-    saved: item.price.origin - item.price.discounted,
-    ...item.price,
-  },
-  got: !index,
-})))
 
 const tableData = [
   {
@@ -151,7 +140,7 @@ const tableData = [
 
       <div class="PlanWrapper-Main-Plan">
         <!-- :span-method="objectSpanMethod" -->
-        <el-table height="90%" stripe :data="tableData" style="width: 100%; margin-top: 20px">
+        <el-table height="85%" stripe :data="tableData" style="width: 100%; margin-top: 20px">
           <el-table-column prop="id" label="权益对比" width="180">
             <template #default="{ row }">
               <div flex items-center gap-1 text-sm op-50>
@@ -238,6 +227,19 @@ const tableData = [
           </PlanCard> -->
       </div>
     </div>
+
+    <ShiningButton
+      mb-4 @click="$router.push({
+        path: '/buy',
+        query: {
+          type: 'SUBSCRIPTION',
+          plan: 'STANDARD',
+          time: 'MONTH',
+        },
+      })"
+    >
+      立即订阅 PRO
+    </ShiningButton>
   </div>
 </template>
 
@@ -349,12 +351,13 @@ const tableData = [
   height: 100%;
 
   align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: space-between;
   background-color: var(--el-bg-color-page);
 }
 
 div.PlanWrapper-Header {
-  position: absolute;
+  position: relative;
   padding: 1rem;
   display: flex;
 

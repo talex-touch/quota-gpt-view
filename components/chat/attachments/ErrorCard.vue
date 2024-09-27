@@ -61,6 +61,15 @@ const description = computed(() => {
 
   else return [-1, props.block.value]
 })
+
+const pageOptions: any = inject('appOptions')!
+
+function handleClick() {
+  const code = +(description.value?.[0] || '0')
+
+  if (code === 3)
+    pageOptions.model.login = true
+}
 </script>
 
 <template>
@@ -101,7 +110,7 @@ const description = computed(() => {
     </div>
   </div>
 
-  <div v-if="description" v-wave class="ErrorCard-Addon">
+  <div v-if="description" v-wave class="ErrorCard-Addon" @click="handleClick">
     <template v-if="+description[0] === 0">
       <i i-carbon:chat-bot block /> 联系客服
     </template>

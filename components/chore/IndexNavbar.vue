@@ -15,9 +15,9 @@ async function push(path: string) {
     <AnimateIcon :active="route.name === 'index'" @click="push('/')">
       <IconSvgChatSvg />
     </AnimateIcon>
-    <AnimateIcon :active="route.name === 'prompt_role'" @click="push('/prompt_role')">
+    <!-- <AnimateIcon :active="route.name === 'prompt_role'" @click="push('/prompt_role')">
       <IconSvgCaseSvg />
-    </AnimateIcon>
+    </AnimateIcon> -->
     <AnimateIcon :active="route.name === 'guide'" @click="push('/guide')">
       <IconSvgDocSvg />
     </AnimateIcon>

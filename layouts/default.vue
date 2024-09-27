@@ -51,12 +51,12 @@ watch(() => online.value, detectEndStatus)
           </div>
 
           <div class="Navbar-Footer">
-            <AnimateIcon>
+            <!-- <AnimateIcon>
               <IconSvgQuesSvg />
             </AnimateIcon>
             <AnimateIcon style="color: #D8A972">
               <IconSvgStartSvg />
-            </AnimateIcon>
+            </AnimateIcon> -->
 
             <UserAccountAvatar mt-4 />
           </div>

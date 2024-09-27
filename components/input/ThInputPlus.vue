@@ -12,16 +12,16 @@ const emits = defineEmits<{
 const property = useVModel(props, 'modelValue', emits)
 
 const options: any = reactive([
-  {
-    icon: 'i-carbon-image',
-    type: 'button',
-    label: '分析图片',
-  },
-  {
-    icon: 'i-carbon-document',
-    type: 'button',
-    label: '分析文件',
-  },
+  // {
+  //   icon: 'i-carbon-image',
+  //   type: 'button',
+  //   label: '分析图片',
+  // },
+  // {
+  //   icon: 'i-carbon-document',
+  //   type: 'button',
+  //   label: '分析文件',
+  // },
   {
     icon: 'i-carbon-ibm-cloud-internet-services',
     type: 'checkbox',

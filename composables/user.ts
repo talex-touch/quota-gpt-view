@@ -105,15 +105,18 @@ export async function $handleUserLogin(token: { accessToken: string, refreshToke
 }
 
 export async function $handleUserLogout() {
+  if (!userStore.value.isLogin)
+    console.warn(`User not login now.`)
+
+  localStorage.removeItem('user')
+
+  console.log('logout')
+
   const router = useRouter()
 
   await router.push('/')
 
-  if (!userStore.value.isLogin)
-    console.warn(`User not login now.`)
-
   // userStore.value = {}
-  localStorage.removeItem('user')
 
   $event.emit('USER_LOGOUT_SUCCESS')
 }
