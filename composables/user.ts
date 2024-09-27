@@ -31,14 +31,17 @@ export interface AccountDetail {
 
 export const userStore = useLocalStorage<Partial<AccountDetail>>('user', {})
 
-export const userConfig = ref<{
-  pub_info: any
-  pri_info: any
-  loading: boolean
-}>({
+// <{
+//   pub_info: any
+//   pri_info: any
+//   loading: boolean
+// }>
+
+export const userConfig = ref({
   pub_info: {},
   pri_info: {
     cms: {
+      expand: false,
       apps: [],
     },
     home: {
@@ -51,8 +54,6 @@ export const userConfig = ref<{
   },
   loading: false,
 })
-
-console.log('u', userConfig)
 
 watch(() => userStore.value.token?.accessToken, (token) => {
   userStore.value.isLogin = !!token

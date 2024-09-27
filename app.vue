@@ -33,9 +33,11 @@ globalOptions.setEndsUrl(globalOptionsStore.value.url)
 const router = useRouter()
 
 onMounted(async () => {
-  setTimeout(() => {
-    pageOptions.tutorialShow = true
-  }, 1200)
+  // 每当用户离开页面时，保存用户配置
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden')
+      saveUserConfig()
+  })
 
   if (window.h5sdk)
     feishuInit(router)
