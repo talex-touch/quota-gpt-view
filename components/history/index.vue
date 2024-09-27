@@ -238,19 +238,21 @@ async function handleSearchHistory(query: string) {
 
   searchedList.loading = false
 }
+
+const dispose = ref(false)
+onDeactivated(() => dispose.value = true)
+onActivated(() => dispose.value = false)
+onBeforeUnmount(() => dispose.value = true)
 </script>
 
 <template>
-  <div ref="dom" class="History" :class="{ plan: userStore.subscription }">
-    <teleport to="body">
-      <div :class="{ expand }" class="History-Indicator" @click="expand = !expand" />
+  <div ref="dom" class="History" :class="{ plan: userStore.subscription, searchable: searchedList.enable }">
+    <teleport :disabled="dispose" to="body">
+      <div v-if="!dispose" :class="{ expand }" class="History-Indicator" @click="expand = !expand" />
     </teleport>
 
     <div class="History-Title">
       <div class="History-Title-Head" @click="emits('create')">
-        <!-- <img src="/logo.png">
-        <span>创建新对话</span>
-        <div i-carbon-add mr-2 /> -->
         <ButtonWavingButton v-wave flex items-center justify-between gap-2>
           <img src="/logo.png">
           <span>创建新对话</span>
@@ -261,7 +263,7 @@ async function handleSearchHistory(query: string) {
       <InputSearchable @search="handleSearchHistory" />
     </div>
 
-    <div :class="{ searchable: searchedList.enable }" class="History-Wrapper">
+    <div class="History-Wrapper">
       <div v-loader="searchedList.loading" class="History-SearchableContent">
         <el-scrollbar>
           <HistorySection
@@ -273,11 +275,6 @@ async function handleSearchHistory(query: string) {
 
       <el-scrollbar>
         <div class="History-Content">
-          <!-- <div style="margin: 0 0.5rem" class="History-Content-Item active" @click="emits('create')">
-            新建聊天
-          </div>
-          <br> -->
-
           <HistorySection
             v-for="(section, index) in historyList" :key="index" v-model:select="select"
             :title="section.title" :history="section.children" @delete="handleDelete"
@@ -325,7 +322,7 @@ async function handleSearchHistory(query: string) {
   width: 100%;
   height: calc(100% - var(--history-title-height));
 
-  transform: translateX(100%);
+  transform: translateX(-100%);
   background-color: var(--el-bg-color-page);
 
   transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
@@ -631,13 +628,17 @@ div.History {
       backdrop-filter: blur(4px);
     }
 
-    background-color: var(--el-bg-color-page);
-    // background-size: 4px 4px;
-    // background-image: radial-gradient(
-    //   transparent 1px,
-    //   var(--wallpaper-color-light, var(--el-bg-color)) 1px
-    // );
-    // backdrop-filter: saturate(50%) blur(4px);
+    .searchable & {
+      background-color: var(--el-bg-color-page);
+    }
+
+    // background-color: var(--el-bg-color-page);
+    background-size: 4px 4px;
+    background-image: radial-gradient(
+      transparent 1px,
+      var(--wallpaper-color-light, var(--el-bg-color-page)) 1px
+    );
+    backdrop-filter: saturate(50%) blur(4px);
   }
 
   &-Bottom {
@@ -688,8 +689,8 @@ div.History {
 
     box-sizing: border-box;
     // border-top: 1px solid var(--el-border-color);
-    // backdrop-filter: blur(18px) saturate(180%);
-    // background-color: var(--el-bg-color-page);
+
+    background-color: var(--el-bg-color-page);
   }
 
   .expand & {
@@ -720,7 +721,7 @@ div.History {
   transform: translateX(-100%);
   background-color: var(--el-bg-color-page);
 
-  overflow: hidden;
+  // overflow: hidden;
   transition:
     0.75s width cubic-bezier(0.785, 0.135, 0.15, 0.86),
     0.5s opacity cubic-bezier(0.785, 0.135, 0.15, 0.86),

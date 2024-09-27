@@ -2,15 +2,16 @@
 import Welcome from './addon/Welcome.vue'
 import type { TutorialOption } from './tutorial-types'
 
-const props = defineProps<{
-  show: boolean
-}>()
+// const props = defineProps<{
+//   show: boolean
+// }>()
 
-const emits = defineEmits<{
-  (e: 'update:show', data: boolean): void
-}>()
+// const emits = defineEmits<{
+//   (e: 'update:show', data: boolean): void
+// }>()
 
-const show = useVModel(props, 'show', emits)
+// const show = useVModel(props, 'show', emits)
+const show = ref(false)
 
 const main = ref<HTMLElement>()
 const options = reactive<TutorialOption>({
@@ -35,6 +36,10 @@ async function handleNext(next: TutorialOption) {
   await sleep(200)
 
   if (!next.component) {
+    userConfig.value.pri_info.info.tutorial = true
+
+    saveUserConfig()
+
     show.value = false
 
     return
@@ -51,6 +56,12 @@ onMounted(() => {
   handleNext({
     component: Welcome,
     data: {},
+  })
+
+  watchEffect(() => {
+    const tutorial = userConfig.value.pri_info.info.tutorial
+
+    show.value = !tutorial
   })
 })
 

@@ -195,10 +195,10 @@ const avatarUrl = computed(() => {
 
     cursor: pointer;
   }
-  position: absolute;
+  position: relative;
 
-  top: 5px;
-  right: 1rem;
+  // top: 5px;
+  // right: 1rem;
 }
 
 div.el-popper.AccountAvatar-Float {

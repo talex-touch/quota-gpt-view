@@ -12,7 +12,6 @@ useHead({
 
 const { isMobile, isTablet } = useDevice()
 const pageOptions = reactive({
-  tutorialShow: false,
   model: {
     login: false,
   },
@@ -89,8 +88,9 @@ provide('appOptions', pageOptions)
       {{ width }} - {{ height }}
     </div> -->
 
-  <!-- <ChoreTutorial v-model:show="pageOptions.tutorialShow" /> -->
+  <ChoreTutorial />
   <Login v-if="!userStore.isLogin" v-model:show="pageOptions.model.login" />
+  <ChorePersonalDialog v-if="userStore.isLogin" />
   <!-- </div> -->
 </template>
 
@@ -198,6 +198,10 @@ html.dark {
 
 .transition-cubic {
   transition: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+div.el-dialog {
+  --el-dialog-border-radius: 16px;
 }
 
 @keyframes CenterFrameLoad {

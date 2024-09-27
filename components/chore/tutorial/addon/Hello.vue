@@ -69,7 +69,7 @@ const handleNext: any = inject('handleNext')
   </svg>
 
   <ButtonArrowButton
-    class="delay-join" @click="handleNext({
+    class="delay-join2" @click="handleNext({
       component: null,
       data: {},
     })"
@@ -79,10 +79,10 @@ const handleNext: any = inject('handleNext')
 </template>
 
 <style>
-button.delay-join {
+button.delay-join2 {
   opacity: 0;
   pointer-events: none;
-  animation: delay-join-frames 1s 5.5s forwards;
+  animation: delay-join-frames 1s 3.5s forwards;
 }
 
 @keyframes delay-join-frames {

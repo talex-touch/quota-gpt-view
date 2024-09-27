@@ -20,7 +20,6 @@ definePageMeta({
 const chatRef = ref()
 const initConversation = $completion.emptyHistory()
 const pageOptions = reactive<{
-  settingDialog: boolean
   expand: boolean
   select: string
   template: any
@@ -33,7 +32,6 @@ const pageOptions = reactive<{
   feedback: {
     visible: false,
   },
-  settingDialog: false,
   expand: true,
   select: '',
   template: null,
@@ -301,8 +299,6 @@ console.log(pageOptions)
 
       <!-- 根据 发送消息超过10次 控制弹窗的显示 -->
       <FeedBack v-model:show="pageOptions.feedback.visible" />
-
-      <ChorePersonalDialog v-if="userStore.isLogin" v-model="pageOptions.settingDialog" />
     </div>
   </div>
 </template>
@@ -358,10 +354,7 @@ console.log(pageOptions)
   }
 
   &-Main {
-    .expand & {
-      width: calc(100% - 200px);
-    }
-    z-index: 2;
+    // z-index: 2;
     position: relative;
 
     // flex: 1;

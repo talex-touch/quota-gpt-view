@@ -13,8 +13,8 @@ const menus = reactive([
     show: true,
     click: () => {
       router.push({
-        path: '/',
         query: {
+          c: 'property',
           data: 'account',
         },
       })

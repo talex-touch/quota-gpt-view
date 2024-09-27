@@ -10,39 +10,75 @@ definePageMeta({
 
 <template>
   <div class="Cms">
-    <div class="CmsData">
-      <div v-for="i in 4" :key="i" class="CmsData-Item">
-        <div class="CmsData-Item-Avatar">
-          <el-img>
-            Random
-          </el-img>
-        </div>
+    <div class="Cms-Addon">
+      <div class="Cms-Application cms-card">
+        <lazy-cms-application />
       </div>
     </div>
-    <div class="CmsAnalyze">
-      <div />
-      <div />
-    </div>
-    <div class="CmsDisplay">
-      <div class="CmsDisplay-Greater" />
 
-      <div h-full flex flex-1 gap-4>
-        <div class="CmsDisplay-Lesser1" />
-        <div class="CmsDisplay-Lesser2" />
-      </div>
+    <div class="Cms-Content">
+      2
     </div>
-    <div class="CmsDisplay2">
-      <div class="CmsDisplay2-Greater" />
-      <div h-full flex flex-1 gap-4>
-        <div class="CmsDisplay-Lesser1" />
-        <div class="CmsDisplay-Lesser2" />
-      </div>
+
+    <div class="Cms-User">
+      <LazyCmsUser />
     </div>
   </div>
 </template>
 
 <style lang="scss">
+.Cms-Application {
+  height: 40%;
+}
+
+.cms-card {
+  .cms-header {
+    .cms-start {
+      display: flex;
+
+      gap: 0.5rem;
+      opacity: 0.75;
+      align-items: center;
+    }
+    display: flex;
+
+    font-size: 14px;
+    justify-content: space-between;
+  }
+  padding: 0.5rem 1rem;
+
+  flex-shrink: 0;
+
+  overflow: hidden;
+  border-radius: 2px;
+  background-color: var(--el-fill-color);
+}
+
+.Cms-Addon {
+  height: 100%;
+  min-width: 200px;
+  width: 35%;
+  max-width: 480px;
+}
+
+.Cms-Content {
+  padding: 1rem;
+
+  width: 100%;
+  height: 100%;
+
+  border-radius: 16px;
+  background-color: var(--el-fill-color-light);
+}
+
+.Cms-User {
+  min-width: 200px;
+  width: 30%;
+  max-width: 480px;
+}
+
 .Cms {
+  position: relative;
   padding: 1rem;
   display: flex;
 
@@ -50,136 +86,7 @@ definePageMeta({
   height: 100%;
 
   gap: 1rem;
-  flex-direction: column;
 
   justify-content: space-between;
 }
-
-.CmsData {
-  display: flex;
-
-  gap: 1rem;
-  width: 100%;
-
-  &-Item {
-    &-Avatar {
-      display: flex;
-
-      font-size: 12px;
-      align-items: center;
-      justify-content: center;
-
-      width: 64px;
-      height: 64px;
-
-      border-radius: 50%;
-      border: 1px solid var(--el-text-color-primary);
-    }
-    padding: 1rem 1rem;
-
-    flex: 1;
-
-    border-radius: 18px;
-    background-color: var(--el-fill-color-light);
-  }
-}
-
-.CmsAnalyze {
-  display: flex;
-
-  gap: 1rem;
-  width: 100%;
-
-  // padding: 1rem 0.5rem;
-
-  flex: 1;
-}
-
-.CmsAnalyze > div {
-  flex: 1;
-
-  border-radius: 18px;
-  background-color: var(--el-fill-color-light);
-}
-
-.CmsDisplay {
-  display: flex;
-  gap: 1rem;
-  width: 100%;
-  flex: 1;
-  &-Greater {
-    flex: 1;
-
-    // width: 50%;
-
-    border-radius: 18px;
-    background-color: var(--el-fill-color-light);
-  }
-  &-Lesser1 {
-    padding: 1rem 0.5rem;
-
-    flex: 1;
-
-    border-radius: 18px;
-    background-color: var(--el-fill-color-light);
-  }
-  &-Lesser2 {
-    padding: 1rem 0.5rem;
-
-    flex: 1;
-
-    border-radius: 18px;
-    background-color: var(--el-fill-color-light);
-  }
-}
-
-// .CmsDisplay > div {
-//   padding: 1rem 0.5rem;
-
-//   flex: 1;
-
-//   border-radius: 18px;
-//   background-color: var(--el-fill-color-light);
-// }
-
-.CmsDisplay2 {
-  display: flex;
-  gap: 1rem;
-  width: 100%;
-  // padding: 1rem 0.5rem;
-  flex: 1;
-  &-Greater {
-    // padding: 1rem 0.5rem;
-
-    flex: 1;
-
-    border-radius: 18px;
-    background-color: var(--el-fill-color-light);
-  }
-  &-Lesser1 {
-    padding: 1rem 0.5rem;
-
-    flex: 1;
-
-    border-radius: 18px;
-    background-color: var(--el-fill-color-light);
-  }
-  &-Lesser2 {
-    padding: 1rem 0.5rem;
-
-    flex: 1;
-
-    border-radius: 18px;
-    background-color: var(--el-fill-color-light);
-  }
-}
-
-// .circle1,
-// .circle2,
-// .circle3 {
-//   border-radius: 100%;
-//   width: 60px; /* 增加宽度 */
-//   height: 60px; /* 增加高度 */
-//   background-color: #000;
-// }
 </style>

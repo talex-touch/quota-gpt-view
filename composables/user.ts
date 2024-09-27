@@ -1,6 +1,7 @@
 import './index'
 import { getAccountDetail, getPermissionList, getUserSubscription } from './api/account'
 import { endHttp } from './api/axios'
+import { $endApi } from './api/base'
 
 export interface AccountDetail {
   id: number
@@ -30,6 +31,29 @@ export interface AccountDetail {
 
 export const userStore = useLocalStorage<Partial<AccountDetail>>('user', {})
 
+export const userConfig = ref<{
+  pub_info: any
+  pri_info: any
+  loading: boolean
+}>({
+  pub_info: {},
+  pri_info: {
+    cms: {
+      apps: [],
+    },
+    home: {
+      index: {},
+      chat: {},
+    },
+    info: {
+      tutorial: true,
+    },
+  },
+  loading: false,
+})
+
+console.log('u', userConfig)
+
 watch(() => userStore.value.token?.accessToken, (token) => {
   userStore.value.isLogin = !!token
 }, { immediate: true })
@@ -44,6 +68,20 @@ watch(() => userStore.value.isLogin, () => {
   userStore.value.isAdmin = !!userStore.value.permissions?.find((item: any) => item === 'system:manage')
 }, { immediate: true })
 
+// manually trigger
+export async function saveUserConfig() {
+  const res = await $endApi.v1.account.postUserConfig(
+    JSON.stringify(userConfig.value.pub_info),
+    JSON.stringify(userConfig.value.pri_info),
+  )
+
+  userConfig.value.loading = false
+
+  return responseMessage(res, {
+    success: '',
+  })
+}
+
 // watch(() => userStore.value.token, async () => {
 //   if (!userStore.value.isLogin)
 //     return
@@ -52,8 +90,8 @@ watch(() => userStore.value.isLogin, () => {
 //   await refreshUserSubscription()
 // }, { deep: true, immediate: true })
 
-$event.on('USER_LOGIN_SUCCESS', () => {
-  console.log('login success')
+$event.on('USER_LOGIN_SUCCESS', async () => {
+  console.log('login success', userConfig)
 })
 
 export async function $handleUserLogin(token: { accessToken: string, refreshToken: string }) {
@@ -95,6 +133,16 @@ export async function refreshCurrentUserRPM() {
 
   const permissions = await getPermissionList()
   userStore.value.permissions = permissions.data
+
+  const config = (await $endApi.v1.account.getUserConfig()).data || {}
+
+  const priConfig = JSON.parse(config.pri_info || '')
+
+  Object.assign(userConfig.value.pri_info, priConfig)
+  Object.assign(userConfig.value.pub_info, JSON.parse(config.pub_info || ''))
+
+  if (!priConfig?.info?.tutorial)
+    userConfig.value.pri_info.info.tutorial = false
 }
 
 export function updateAccountDetail(obj: { nickname: string, avatar: string }) {
