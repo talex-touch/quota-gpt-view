@@ -83,10 +83,10 @@ async function mobileSlideProcess() {
   })
 }
 
-const dispose = ref(false)
-onDeactivated(() => dispose.value = true)
-onActivated(() => dispose.value = false)
-onBeforeUnmount(() => dispose.value = true)
+// const dispose = ref(false)
+// onDeactivated(() => dispose.value = true)
+// onActivated(() => dispose.value = false)
+// onBeforeUnmount(() => dispose.value = true)
 
 function filterSubMenus(menu: any) {
   return [...menu].filter(item => item.meta?.show)
@@ -138,7 +138,7 @@ function filterSubMenus(menu: any) {
     </div>
   </div>
 
-  <div v-if="!dispose" :class="{ expand }" class="CmsSide-Indicator" @click="expand = !expand" />
+  <div :class="{ expand }" class="CmsSide-Indicator" @click="expand = !expand" />
 </template>
 
 <style lang="scss">
