@@ -74,8 +74,10 @@ timer()
     <div class="ProfileWrapper-Main">
       <el-scrollbar>
         <div class="ProfileWrapper-MainWrapper">
-          <p>选择你喜欢的主题颜色</p>
-          <div class="ProfileWrapper-Theme">
+          <p v-if="false">
+            选择你喜欢的主题颜色
+          </p>
+          <div v-if="false" class="ProfileWrapper-Theme">
             <div
               v-for="(color, index) in themeColors" :key="color" :class="{ active: themeOptions.color === index }"
               class="theme-color" :style="`--c: ${color}`" @click="themeOptions.color = index"
@@ -89,10 +91,10 @@ timer()
             </p>
 
             <div my-4 class="ProfileWrapper-Display-Theme">
-              <ThemeBlock
+              <!-- <ThemeBlock
                 :active="colorMode.preference === 'system'" theme="system"
                 @click="toggleTheme($event, 'auto')"
-              />
+              /> -->
               <ThemeBlock
                 :active="colorMode.preference === 'light'" theme="light"
                 @click="toggleTheme($event, 'light')"

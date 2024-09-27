@@ -85,7 +85,7 @@ const features = reactive([
       This!&nbsp;<span class="ai-underline">AI</span>.
     </h1>
 
-    <div class="EmptyGuide-Section">
+    <div v-if="false" class="EmptyGuide-Section">
       <div class="EmptyGuide-Banner fake-background">
         <div class="banner-outer" />
         <el-carousel motion-blur>
@@ -103,7 +103,7 @@ const features = reactive([
       </div>
     </div>
 
-    <div class="EmptyGuide-Feature">
+    <div v-if="false" class="EmptyGuide-Feature">
       <div class="EmptyGuide-FeatureInner">
         <div
           v-for="feature in [...features, ...features]" :key="feature.title" :style="feature.style"
@@ -119,7 +119,7 @@ const features = reactive([
       </div>
     </div>
 
-    <p relative top-16>
+    <p v-if="false" relative top-16>
       在你喜欢之中，万里挑一
     </p>
   </div>

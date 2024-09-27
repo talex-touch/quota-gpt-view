@@ -232,7 +232,7 @@ watchEffect(() => {
           </span>
         </span>
 
-        <ItemModelSelector v-if="!isUser && total === ind + 1" v-model="innerItem.model" @retry="handleRetry" />
+        <!-- <ItemModelSelector v-if="!isUser && total === ind + 1" v-model="innerItem.model" @retry="handleRetry" /> -->
 
         <span class="info">
           <span class="date">{{ timeAgo }}</span>

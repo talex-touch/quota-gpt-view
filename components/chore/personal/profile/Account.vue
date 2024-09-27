@@ -120,8 +120,8 @@ const lastEditTime = computed(() => dayjs(userStore.value.updatedAt).format('DD 
         </el-form-item>
       </el-form>
 
-      <ChorePersonalFortuneCard />
-      <ChorePersonalInvitationCard />
+      <ChorePersonalFortuneCard v-if="false" />
+      <ChorePersonalInvitationCard v-if="false" />
     </div>
 
     <div flex class="ProfileWrapper-Footer">

@@ -40,7 +40,7 @@ const queryComponentMapper: Record<string, any> = {
   appearance: Appearance,
   history: History,
   developer: Developer,
-  notification: empty,
+  // notification: empty,
 }
 
 watch(
@@ -93,10 +93,10 @@ watch(
           <!-- <CmsMenuItem path="/profile/test">
             <div i-carbon-software-resource-cluster />我的内测
           </CmsMenuItem> -->
-          <CmsMenuItem query="notification">
+          <!-- <CmsMenuItem query="notification">
             <div i-carbon-notification />
             通知设置
-          </CmsMenuItem>
+          </CmsMenuItem> -->
           <CmsMenuItem query="appearance">
             <div i-carbon-moon />
             外观设置

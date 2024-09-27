@@ -28,7 +28,9 @@ const pageOptions = reactive<{
   share: any
   status: IChatItemStatus
   feedback: any
+  model: QuotaModel
 }>({
+  model: QuotaModel.QUOTA_THIS_NORMAL_TURBO,
   feedback: {
     visible: false,
   },
@@ -125,6 +127,8 @@ async function innerSend(conversation: IChatConversation, chatItem: IChatItem, i
 
   const chatCompletion = $completion.createCompletion(conversation, chatItem, index)
 
+  console.log('chatCompletion.innerMsg', chatCompletion.innerMsg)
+
   chatCompletion.registerHandler({
     onCompletion: () => {
       chatRef.value?.generateScroll()
@@ -152,7 +156,7 @@ async function innerSend(conversation: IChatConversation, chatItem: IChatItem, i
     },
   })
 
-  chatCompletion.send()
+  return chatCompletion
 }
 
 function handleSync() {
@@ -174,7 +178,9 @@ async function handleRetry(index: number, page: number, innerItem: IChatInnerIte
 
   chatItem.content.push(_innerItem)
 
-  innerSend(conversation, chatItem, page)
+  const completion = await innerSend(conversation, chatItem, page)
+
+  completion.send()
 }
 
 async function handleSend(query: string, _meta: any) {
@@ -195,11 +201,11 @@ async function handleSend(query: string, _meta: any) {
 
   function getModel() {
     if (!shiftItem)
-      return QuotaModel.QUOTA_THIS_NORMAL
+      return QuotaModel.QUOTA_THIS_NORMAL_TURBO
 
     const inner = shiftItem.content[shiftItem.page]
 
-    return inner?.model || QuotaModel.QUOTA_THIS_NORMAL
+    return inner?.model || QuotaModel.QUOTA_THIS_NORMAL_TURBO
   }
 
   const chatItem = $completion.emptyChatItem()
@@ -218,7 +224,11 @@ async function handleSend(query: string, _meta: any) {
 
   console.log('a', shiftItem, shiftItem?.page)
 
-  innerSend(conversation, chatItem, (shiftItem?.content.length ?? 1) - 1)
+  const completion = await innerSend(conversation, chatItem, (shiftItem?.content.length ?? 1) - 1)
+
+  completion.innerMsg.model = pageOptions.model
+
+  completion.send()
 }
 
 provide('pageOptions', pageOptions)
@@ -248,7 +258,11 @@ console.log(pageOptions)
       <ThChat
         ref="chatRef" v-model:messages="pageOptions.conversation" :status="pageOptions.status"
         @cancel="handleCancelReq" @retry="handleRetry"
-      />
+      >
+        <template #model>
+          <ModelSelector v-model="pageOptions.model" />
+        </template>
+      </ThChat>
 
       <ThInput
         v-model:input-property="pageOptions.inputProperty"

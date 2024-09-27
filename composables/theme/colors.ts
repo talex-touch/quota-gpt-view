@@ -174,6 +174,7 @@ export function detectWallpaper() {
 
 export function viewTransition(e: { clientX: number, clientY: number }, theme?: 'auto' | 'light' | 'dark') {
   const color = useColorMode()
+
   // 用于颜色模式的获取和设置
   const compColorMode = computed({
     get() {

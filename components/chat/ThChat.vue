@@ -183,6 +183,7 @@ function handleRetry(ind: number, item: IChatInnerItem) {
   <div class="ThChat">
     <div v-if="messages" :class="{ show: messages.messages?.length > 1 }" class="ThChat-Title">
       <span v-if="messagesModel.messages" class="model">
+        <slot name="model" />
         <!-- <ModelSelector v-model="messagesModel.model" /> -->
       </span>
     </div>

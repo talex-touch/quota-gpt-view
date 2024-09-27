@@ -22,6 +22,11 @@ const loadingDirective = {
     app.mount(wrapper)
   },
   beforeUpdate(el: HTMLElement, binding: any) {
+    if (!el._t_loading) {
+      console.error('a', el)
+
+      return
+    }
     // @ts-expect-error exist force
     const { wrapper, timer } = el._t_loading
 
