@@ -291,7 +291,7 @@ onBeforeUnmount(() => dispose.value = true)
     </div>
 
     <div class="History-Bottom">
-      <PremiumButton v-if="!userStore.subscription" @click="$router.push('?data=plan&c=property')" />
+      <PremiumButton v-if="userStore.subscription" @click="$router.push('/plan')" />
       <template v-else>
         <span v-if="planProgress && planProgress" class="plan">
           <span class="progress-bar" :style="`--w: ${100 - planProgress.progress}%`" />
@@ -643,6 +643,7 @@ div.History {
 
   &-Bottom {
     &::before {
+      z-index: -1;
       content: '';
       position: absolute;
 
@@ -660,6 +661,7 @@ div.History {
     }
 
     &::after {
+      z-index: -1;
       content: '';
       position: absolute;
 
