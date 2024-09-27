@@ -210,12 +210,12 @@ router.afterEach((to) => {
   position: absolute;
   display: flex;
 
-  top: 65px;
+  top: 60px;
 
   width: 100%;
   min-width: 100%;
   height: 100%;
-  min-height: calc(100% - 65px);
+  min-height: calc(100% - 60px);
   max-height: 100%;
 
   flex: 1;

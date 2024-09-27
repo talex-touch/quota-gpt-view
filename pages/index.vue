@@ -285,10 +285,6 @@ console.log(pageOptions)
             v-if="!!pageOptions.conversation.messages.length"
             :status="pageOptions.conversation.sync" @upload="handleSync"
           />
-
-          <span class="tag warning shining">
-            测试版本，不代表最终品质
-          </span>
         </template>
       </AigcChatStatusBar>
 

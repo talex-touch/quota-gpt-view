@@ -119,13 +119,13 @@ function _render() {
   })
 }
 
-const render = useDebounceFn(_render, 100)
+// const render = useDebounceFn(_render, 100)
 
 onMounted(() => {
   watch(
     () => [props.data, color.value, props.render],
     () => {
-      render()
+      _render()
 
       // setTimeout(() => , 100)
 
