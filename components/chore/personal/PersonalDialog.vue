@@ -22,6 +22,7 @@ import Link from '~/components/chore/personal/profile/Link.vue'
 const show = ref(false)
 
 const route = useRoute()
+const router = useRouter()
 
 const privacyPhone = computed(() => {
   const phone = userStore.value?.phone
@@ -43,24 +44,30 @@ const queryComponentMapper: Record<string, any> = {
   // notification: empty,
 }
 
-watch(
-  () => route.fullPath,
-  () => {
-    const data = route.query.data
+router.afterEach(() => {
+  console.log('a', route.query)
 
-    if (data && route.query?.c === 'property') {
-      show.value = true
-      expand.value = data === 'plan'
-    }
-    else {
-      show.value = false
-      return
-    }
+  const data = route.query.data
 
-    comp.value = queryComponentMapper[data as string]
-  },
-  { immediate: true },
-)
+  if (data && route.query?.c === 'property') {
+    show.value = true
+    expand.value = data === 'plan'
+  }
+  else {
+    show.value = false
+    return
+  }
+
+  comp.value = queryComponentMapper[data as string]
+})
+
+// watch(
+//   () => route.fullPath,
+//   () => {
+
+//   },
+//   { immediate: true },
+// )
 </script>
 
 <template>

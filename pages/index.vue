@@ -30,7 +30,7 @@ const pageOptions = reactive<{
   feedback: any
   model: QuotaModel
 }>({
-  model: QuotaModel.QUOTA_THIS_NORMAL_TURBO,
+  model: QuotaModel.QUOTA_THIS_NORMAL,
   feedback: {
     visible: false,
   },

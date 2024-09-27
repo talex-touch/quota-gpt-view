@@ -112,7 +112,8 @@ export async function $handleUserLogout() {
   if (!userStore.value.isLogin)
     console.warn(`User not login now.`)
 
-  userStore.value = {}
+  // userStore.value = {}
+  localStorage.removeItem('user')
 
   $event.emit('USER_LOGOUT_SUCCESS')
 }

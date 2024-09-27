@@ -45,17 +45,17 @@ onMounted(async () => {
   detectWallpaper()
   // useDeviceAdapter()
 
-  if (!userStore.value.isLogin) {
-    ElNotification({
-      duration: 60000,
-      title: '科塔智爱体验版',
-      message: h('i', { style: 'color: teal' }, '当前版本处于预览体验版，可能存在部分问题。为了更好地服务您，请您登陆后继续使用！'),
-    })
+  // if (!userStore.value.isLogin) {
+  //   // ElNotification({
+  //   //   duration: 60000,
+  //   //   title: '科塔智爱体验版',
+  //   //   message: h('i', { style: 'color: teal' }, '当前版本处于预览体验版，可能存在部分问题。为了更好地服务您，请您登陆后继续使用！'),
+  //   // })
 
-    pageOptions.model.login = true
+  //   pageOptions.model.login = true
 
-    return
-  }
+  //   return
+  // }
 
   await refreshCurrentUserRPM()
   await refreshUserSubscription()

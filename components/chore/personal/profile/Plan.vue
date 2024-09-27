@@ -16,7 +16,15 @@ const plans = computed(() => price.map((item, index) => ({
 })))
 
 function toCheckout(plan: any) {
-  router.push(`/buy?type=SUBSCRIPTION&plan=${plan.value}&time=MONTH`)
+  router.push({
+    path: '/buy',
+    query: {
+      type: 'SUBSCRIPTION',
+      plan: plan.value,
+      time: 'MONTH',
+    },
+  })
+  // router.push(`/buy?type=SUBSCRIPTION&plan=${plan.value}&time=MONTH`)
 }
 </script>
 
