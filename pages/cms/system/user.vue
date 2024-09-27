@@ -271,7 +271,7 @@ function filterNode(value: string, data: any) {
 </script>
 
 <template>
-  <el-container class="CmsUser">
+  <el-container class="CmsUser CmsStandard">
     <el-aside width="320px">
       <el-header>
         <p font-bold>
@@ -486,6 +486,12 @@ function filterNode(value: string, data: any) {
 <style lang="scss">
 .CmsUser {
   .el-aside {
+    .el-header {
+      & > p {
+        margin: 0.5rem 0;
+      }
+      margin: 1rem 0;
+    }
     border-right: 1px solid var(--el-border-color);
   }
 }

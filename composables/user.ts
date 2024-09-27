@@ -41,7 +41,7 @@ export const userConfig = ref({
   pub_info: {},
   pri_info: {
     cms: {
-      expand: false,
+      expand: !false,
       apps: [],
     },
     home: {

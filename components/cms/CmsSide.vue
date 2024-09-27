@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { getAccountMenuList } from '~/composables/api/account'
+
 const props = defineProps<{
   expand: boolean
 }>()
@@ -19,6 +21,24 @@ onMounted(() => {
 })
 
 const dom = ref()
+const menus = ref()
+onBeforeMount(async () => {
+  const res = await getAccountMenuList()
+
+  console.log('res', res)
+
+  // 将menu的每一项都排序 (orderNo)
+  function _sort(arr: any[]) {
+    return arr.sort((a, b) => b.orderNo - a.orderNo)
+  }
+
+  menus.value = _sort(res.data).map((item: any) => {
+    if (item.children)
+      _sort(item.children)
+
+    return item
+  })
+})
 
 async function mobileSlideProcess() {
   expand.value = false
@@ -67,6 +87,10 @@ const dispose = ref(false)
 onDeactivated(() => dispose.value = true)
 onActivated(() => dispose.value = false)
 onBeforeUnmount(() => dispose.value = true)
+
+function filterSubMenus(menu: any) {
+  return [...menu].filter(item => item.meta?.show)
+}
 </script>
 
 <template>
@@ -88,10 +112,27 @@ onBeforeUnmount(() => dispose.value = true)
     <div class="CmsSide-Wrapper">
       <el-scrollbar>
         <div class="CmsSide-Content">
-          <!-- <CmsSideSection
-            v-for="(section, index) in CmsSideList" :key="index" v-model:select="select"
-            :title="section.title" :CmsSide="section.children" @delete="handleDelete"
-          /> -->
+          <template v-for="item in menus" :key="item.id">
+            <CmsMenu v-if="item.children?.length" :expandable="item.children?.length">
+              <template #header>
+                <div :class="item.meta.icon" />
+                <span>{{ item.name }}</span>
+              </template>
+              <CmsMenuItem
+                v-for="subMenu in filterSubMenus(item.children)" :key="subMenu.id"
+                :path="`/cms${subMenu.path}`"
+              >
+                <div flex items-center gap-2>
+                  <div :class="subMenu.meta.icon" />{{ subMenu.name }}
+                </div>
+              </CmsMenuItem>
+            </CmsMenu>
+            <CmsMenuItem v-else :key="item.id" :path="`/cms${item.path}`">
+              <div flex items-center gap-2>
+                <div :class="item.meta.icon" />{{ item.name }}
+              </div>
+            </CmsMenuItem>
+          </template>
         </div>
       </el-scrollbar>
     </div>
@@ -296,7 +337,7 @@ div.CmsSide {
 }
 
 .CmsSide {
-  --CmsSide-title-height: 125px;
+  --CmsSide-title-height: 50px;
 
   &-Title {
     z-index: 3;
