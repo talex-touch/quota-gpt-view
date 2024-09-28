@@ -3,6 +3,7 @@ import { setWallpaper, themeColors, themeOptions, viewTransition, wallpapers } f
 import ShiningButton from '~/components/button/ShiningButton.vue'
 import TextShaving from '~/components/other/TextShaving.vue'
 
+const router = useRouter()
 const colorMode = useColorMode()
 
 function toggleTheme(event: MouseEvent, theme: 'auto' | 'light' | 'dark') {
@@ -61,6 +62,29 @@ async function trySetWallpaper(paper: any, event: Event) {
 }
 
 timer()
+
+const figurations = reactive({
+  animation: {
+    value: false,
+    click: () => {
+      figurations.animation.value = false
+
+      ElMessage.error({
+        message: '您的系统暂不支持该功能！',
+        grouping: true,
+        type: 'error',
+        plain: true,
+      })
+    },
+  },
+})
+
+const pageOptions: any = inject('appOptions')!
+function toSubscription() {
+  pageOptions.model.personal = ''
+
+  router.push('/plan')
+}
 </script>
 
 <template>
@@ -84,9 +108,35 @@ timer()
             />
           </div>
 
+          <div class="ProfileWrapper-Base">
+            <p>
+              基本设置
+            </p>
+            <p class="subtitle" op-50>
+              配置基本的外观样式
+            </p>
+
+            <br>
+
+            <TemplateLineForm title="光晕动画" desc="光晕动画让界面更流畅，但是会增加耗电量">
+              <el-switch v-model="figurations.animation.value" @click="figurations.animation.click" />
+            </TemplateLineForm>
+            <TemplateLineForm title="混色渲染" desc="混色渲染使用复杂的叠加技术，让界面更美观">
+              <el-switch v-model="figurations.animation.value" @click="figurations.animation.click" />
+            </TemplateLineForm>
+            <TemplateLineForm title="高斯模糊" desc="让部分界面叠加模糊拟态效果">
+              <el-switch v-model="figurations.animation.value" @click="figurations.animation.click" />
+            </TemplateLineForm>
+            <TemplateLineForm title="主要着色" desc="在某些组件上增加强调色效果">
+              <el-switch v-model="figurations.animation.value" @click="figurations.animation.click" />
+            </TemplateLineForm>
+          </div>
+
+          <br>
+
           <div class="ProfileWrapper-Display">
             <p>选择UI主题界面</p>
-            <p op-50>
+            <p class="subtitle" op-50>
               设置你的自定义主题
             </p>
 
@@ -107,7 +157,7 @@ timer()
             <div flex justify-between class="ProfileWrapper-WallpaperHeader">
               <div class="wallpaper-start">
                 <p>自定义你的界面墙纸</p>
-                <p op-50>
+                <p class="subtitle" op-50>
                   设置你的自定义墙纸
                 </p>
               </div>
@@ -122,8 +172,8 @@ timer()
 
             <div my-4 class="ProfileWrapper-Display-Theme">
               <div
-                v-for="wallpaper in wallpapers"
-                :key="wallpaper.label" v-loader="loading === wallpaper.id" :style="`--t: ${wallpaper.color}`"
+                v-for="wallpaper in wallpapers" :key="wallpaper.label" v-loader="loading === wallpaper.id"
+                :style="`--t: ${wallpaper.color}`"
                 :class="{ lock: !wallpaper?.free, active: wallpaper.id === themeOptions.theme }" class="Wallpaper-Item"
                 @click="trySetWallpaper(wallpaper, $event)"
               >
@@ -144,7 +194,7 @@ timer()
       <!-- <TextShaving text="外观自定义需要高级订阅来启用" /> -->
       <TextShaving :text="textShaving" />
 
-      <ShiningButton>
+      <ShiningButton @click="toSubscription">
         立即订阅 PRO
       </ShiningButton>
     </div>
@@ -152,6 +202,10 @@ timer()
 </template>
 
 <style lang="scss" scoped>
+p.subtitle {
+  font-size: 14px;
+}
+
 .ProfileWrapper-WallpaperHeader {
   .wallpaper-end {
     // flex-direction: column;

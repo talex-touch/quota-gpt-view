@@ -70,6 +70,8 @@ provide('appOptions', pageOptions)
   <Login v-if="!userStore.isLogin" v-model:show="pageOptions.model.login" />
   <ChorePersonalDialog v-if="userStore.isLogin" v-model="pageOptions.model.personal" />
   <!-- </div> -->
+
+  <GlobeStatus />
 </template>
 
 <style style="scss">
