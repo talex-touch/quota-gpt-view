@@ -23,10 +23,13 @@ function saveConfig() {
   if (!userStore.value.isLogin)
     return
 
-  const obj = JSON.stringify(userStore.value)
+  const text = JSON.stringify({
+    pri_info: userConfig.value.pri_info,
+    pub_info: userConfig.value.pub_info,
+  })
 
-  if (obj !== lastSave) {
-    lastSave = obj
+  if (text !== lastSave) {
+    lastSave = text
     saveUserConfig()
 
     console.log('save user config')
