@@ -2,7 +2,7 @@
 import { $endApi } from '~/composables/api/base'
 
 const online = useOnline()
-const status = ref(false)
+const status = ref(true)
 
 // 检测后端接口 如果无法使用则直接提示
 async function detectEndStatus() {

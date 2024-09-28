@@ -17,6 +17,10 @@ defineProps<{
       </div>
     </div>
 
+    <div class="ThemeBlock-Check">
+      <div i-carbon:checkmark />
+    </div>
+
     <div v-if="theme === 'system'" class="ThemeBlock-Differ">
       <ThemeBlock :active="false" theme="dark" />
     </div>
@@ -24,6 +28,29 @@ defineProps<{
 </template>
 
 <style lang="scss">
+.ThemeBlock-Check {
+  .active & {
+    transform: scale(1);
+  }
+  position: absolute;
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  left: 0.5rem;
+  bottom: 0.5rem;
+
+  color: #fff;
+  width: 28px;
+  height: 28px;
+
+  transition: 0.25s;
+  transform: scale(0);
+  border-radius: 50%;
+  background-color: var(--el-color-primary);
+}
+
 .ThemeBlock-Differ {
   position: absolute;
 
