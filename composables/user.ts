@@ -51,6 +51,10 @@ export const userConfig = ref({
     info: {
       tutorial: true,
     },
+    appearance: {
+      expand: true,
+      immersive: true,
+    },
   },
   loading: false,
 })
@@ -152,8 +156,8 @@ export async function refreshCurrentUserRPM() {
 
   const priConfig = JSON.parse(config.pri_info || '{}')
 
-  Object.assign(userConfig.value.pri_info, priConfig)
-  Object.assign(userConfig.value.pub_info, JSON.parse(config.pub_info || '{}'))
+  Object.assign(userConfig.value.pri_info, toReactive(priConfig))
+  Object.assign(userConfig.value.pub_info, toReactive(JSON.parse(config.pub_info || '{}')))
 
   if (userStore.value.isLogin && !priConfig?.info?.tutorial)
     userConfig.value.pri_info.info.tutorial = false

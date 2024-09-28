@@ -79,7 +79,7 @@ export const wallpapers = [
   {
     id: 'blocks',
     label: '菁彩积木',
-    color: '#203243',
+    color: '#425467',
     wallpaper: Blocks,
   },
   {

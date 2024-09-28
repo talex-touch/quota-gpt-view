@@ -19,18 +19,28 @@ async function detectEndStatus() {
 
 let lastSave = ''
 
+function saveConfig() {
+  if (!userStore.value.isLogin)
+    return
+
+  const obj = JSON.stringify(userStore.value)
+
+  if (obj !== lastSave) {
+    lastSave = obj
+    saveUserConfig()
+
+    console.log('save user config')
+  }
+}
+
 onMounted(() => {
   detectEndStatus()
 
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden' && userStore.value.isLogin) {
-      const obj = JSON.stringify(userStore.value)
+  /* const { pause, resume, isActive } =  */useIntervalFn(saveUserConfig, 15000)
 
-      if (obj !== lastSave) {
-        lastSave = obj
-        saveUserConfig()
-      }
-    }
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden')
+      saveConfig()
   })
 })
 watch(() => online.value, detectEndStatus)

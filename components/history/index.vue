@@ -8,7 +8,7 @@ import { $historyManager, IHistoryStatus } from '~/composables/api/base/v1/aigc/
 import type { IChatConversation } from '~/composables/api/base/v1/aigc/completion-types'
 
 const props = defineProps<{
-  expand: boolean
+  // expand: boolean
   select: string
 }>()
 
@@ -22,7 +22,16 @@ function handleDelete(id: string) {
   emits('delete', id)
 }
 
-const { expand, select } = useVModels(props, emits)
+const { select } = useVModels(props, emits)
+
+const expand = computed({
+  set(val: boolean) {
+    userConfig.value.pri_info.appearance.expand = val
+  },
+  get() {
+    return userConfig.value.pri_info.appearance.expand
+  },
+})
 
 const categories = [
   {

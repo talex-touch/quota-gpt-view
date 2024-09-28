@@ -388,6 +388,6 @@ const features = reactive([
   text-align: center;
   transition: 0.25s;
   border-radius: 16px;
-  transform: translate(-50%, 0);
+  transform: translate(-50%, -50%);
 }
 </style>

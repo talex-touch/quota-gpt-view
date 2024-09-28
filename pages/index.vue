@@ -21,7 +21,6 @@ definePageMeta({
 const chatRef = ref()
 const initConversation = $completion.emptyHistory()
 const pageOptions = reactive<{
-  expand: boolean
   select: string
   template: any
   conversation: IChatConversation
@@ -35,7 +34,6 @@ const pageOptions = reactive<{
   feedback: {
     visible: false,
   },
-  expand: true,
   select: '',
   template: null,
   conversation: initConversation,
@@ -124,6 +122,10 @@ function handleCreate() {
 }
 
 async function innerSend(conversation: IChatConversation, chatItem: IChatItem, index: number) {
+  // 判断如果 conversation 是2条消息
+  if (userConfig.value.pri_info.appearance.immersive && conversation.messages.length <= 2)
+    userConfig.value.pri_info.appearance.expand = false
+
   conversation.sync = PersistStatus.MODIFIED
 
   const chatCompletion = $completion.createCompletion(conversation, chatItem, index)
@@ -258,10 +260,10 @@ onMounted(mounter)
 </script>
 
 <template>
-  <div :class="{ expand: pageOptions.expand, empty: !pageOptions.conversation.messages.length }" class="PageContainer">
+  <div :class="{ expand: userConfig.pri_info.appearance.expand, empty: !pageOptions.conversation.messages.length }" class="PageContainer">
     <History
-      v-model:select="pageOptions.select" v-model:expand="pageOptions.expand" class="PageContainer-History"
-      @create="handleCreate" @delete="handleDelete"
+      v-model:select="pageOptions.select" class="PageContainer-History" @create="handleCreate"
+      @delete="handleDelete"
     />
 
     <div class="PageContainer-Main">

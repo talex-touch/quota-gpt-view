@@ -77,6 +77,21 @@ const figurations = reactive({
       })
     },
   },
+  immersive: {
+    value: userConfig.value.pri_info.appearance.immersive,
+    click: () => {
+      userConfig.value.pri_info.appearance.immersive = !userConfig.value.pri_info.appearance.immersive
+
+      saveUserConfig()
+
+      ElMessage({
+        message: '修改成功！',
+        grouping: true,
+        type: 'success',
+        plain: true,
+      })
+    },
+  },
 })
 
 const pageOptions: any = inject('appOptions')!
@@ -118,6 +133,9 @@ function toSubscription() {
 
             <br>
 
+            <TemplateLineForm title="沉浸模式" desc="当启用对话时自动打开沉浸模式，更专注">
+              <el-switch v-model="figurations.immersive.value" @click="figurations.immersive.click" />
+            </TemplateLineForm>
             <TemplateLineForm title="光晕动画" desc="光晕动画让界面更流畅，但是会增加耗电量">
               <el-switch v-model="figurations.animation.value" @click="figurations.animation.click" />
             </TemplateLineForm>

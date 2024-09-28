@@ -5,6 +5,11 @@ const route = useRoute()
 const router = useRouter()
 
 async function push(path: string) {
+  if (path === route.path) {
+    if (path === '/')
+      userConfig.value.pri_info.appearance.expand = true
+  }
+
   await router.push(path)
   await router.push(path)
 }
