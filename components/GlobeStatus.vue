@@ -17,7 +17,22 @@ async function detectEndStatus() {
   status.value = res?.data?.message === 'OK'
 }
 
-onMounted(detectEndStatus)
+let lastSave = ''
+
+onMounted(() => {
+  detectEndStatus()
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden' && userStore.value.isLogin) {
+      const obj = JSON.stringify(userStore.value)
+
+      if (obj !== lastSave) {
+        lastSave = obj
+        saveUserConfig()
+      }
+    }
+  })
+})
 watch(() => online.value, detectEndStatus)
 </script>
 

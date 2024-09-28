@@ -25,10 +25,10 @@ const obj = computed(() => JSON.parse(props.value))
     gap: 0.5rem;
 
     .key {
-      color: #000;
+      color: var(--el-text-color-secondary);
     }
     .value {
-      color: #aaa;
+      color: var(--el-text-color-primary);
     }
   }
   position: relative;

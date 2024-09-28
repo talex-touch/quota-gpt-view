@@ -143,60 +143,6 @@ const timeCost = computed(() => {
 </template>
 
 <style lang="scss" scoped>
-.Tool-Inner {
-  position: relative;
-
-  max-width: 100%;
-  max-height: 100%;
-
-  overflow: hidden;
-}
-
-.Tool-Header-Status {
-  .done & {
-    :deep(.loader) {
-      transform: scale(0);
-    }
-
-    ._dot {
-      opacity: 1;
-    }
-  }
-  ._dot {
-    position: absolute;
-
-    top: 50%;
-    left: 50%;
-
-    width: 10px;
-    height: 10px;
-
-    opacity: 0;
-    transition: 0.25s;
-    border-radius: 50%;
-    filter: brightness(90%);
-    transform: translate(-50%, -50%);
-    background-color: var(--el-color-success);
-  }
-  position: relative;
-  display: flex;
-
-  width: 40px;
-
-  align-items: center;
-}
-
-.Tool-Header {
-  :deep(.loader) {
-    transition: 0.25s;
-    transform: scale(0.75);
-  }
-  display: flex;
-
-  gap: 0.5rem;
-  align-items: center;
-}
-
 .QuotaVeTool {
   position: relative;
 

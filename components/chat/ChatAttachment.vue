@@ -16,7 +16,7 @@ const props = defineProps<{
 const typeMapper: Record<string, {
   icon: string
   comp: Component
-  getTitle?: (block: IInnerItemMeta) => string
+  query?: any
 }> = {
   // weather_result: WeatherResult,
   // Calculator: CalculatorResult,
@@ -31,16 +31,12 @@ const typeMapper: Record<string, {
   QuotaSearchVideosAPI: {
     icon: 'i-carbon:search',
     comp: QuotaSearchResult,
-    getTitle(block: IInnerItemMeta) {
-      return `${block.data} 相关视频`
-    },
+    query: computed(() => `${props.block.data} 相关视频`),
   },
   QuotaDateAPI: {
     icon: 'i-carbon:time',
     comp: QuotaDateResult,
-    getTitle() {
-      return '获取时间'
-    },
+    query: computed(() => '获取时间'),
   },
 }
 
@@ -56,10 +52,8 @@ async function handleSizable(expand: boolean) {
 
   const collapseDom = mainDom.querySelector('.QueryCollapse')
 
-  if (!collapseDom) {
-    nextTick(() => handleSizable(expand))
+  if (!collapseDom)
     return
-  }
 
   if (expand) {
     // const headerDom = collapseDom.querySelector('.QueryCollapse-Header')
@@ -84,7 +78,7 @@ async function handleSizable(expand: boolean) {
   }
 }
 
-const debounceHandleSizable = useDebounceFn(handleSizable, 200)
+// const debounceHandleSizable = useDebounceFn(handleSizable, 200)
 
 // lazy watch => block
 watchEffect(() => {
@@ -96,28 +90,49 @@ watchEffect(() => {
     handleSizable(!block.extra?.end)
   }, 1000)
 })
+const timeCost = computed(() => {
+  const start = props.block.extra?.start || -1
+  const end = props.block.extra?.end || -1
+
+  if (start === -1 || end === -1)
+    return ''
+
+  return `Costs: ${((end - start) / 1000).toFixed(2)}s`
+})
 </script>
 
 <template>
-  <div ref="container" class="ChatAttachment fake-background">
+  <div ref="container" :class="{ done: block.extra?.end }" class="ChatAttachment fake-background">
     <template v-if="block?.name === 'Quota_VE_Tool'">
       <QuotaVeTool :block="block" @expand="handleSizable" />
     </template>
-    <template v-else-if="curType">
-      <template v-if="!block.extra?.end">
-        <i block :class="curType.icon" />
-        <OtherTextShaving :text="block.data || '思考中'" />
-      </template>
-      <template v-else>
-        <ChatQueryCollapse @expand="handleSizable">
-          <template #Header>
-            <i block :class="curType.icon" />
-            {{ curType.getTitle?.(block) || block.data || '-' }}
-          </template>
-          <component :is="curType.comp" :value="block.value" :data="block.data" />
-        </ChatQueryCollapse>
-      </template>
-    </template>
+    <div v-else-if="curType" relative transition>
+      <ChatQueryCollapse @expand="handleSizable">
+        <template #Header>
+          <div class="Tool-Header">
+            <div class="Tool-Header-Icon">
+              <div :class="curType.icon" />
+            </div>
+            <OtherTextShaving v-if="curType.query && !block.extra?.end" :text="curType.query" />
+            <p v-else>
+              {{ curType.query || block.data }}
+            </p>
+            <div class="Tool-Header-Status">
+              <IconCircleLoader class="Loader" />
+              <el-tooltip placement="top" :content="timeCost">
+                <div class="_dot" />
+              </el-tooltip>
+            </div>
+          </div>
+        </template>
+
+        <div class="Tool-Inner">
+          <el-scrollbar>
+            <component :is="curType.comp" :value="block.value" :data="block.data" />
+          </el-scrollbar>
+        </div>
+      </ChatQueryCollapse>
+    </div>
     <template v-else>
       <OtherTextShaving text="无法获取对应数据" />
       {{ block }}
@@ -126,6 +141,63 @@ watchEffect(() => {
 </template>
 
 <style lang="scss">
+.Tool-Inner {
+  position: relative;
+
+  max-width: 100%;
+  max-height: 100%;
+
+  overflow: hidden;
+}
+
+.Tool-Header-Status {
+  .done & {
+    .Loader {
+      transform: scale(0);
+    }
+
+    ._dot {
+      opacity: 1;
+    }
+  }
+
+  ._dot {
+    position: absolute;
+
+    top: 50%;
+    left: 50%;
+
+    width: 10px;
+    height: 10px;
+
+    opacity: 0;
+    transition: 0.25s;
+    border-radius: 50%;
+    filter: brightness(90%);
+    transform: translate(-50%, -50%);
+    background-color: var(--el-color-success);
+  }
+
+  position: relative;
+  display: flex;
+
+  width: 40px;
+
+  align-items: center;
+}
+
+.Tool-Header {
+  .Loader {
+    transition: 0.25s;
+    transform: scale(0.75);
+  }
+
+  display: flex;
+
+  gap: 0.5rem;
+  align-items: center;
+}
+
 .ChatAttachment {
   position: relative;
   display: flex;

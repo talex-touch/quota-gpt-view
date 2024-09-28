@@ -119,6 +119,9 @@ export function genAxios(options: CreateAxiosDefaults) {
       if (res.response.data.code === 429)
         return ElMessage.error(res.response.data.message)
 
+      if (res.response.data.code === 1101)
+        return timeoutLogout()
+
       if (res.response.data?.code === 401 && userStore.value.isLogin) {
         // refresh
         const { config } = res

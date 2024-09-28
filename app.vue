@@ -34,11 +34,6 @@ globalOptions.setEndsUrl(globalOptionsStore.value.url)
 const router = useRouter()
 
 onMounted(async () => {
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden')
-      userStore.value.isLogin && saveUserConfig()
-  })
-
   if (window.h5sdk)
     feishuInit(router)
 
