@@ -69,6 +69,12 @@ const tableData = [
     ultimate: true,
   },
   {
+    id: '自定义墙纸',
+    free: 'Zakaria',
+    standard: '全部',
+    ultimate: '全部',
+  },
+  {
     id: '高级数据分析',
     info: '高级数据分析正在制作中，敬请期待',
     free: false,

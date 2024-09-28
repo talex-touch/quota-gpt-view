@@ -36,7 +36,7 @@ const router = useRouter()
 onMounted(async () => {
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden')
-      saveUserConfig()
+      userStore.value.isLogin && saveUserConfig()
   })
 
   if (window.h5sdk)
@@ -45,14 +45,10 @@ onMounted(async () => {
   detectWallpaper()
   // useDeviceAdapter()
 
-  await refreshCurrentUserRPM()
-  await refreshUserSubscription()
-
-  watch(() => userStore.value.subscription, (plan) => {
-    document.body.classList.remove('ULTIMATE', 'STANDARD', 'DEV')
-    if (plan)
-      document.body.classList.add(plan.type)
-  }, { immediate: true })
+  if (userStore.value.isLogin) {
+    await refreshCurrentUserRPM()
+    await refreshUserSubscription()
+  }
 })
 
 router.afterEach(() => {

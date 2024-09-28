@@ -93,6 +93,15 @@ export async function saveUserConfig() {
 
 $event.on('USER_LOGIN_SUCCESS', async () => {
   console.log('login success', userConfig)
+
+  const plan = userStore.value.subscription
+
+  if (plan)
+    document.body.classList.add(plan.type)
+})
+
+$event.on('USER_LOGOUT_SUCCESS', () => {
+  document.body.classList.remove('ULTIMATE', 'STANDARD', 'DEV')
 })
 
 export async function $handleUserLogin(token: { accessToken: string, refreshToken: string }) {
