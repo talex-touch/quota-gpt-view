@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import * as Sentry from '@sentry/vue'
 import { $endApi } from '~/composables/api/base'
 
 const online = useOnline()
 const status = ref(true)
+const router: any = useRouter()
 
 // 检测后端接口 如果无法使用则直接提示
 async function detectEndStatus() {
@@ -37,6 +39,27 @@ function saveConfig() {
 }
 
 onMounted(() => {
+  if (!import.meta.env.DEV) {
+    Sentry.init({
+      app: getCurrentInstance()!.appContext.app,
+      dsn: 'https://6e718ca36ad94840c7b0539a57144a67@o4508024637620224.ingest.us.sentry.io/4508024640438272',
+      integrations: [
+        Sentry.browserTracingIntegration({ router }),
+        Sentry.replayIntegration(),
+      ],
+      // Tracing
+      tracesSampleRate: 1.0, //  Capture 100% of the transactions
+      // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
+      tracePropagationTargets: ['localhost', /^https:\/\/yourserver\.io\/api/],
+      // Session Replay
+      replaysSessionSampleRate: 0.1,
+      replaysOnErrorSampleRate: 1.0,
+    })
+
+    // eslint-disable-next-line no-console
+    console.log('Monitor Injected!')
+  }
+
   detectEndStatus()
 
   /* const { pause, resume, isActive } =  */useIntervalFn(saveUserConfig, 15000)

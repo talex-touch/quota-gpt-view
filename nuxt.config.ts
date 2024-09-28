@@ -1,3 +1,4 @@
+import { sentryVitePlugin } from "@sentry/vite-plugin";
 import { pwa } from './config/pwa'
 import { appDescription } from './constants/index'
 
@@ -103,4 +104,13 @@ export default defineNuxtConfig({
       standalone: false,
     },
   },
+
+  build: {
+    sourcemap: true
+  },
+
+  plugins: [sentryVitePlugin({
+    org: "quotawish",
+    project: "javascript-vue"
+  })]
 })

@@ -71,6 +71,9 @@ importers:
       '@prosemirror-adapter/vue':
         specifier: ^0.2.6
         version: 0.2.6(vue@3.4.27(typescript@5.4.5))
+      '@sentry/vite-plugin':
+        specifier: ^2.22.4
+        version: 2.22.4(encoding@0.1.13)
       '@sentry/vue':
         specifier: ^8.32.0
         version: 8.32.0(vue@3.4.27(typescript@5.4.5))
@@ -2206,9 +2209,63 @@ packages:
     resolution: {integrity: sha512-yiEUnn2yyo1AIQIFNeRX3tdK8fmyKIkxdFS1WiVQmeYI/hFwYBTZPly0FcO/g3xnRMSA2tvrS+hZEaaXfK4WhA==}
     engines: {node: '>=14.18'}
 
+  '@sentry/babel-plugin-component-annotate@2.22.4':
+    resolution: {integrity: sha512-hbSq067KwmeKIEkmyzkTNJbmbtx2KRqvpiy9Q/DynI5Z46Nko/ppvgIfyFXK9DelwvEPOqZic4WXTIhO4iv3DA==}
+    engines: {node: '>= 14'}
+
   '@sentry/browser@8.32.0':
     resolution: {integrity: sha512-AEKFj64g4iYwEMRvVcxiY0FswmClRXCP1IEvCqujn8OBS8AjMOr1z/RwYieEs0D90yNNB3YEqF8adrKENblJmw==}
     engines: {node: '>=14.18'}
+
+  '@sentry/bundler-plugin-core@2.22.4':
+    resolution: {integrity: sha512-25NiyV3v6mdqOXlpzbbJnq0FHdAu1uTEDr+DU8CzNLjIXlq2Sr2CFZ/mhRcR6daM8OAretJdQ34lu0yHUVeE4Q==}
+    engines: {node: '>= 14'}
+
+  '@sentry/cli-darwin@2.36.3':
+    resolution: {integrity: sha512-U0Uean/tW99G5Ma3CjNDXg5bjd4Tmf91Sd/9JKK6dGcEsrWiQpn7ao70kkHy/fwMbeOWE37L7O+NPf86CxHzGA==}
+    engines: {node: '>=10'}
+    os: [darwin]
+
+  '@sentry/cli-linux-arm64@2.36.3':
+    resolution: {integrity: sha512-bNr9GUYsn+VcK09FjE+llvxUwtPFAva6FMIcYiAKi6iY3wdmtaOou0Mtkd9dQXkxONAZ0T113x/WQANKBjl4+A==}
+    engines: {node: '>=10'}
+    cpu: [arm64]
+    os: [linux, freebsd]
+
+  '@sentry/cli-linux-arm@2.36.3':
+    resolution: {integrity: sha512-Kq8+TG/p/j0GLlJVxnLguAGcp3EqrU4msl4K+7g+6JYnOPLVbUzwZ6ah2WVGtWqlZ3QMFgeeXc7VgPY8KXViqw==}
+    engines: {node: '>=10'}
+    cpu: [arm]
+    os: [linux, freebsd]
+
+  '@sentry/cli-linux-i686@2.36.3':
+    resolution: {integrity: sha512-5J5lOzZgvhcjbtuw/JD7jMq1liNbtYXvEuSd+qZa7D8i+Va5cFF8fQui3eev2RxqeYLLwkJWE/djLjeWjMZ7jQ==}
+    engines: {node: '>=10'}
+    cpu: [x86, ia32]
+    os: [linux, freebsd]
+
+  '@sentry/cli-linux-x64@2.36.3':
+    resolution: {integrity: sha512-48pyk93yRiQ7x7ABobYupVfGg1f/vUrBZG7CcaIsDiQL66/kIRjYoh7d7kH8Da/x/LKMiVf/i8/rh2Vr1pcSEw==}
+    engines: {node: '>=10'}
+    cpu: [x64]
+    os: [linux, freebsd]
+
+  '@sentry/cli-win32-i686@2.36.3':
+    resolution: {integrity: sha512-IEuTCeQjgffvBjDGVYV9d2uWBzmFGmwWIyWUTEMjy76tRnIz0MJaW59Lxd7JdTd1s9xO1F2K7Iz+zxd/kufMRg==}
+    engines: {node: '>=10'}
+    cpu: [x86, ia32]
+    os: [win32]
+
+  '@sentry/cli-win32-x64@2.36.3':
+    resolution: {integrity: sha512-ygJLd3nazoNcDMJu1sl8xoSWmmjeBJMMUH6MnDhtQdM9T2j+ndqfL0fZZNO0/kyMv0Bo7/n5kRmKiX2m9Dsi/g==}
+    engines: {node: '>=10'}
+    cpu: [x64]
+    os: [win32]
+
+  '@sentry/cli@2.36.3':
+    resolution: {integrity: sha512-sbJpeUByP3b6Xif21lben+4EqGYI/rCTfkPKxBk2FsHX7ISMkVOBw+4/WwELIfIINV2S/XM29jkUG6Bd7axJlA==}
+    engines: {node: '>= 10'}
+    hasBin: true
 
   '@sentry/core@8.32.0':
     resolution: {integrity: sha512-+xidTr0lZ0c755tq4k75dXPEb8PA+qvIefW3U9+dQMORLokBrYoKYMf5zZTG2k/OfSJS6OSxatUj36NFuCs3aA==}
@@ -2221,6 +2278,10 @@ packages:
   '@sentry/utils@8.32.0':
     resolution: {integrity: sha512-t1WVERhgmYURxbBj9J4/H2P2X+VKqm7B3ce9iQyrZbdf5NekhcU4jHIecPUWCPHjQkFIqkVTorqeBmDTlg/UmQ==}
     engines: {node: '>=14.18'}
+
+  '@sentry/vite-plugin@2.22.4':
+    resolution: {integrity: sha512-C51PUlTv0BXN3+e9SjPHptNX3b9E0clrsaR5c//l/sFkQjuteDHKChA1gNzZSvfoa3gm9NzZAgpk3hVF2O3nBA==}
+    engines: {node: '>= 14'}
 
   '@sentry/vue@8.32.0':
     resolution: {integrity: sha512-56cF0lHKhzjBuErU1Bo7rSTyWFAudrStpp7smIAtGBURS2Q0pDPnx1PAmV36IXfuMcClGVFBHiGB1zZWZ46W3w==}
@@ -4409,6 +4470,10 @@ packages:
     resolution: {integrity: sha512-r8hpEjiQEYlF2QU0df3dS+nxxSIreXQS1qRhMJM0Q5NDdR386C7jb7Hwwod8Fgiuex+k0GFjgft18yvxm5XoCQ==}
     engines: {node: '>=12'}
 
+  glob@9.3.5:
+    resolution: {integrity: sha512-e1LleDykUz2Iu+MTYdkSsuWX8lvAjAcs0Xef0lNIu0S2wOAzuTxCJtcd9S3cijlwYF18EsU3rzb8jPVobxDh9Q==}
+    engines: {node: '>=16 || 14 >=14.17'}
+
   global-directory@4.0.1:
     resolution: {integrity: sha512-wHTUcDUoZ1H5/0iVqEudYW4/kAlN5cZ3j/bXn0Dpbizl9iaUVeWSHqiOjsgk6OW2bkLclbBjzewBz6weQ1zA2Q==}
     engines: {node: '>=18'}
@@ -5100,6 +5165,10 @@ packages:
   magic-string@0.30.11:
     resolution: {integrity: sha512-+Wri9p0QHMy+545hKww7YAu5NyzF8iomPL/RQazugQ9+Ez4Ic3mERMd8ZTX5rfK944j+560ZJi8iAwgak1Ac7A==}
 
+  magic-string@0.30.8:
+    resolution: {integrity: sha512-ISQTe55T2ao7XtlAStud6qwYPZjE4GK1S/BeVPus4jrq6JuOnQ00YKQC581RWhR122W7msZV263KzVeLoqidyQ==}
+    engines: {node: '>=12'}
+
   magicast@0.3.4:
     resolution: {integrity: sha512-TyDF/Pn36bBji9rWKHlZe+PZb6Mx5V8IHCSxk7X4aljM4e/vyDvZZYwHewdVaqiA0nb3ghfHU/6AUpDxWoER2Q==}
 
@@ -5383,6 +5452,10 @@ packages:
     resolution: {integrity: sha512-lKwV/1brpG6mBUFHtb7NUmtABCb2WZZmm2wNiOA5hAb8VdCS4B3dtMWyvcoViccwAW/COERjXLt0zP1zXUN26g==}
     engines: {node: '>=10'}
 
+  minimatch@8.0.4:
+    resolution: {integrity: sha512-W0Wvr9HyFXZRGIDgCicunpQ299OKXs9RgZfaukz4qAW/pJhcpUfupc9c+OObPOFueNy8VSrZgEmDtk6Kh4WzDA==}
+    engines: {node: '>=16 || 14 >=14.17'}
+
   minimatch@9.0.4:
     resolution: {integrity: sha512-KqWh+VchfxcMNRAJjj2tnsSJdNbHsVgnkBhTNrW7AjVo6OvLtxw8zfT9oLw1JSohlFzJ8jCoTgaoXvJ+kHt6fw==}
     engines: {node: '>=16 || 14 >=14.17'}
@@ -5412,6 +5485,10 @@ packages:
 
   minipass@3.3.6:
     resolution: {integrity: sha512-DxiNidxSEK+tHG6zOIklvNOwm3hvCrbUrdtzY74U6HKTJxvIDfOUL5W5P2Ghd3DTkhhKPYGqeNUIh5qcM4YBfw==}
+    engines: {node: '>=8'}
+
+  minipass@4.2.8:
+    resolution: {integrity: sha512-fNzuVyifolSLFL4NzpF+wEF4qrgqaaKX0haXPQEdQ7NKAN+WecoKMHV09YcuL/DHxrUsYQOK3MiuDf7Ip2OXfQ==}
     engines: {node: '>=8'}
 
   minipass@5.0.0:
@@ -6074,6 +6151,10 @@ packages:
   process@0.11.10:
     resolution: {integrity: sha512-cdGef/drWFoydD1JsMzuFf8100nZl+GT+yacc2bEced5f9Rjk4z+WtFUTBu9PhOi9j/jfmBPu0mMEY4wIdAF8A==}
     engines: {node: '>= 0.6.0'}
+
+  progress@2.0.3:
+    resolution: {integrity: sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==}
+    engines: {node: '>=0.4.0'}
 
   promise-inflight@1.0.1:
     resolution: {integrity: sha512-6zWPyEOFaQBJYcGMHBKTKJ3u6TBsnMFOIZSa6ce1e/ZrrsOlnHRHbabMjLiBYKp+n44X9eUI6VUPaukCXHuG4g==}
@@ -6991,6 +7072,9 @@ packages:
       vue-router:
         optional: true
 
+  unplugin@1.0.1:
+    resolution: {integrity: sha512-aqrHaVBWW1JVKBHmGo33T5TxeL0qWzfvjWokObHA9bYmN7eNDkwOxmLjhioHl9878qDFMAaT51XNroRyuz7WxA==}
+
   unplugin@1.10.1:
     resolution: {integrity: sha512-d6Mhq8RJeGA8UfKCu54Um4lFA0eSaRa3XxdAJg8tIdxbu1ubW0hBCZUL7yI2uGyYCRndvbK8FLHzqy2XKfeMsg==}
     engines: {node: '>=14.0.0'}
@@ -7384,6 +7468,9 @@ packages:
   webpack-sources@3.2.3:
     resolution: {integrity: sha512-/DyMEOrDgLKKIG0fmvtz+4dUX/3Ghozwgm6iPp8KRhvn+eQf9+Q7GWxVNMk3+uCPWfdXYC4ExGBckIXdFEfH1w==}
     engines: {node: '>=10.13.0'}
+
+  webpack-virtual-modules@0.5.0:
+    resolution: {integrity: sha512-kyDivFZ7ZM0BVOUteVbDFhlRt7Ah/CSPwJdi8hBpkK7QLumUqdLtVfm/PX/hkcnrvr0i77fO5+TjZ94Pe+C9iw==}
 
   webpack-virtual-modules@0.6.1:
     resolution: {integrity: sha512-poXpCylU7ExuvZK8z+On3kX+S8o/2dQ/SVYueKA0D4WEMXROXgY8Ez50/bQEUmvoSMMrWcrJqCHuhAbsiwg7Dg==}
@@ -10133,6 +10220,8 @@ snapshots:
       '@sentry/types': 8.32.0
       '@sentry/utils': 8.32.0
 
+  '@sentry/babel-plugin-component-annotate@2.22.4': {}
+
   '@sentry/browser@8.32.0':
     dependencies:
       '@sentry-internal/browser-utils': 8.32.0
@@ -10142,6 +10231,60 @@ snapshots:
       '@sentry/core': 8.32.0
       '@sentry/types': 8.32.0
       '@sentry/utils': 8.32.0
+
+  '@sentry/bundler-plugin-core@2.22.4(encoding@0.1.13)':
+    dependencies:
+      '@babel/core': 7.25.2
+      '@sentry/babel-plugin-component-annotate': 2.22.4
+      '@sentry/cli': 2.36.3(encoding@0.1.13)
+      dotenv: 16.4.5
+      find-up: 5.0.0
+      glob: 9.3.5
+      magic-string: 0.30.8
+      unplugin: 1.0.1
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+
+  '@sentry/cli-darwin@2.36.3':
+    optional: true
+
+  '@sentry/cli-linux-arm64@2.36.3':
+    optional: true
+
+  '@sentry/cli-linux-arm@2.36.3':
+    optional: true
+
+  '@sentry/cli-linux-i686@2.36.3':
+    optional: true
+
+  '@sentry/cli-linux-x64@2.36.3':
+    optional: true
+
+  '@sentry/cli-win32-i686@2.36.3':
+    optional: true
+
+  '@sentry/cli-win32-x64@2.36.3':
+    optional: true
+
+  '@sentry/cli@2.36.3(encoding@0.1.13)':
+    dependencies:
+      https-proxy-agent: 5.0.1
+      node-fetch: 2.7.0(encoding@0.1.13)
+      progress: 2.0.3
+      proxy-from-env: 1.1.0
+      which: 2.0.2
+    optionalDependencies:
+      '@sentry/cli-darwin': 2.36.3
+      '@sentry/cli-linux-arm': 2.36.3
+      '@sentry/cli-linux-arm64': 2.36.3
+      '@sentry/cli-linux-i686': 2.36.3
+      '@sentry/cli-linux-x64': 2.36.3
+      '@sentry/cli-win32-i686': 2.36.3
+      '@sentry/cli-win32-x64': 2.36.3
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
 
   '@sentry/core@8.32.0':
     dependencies:
@@ -10153,6 +10296,14 @@ snapshots:
   '@sentry/utils@8.32.0':
     dependencies:
       '@sentry/types': 8.32.0
+
+  '@sentry/vite-plugin@2.22.4(encoding@0.1.13)':
+    dependencies:
+      '@sentry/bundler-plugin-core': 2.22.4(encoding@0.1.13)
+      unplugin: 1.0.1
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
 
   '@sentry/vue@8.32.0(vue@3.4.27(typescript@5.4.5))':
     dependencies:
@@ -12952,6 +13103,13 @@ snapshots:
       minimatch: 5.1.6
       once: 1.4.0
 
+  glob@9.3.5:
+    dependencies:
+      fs.realpath: 1.0.0
+      minimatch: 8.0.4
+      minipass: 4.2.8
+      path-scurry: 1.11.0
+
   global-directory@4.0.1:
     dependencies:
       ini: 4.1.1
@@ -13599,6 +13757,10 @@ snapshots:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.0
 
+  magic-string@0.30.8:
+    dependencies:
+      '@jridgewell/sourcemap-codec': 1.5.0
+
   magicast@0.3.4:
     dependencies:
       '@babel/parser': 7.24.5
@@ -14187,6 +14349,10 @@ snapshots:
     dependencies:
       brace-expansion: 2.0.1
 
+  minimatch@8.0.4:
+    dependencies:
+      brace-expansion: 2.0.1
+
   minimatch@9.0.4:
     dependencies:
       brace-expansion: 2.0.1
@@ -14223,6 +14389,8 @@ snapshots:
   minipass@3.3.6:
     dependencies:
       yallist: 4.0.0
+
+  minipass@4.2.8: {}
 
   minipass@5.0.0: {}
 
@@ -15061,6 +15229,8 @@ snapshots:
   process-nextick-args@2.0.1: {}
 
   process@0.11.10: {}
+
+  progress@2.0.3: {}
 
   promise-inflight@1.0.1: {}
 
@@ -16207,6 +16377,13 @@ snapshots:
       - rollup
       - vue
 
+  unplugin@1.0.1:
+    dependencies:
+      acorn: 8.12.1
+      chokidar: 3.6.0
+      webpack-sources: 3.2.3
+      webpack-virtual-modules: 0.5.0
+
   unplugin@1.10.1:
     dependencies:
       acorn: 8.11.3
@@ -16226,7 +16403,6 @@ snapshots:
       acorn: 8.12.1
       webpack-sources: 3.2.3
       webpack-virtual-modules: 0.6.2
-    optional: true
 
   unstorage@1.10.2(ioredis@5.4.1):
     dependencies:
@@ -16270,7 +16446,7 @@ snapshots:
       mlly: 1.7.0
       pathe: 1.1.2
       pkg-types: 1.1.1
-      unplugin: 1.10.1
+      unplugin: 1.12.3
 
   upath@1.2.0: {}
 
@@ -16610,6 +16786,8 @@ snapshots:
   webidl-conversions@4.0.2: {}
 
   webpack-sources@3.2.3: {}
+
+  webpack-virtual-modules@0.5.0: {}
 
   webpack-virtual-modules@0.6.1: {}
 

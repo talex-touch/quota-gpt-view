@@ -10,3 +10,6 @@ dist
 .vscode/settings.json
 .vscode/extensions.json
 constants/index.ts
+
+# Sentry Config File
+.env.sentry-build-plugin
