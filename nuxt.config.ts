@@ -1,8 +1,14 @@
-import { sentryVitePlugin } from "@sentry/vite-plugin";
+import { sentryVitePlugin } from '@sentry/vite-plugin'
 import { pwa } from './config/pwa'
 import { appDescription } from './constants/index'
 
 export default defineNuxtConfig({
+  // plugins: [sentryVitePlugin({
+  //   org: 'quotawish',
+  //   project: 'javascript-vue',
+  //   src: ''
+  // })],
+
   modules: [
     '@element-plus/nuxt',
     '@vueuse/nuxt',
@@ -13,6 +19,7 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     'v-wave/nuxt',
     'nuxt-echarts',
+    // '@sentry/nuxt/module',
     ['vite-plugin-version-date-mark/nuxt', {
       name: 'THISAI',
       ifShortSHA: true,
@@ -105,12 +112,8 @@ export default defineNuxtConfig({
     },
   },
 
-  build: {
-    sourcemap: true
+  sourcemap: {
+    server: true,
+    client: 'hidden',
   },
-
-  plugins: [sentryVitePlugin({
-    org: "quotawish",
-    project: "javascript-vue"
-  })]
 })
