@@ -21,7 +21,11 @@
       //   margin: 1rem 0;
       // }
 
-      ul {
+      p > img {
+        background-color: #fff;
+      }
+
+      ul ul {
         li {
           p {
             &::before {

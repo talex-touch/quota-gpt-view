@@ -330,20 +330,6 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
 }
 
 .ChatItem-Wrapper {
-  .ChatItem-AgentList {
-    margin-bottom: 10px;
-  }
-
-  .ChatItem-Agent {
-    position: relative;
-    padding-left: 1rem;
-
-    top: 0;
-
-    opacity: 1;
-    transition: 0.25s;
-  }
-
   .ChatItem-Content-Inner {
     pre {
       margin: 0;
@@ -377,7 +363,7 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
     }
 
     position: relative;
-    margin-top: -2px;
+    margin-top: 16px;
 
     top: 0;
     right: 0;
