@@ -1,6 +1,9 @@
 <script setup lang="ts">
-import { useNodeViewContext } from '@prosemirror-adapter/vue'
-import clsx from 'clsx'
+import hljs from 'highlight.js'
+import 'highlight.js/styles/github.css'
+
+// import 'highlight.js/styles/vs2015.css'
+const props = defineProps(['node', 'selected'])
 
 const langs = [
   'text',
@@ -12,12 +15,10 @@ const langs = [
   'markdown',
 ]
 
-const { contentRef, selected, node } = useNodeViewContext()
-
 const did = ref(false)
 
 function handleCopy() {
-  navigator.clipboard.writeText(node.value.textContent)
+  navigator.clipboard.writeText(props.node.textContent)
 
   did.value = true
 
@@ -26,7 +27,19 @@ function handleCopy() {
   }, 1000)
 }
 
-const lang = computed(() => node.value.attrs.language)
+const lang = computed(() => props.node.attrs.language)
+const pre = ref()
+watch(() => props.node.textContent, (code) => {
+  nextTick(() => {
+    // console.log('a', props.node.textContent)
+
+    const res = hljs.highlight(code, {
+      language: lang.value,
+    })
+
+    pre.value.innerHTML = res.value
+  })
+}, { immediate: true })
 </script>
 
 <template>
@@ -43,7 +56,7 @@ const lang = computed(() => node.value.attrs.language)
       </div>
     </div>
     <div class="EditorCode-Content">
-      <pre :spellcheck="false"><code :ref="contentRef" /></pre>
+      <pre ref="pre" :spellcheck="false"><code /></pre>
     </div>
   </div>
 </template>
@@ -68,8 +81,8 @@ const lang = computed(() => node.value.attrs.language)
     width: 100%;
     height: 40px;
 
-    border-radius: 10px;
-    background-color: var(--el-bg-color-overlay);
+    border-radius: 10px 10px 0 0;
+    background-color: var(--el-bg-color-page);
   }
 
   &-Content {
@@ -80,7 +93,7 @@ const lang = computed(() => node.value.attrs.language)
     padding: 0.5rem 1rem;
 
     border-radius: 0 0 10px 10px;
-    background-color: var(--el-bg-color);
+    background-color: var(--el-fill-color-lighter);
   }
 
   display: flex;

@@ -1,10 +1,9 @@
 <script setup>
 import html2canvas from 'html2canvas'
-import mermaid from 'mermaid'
+import abcjs from 'abcjs'
+import 'abcjs/abcjs-audio.css'
 
 const props = defineProps(['node'])
-
-mermaid.initialize({ startOnLoad: false })
 
 const loading = ref(false)
 const innerRef = ref()
@@ -15,11 +14,10 @@ onMounted(() => {
   watchEffect(async () => {
     loading.value = true
 
-    const res = await mermaid.render(`mermaid-${props.node.attrs.language}`, props.node.textContent, innerDom)
-
-    innerDom.innerHTML = res.svg
-
-    loading.value = false
+    abcjs.renderAbc(innerDom, props.node.textContent, {
+      afterParsing: () => loading.value = false,
+      responsive: 'resize',
+    })
   })
 })
 
@@ -31,7 +29,7 @@ async function download() {
   const url = canvas.toDataURL('image/png')
 
   const a = document.createElement('a')
-  a.download = 'pic.png'
+  a.download = 'score.png'
   a.href = url
   a.click()
 
@@ -42,20 +40,20 @@ async function download() {
 </script>
 
 <template>
-  <div v-loader="loading" class="EditorCharts">
-    <div class="EditorCharts-Inner">
-      <div ref="innerRef" class="EditorCharts-Inner" />
+  <div v-loader="loading" class="EditorAbc">
+    <div class="EditorAbc-Inner">
+      <div ref="innerRef" class="EditorAbc-Inner" />
 
-      <div class="EditorCharts-TextWaterMark">
+      <div class="EditorAbc-TextWaterMark">
         ThisAI
       </div>
 
-      <div class="EditorCharts-WaterMark">
+      <div class="EditorAbc-WaterMark">
         <img src="/logo.svg">
       </div>
     </div>
 
-    <div class="EditorCharts-Toolbar transition-cubic fake-background">
+    <div class="EditorAbc-Toolbar transition-cubic fake-background">
       <div i-carbon:download @click="download" />
       <!-- <div i-carbon:reset @click="mm.fit()" /> -->
     </div>
@@ -63,7 +61,7 @@ async function download() {
 </template>
 
 <style lang="scss">
-.EditorCharts-TextWaterMark {
+.EditorAbc-TextWaterMark {
   z-index: 0;
   position: absolute;
 
@@ -81,7 +79,7 @@ async function download() {
   pointer-events: none;
 }
 
-.EditorCharts-WaterMark {
+.EditorAbc-WaterMark {
   z-index: 1;
   position: absolute;
 
@@ -96,9 +94,9 @@ async function download() {
   pointer-events: none;
 }
 
-.EditorCharts {
+.EditorAbc {
   &:hover {
-    .EditorCharts-Toolbar {
+    .EditorAbc-Toolbar {
       opacity: 1;
     }
   }
@@ -133,6 +131,7 @@ async function download() {
     height: 100%;
 
     color: var(--el-text-color-primary);
+    background-color: var(--el-fill-color);
   }
 
   &-Inner {
@@ -142,21 +141,17 @@ async function download() {
 
     position: relative;
 
-    height: auto;
     min-width: 20vw;
-    min-height: 70vh;
+    min-height: 24vh;
 
     cursor: grab;
-    overflow: hidden;
-    border-radius: 12px;
   }
 
   position: relative;
   padding: 0.5rem;
 
-  height: auto;
   min-width: 20vw;
-  // min-height: 70vh;
+  min-height: 24vh;
 
   overflow: hidden;
   border-radius: 12px;

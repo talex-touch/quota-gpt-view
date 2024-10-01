@@ -83,6 +83,9 @@ importers:
       '@yeger/vue-masonry-wall':
         specifier: ^5.0.15
         version: 5.0.15(vue@3.4.27(typescript@5.4.5))
+      abcjs:
+        specifier: ^6.4.3
+        version: 6.4.3
       axios:
         specifier: ^1.7.2
         version: 1.7.2
@@ -104,6 +107,9 @@ importers:
       gsap:
         specifier: ^3.12.5
         version: 3.12.5
+      highlight.js:
+        specifier: ^11.10.0
+        version: 11.10.0
       html2canvas:
         specifier: ^1.4.1
         version: 1.4.1
@@ -3394,6 +3400,9 @@ packages:
   abbrev@2.0.0:
     resolution: {integrity: sha512-6/mh1E2u2YgEsCHdY0Yx5oW+61gZU+1vXaoiHHrpKeuRNNgFvS+/jrwHiQhB5apAf5oB7UB7E19ol2R2LKH8hQ==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
+
+  abcjs@6.4.3:
+    resolution: {integrity: sha512-v13JdLTuTjWrShIXSWv92SL4/DeXPDl43nWimHBSSPkjDAFmXzlcepVrMsQufQFDxgD5IXvRuwTI00Ed35vooA==}
 
   abort-controller@3.0.0:
     resolution: {integrity: sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg==}
@@ -12654,6 +12663,8 @@ snapshots:
   abbrev@1.1.1: {}
 
   abbrev@2.0.0: {}
+
+  abcjs@6.4.3: {}
 
   abort-controller@3.0.0:
     dependencies:
