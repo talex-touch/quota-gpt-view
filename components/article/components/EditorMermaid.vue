@@ -1,51 +1,37 @@
 <script setup>
-import { Markmap } from 'markmap-view'
-import { loadCSS, loadJS } from 'markmap-common'
-import { Transformer } from 'markmap-lib'
 import html2canvas from 'html2canvas'
+import mermaid from 'mermaid'
 
 const props = defineProps(['node'])
 
-const transformer = new Transformer()
-const { scripts, styles } = transformer.getAssets()
-loadCSS(styles)
-loadJS(scripts)
+mermaid.initialize({ startOnLoad: false })
 
-let mm
 const loading = ref(false)
-const svgRef = ref()
-function update() {
-  const node = props.node
-
-  nextTick(() => {
-    const { root } = transformer.transform(node.textContent)
-    mm.setData(root)
-    mm.fit()
-
-    mm.zoom(0)
-  })
-}
+const innerRef = ref()
 
 onMounted(() => {
-  mm = Markmap.create(svgRef.value)
-  update()
+  const innerDom = innerRef.value
 
-  // onUpdated(update)
+  watchEffect(async () => {
+    loading.value = true
+
+    const res = await mermaid.render('mermaid', props.node.textContent, innerDom)
+
+    innerDom.innerHTML = res.svg
+
+    loading.value = false
+  })
 })
 
 async function download() {
   loading.value = true
 
-  mm.fit()
-
-  await sleep(200)
-
-  const canvas = await html2canvas(svgRef.value.parentElement)
+  const canvas = await html2canvas(innerRef.value)
 
   const url = canvas.toDataURL('image/png')
 
   const a = document.createElement('a')
-  a.download = 'mindmap.png'
+  a.download = 'pic.png'
   a.href = url
   a.click()
 
@@ -56,28 +42,28 @@ async function download() {
 </script>
 
 <template>
-  <div v-loader="loading" class="EditorMindMap">
-    <div class="EditorMindMap-Inner">
-      <svg ref="svgRef" class="EditorMindMap-Inner" />
+  <div v-loader="loading" class="EditorCharts">
+    <div class="EditorCharts-Inner">
+      <div ref="innerRef" class="EditorCharts-Inner" />
 
-      <div class="EditorMindMap-TextWaterMark">
+      <div class="EditorCharts-TextWaterMark">
         ThisAI
       </div>
 
-      <div class="EditorMindMap-WaterMark">
+      <div class="EditorCharts-WaterMark">
         <img src="/logo.svg">
       </div>
     </div>
 
-    <div class="EditorMindMap-Toolbar transition-cubic fake-background">
+    <div class="EditorCharts-Toolbar transition-cubic fake-background">
       <div i-carbon:download @click="download" />
-      <div i-carbon:reset @click="mm.fit()" />
+      <!-- <div i-carbon:reset @click="mm.fit()" /> -->
     </div>
   </div>
 </template>
 
 <style lang="scss">
-.EditorMindMap-TextWaterMark {
+.EditorCharts-TextWaterMark {
   z-index: 0;
   position: absolute;
 
@@ -95,24 +81,24 @@ async function download() {
   pointer-events: none;
 }
 
-.EditorMindMap-WaterMark {
+.EditorCharts-WaterMark {
   z-index: 1;
   position: absolute;
 
   width: 32px;
   height: 32px;
 
-  left: 0.5rem;
-  bottom: 0.5rem;
+  left: 0;
+  bottom: 0;
 
   opacity: 0.1;
   filter: invert(0.5);
   pointer-events: none;
 }
 
-.EditorMindMap {
+.EditorCharts {
   &:hover {
-    .EditorMindMap-Toolbar {
+    .EditorCharts-Toolbar {
       opacity: 1;
     }
   }
@@ -136,14 +122,6 @@ async function download() {
     backdrop-filter: blur(18px) saturate(180%);
   }
 
-  &-Inner {
-    div {
-      cursor: auto;
-    }
-    cursor: grab;
-    background-color: var(--el-fill-color);
-  }
-
   &-Inner,
   svg {
     position: absolute;
@@ -156,13 +134,31 @@ async function download() {
 
     color: var(--el-text-color-primary);
   }
+
+  &-Inner {
+    div {
+      cursor: auto;
+    }
+
+    position: relative;
+
+    min-width: 20vw;
+    min-height: 24vh;
+
+    cursor: grab;
+    overflow: hidden;
+    border-radius: 12px;
+  }
+
   position: relative;
+  padding: 0.5rem;
 
   min-width: 20vw;
   min-height: 24vh;
 
   overflow: hidden;
   border-radius: 12px;
+  background-color: var(--el-fill-color);
   box-shadow: 0 0 8px 1px var(--theme-color-light);
 }
 </style>

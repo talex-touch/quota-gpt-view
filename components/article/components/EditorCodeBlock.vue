@@ -2,12 +2,13 @@
 import { useNodeViewContext } from '@prosemirror-adapter/vue'
 import EditorMindmap from './EditorMindmap.vue'
 import EditorEcharts from './EditorEcharts.vue'
+import EditorMermaid from './EditorMermaid.vue'
 
 const { contentRef, selected, node } = useNodeViewContext()
 
 const lang = computed(() => node.value.attrs.language)
 
-const renderList = ['mindmap', 'echarts']
+const renderList = ['mindmap', 'echarts', 'mermaid']
 
 const renderMode = computed(() => !!renderList.find(item => item === lang.value))
 </script>
@@ -17,6 +18,7 @@ const renderMode = computed(() => !!renderList.find(item => item === lang.value)
     <template v-if="renderMode">
       <EditorMindmap v-if="lang === 'mindmap'" :node="node" />
       <EditorEcharts v-else-if="lang === 'echarts'" :node="node" />
+      <EditorMermaid v-else-if="lang === 'mermaid'" :node="node" />
     </template>
     <template v-else>
       <pre :spellCheck="false"><code :ref="contentRef" /></pre>
