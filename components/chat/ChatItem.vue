@@ -99,15 +99,15 @@ const tools = reactive([
       }, 1200)
     },
   },
-  {
-    name: '属性',
-    icon: 'i-carbon-settings-adjust',
-    userIgnored: true,
-    errorHide: true,
-    trigger: () => {
-      settingMode.visible = !settingMode.visible
-    },
-  },
+  // {
+  //   name: '属性',
+  //   icon: 'i-carbon-settings-adjust',
+  //   userIgnored: true,
+  //   errorHide: true,
+  //   trigger: () => {
+  //     settingMode.visible = !settingMode.visible
+  //   },
+  // },
   // { name: '朗读', icon: 'i-carbon-user-speaker' },
 ])
 
@@ -198,7 +198,7 @@ watchEffect(() => {
           <br>
         </p>
 
-        <div class="ChatItem-Setting">
+        <!-- <div class="ChatItem-Setting">
           <ThWickCheckBox v-model="settingMode.render.enable">
             启用渲染
           </ThWickCheckBox>
@@ -208,7 +208,7 @@ watchEffect(() => {
               渲染视频
             </ThWickCheckBox>
           </template>
-        </div>
+        </div> -->
       </div>
 
       <div
@@ -377,7 +377,7 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
     }
 
     position: relative;
-    margin-top: 12px;
+    margin-top: -2px;
 
     top: 0;
     right: 0;

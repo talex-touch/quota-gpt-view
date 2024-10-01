@@ -6,6 +6,7 @@ import { listenerCtx } from '@milkdown/plugin-listener'
 import { nord } from '@milkdown/theme-nord'
 import { prism, prismConfig } from '@milkdown/plugin-prism'
 import { outline, replaceAll } from '@milkdown/utils'
+import { katexOptionsCtx, math } from '@milkdown/plugin-math'
 import '@milkdown/theme-nord/style.css'
 import '~/components/render/style.css'
 
@@ -22,14 +23,22 @@ import c from 'refractor/lang/c'
 import python from 'refractor/lang/python'
 import java from 'refractor/lang/java'
 import { useRichArticle } from '~/composables/rich-article.ts'
+import 'katex/dist/katex.min.css'
 
-const props = defineProps(['content'])
+const props = defineProps(['content', 'disableRich'])
 const emits = defineEmits(['outline'])
+
+const editorDom = ref()
+
 onMounted(async () => {
   const editor = await Editor.make()
     .config((ctx) => {
       // ctx.set(defaultValueCtx, props.content)
-      ctx.set(rootCtx, document.querySelector('#MilkEditor'))
+      ctx.set(rootCtx, editorDom.value)
+
+      ctx.set(katexOptionsCtx.key, {
+
+      })
 
       ctx.update(editorViewOptionsCtx, prev => ({
         ...prev,
@@ -53,13 +62,17 @@ onMounted(async () => {
     })
     .use(commonmark)
     .use(prism)
+    .use(math)
     .create()
 
   watchEffect(() => {
     editor.action(replaceAll(props.content))
 
+    if (props.disableRich)
+      return
+
     setTimeout(() => {
-      useRichArticle(document.querySelector('#MilkEditor'))
+      useRichArticle(editorDom.value)
 
       const _outline = editor.action(outline)(editor.ctx)
 
@@ -70,7 +83,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div id="MilkEditor" class="MilkContent markdown-body milkdown-theme-nord prose" />
+  <div ref="editorDom" class="MilkContent markdown-body milkdown-theme-nord prose" />
 </template>
 
 <style lang="scss">

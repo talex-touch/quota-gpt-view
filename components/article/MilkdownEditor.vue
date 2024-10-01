@@ -49,6 +49,7 @@ const emits = defineEmits<{
   (event: 'onScroll', data: any): void
 }>()
 
+const editorDom = ref<HTMLElement>()
 const model = useVModel(props, 'modelValue', emits)
 
 function useSlashPluginView(view: any) {
@@ -245,7 +246,7 @@ const editor = useEditor((root) => {
     <div class="GuideEditorContainer-Main">
       <el-scrollbar @scroll="emits('onScroll', $event)">
         <div class="GuideEditorContainer-MainWrapper">
-          <Milkdown id="MilkEditor" class="MilkContent" />
+          <Milkdown ref="editorDom" class="MilkContent" />
         </div>
       </el-scrollbar>
     </div>

@@ -2,34 +2,55 @@
   .milkdown {
     height: 100%;
     width: 100%;
+
     .editor {
-      > p {
-        margin: 1rem 0;
+      p {
+        & > code {
+          color: #fff;
+
+          white-space: nowrap;
+          border-radius: 8px;
+          background-color: var(--theme-color-light);
+        }
       }
+
+      br.ProseMirror-trailingBreak {
+        display: none;
+      }
+      // >p {
+      //   margin: 1rem 0;
+      // }
 
       ul {
         li {
-          &::before {
-            content: '';
-            position: absolute;
+          p {
+            &::before {
+              content: '';
+              position: absolute;
 
-            top: 50%;
-            left: 0%;
+              top: 12.5px;
+              left: 0%;
 
-            width: 8px;
-            height: 8px;
+              width: 8px;
+              height: 8px;
 
-            border-radius: 50%;
-            transform: translate(0, -50%);
-            background-color: var(--theme-color);
+              border-radius: 50%;
+              transform: translate(0, -50%);
+              background-color: var(--theme-color);
+            }
+
+            position: relative;
           }
+
           position: relative;
+          margin: 0.5rem 0;
 
           text-indent: 16px;
         }
       }
     }
   }
+
   padding: 0.5rem 1.5rem;
 
   color: var(--text-color);
@@ -44,40 +65,35 @@
 
 .MilkContent h1 {
   position: relative;
+  margin: 1rem 0;
   font-size: 30px;
 
-  background: radial-gradient(
-    circle at 0%,
-    #3d33f3aa 0.0125%,
-    var(--theme-color) 1.25%,
-    var(--text-color-light) 10%,
-    var(--major-color) 100%
-  );
+  background: radial-gradient(circle at 0%,
+      #3d33f3aa 0.0125%,
+      var(--theme-color) 1.25%,
+      var(--text-color-light) 10%,
+      var(--major-color) 100%);
 }
 
 .MilkContent h2 {
   opacity: 0.95;
   font-size: 24px;
 
-  background: radial-gradient(
-    circle at 0%,
-    #3d33f3aa 0.0125%,
-    var(--theme-color) 0.25%,
-    var(--text-color-light) 5%,
-    var(--major-color) 100%
-  );
+  background: radial-gradient(circle at 0%,
+      #3d33f3aa 0.0125%,
+      var(--theme-color) 0.25%,
+      var(--text-color-light) 5%,
+      var(--major-color) 100%);
 }
 
 .MilkContent h3 {
   opacity: 0.9;
   font-size: 20px;
-  background: radial-gradient(
-    circle at 0%,
-    #3d33f3aa 0.0125%,
-    var(--theme-color) 0.125%,
-    var(--text-color-light) 2.5%,
-    var(--major-color) 100%
-  );
+  background: radial-gradient(circle at 0%,
+      #3d33f3aa 0.0125%,
+      var(--theme-color) 0.125%,
+      var(--text-color-light) 2.5%,
+      var(--major-color) 100%);
 }
 
 .MilkContent h4 {
@@ -188,11 +204,9 @@ pre .rich-lang {
     opacity: 0;
     filter: blur(20px) brightness(500%);
     background: linear-gradient(to right, var(--theme-color), var(--text-color)),
-      linear-gradient(
-        145deg,
+      linear-gradient(145deg,
         var(--text-color-light) 80%,
-        var(--theme-color) 90%
-      );
+        var(--theme-color) 90%);
     transition: opacity 0.25s;
   }
 
@@ -222,11 +236,9 @@ blockquote {
     opacity: 0.2;
     border-radius: 8px;
     background: linear-gradient(to right, var(--theme-color), var(--text-color)),
-      linear-gradient(
-        145deg,
+      linear-gradient(145deg,
         var(--text-color-light) 80%,
-        var(--theme-color) 90%
-      );
+        var(--theme-color) 90%);
   }
 
   margin: 0 !important;

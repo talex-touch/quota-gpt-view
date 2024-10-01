@@ -53,6 +53,9 @@ const pageOptions = reactive<{
 })
 
 $event.on('USER_LOGOUT_SUCCESS', () => { pageOptions.conversation = $completion.emptyHistory() })
+$event.on('REQUEST_CREATE_NEW_CONVERSATION', () => {
+  handleCreate()
+})
 
 async function handleDelete(id: string) {
   const res: any = await $endApi.v1.aigc.deleteConversation(id)

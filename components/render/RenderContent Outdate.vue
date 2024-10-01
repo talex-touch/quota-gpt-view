@@ -1,19 +1,24 @@
 <script setup lang="ts">
-import ThContent from '../article/ThContent.vue'
+import Vditor from 'vditor'
+import 'vditor/dist/index.css'
 
 const props = defineProps<{
   data: string
+  readonly: boolean
+  render: {
+    enable: boolean
+    media: boolean
+  }
   dotEnable?: boolean
 }>()
-
 const color = useColorMode()
-const inner = ref()
+const inner = ref<HTMLDivElement>()
 const dot = ref<HTMLDivElement>()
 
 let timer: any
 
 function handleGeneratingDotUpdate(rootEl: HTMLElement, cursor: HTMLElement) {
-  if (!props.dotEnable || !rootEl || !cursor)
+  if (!props.dotEnable)
     return
 
   cursor.style.opacity = '1'
@@ -68,35 +73,84 @@ function handleGeneratingDotUpdate(rootEl: HTMLElement, cursor: HTMLElement) {
   // setTimeout(() => handleGeneratingDotUpdate(rootEl, cursor), 20)
 }
 
-const value = ref('')
+function _render() {
+  nextTick(async () => {
+    const data = props.data/* .replaceAll(regex, (content) => {
+          let _content = content
+          const regex1 = /`([^`]+)`/g
+          if (regex1.test(content))
+            _content = _content.replaceAll(regex1, '$1')
 
-watchEffect(() => {
-  value.value = props.data
+          _content = _content.replaceAll(regex, '$$$$$1$$$$').replaceAll('\$', '$')
 
-  const el = inner.value
-  if (!el)
-    return
+          return _content
+        }) */
 
-  const dom = el.querySelector('.MilkContent')
+    if (!(props.render.enable ?? true)) {
+      inner.value!.textContent = data
+      return ``
+    }
 
-  nextTick(() => handleGeneratingDotUpdate(dom, dot.value!))
+    await Vditor.preview(inner.value!, data, {
+      hljs: {
+        enable: true,
+        lineNumber: true,
+        defaultLang: 'bash',
+      },
+      theme: {
+        current: 'Ant Design',
+      },
+      math: {
+        inlineDigit: true,
+      },
+      render: {
+        media: {
+          enable: props.render.media ?? true,
+        },
+      },
+      mode: color.value !== 'dark' ? 'light' : 'dark',
+    })
+
+    if (inner.value && dot.value) {
+      // await sleep(10)
+
+      handleGeneratingDotUpdate(inner.value!, dot.value!)
+    }
+  })
+}
+
+// const render = useDebounceFn(_render, 100)
+
+onMounted(() => {
+  watch(
+    () => [props.data, color.value, props.render],
+    () => {
+      _render()
+
+      // setTimeout(() => , 100)
+
+      // vditor.setValue(props.data, true)
+    },
+    {
+      immediate: true,
+      deep: true,
+    },
+  )
 })
 </script>
 
 <template>
-  <div ref="inner" class="RenderContent">
-    <ThContent v-model="value" readonly />
+  <div class="RenderContent">
+    <!-- <el-scrollbar>
+      <div class="RenderContent-Wrapper"> -->
+    <div ref="inner" class="markdown-body RenderContent-Inner" />
     <div v-if="dotEnable" ref="dot" class="Generating-Dot" />
+    <!-- </div>
+    </el-scrollbar> -->
   </div>
 </template>
 
 <style lang="scss">
-.RenderContent {
-  .MilkContent {
-    padding: 0;
-  }
-}
-
 .Generating-Dot {
   position: absolute;
 
@@ -127,6 +181,10 @@ watchEffect(() => {
   100% {
     opacity: 0;
   }
+}
+
+.vditor-reset {
+  color: var(--el-text-color-primary);
 }
 
 // .language-echarts,

@@ -391,8 +391,7 @@ function handleClose() {
   pointer-events: none;
   border-radius: 16px;
   box-shadow: var(--el-box-shadow);
-  // background-color: var(--el-bg-color);
-  transform: translate(-50%, -200%);
+  transform: translate(-50%, 200%);
   transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
 }
 </style>

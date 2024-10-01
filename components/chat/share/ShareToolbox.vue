@@ -201,6 +201,16 @@ const filteredMsg = computed(() => shareOptions.messages.filter((msg, index) => 
 
 <style lang="scss">
 .Share-Image {
+  .MilkContent p {
+    code {
+      color: var(--el-text-color-secondary) !important;
+
+      white-space: nowrap;
+      border-radius: 8px;
+      background-color: #0000 !important;
+    }
+  }
+
   .tool-card {
     span.show {
       position: absolute;

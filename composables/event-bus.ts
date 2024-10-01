@@ -1,17 +1,19 @@
 export type IEventHandler = (...args: any[]) => void
 
-export type EventName = 'USER_LOGIN_SUCCESS' | 'USER_LOGOUT_SUCCESS'
+export type EventName = 'REQUEST_CREATE_NEW_CONVERSATION' | 'USER_LOGIN_SUCCESS' | 'USER_LOGOUT_SUCCESS'
 
 // 声明EventBus type
 export interface IEventBus {
   on: {
     (eventName: 'USER_LOGIN_SUCCESS', callback: () => void): void
     (eventName: 'USER_LOGOUT_SUCCESS', callback: () => void): void
+    (eventName: 'REQUEST_CREATE_NEW_CONVERSATION', callback: () => void): void
   }
 
   emit: {
     (eventName: 'USER_LOGIN_SUCCESS'): void
     (eventName: 'USER_LOGOUT_SUCCESS'): void
+    (eventName: 'REQUEST_CREATE_NEW_CONVERSATION'): void
   }
 }
 

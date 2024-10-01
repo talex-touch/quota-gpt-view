@@ -7,7 +7,7 @@ const router = useRouter()
 async function push(path: string) {
   if (path === route.path) {
     if (path === '/')
-      userConfig.value.pri_info.appearance.expand = true
+      $event.emit('REQUEST_CREATE_NEW_CONVERSATION')
   }
 
   await router.push(path)
