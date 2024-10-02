@@ -44,7 +44,7 @@ async function download() {
 <template>
   <div v-loader="loading" class="EditorCharts">
     <div class="EditorCharts-Inner">
-      <div ref="innerRef" class="EditorCharts-Inner" />
+      <div ref="innerRef" class="EditorCharts-InnerContent" />
 
       <div class="EditorCharts-TextWaterMark">
         ThisAI
@@ -135,16 +135,33 @@ async function download() {
     color: var(--el-text-color-primary);
   }
 
+  svg {
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    &:not(:empty) {
+      overflow: visible;
+    }
+  }
+
   &-Inner {
+    &Content {
+      position: relative;
+      display: flex;
+
+      height: auto;
+      min-height: 70vh;
+
+      justify-content: center;
+    }
+
     div {
       cursor: auto;
     }
 
-    position: relative;
-
     height: auto;
-    min-width: 20vw;
-    min-height: 70vh;
+    // min-width: 20vw;
 
     cursor: grab;
     overflow: hidden;
@@ -156,7 +173,7 @@ async function download() {
 
   height: auto;
   min-width: 20vw;
-  // min-height: 70vh;
+  min-height: 70vh;
 
   overflow: hidden;
   border-radius: 12px;
