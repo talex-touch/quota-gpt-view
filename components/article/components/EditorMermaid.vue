@@ -453,7 +453,7 @@ watch(() => [width, height], refreshPreview)
   display: flex;
 
   gap: 1rem;
-  height: 50vh;
+  height: 70vh;
 }
 
 .EditorCharts-Error {
