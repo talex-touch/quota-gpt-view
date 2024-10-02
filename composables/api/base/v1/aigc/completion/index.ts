@@ -421,6 +421,8 @@ export const $completion = {
               titleOptions.status = mappedStatus
             }
             else if (event === 'completion') {
+              if (res.completed)
+                return
               titleOptions.value += res.content
 
               conversation.topic = titleOptions.value
