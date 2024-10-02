@@ -62,7 +62,7 @@ onMounted(() => {
 
   detectEndStatus()
 
-  /* const { pause, resume, isActive } =  */useIntervalFn(saveUserConfig, 15000)
+  /* const { pause, resume, isActive } =  */useIntervalFn(saveConfig, 45000)
 
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden')
