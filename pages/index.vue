@@ -124,6 +124,8 @@ function handleCreate() {
   return true
 }
 
+let curController: AbortController | null = null
+
 async function innerSend(conversation: IChatConversation, chatItem: IChatItem, index: number) {
   // 判断如果 conversation 是2条消息
   if (userConfig.value.pri_info.appearance.immersive && conversation.messages.length <= 2)
@@ -171,6 +173,8 @@ function handleSync() {
 
 // 重新生成某条消息 只需要给消息索引即可 还需要传入目标inner 如果有新的参数赋值则传options替换
 async function handleRetry(index: number, page: number, innerItem: IChatInnerItem) {
+  handleCancelReq()
+
   const conversation = pageOptions.conversation
 
   const chatItem = conversation.messages[index]
@@ -190,13 +194,15 @@ async function handleRetry(index: number, page: number, innerItem: IChatInnerIte
 }
 
 async function handleSend(query: string, _meta: any) {
+  handleCancelReq()
+
   const conversation = pageOptions.conversation
 
   if (!$historyManager.options.list.get(conversation.id))
     $historyManager.options.list.set(conversation.id, conversation)
 
   const meta = chatRef.value.getDictMeta()
-  console.log('a', meta)
+  // console.log('meta', meta)
   let i = conversation.messages.length - 1
   // let shiftItem /* = conversation.messages.at(-1) */
   while (meta?.[i] && !meta[i].show)
@@ -207,11 +213,11 @@ async function handleSend(query: string, _meta: any) {
 
   function getModel() {
     if (!shiftItem)
-      return QuotaModel.QUOTA_THIS_NORMAL_TURBO
+      return pageOptions.model
 
     const inner = shiftItem.content[shiftItem.page]
 
-    return inner?.model || QuotaModel.QUOTA_THIS_NORMAL_TURBO
+    return inner?.model || pageOptions.model
   }
 
   const chatItem = $completion.emptyChatItem()
@@ -228,13 +234,13 @@ async function handleSend(query: string, _meta: any) {
   chatItem.content.push(innerItem)
   conversation.messages.push(chatItem)
 
-  console.log('a', shiftItem, shiftItem?.page)
+  console.log('hs', shiftItem, conversation)
 
   const completion = await innerSend(conversation, chatItem, (shiftItem?.content.length ?? 1) - 1)
 
   completion.innerMsg.model = pageOptions.model
 
-  completion.send()
+  curController = completion.send()
 }
 
 provide('pageOptions', pageOptions)
@@ -247,7 +253,10 @@ function handleShare() {
 }
 
 function handleCancelReq() {
+  console.log('a', curController)
 
+  if (curController)
+    curController.abort()
 }
 
 console.log('PO', pageOptions)

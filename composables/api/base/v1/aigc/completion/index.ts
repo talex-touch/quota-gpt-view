@@ -152,32 +152,94 @@ async function handleExecutorResult(reader: ReadableStreamDefaultReader<string>,
   }
 }
 
+function processContentEach(content: IChatInnerItem) {
+  // const contents = item.content
+  // const page = item.page
+
+  // if (page >= contents.length)
+  //   return
+
+  // const content = contents[page]
+
+  if (!content)
+    throw new Error('content is empty')
+
+  let contentText = ''
+
+  content.value.forEach((_) => {
+    if (_.type === 'markdown' || _.type === 'text')
+      contentText += _.value
+  })
+
+  if (contentText) {
+    // force ignored
+    // item.content = content as any
+
+    return contentText
+  }
+
+  return ''
+}
+
+function processMessageEach({ ques, ans }: { ques: IChatItem, ans: IChatItem }) {
+  const quesContent = ques.content[ques.page]!
+  const ansContent = ans.content[ans.page]!
+
+  // 判断ans的状态不是 AVAILABLE 直接返回
+  if (ansContent.status !== IChatItemStatus.AVAILABLE)
+    return false
+
+  if (!ansContent.value.length)
+    return false
+
+  console.log('---', quesContent, ansContent)
+
+  const quesText = processContentEach(quesContent)
+  const ansText = processContentEach(ansContent)
+
+  return [quesText, ansText]
+}
+
 async function useCompletionExecutor(body: IChatBody, callback: (data: any) => void) {
   const msgList = body.messages
+  const convertedMsgList: any = []
 
   msgList.pop()
 
-  msgList.forEach((item) => {
-    if (!item.content)
-      return
-
-    for (const c of item.content) {
-      if (!c)
-        continue
-
-      let content = ''
-
-      c.value.forEach((_) => {
-        if (_.type === 'markdown' || _.type === 'text')
-          content += _.value
-      })
-
-      if (content) {
-        // force ignored
-        c.value = content as any
-      }
+  // 先将msgList按照2个划分为一组
+  for (let i = 0; i < msgList.length - 2; i += 2) {
+    const obj = {
+      ques: msgList[i],
+      ans: msgList[i + 1],
     }
+
+    const res = processMessageEach(obj)
+
+    if (!res)
+      continue
+
+    convertedMsgList.push({
+      ...obj.ques,
+      content: res[0],
+    })
+
+    convertedMsgList.push({
+      ...obj.ans,
+      content: res[1],
+    })
+  }
+
+  const lastOne = msgList[msgList.length - 1]
+  const lastContent = lastOne.content[lastOne.page]!
+
+  convertedMsgList.push({
+    ...lastOne,
+    content: processContentEach(lastContent),
   })
+
+  console.log('msgList', convertedMsgList)
+
+  body.messages = convertedMsgList
 
   const { promise, resolve } = Promise.withResolvers()
 
@@ -213,6 +275,7 @@ async function useCompletionExecutor(body: IChatBody, callback: (data: any) => v
         },
         adapter: 'fetch',
         responseType: 'stream',
+        signal: body.signal || new AbortController().signal,
       })
 
       const reader = res.pipeThrough(new TextDecoderStream()).getReader()
@@ -296,7 +359,7 @@ export const $completion = {
           date: formatDate(Date.now()),
           role: 'user',
           content: input,
-          status: Status.AVAILABLE,
+          status: IChatItemStatus.AVAILABLE,
         },
       ],
     }
@@ -316,7 +379,7 @@ export const $completion = {
     const tempMessage = reactive(isAdd ? this.emptyChatItem(IChatRole.ASSISTANT) : conversation.messages[itemIndex])
     const innerMsg = reactive(isAdd ? this.emptyChatInnerItem() : curItem.content[index]!)
 
-    console.log('a', curItem, index)
+    console.log('cc', curItem, index)
 
     if (isAdd) {
       // 获得某一条消息的指定 innerItem
@@ -435,10 +498,16 @@ export const $completion = {
 
         return titleOptions
       },
-      send: async (options?: Partial<ChatCompletionDto>) => {
+      send: (options?: Partial<ChatCompletionDto>): AbortController => {
         innerMsg.status = IChatItemStatus.WAITING
 
-        await useCompletionExecutor(
+        const signal = new AbortController()
+
+        // signal.signal.addEventListener('abort', () => {
+        //   innerMsg.status = IChatItemStatus.CANCELLED
+        // })
+
+        useCompletionExecutor(
           {
             ...options || {},
             temperature: innerMsg.meta.temperature || 0,
@@ -446,7 +515,8 @@ export const $completion = {
             messages: JSON.parse(JSON.stringify(conversation.messages)),
             index: index === -1 ? 0 : index,
             chat_id: conversation.id,
-            model: innerMsg.model, // TODO
+            model: innerMsg.model,
+            signal: signal.signal,
           },
           (res) => {
             if (res?.code === 401) {
@@ -462,9 +532,12 @@ export const $completion = {
               if (res.frequentLimit)
                 handler.onFrequentLimit?.()
 
+              if (signal.signal.aborted)
+                innerMsg.status = IChatItemStatus.CANCELLED
+
               innerMsg.value.push({
                 type: 'error',
-                value: res.e,
+                value: res.e.message || res.e,
               })
 
               complete()
@@ -581,6 +654,8 @@ export const $completion = {
             }
           },
         )
+
+        return signal
       },
     }
   },

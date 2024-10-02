@@ -36,7 +36,8 @@ const showSend = computed(() => input.value.trim().length)
 function handleSend(event: Event) {
   if (!showSend.value)
     return
-  if (props.status !== IChatItemStatus.AVAILABLE)
+
+  if (props.status !== IChatItemStatus.AVAILABLE && props.status !== IChatItemStatus.CANCELLED)
     return
 
   if (input.value.startsWith('@'))

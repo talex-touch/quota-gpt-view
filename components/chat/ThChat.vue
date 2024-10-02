@@ -217,7 +217,7 @@ function handleRetry(ind: number, item: IChatInnerItem) {
       <div class="ThChat-BackToBottom" @click="handleBackToBottom()">
         <div i-carbon-down-to-bottom />
       </div>
-      <div class="ThChat-StopGenerating" @click="handleCancel()">
+      <div class="ThChat-StopGenerating" @click="handleCancel">
         停止生成
       </div>
     </div>

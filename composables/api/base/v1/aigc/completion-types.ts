@@ -148,6 +148,7 @@ export interface IChatBody {
   templateId: number
 
   generateTitle?: boolean
+  signal?: AbortSignal
 }
 
 export interface IHistoryUploadQuery {

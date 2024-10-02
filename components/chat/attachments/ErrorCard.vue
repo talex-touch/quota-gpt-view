@@ -9,6 +9,9 @@ const props = defineProps<{
 const _text = computed(() => {
   const text = props.block.value
 
+  if (text.includes('aborted'))
+    return [`主体请求已被取消 (手动)`, '1101']
+
   if (!text.includes(' ('))
     return [`${text}`, '500']
 
@@ -58,6 +61,8 @@ const description = computed(() => {
     return [3, '您尚未登录，请先登录以继续使用科塔智爱系统的全部功能。为确保正常体验，请前往登录页面完成登录操作。如有任何疑问，欢迎联系客服获取帮助。感谢您的理解与支持。']
   else if (+_text.value[1]! === 500)
     return [0, '发生未知错误，请联系管理员以获取进一步支持。我们将尽快为您解决问题，感谢您的理解和配合。']
+  else if (+_text.value[1]! === 1101)
+    return [4, '由于手动取消了请求，当前请求已被终止。请尝试重新发起请求以发起新对话。']
 
   else return [-1, props.block.value]
 })
@@ -110,7 +115,7 @@ function handleClick() {
     </div>
   </div>
 
-  <div v-if="description" v-wave class="ErrorCard-Addon" @click="handleClick">
+  <div v-if="description && +description[0] !== 4" v-wave class="ErrorCard-Addon" @click="handleClick">
     <template v-if="+description[0] === 0">
       <i i-carbon:chat-bot block /> 联系客服
     </template>
