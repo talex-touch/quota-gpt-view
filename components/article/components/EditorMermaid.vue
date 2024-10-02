@@ -159,18 +159,36 @@ const downloadPreview = ref<{
   },
 })
 
+let timer: any
+async function displayRender() {
+  diagram.value = await initRender(colorMode.value === 'light' ? 'light' : 'dark')
+
+  if (graph.value)
+    graph.value.dispose()
+
+  graph.value = await render(innerRef.value, diagram.value!.svg, colorMode.value === 'light' ? 'light' : 'dark')
+
+  await sleep(200)
+
+  graph.value.zoomToFit()
+
+  await sleep(200)
+
+  graph.value.fitToContent()
+}
+
 onMounted(() => {
   watchEffect(() => {
     const _ = [colorMode.value]
 
-    nextTick(async () => {
-      diagram.value = await initRender(colorMode.value === 'light' ? 'light' : 'dark')
+    loading.value = true
+    clearTimeout(timer)
 
-      if (graph.value)
-        graph.value.dispose()
+    timer = setTimeout(async () => {
+      await displayRender()
 
-      graph.value = await render(innerRef.value, diagram.value!.svg, colorMode.value === 'light' ? 'light' : 'dark')
-    })
+      loading.value = false
+    }, 2000)
   })
 })
 
@@ -354,60 +372,62 @@ watch(() => [width, height], refreshPreview)
           <div ref="previewDom" class="MermaidDownloader-Inner" />
         </div>
         <div class="MermaidDownloader-Property">
-          <p class="title">
-            属性设置
-          </p>
+          <el-scrollbar>
+            <p class="title">
+              属性设置
+            </p>
 
-          <el-form label-position="top" label-width="auto" :model="downloadPreview.model">
-            <el-form-item label="水印设置">
-              <el-radio-group v-model="downloadPreview.model.watermark" aria-label="水印设置">
-                <el-radio-button value="true">
-                  <span block style="height: 16px">标准水印</span>
-                </el-radio-button>
-                <!-- :disabled="!userStore.subscription.type" -->
-                <el-radio-button value="false">
-                  <span block style="height: 16px" flex items-center>
-                    无水印<span mx-1 style="--scale: 0.85" class="premium-normal">限免</span>
-                  </span>
-                </el-radio-button>
-              </el-radio-group>
-            </el-form-item>
+            <el-form label-position="top" label-width="auto" :model="downloadPreview.model">
+              <el-form-item label="水印设置">
+                <el-radio-group v-model="downloadPreview.model.watermark" aria-label="水印设置">
+                  <el-radio-button value="true">
+                    <span block style="height: 16px">标准水印</span>
+                  </el-radio-button>
+                  <!-- :disabled="!userStore.subscription.type" -->
+                  <el-radio-button value="false">
+                    <span block style="height: 16px" flex items-center>
+                      无水印<span mx-1 style="--scale: 0.85" class="premium-normal">限免</span>
+                    </span>
+                  </el-radio-button>
+                </el-radio-group>
+              </el-form-item>
 
-            <el-form-item label="下载图片名">
-              <el-input v-model="downloadPreview.model.name" />
-            </el-form-item>
+              <el-form-item label="下载图片名">
+                <el-input v-model="downloadPreview.model.name" />
+              </el-form-item>
 
-            <el-form-item label="输出格式">
-              <el-select v-model="downloadPreview.model.format">
-                <el-option v-for="item in ['png', 'svg']" :key="item" :label="item" :value="item" />
-              </el-select>
-            </el-form-item>
+              <el-form-item label="输出格式">
+                <el-select v-model="downloadPreview.model.format">
+                  <el-option v-for="item in ['png', 'svg']" :key="item" :label="item" :value="item" />
+                </el-select>
+              </el-form-item>
 
-            <el-form-item v-if="downloadPreview.model.format === 'png'" label="输出质量">
-              <el-slider
-                v-model="downloadPreview.model.quality" :marks="{ 10: '默认', 20: '超清' }" :min="10"
-                :max="20" :step="10" show-stops mx-4 :show-tooltip="false"
-              />
-            </el-form-item>
+              <el-form-item v-if="downloadPreview.model.format === 'png'" label="输出质量">
+                <el-slider
+                  v-model="downloadPreview.model.quality" :marks="{ 10: '默认', 20: '超清' }" :min="10" :max="20"
+                  :step="10" show-stops mx-4 :show-tooltip="false"
+                />
+              </el-form-item>
 
-            <br>
+              <br>
 
-            <el-form-item label="输出风格">
-              <el-radio-group v-model="downloadPreview.model.theme">
-                <!-- works when >=2.6.0, recommended ✔️ not work when <2.6.0 ❌ -->
-                <el-radio value="light">
-                  明亮
-                </el-radio>
-                <el-radio value="dark">
-                  暗黑
-                </el-radio>
-              </el-radio-group>
-            </el-form-item>
-          </el-form>
+              <el-form-item label="输出风格">
+                <el-radio-group v-model="downloadPreview.model.theme">
+                  <!-- works when >=2.6.0, recommended ✔️ not work when <2.6.0 ❌ -->
+                  <el-radio value="light">
+                    明亮
+                  </el-radio>
+                  <el-radio value="dark">
+                    暗黑
+                  </el-radio>
+                </el-radio-group>
+              </el-form-item>
+            </el-form>
 
-          <el-button absolute style="width: calc(100% - 2rem);bottom: 1rem;border-radius: 12px" type="primary" @click="download">
-            立即下载
-          </el-button>
+            <el-button w-full style="bottom: 1rem;border-radius: 12px" type="primary" @click="download">
+              立即下载
+            </el-button>
+          </el-scrollbar>
         </div>
       </div>
     </el-dialog>
@@ -453,7 +473,7 @@ watch(() => [width, height], refreshPreview)
   display: flex;
 
   gap: 1rem;
-  height: 70vh;
+  height: 50vh;
 }
 
 .EditorCharts-Error {

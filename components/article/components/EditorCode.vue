@@ -30,6 +30,9 @@ function handleCopy() {
 const lang = computed(() => props.node.attrs.language)
 const pre = ref()
 watch(() => props.node.textContent, (code) => {
+  if (!lang.value)
+    return
+
   nextTick(() => {
     // console.log('a', props.node.textContent)
 
