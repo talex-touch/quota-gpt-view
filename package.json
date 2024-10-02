@@ -14,6 +14,10 @@
     "typecheck": "vue-tsc --noEmit"
   },
   "dependencies": {
+    "@antv/x6": "^2.18.1",
+    "@antv/x6-plugin-export": "^2.1.6",
+    "@antv/x6-plugin-scroller": "^2.0.10",
+    "@antv/x6-vue-shape": "^2.1.2",
     "@element-plus/nuxt": "^1.0.9",
     "@floating-ui/vue": "^1.1.5",
     "@milkdown/core": "^7.4.0",
@@ -79,6 +83,7 @@
     "markmap-view": "^0.17.2",
     "nuxt": "^3.11.2",
     "nuxt-echarts": "^0.1.0",
+    "nuxt-lodash": "^2.5.3",
     "pinia": "^2.1.7",
     "sass": "^1.77.6",
     "typescript": "^5.4.5",

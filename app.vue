@@ -210,9 +210,8 @@ span.premium {
     padding: 2px 4px;
     margin-right: 2px;
 
-    color: #fff;
-    font-size: 14px;
-    background: var(--el-color-warning);
+    color: var(--el-color-warning);
+    border: 1px solid var(--el-color-warning);
     border-radius: 8px;
   }
 
@@ -221,18 +220,20 @@ span.premium {
 
 span.premium-normal {
   position: relative;
+  display: flex;
   padding: 2px 4px;
-  margin-right: 2px;
-
-  top: 50%;
 
   line-height: 20px;
   height: 20px;
 
-  color: #fff;
-  font-size: 14px;
-  background: var(--el-color-warning);
-  transform: translateY(-50%);
+  align-items: center;
+  justify-content: center;
+
+  color: var(--el-color-warning);
+  font-size: 12px;
+  border: 1px solid var(--el-color-warning);
+  /* background: var(--el-color-warning); */
+  transform: scale(var(--scale, 1));
   border-radius: 8px;
 }
 

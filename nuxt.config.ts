@@ -18,6 +18,7 @@ export default defineNuxtConfig({
     '@vite-pwa/nuxt',
     '@nuxt/eslint',
     'v-wave/nuxt',
+    'nuxt-lodash',
     'nuxt-echarts',
     // '@sentry/nuxt/module',
     ['vite-plugin-version-date-mark/nuxt', {
@@ -115,5 +116,12 @@ export default defineNuxtConfig({
   sourcemap: {
     server: true,
     client: 'hidden',
+  },
+
+  build: {
+    transpile: [
+      /^@antv/,
+      'gl-matrix',
+    ],
   },
 })

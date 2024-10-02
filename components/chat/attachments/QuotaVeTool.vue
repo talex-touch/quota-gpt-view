@@ -80,8 +80,6 @@ const compMapper = reactive({
 const curItem = computed(() => {
   const compName: string = data.value.name
 
-  console.log('a', compName)
-
   if (!compName)
     return compMapper['ts-ThisAI_Standard-ThisAI_Standard']
 
@@ -97,7 +95,7 @@ const timeCost = computed(() => {
   if (start === -1 || end === -1)
     return ''
 
-  return `Costs: ${((end - start) / 1000).toFixed(2)}s`
+  return `耗时: ${((end - start) / 1000).toFixed(2)}s`
 })
 </script>
 

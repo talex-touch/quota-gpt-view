@@ -46,7 +46,7 @@ const curType = computed(() => typeMapper[props.block.name!])
 async function handleSizable(expand: boolean) {
   const mainDom = container.value
   if (!mainDom) {
-    nextTick(() => handleSizable(expand))
+    // nextTick(() => handleSizable(expand))
     return
   }
 
