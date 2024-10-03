@@ -3,7 +3,7 @@ import type { FormInstance, FormRules } from 'element-plus'
 import StandardPrompt from './standard-prompt.txt?raw'
 import UserAvatar from '~/components/personal/UserAvatar.vue'
 import UserUploadAvatar from '~/components/personal/UserUploadAvatar.vue'
-import RenderContentOld from '~/components/render/RenderContentOld.vue'
+import RenderContentOld from '~/components/render/RenderContent.vue'
 import { assignPromptTags, getPromptDailyStatistics, searchPromptTag } from '~/composables/api/chat'
 import { $endApi } from '~/composables/api/base'
 

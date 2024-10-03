@@ -7,17 +7,19 @@ import ModelSelector from '~/components/model/ModelSelector.vue'
 import type { InputPlusProperty } from '~/components/input/input'
 import { getTargetPrompt } from '~/composables/api/chat'
 import { $completion } from '~/composables/api/base/v1/aigc/completion'
-import { type IChatConversation, type IChatInnerItem, type IChatItem, IChatItemStatus, PersistStatus, QuotaModel } from '~/composables/api/base/v1/aigc/completion-types'
+import { type IChatConversation, type IChatInnerItem, type IChatItem, IChatItemStatus, type IInnerItemMeta, PersistStatus, QuotaModel } from '~/composables/api/base/v1/aigc/completion-types'
 import { $historyManager } from '~/composables/api/base/v1/aigc/history'
 import { $endApi } from '~/composables/api/base'
+
+definePageMeta({
+  layout: 'default',
+})
 
 const chatRef = ref()
 const initConversation = $completion.emptyHistory()
 const pageOptions = reactive<{
   select: string
-  template: any
   conversation: IChatConversation
-  inputProperty: InputPlusProperty
   share: any
   status: IChatItemStatus
   feedback: any
@@ -28,12 +30,7 @@ const pageOptions = reactive<{
     visible: false,
   },
   select: '',
-  template: null,
   conversation: initConversation,
-  inputProperty: {
-    internet: true,
-    temperature: 50,
-  },
   share: {
     meta: [],
     enable: false,
@@ -70,28 +67,25 @@ async function handleDelete(id: string) {
 watch(
   () => pageOptions.select,
   (select) => {
-    pageOptions.template = null
-    if (!select) {
-      // chatManager.messages.value = JSON.parse(JSON.stringify(chatManager.originObj))
+    if (!select)
       return
-    }
 
     const historyList = $historyManager.options.list
 
     const conversation = historyList.get(select)
     if (!conversation) {
-      pageOptions.select = ''
+      // pageOptions.select = ''
       return
     }
 
     setTimeout(async () => {
       // get template
       // pageOptions.template
-      if (conversation.templateId !== undefined && conversation.templateId !== -1) {
-        const res: any = await getTargetPrompt(conversation.templateId)
+      // if (conversation.templateId !== undefined && conversation.templateId !== -1) {
+      //   const res: any = await getTargetPrompt(conversation.templateId)
 
-        pageOptions.template = res.data
-      }
+      //   pageOptions.template = res.data
+      // }
 
       pageOptions.conversation = conversation
 
@@ -183,10 +177,10 @@ async function handleRetry(index: number, page: number, innerItem: IChatInnerIte
 
   const completion = await innerSend(conversation, chatItem, page)
 
-  completion.send()
+  curController = completion.send()
 }
 
-async function handleSend(query: string, _meta: any) {
+async function handleSend(query: IInnerItemMeta[], _meta: any) {
   handleCancelReq()
 
   const conversation = pageOptions.conversation
@@ -216,7 +210,7 @@ async function handleSend(query: string, _meta: any) {
   const chatItem = $completion.emptyChatItem()
   const innerItem = $completion.emptyChatInnerItem({
     model: getModel(),
-    value: [$completion.initInnerMeta('text', query)],
+    value: query,
     meta: {
       temperature: 0,
     },
@@ -246,8 +240,6 @@ function handleShare() {
 }
 
 function handleCancelReq() {
-  console.log('a', curController)
-
   if (curController)
     curController.abort()
 }
@@ -282,9 +274,8 @@ onMounted(mounter)
       </ThChat>
 
       <ThInput
-        v-model:input-property="pageOptions.inputProperty"
         :template-enable="!pageOptions.conversation.messages.length" :status="pageOptions.status"
-        :hide="pageOptions.share.enable" @send="handleSend" @template="pageOptions.template = $event"
+        :hide="pageOptions.share.enable" @send="handleSend"
       />
 
       <AigcChatStatusBar>
@@ -293,12 +284,12 @@ onMounted(mounter)
             未登录无法使用
           </span>
 
-          <span v-if="pageOptions.inputProperty.internet" class="tag success">
+          <!-- <span v-if="pageOptions.inputProperty.internet" class="tag success">
             联网模式
           </span>
           <span v-else class="tag warning">
             离线模式
-          </span>
+          </span> -->
 
           <span
             v-if="!!pageOptions.conversation.messages.length"

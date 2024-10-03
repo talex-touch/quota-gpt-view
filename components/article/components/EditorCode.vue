@@ -18,6 +18,7 @@ const langs = [
 const did = ref(false)
 const renderOptions = reactive({
   dialog: {
+    svg: false,
     html: false,
   },
 })
@@ -53,8 +54,16 @@ watch(() => props.node.textContent, (code) => {
 <template>
   <div class="EditorCode" :class="{ selected }">
     <div class="EditorCode-Header">
-      <div class="rich-lang">
-        {{ lang }}
+      <div flex items-center gap-1 class="rich-lang">
+        <div v-if="lang === 'html'" i-carbon:html />
+        <div v-else-if="lang === 'json'" i-carbon:json />
+        <div v-else-if="lang === 'vue'" i-carbon:logo-vue />
+        <div v-else-if="lang.includes('sql')" i-carbon:sql />
+        <div v-else-if="lang === 'xml'" i-carbon:xml />
+        <div v-else-if="lang === 'svg'" i-carbon:svg />
+        <p v-else>
+          {{ lang }}
+        </p>
       </div>
       <div :class="{ did }" class="rich-copy" @click="handleCopy">
         <span class="un">
@@ -72,6 +81,11 @@ watch(() => props.node.textContent, (code) => {
             <div i-carbon:html />
           </el-tooltip>
         </div>
+        <div v-if="lang === 'svg'" class="render-html" @click="renderOptions.dialog.svg = true">
+          <el-tooltip content="渲染">
+            <div i-carbon:svg />
+          </el-tooltip>
+        </div>
       </div>
     </div>
 
@@ -80,11 +94,18 @@ watch(() => props.node.textContent, (code) => {
         <div class="innerRender" v-html="props.node.textContent" />
       </div>
     </el-dialog>
+
+    <el-dialog v-model="renderOptions.dialog.svg" center append-to-body title="渲染结果">
+      <div class="SvgRender">
+        <div class="innerRender" v-html="props.node.textContent" />
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <style lang="scss">
-.HtmlRender {
+.HtmlRender,
+.SvgRender {
   position: relative;
   padding: 1rem;
 

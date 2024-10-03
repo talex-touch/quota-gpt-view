@@ -191,6 +191,14 @@ watchEffect(() => {
             <div v-else-if="block.type === 'error'">
               <ErrorCard :block="block " />
             </div>
+
+            <div v-else-if="block.type === 'image'" class="image-card">
+              <img :src="block.value" alt="用户发送的图片">
+            </div>
+
+            <div v-else-if="block.type === 'file'">
+              File
+            </div>
           </div>
         </div>
         <p v-else mt-3>
@@ -331,6 +339,25 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
 
 .ChatItem-Wrapper {
   .ChatItem-Content-Inner {
+    .image-card {
+      img {
+        width: 100%;
+        height: 100%;
+      }
+      position: relative;
+      margin-top: 1rem;
+
+      height: auto;
+
+      width: 200px;
+      min-height: 50px;
+
+      float: right;
+
+      overflow: hidden;
+      border-radius: 4px;
+    }
+
     pre {
       margin: 0;
       padding: 0;
@@ -352,7 +379,7 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
         'EmojiSymbols';
     }
 
-    .user & {
+    .user & pre {
       padding: 0.5rem 1rem;
 
       border-radius: 16px 8px 16px 16px;

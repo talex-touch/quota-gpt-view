@@ -164,21 +164,21 @@ function processContentEach(content: IChatInnerItem) {
   if (!content)
     throw new Error('content is empty')
 
-  let contentText = ''
+  // let contentText = ''
 
-  content.value.forEach((_) => {
-    if (_.type === 'markdown' || _.type === 'text')
-      contentText += _.value
-  })
+  // content.value.forEach((_) => {
+  //   if (_.type === 'markdown' || _.type === 'text')
+  //     contentText += _.value
+  // })
 
-  if (contentText) {
-    // force ignored
-    // item.content = content as any
+  // if (contentText) {
+  //   // force ignored
+  //   // item.content = content as any
 
-    return contentText
-  }
+  //   return contentText
+  // }
 
-  return ''
+  return content.value
 }
 
 function processMessageEach({ ques, ans }: { ques: IChatItem, ans: IChatItem }) {
@@ -191,8 +191,6 @@ function processMessageEach({ ques, ans }: { ques: IChatItem, ans: IChatItem }) 
 
   if (!ansContent.value.length)
     return false
-
-  console.log('---', quesContent, ansContent)
 
   const quesText = processContentEach(quesContent)
   const ansText = processContentEach(ansContent)
