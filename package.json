@@ -58,7 +58,6 @@
     "prism-themes": "^1.9.0",
     "qrcode": "^1.5.3",
     "v-wave": "^2.0.0",
-    "vditor": "^3.10.4",
     "vite-plugin-version-date-mark": "^0.1.0"
   },
   "devDependencies": {
