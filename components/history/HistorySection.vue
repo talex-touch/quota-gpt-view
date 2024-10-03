@@ -19,8 +19,6 @@ const router = useRouter()
 const { select } = useVModels(props, emits)
 
 watchEffect(() => {
-  console.log('r', route, route.path)
-
   router.replace({
     path: route.path,
     query: {

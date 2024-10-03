@@ -16,6 +16,11 @@ const langs = [
 ]
 
 const did = ref(false)
+const renderOptions = reactive({
+  dialog: {
+    html: false,
+  },
+})
 
 function handleCopy() {
   navigator.clipboard.writeText(props.node.textContent)
@@ -60,11 +65,42 @@ watch(() => props.node.textContent, (code) => {
     </div>
     <div class="EditorCode-Content">
       <pre ref="pre" :spellcheck="false"><code /></pre>
+
+      <div class="EditorCode-ContentFav">
+        <div v-if="lang === 'html'" class="render-html" @click="renderOptions.dialog.html = true">
+          <el-tooltip content="渲染">
+            <div i-carbon:html />
+          </el-tooltip>
+        </div>
+      </div>
     </div>
+
+    <el-dialog v-model="renderOptions.dialog.html" center append-to-body title="渲染结果">
+      <div class="HtmlRender">
+        <div class="innerRender" v-html="props.node.textContent" />
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <style lang="scss">
+.HtmlRender {
+  position: relative;
+  padding: 1rem;
+
+  border-radius: 12px;
+  border: 1px solid var(--el-border-color);
+}
+
+.EditorCode-ContentFav {
+  position: absolute;
+
+  right: 1rem;
+  bottom: 0.5rem;
+
+  cursor: pointer;
+}
+
 .selected {
   outline: blue solid 1px;
 }

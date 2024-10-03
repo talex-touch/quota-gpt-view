@@ -97,11 +97,6 @@ export async function saveUserConfig() {
 
 $event.on('USER_LOGIN_SUCCESS', async () => {
   console.log('login success', userConfig)
-
-  const plan = userStore.value.subscription
-
-  if (plan)
-    document.body.classList.add(plan.type)
 })
 
 $event.on('USER_LOGOUT_SUCCESS', () => {
@@ -140,6 +135,13 @@ export async function refreshUserSubscription() {
     return
 
   userStore.value.subscription = data
+
+  const plan = userStore.value.subscription
+
+  document.body.classList.remove('ULTIMATE', 'STANDARD', 'DEV')
+
+  if (plan)
+    document.body.classList.add(plan.type)
 }
 
 /**

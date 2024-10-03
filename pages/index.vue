@@ -11,13 +11,6 @@ import { type IChatConversation, type IChatInnerItem, type IChatItem, IChatItemS
 import { $historyManager } from '~/composables/api/base/v1/aigc/history'
 import { $endApi } from '~/composables/api/base'
 
-definePageMeta({
-  layout: 'default',
-  pageTransition: {
-    name: 'slide',
-  },
-})
-
 const chatRef = ref()
 const initConversation = $completion.emptyHistory()
 const pageOptions = reactive<{

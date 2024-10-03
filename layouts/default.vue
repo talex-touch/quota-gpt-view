@@ -31,9 +31,7 @@ import IndexNavbar from '~/components/chore/IndexNavbar.vue'
         </el-aside>
         <el-main>
           <router-view v-slot="{ Component }">
-            <transition name="slide">
-              <component :is="Component" />
-            </transition>
+            <component :is="Component" />
           </router-view>
         </el-main>
       </main>

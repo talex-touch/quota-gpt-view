@@ -38,7 +38,7 @@ onMounted(async () => {
     feishuInit(router)
 
   detectWallpaper()
-  // useDeviceAdapter()
+  useDeviceAdapter()
 
   if (userStore.value.isLogin) {
     await refreshCurrentUserRPM()

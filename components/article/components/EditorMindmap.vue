@@ -28,9 +28,8 @@ function update() {
 
 onMounted(() => {
   mm = Markmap.create(svgRef.value)
-  update()
 
-  // onUpdated(update)
+  watchEffect(update)
 })
 
 async function download() {

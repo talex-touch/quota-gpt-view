@@ -3,13 +3,6 @@ import GuideAside from '~/components/guide/GuideAside.vue'
 import { $endApi } from '~/composables/api/base'
 import DocLayout from '~/components/chore/doc/DocLayout.vue'
 
-definePageMeta({
-  layout: 'default',
-  pageTransition: {
-    name: 'slide',
-  },
-})
-
 const route = useRoute()
 const curDoc = ref()
 const documents = ref([])

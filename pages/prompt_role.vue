@@ -3,13 +3,6 @@ import { $endApi } from '~/composables/api/base'
 import type { IStandardPageModel } from '~/composables/api/base/index.type'
 import { globalOptions } from '~/constants'
 
-definePageMeta({
-  layout: 'default',
-  pageTransition: {
-    name: 'slide',
-  },
-})
-
 const done = ref(false)
 const loader = ref<HTMLElement>()
 const items = reactive<IStandardPageModel<any>>({
