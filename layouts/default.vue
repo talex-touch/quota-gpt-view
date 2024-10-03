@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import AnimateIcon from '~/components/icon/AnimateIcon.vue'
 import UserAccountAvatar from '~/components/personal/UserAccountAvatar.vue'
 import IndexNavbar from '~/components/chore/IndexNavbar.vue'
-import { $endApi } from '~/composables/api/base'
 </script>
 
 <template>

@@ -48,6 +48,8 @@ onMounted(async () => {
 
 router.afterEach(() => {
   detectWallpaper()
+
+  return true
 })
 
 provide('appOptions', pageOptions)
