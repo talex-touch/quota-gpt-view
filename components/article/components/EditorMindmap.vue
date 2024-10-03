@@ -37,7 +37,7 @@ async function download() {
 
   mm.fit()
 
-  await sleep(200)
+  await sleep(500)
 
   const canvas = await html2canvas(svgRef.value.parentElement)
 
