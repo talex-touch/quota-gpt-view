@@ -90,7 +90,7 @@ function formateSize(num: number) {
 
   .sync-status {
     position: absolute;
-    // padding: 0.125rem 0.25rem;
+    padding: 0.125rem 0.25rem;
 
     left: 0.5rem;
     bottom: 0.25rem;

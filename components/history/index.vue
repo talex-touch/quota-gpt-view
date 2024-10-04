@@ -304,7 +304,7 @@ onBeforeUnmount(() => dispose.value = true)
       <template v-else>
         <span v-if="planProgress && planProgress" class="plan">
           <span class="progress-bar" :style="`--w: ${100 - planProgress.progress}%`" />
-          <span class="text" w-full flex items-center justify-center gap-2 text-sm>{{ planProgress.text }}<el-link
+          <span class="text" w-full flex items-center justify-center gap-2 text-sm @click="$router.push('/plan')">{{ planProgress.text }}<el-link
             v-if="planProgress.progress >= 30" type="primary"
           >立即续费</el-link></span>
         </span>

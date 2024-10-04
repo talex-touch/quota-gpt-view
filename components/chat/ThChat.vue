@@ -178,7 +178,11 @@ function handleRetry(ind: number, item: IChatInnerItem) {
   emits('retry', ind, chat.content.length, item)
 }
 
-function handleSuggest(content: string) {
+async function handleSuggest(content: string) {
+  // animation duration
+
+  await sleep(400)
+
   emits('suggest', content)
 }
 </script>
@@ -217,7 +221,7 @@ function handleSuggest(content: string) {
 
         <EmptyGuide :show="!!messages.messages?.length" />
 
-        <br v-for="i in 20" :key="i">
+        <br v-for="i in 5" :key="i">
       </el-scrollbar>
 
       <div class="ThChat-BackToBottom" @click="handleBackToBottom()">

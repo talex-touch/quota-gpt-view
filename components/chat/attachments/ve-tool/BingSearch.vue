@@ -9,7 +9,7 @@ const props = defineProps<{
 
 <template>
   <div class="BingSearch">
-    <!-- {{ value }} -->
+    {{ value }}
     <!-- <div class="BingSearch-Inner" /> -->
   </div>
 </template>
