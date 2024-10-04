@@ -211,20 +211,23 @@ function handlePaste(e: ClipboardEvent) {
   if (!e.clipboardData)
     return
 
+  const { files } = e.clipboardData
+
+  if (!files.length)
+    return
+
   e.preventDefault()
 
-  const { items } = e.clipboardData
+  for (let i = 0; i < files.length; i++) {
+    const item = files[i]
 
-  for (let i = 0; i < items.length; i++) {
-    const item = items[i]
-
-    if (item.type.startsWith('text')) {
+    /* if (item.type.startsWith('text')) {
       item.getAsString((data) => {
         input.value.text += data
       })
     }
-    else if (item.type.startsWith('image')) {
-      const file = item.getAsFile()
+    else */ if (item.type.startsWith('image')) {
+      const file = item
       if (!file)
         continue
 

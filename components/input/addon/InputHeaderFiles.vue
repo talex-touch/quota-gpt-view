@@ -12,6 +12,12 @@ const emit = defineEmits<{
 watchEffect(() => {
   console.log('a', props)
 })
+
+function formateSize(num: number) {
+  if (num < 1024)
+    return `${num}B`
+  return `${(num / 1024).toFixed(2)}KB`
+}
 </script>
 
 <template>
@@ -24,6 +30,10 @@ watchEffect(() => {
 
       <div class="sync-badge">
         已上传
+      </div>
+
+      <div class="sync-status">
+        {{ formateSize(file.extra.file.size ?? 0) }}
       </div>
 
       <div class="close-button" @click="emit('delete', index)">
@@ -78,6 +88,20 @@ watchEffect(() => {
     background-color: var(--theme-color);
   }
 
+  .sync-status {
+    position: absolute;
+    // padding: 0.125rem 0.25rem;
+
+    left: 0.5rem;
+    bottom: 0.25rem;
+
+    opacity: 1;
+    font-size: 12px;
+    border-radius: 8px;
+    backdrop-filter: blur(18px) saturate(180%);
+    background-color: var(--el-mask-color-extra-light);
+  }
+
   &.error .mention {
     opacity: 1;
   }
@@ -120,7 +144,7 @@ watchEffect(() => {
     cursor: pointer;
     border-radius: 50%;
     transform: translate(50%, -50%);
-    background-color: var(--el-bg-color);
+    background-color: var(--el-bg-color-page);
   }
   &:hover {
     .close-button {
@@ -148,6 +172,7 @@ watchEffect(() => {
   max-height: 200px;
 
   border-radius: 4px;
+  border: 1px solid var(--el-border-color);
 }
 
 .InputHeader-FileList {

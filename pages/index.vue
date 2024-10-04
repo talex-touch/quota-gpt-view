@@ -230,6 +230,10 @@ async function handleSend(query: IInnerItemMeta[], _meta: any) {
   curController = completion.send()
 }
 
+function handleSuggest(suggestion: string) {
+  handleSend([$completion.initInnerMeta('text', suggestion)], {})
+}
+
 provide('pageOptions', pageOptions)
 
 function handleShare() {
@@ -266,7 +270,7 @@ onMounted(mounter)
     <div class="PageContainer-Main">
       <ThChat
         ref="chatRef" v-model:messages="pageOptions.conversation" :status="pageOptions.status"
-        @cancel="handleCancelReq" @retry="handleRetry"
+        @cancel="handleCancelReq" @retry="handleRetry" @suggest="handleSuggest"
       >
         <template #model>
           <ModelSelector v-if="mount" v-model="pageOptions.model" />

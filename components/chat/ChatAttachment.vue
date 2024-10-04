@@ -88,7 +88,7 @@ watchEffect(() => {
 
   setTimeout(() => {
     handleSizable(!block.extra?.end)
-  }, 1000)
+  }, 500)
 })
 const timeCost = computed(() => {
   const start = props.block.extra?.start || -1

@@ -409,6 +409,7 @@ export const $completion = {
       //     end: true,
       //   },
       // })
+      console.log('parser', innerMsg)
 
       innerMsg.value.forEach((item) => {
         if (item.type !== 'tool')
@@ -423,6 +424,7 @@ export const $completion = {
               type: 'timeout',
               timestamp: Date.now(),
             },
+            end: Date.now(),
           }
         }
       })
@@ -624,6 +626,13 @@ export const $completion = {
               }
 
               handler.onCompletion?.(name, res.content)
+            }
+            else if (event === 'suggest') {
+              innerMsg.value.push({
+                data: 'suggest',
+                type: res.content_type as any,
+                value: res.content,
+              })
             }
             else if (event === 'error') {
               handler.onError?.()

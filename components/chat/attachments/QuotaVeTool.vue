@@ -19,13 +19,14 @@ const emits = defineEmits<{
 
 const data = computed(() => props.block.data ? JSON.parse(props.block.data) : {})
 const value = computed(() => props.block.value ? JSON.parse(props.block.value) : {})
+const isEnd = computed(() => !!props.block.extra?.end)
 
 const compMapper = reactive({
   'ts-ThisAI_StandardImagable-ThisAI_StandardImagable': {
     icon: 'i-carbon:image',
     comp: Imagable,
     expandable: true,
-    query: computed(() => data.value.arguments?.text || (data.value ? '已生成图像' : `生成图像中`)),
+    query: computed(() => data.value.arguments?.text || (isEnd.value ? '已生成图像' : `生成图像中`)),
   },
   'biyingsousuo-bingWebSearch': {
     icon: 'i-carbon:search',
@@ -43,7 +44,7 @@ const compMapper = reactive({
     icon: 'i-carbon:music',
     comp: Music,
     expandable: true,
-    query: computed(() => data.value ? '已生成' : '生成中'),
+    query: computed(() => isEnd.value ? '已生成' : '生成中'),
   },
   'xingzuoyunshi-star': {
     icon: 'i-carbon:bee',
@@ -67,13 +68,13 @@ const compMapper = reactive({
     icon: 'i-carbon:recommend',
     comp: Job,
     expandable: true,
-    query: computed(() => data.value ? '已完成搜索' : '搜索中'),
+    query: computed(() => isEnd.value ? '已完成搜索' : '搜索中'),
   },
   'ts-ThisAI_Standard-ThisAI_Standard': {
     icon: 'i-carbon:unknown',
     comp: Data,
     expandable: true,
-    query: computed(() => data.value ? '已思考完成' : '思考中'),
+    query: computed(() => isEnd.value ? '已思考完成' : '思考中'),
   },
 })
 
@@ -109,7 +110,7 @@ const timeCost = computed(() => {
               <div class="Tool-Header-Icon">
                 <div :class="curItem.icon" />
               </div>
-              <OtherTextShaving v-if="!block.value" :text="curItem.query" />
+              <OtherTextShaving v-if="!block.extra?.end" :text="curItem.query" />
               <p v-else>
                 {{ curItem.query }}
               </p>

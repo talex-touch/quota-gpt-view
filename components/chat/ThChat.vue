@@ -17,6 +17,7 @@ const emits = defineEmits<{
   (e: 'update:messages', messages: IChatConversation): void
   (e: 'cancel'): void
   (e: 'retry', index: number, page: number, innerItem: IChatInnerItem): Promise<void>
+  (e: 'suggest', content: string): void
 }>()
 
 const scrollbar = ref()
@@ -176,6 +177,10 @@ function handleRetry(ind: number, item: IChatInnerItem) {
 
   emits('retry', ind, chat.content.length, item)
 }
+
+function handleSuggest(content: string) {
+  emits('suggest', content)
+}
 </script>
 
 <template>
@@ -201,6 +206,7 @@ function handleRetry(ind: number, item: IChatInnerItem) {
             :ind="ind" :total="messages.messages.length" :share="options.share.enable"
             :select="options.share.selected" @select="handleSelectShareItem"
             @retry="handleRetry(ind, $event)"
+            @suggest="handleSuggest($event)"
           />
 
           <!-- 统一 error / warning mention -->

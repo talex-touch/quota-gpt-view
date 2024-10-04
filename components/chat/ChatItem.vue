@@ -29,6 +29,7 @@ const props = defineProps<IChatItemProp>()
 const emits = defineEmits<{
   (e: 'select', index: number, checked: boolean): void
   (e: 'retry', innerItem: IChatInnerItem): void
+  (e: 'suggest', content: string): void
   (e: 'update:item', data: IChatItem): void
   (e: 'update:meta', data: IChatItem): void
 }>()
@@ -171,9 +172,16 @@ watchEffect(() => {
             错误 {{ item.content }}
           </span> -->
           <div v-for="(block, i) in innerItem.value" :key="i" class="ChatItem-Content-Inner-Block">
-            <!-- <div > -->
-            <pre v-if="block.type === 'text'" class="inner" v-text="block.value" />
-            <!-- </div> -->
+            <div v-if="block.data === 'suggest'">
+              <div v-if="ind === total - 1" v-wave :style="`--fly-enter-delay: ${i * 0.125}s`" class="transition-cubic fake-background suggest-card" @click="emits('suggest', block.value)">
+                <TextShaving v-if="!isEnd" :text="block.value" />
+                <template v-else>
+                  {{ block.value }}
+                </template>
+              </div>
+            </div>
+
+            <pre v-else-if="block.type === 'text'" class="inner" v-text="block.value" />
 
             <RenderContent
               v-else-if="block.type === 'markdown'" :dot-enable="!isEnd" :render="settingMode.render"
@@ -337,8 +345,41 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
   padding-left: 0.5rem;
 }
 
+@keyframes fly_enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .ChatItem-Wrapper {
   .ChatItem-Content-Inner {
+    .suggest-card {
+      &:hover {
+        color: var(--theme-color);
+      }
+      position: relative;
+      margin: 0.5rem -0.5rem;
+      padding: 0.25rem 0.75rem;
+
+      cursor: pointer;
+      overflow: hidden;
+      border-radius: 12px;
+      --fake-opacity: 0.025;
+      --fake-color: var(--theme-color);
+      // border: var(--el-border);
+      backdrop-filter: blur(18px) saturate(180%);
+      box-shadow: var(--el-box-shadow-light);
+
+      opacity: 0;
+      animation: fly_enter 0.25s ease-in-out forwards var(--fly-enter-delay, 0s);
+    }
+
     .image-card {
       img {
         width: 100%;
@@ -356,6 +397,7 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
 
       overflow: hidden;
       border-radius: 4px;
+      box-shadow: var(--el-box-shadow);
     }
 
     pre {
