@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 const props = defineProps<{
   active?: boolean
+  tip?: string
 }>()
 
 const emits = defineEmits(['click'])
@@ -31,10 +32,35 @@ function handleClick() {
 <template>
   <button ref="button" :class="{ active }" class="AnimateIcon" @click="handleClick">
     <slot />
+    <div v-if="tip" class="transition-cubic AnimateIcon-Tooltip">
+      {{ tip }}
+    </div>
   </button>
 </template>
 
 <style lang="scss">
+.AnimateIcon-Tooltip {
+  .AnimateIcon:hover & {
+    opacity: 1;
+    filter: blur(0);
+    transform: translate(1rem, -50%) scale(1);
+  }
+  position: absolute;
+  padding: 0.25rem 0.5rem;
+
+  top: 50%;
+  left: 100%;
+
+  width: max-content;
+  opacity: 0;
+  filter: blur(5px);
+  border-radius: 12px;
+  transform: translate(1rem, -50%) scale(0);
+  transform-origin: left;
+  box-shadow: var(--el-box-shadow);
+  background-color: var(--el-bg-color);
+}
+
 .AnimateIcon {
   &.active {
     color: var(--theme-color);

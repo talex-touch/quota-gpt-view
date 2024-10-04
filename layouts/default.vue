@@ -170,10 +170,9 @@ import IndexNavbar from '~/components/chore/IndexNavbar.vue'
       opacity: 0.85;
       background-color: var(--el-bg-color);
     }
-
+    z-index: 2;
     position: relative;
     padding: 1rem 0.5rem;
-    z-index: 2;
     display: flex;
 
     align-items: center;
@@ -183,7 +182,7 @@ import IndexNavbar from '~/components/chore/IndexNavbar.vue'
     width: 64px;
     height: 100%;
 
-    overflow: hidden;
+    overflow: visible;
     box-sizing: border-box;
     background-color: var(--el-bg-color);
     border-right: 1px solid var(--el-border-color);
