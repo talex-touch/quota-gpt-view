@@ -28,6 +28,12 @@ const compMapper = reactive({
     expandable: true,
     query: computed(() => data.value.arguments?.text || (isEnd.value ? '已生成图像' : `生成图像中`)),
   },
+  'ts-ThisAI_TurboImagable-ThisAI_TurboImagable': {
+    icon: 'i-carbon:image',
+    comp: Imagable,
+    expandable: true,
+    query: computed(() => data.value.arguments?.text || (isEnd.value ? '已生成图像' : `生成图像中`)),
+  },
   'biyingsousuo-bingWebSearch': {
     icon: 'i-carbon:search',
     comp: BingSearch,
@@ -84,8 +90,11 @@ const curItem = computed(() => {
   if (!compName)
     return compMapper['ts-ThisAI_Standard-ThisAI_Standard']
 
-  if (!Object.keys(compMapper).includes(compName))
+  if (!Object.keys(compMapper).includes(compName)) {
+    console.log('comp', compName, props)
+
     return compMapper['ts-ThisAI_Standard-ThisAI_Standard']
+  }
 
   return compMapper[compName]
 })
@@ -110,10 +119,12 @@ const timeCost = computed(() => {
               <div class="Tool-Header-Icon">
                 <div :class="curItem.icon" />
               </div>
-              <OtherTextShaving v-if="!block.extra?.end" :text="curItem.query" />
-              <p v-else>
-                {{ curItem.query }}
-              </p>
+              <div class="Tool-Header-Content">
+                <OtherTextShaving v-if="!block.extra?.end" :text="curItem.query" />
+                <p v-else>
+                  {{ curItem.query }}
+                </p>
+              </div>
               <div class="Tool-Header-Status">
                 <IconCircleLoader class="Loader" />
                 <el-tooltip placement="top" :content="timeCost">

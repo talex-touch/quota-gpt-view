@@ -63,7 +63,7 @@ async function handleSizable(expand: boolean) {
     mainDom.style.width = ''
 
     const maxWidth = mainDom.clientWidth
-    const width = Math.min(collapseDom.clientWidth + 16, maxWidth)
+    const width = Math.min(collapseDom.clientWidth + 24, maxWidth)
 
     mainDom.style.width = prevWidth
     await sleep(1)
@@ -74,7 +74,7 @@ async function handleSizable(expand: boolean) {
     await sleep(1)
     const headerDom = collapseDom.querySelector('.QueryCollapse-Header')!
 
-    mainDom.style.width = `${headerDom.clientWidth + 16}px`
+    mainDom.style.width = `${headerDom.clientWidth + 24}px`
   }
 }
 
@@ -84,11 +84,13 @@ async function handleSizable(expand: boolean) {
 watchEffect(() => {
   const block = props.block
 
-  handleSizable(!block.extra?.end)
+  setTimeout(async () => {
+    await handleSizable(!block.extra?.end)
 
-  setTimeout(() => {
-    handleSizable(!block.extra?.end)
-  }, 500)
+    await sleep(500)
+
+    await handleSizable(!block.extra?.end)
+  })
 })
 const timeCost = computed(() => {
   const start = props.block.extra?.start || -1
@@ -148,6 +150,15 @@ const timeCost = computed(() => {
   max-height: 100%;
 
   overflow: hidden;
+}
+
+.Tool-Header-Content {
+  position: relative;
+
+  max-width: 20vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .Tool-Header-Status {
