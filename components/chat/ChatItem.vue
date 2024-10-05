@@ -87,8 +87,10 @@ const tools = reactive([
 
       let content = ''
       innerItem.value!.value.forEach((item) => {
-        if (item.type === 'markdown' || item.type === 'text')
-          content += item.value
+        if (item.type === 'markdown' || item.type === 'text') {
+          if (item.data !== 'suggest')
+            content += item.value
+        }
       })
 
       navigator.clipboard.writeText(content)
