@@ -25,7 +25,8 @@ function toCheckout(plan: any) {
   //   },
   // })
 
-  window.open(`${window.origin}/buy?type=SUBSCRIPTION&plan=${plan.value}&time=MONTH`, '_blank')
+  // window.open(`${window.origin}/buy?type=SUBSCRIPTION&plan=${plan.value}&time=MONTH`, '_blank')
+  window.open(`${window.origin}/plan`, '_blank')
   // router.push(`/buy?type=SUBSCRIPTION&plan=${plan.value}&time=MONTH`)
 }
 </script>
