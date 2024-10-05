@@ -351,10 +351,6 @@ async function handlePublishVersion(id: number) {
 
   fetchData()
 }
-
-function downloadDoc(data: IDoc) {
-
-}
 </script>
 
 <template>
@@ -515,6 +511,7 @@ function downloadDoc(data: IDoc) {
             >
               <template #property>
                 <el-form
+                  v-if="!false"
                   ref="ruleFormRef" :disabled="dialogOptions.loading || dialogOptions.mode === 'read'"
                   :model="dialogOptions.data" :rules="rules" label-width="auto" status-icon my-4 inline
                 >

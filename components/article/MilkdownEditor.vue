@@ -45,7 +45,7 @@ const props = defineProps<{
 
 const emits = defineEmits<{
   (event: 'update:modelValue', data: string): void
-  (event: 'outline', data: any): void
+  (event: 'outline', data: any, el: HTMLElement): void
   (event: 'onScroll', data: any): void
 }>()
 
@@ -208,7 +208,7 @@ const editor = useEditor((root) => {
 
         const _outline = editor.get()!.action(outline)(ctx)
 
-        emits('outline', _outline)
+        emits('outline', _outline, editorDom.value)
 
         setTimeout(() => _updating = false, 100)
       }
@@ -243,13 +243,13 @@ const editor = useEditor((root) => {
 
 <template>
   <div class="GuideEditorContainer">
-    <div class="GuideEditorContainer-Main">
-      <el-scrollbar @scroll="emits('onScroll', $event)">
-        <div class="GuideEditorContainer-MainWrapper">
-          <Milkdown ref="editorDom" class="MilkContent" />
-        </div>
-      </el-scrollbar>
-    </div>
+    <!-- <div class="GuideEditorContainer-Main"> -->
+    <el-scrollbar @scroll="emits('onScroll', $event)">
+      <div class="GuideEditorContainer-MainWrapper">
+        <Milkdown ref="editorDom" class="MilkContent" />
+      </div>
+    </el-scrollbar>
+    <!-- </div> -->
   </div>
 </template>
 

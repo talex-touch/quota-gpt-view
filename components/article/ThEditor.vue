@@ -15,9 +15,11 @@ const emits = defineEmits<{
 
 const model = useVModel(props, 'modelValue', emits)
 const outline = ref<any[]>()
+const editor = ref<HTMLElement>()
 
-function handleOutline(data: any[]) {
+function handleOutline(data: any[], el: HTMLElement) {
   outline.value = data
+  editor.value = el
 }
 
 let _func: any
@@ -62,7 +64,7 @@ onBeforeUnmount(() => {
     <div class="ThEditor-Aside">
       <el-scrollbar>
         <h1>页面大纲</h1>
-        <ArticleContentOutline :edit-mode="false" :outline="outline" />
+        <ArticleContentOutline :editor="editor" :edit-mode="false" :outline="outline" />
       </el-scrollbar>
     </div>
 
@@ -92,17 +94,20 @@ onBeforeUnmount(() => {
       font-size: 20px;
       font-weight: 600;
     }
+
     position: relative;
     display: flex;
-    padding: 1rem 0.75rem;
+    padding: 1rem 0.5rem;
 
     width: 30%;
     max-width: 380px;
+    height: max-content;
 
     gap: 1rem;
     flex-direction: column;
-    border-top: 1px solid var(--el-border-color);
-    border-left: 1px solid var(--el-border-color);
+
+    border-radius: 12px;
+    background-color: var(--el-bg-color);
   }
 
   &-Aside {
@@ -111,31 +116,53 @@ onBeforeUnmount(() => {
       font-size: 20px;
       font-weight: 600;
     }
+
     position: relative;
-    // padding: 1rem 0.75rem;
+    display: flex;
 
     width: 30%;
     max-width: 280px;
-    border-top: 1px solid var(--el-border-color);
-    border-right: 1px solid var(--el-border-color);
+    height: max-content;
+
+    gap: 1rem;
+    flex-direction: column;
+
+    border-radius: 12px;
+    background-color: var(--el-bg-color);
   }
 
   &-Main {
-    position: relative;
+    .MilkContent,
+    .milkdown,
+    .ProseMirror {
+      position: relative;
 
-    top: 0;
-    left: 0;
+      width: 100%;
+      height: 100%;
+      min-height: 100%;
+    }
+
+    .GuideEditorContainer-MainWrapper {
+      width: 100%;
+      height: 100%;
+    }
+
+    position: relative;
+    // margin: 0 auto;
 
     // width: 80%;
-    // max-width: 1280px;
+    max-width: 850px;
     height: 100%;
 
     flex: 1;
     overflow: hidden;
-    // background-color: var(--el-bg-color-page);
+    border-radius: 12px;
+    box-shadow: var(--el-box-shadow);
+    background-color: var(--el-bg-color);
   }
-  position: absolute;
-  // padding: 0.5rem 0.25rem;
+
+  position: relative;
+  padding: 1rem;
   display: flex;
 
   top: 0;
@@ -144,6 +171,9 @@ onBeforeUnmount(() => {
   width: 100%;
   height: 100%;
 
-  justify-content: space-between;
+  gap: 1rem;
+  justify-content: center;
+
+  background-color: var(--el-bg-color-page);
 }
 </style>

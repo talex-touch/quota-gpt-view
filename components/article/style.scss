@@ -14,7 +14,7 @@
         }
       }
 
-      br.ProseMirror-trailingBreak {
+      &:last-child.ProseMirror-trailingBreak {
         display: none;
       }
 

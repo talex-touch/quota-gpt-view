@@ -1,16 +1,19 @@
 <script lang="ts" setup>
-const props = defineProps(['outline', 'editMode'])
+const props = defineProps(['outline', 'editor', 'editMode'])
 
 const pointer = ref<HTMLElement>()
 const eleArr = ref<HTMLElement[]>([])
 watchEffect(() => {
   // eslint-disable-next-line no-restricted-syntax, no-labels, no-unused-expressions
-  $_ignored: [props.outline]
+  $_ignored: [props.outline, props.editor]
+
+  if (!props.editor)
+    return
 
   setTimeout(() => {
     eleArr.value.length = 0
 
-    const editor = document.querySelector('#MilkEditor')!
+    const editor = props.editor.$el // document.querySelector('#MilkEditor')!
 
     ;[...editor.children[0].children[0].children]
       .filter(ele => ele.tagName.match(/H[1-6]/))
@@ -48,7 +51,7 @@ onMounted(() => {
 // onUnmounted(() => window.removeEventListener('scroll', handleScroll))
 
 function handleScroll() {
-  const editor = document.querySelector('#MilkEditor')
+  const editor = props.editor?.$el // document.querySelector('#MilkEditor')
   if (!editor)
     return
 
