@@ -25,8 +25,11 @@ async function fetchData() {
     items.items.push(...res.data.items)
 
     items.items = [...items.items]
+
+    const meta = res.data.meta
+    if (meta.itemCount < meta.itemsPerPage)
+      done.value = true
   }
-  else { done.value = true }
 }
 
 onMounted(() => {

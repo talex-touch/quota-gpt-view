@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { setWallpaper, themeColors, themeOptions, viewTransition, wallpapers } from '~/composables/theme/colors'
+import { setWallpaper, theme, themeColors, viewTransition, wallpapers } from '~/composables/theme/colors'
 import ShiningButton from '~/components/button/ShiningButton.vue'
 import TextShaving from '~/components/other/TextShaving.vue'
 
@@ -37,7 +37,7 @@ async function trySetWallpaper(paper: any, event: Event) {
   if (loading.value)
     return
 
-  if (themeOptions.value.theme === paper.id)
+  if (theme.value === paper.id)
     return
 
   if (!paper.free && !userStore.value.subscription?.type) {
@@ -116,12 +116,12 @@ function toSubscription() {
           <p v-if="false">
             选择你喜欢的主题颜色
           </p>
-          <div v-if="false" class="ProfileWrapper-Theme">
+          <!-- <div v-if="false" class="ProfileWrapper-Theme">
             <div
               v-for="(color, index) in themeColors" :key="color" :class="{ active: themeOptions.color === index }"
               class="theme-color" :style="`--c: ${color}`" @click="themeOptions.color = index"
             />
-          </div>
+          </div> -->
 
           <div class="ProfileWrapper-Base">
             <p>
@@ -180,8 +180,8 @@ function toSubscription() {
                 </p>
               </div>
 
-              <div v-if="themeOptions.theme" flex class="wallpaper-end">
-                当前选择：{{ themeOptions.theme }}
+              <div v-if="theme" flex class="wallpaper-end">
+                当前选择：{{ theme }}
                 <el-button type="danger" @click="setWallpaper(null, $event)">
                   重置
                 </el-button>
@@ -192,7 +192,7 @@ function toSubscription() {
               <div
                 v-for="wallpaper in wallpapers" :key="wallpaper.label" v-loader="loading === wallpaper.id"
                 :style="`--t: ${wallpaper.color}`"
-                :class="{ lock: !wallpaper?.free, active: wallpaper.id === themeOptions.theme }" class="Wallpaper-Item"
+                :class="{ lock: !wallpaper?.free, active: wallpaper.id === theme }" class="Wallpaper-Item"
                 @click="trySetWallpaper(wallpaper, $event)"
               >
                 <el-image :key="wallpaper.label" :src="wallpaper.wallpaper" lazy class="Wallpaper-Item-Img" />

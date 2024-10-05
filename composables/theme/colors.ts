@@ -90,31 +90,41 @@ export const wallpapers = [
   },
 ]
 
-export const themeOptions = useLocalStorage('theme-options', {
-  color: 0,
-  theme: '',
+// export const themeOptions = useLocalStorage('theme-options', {
+//   color: 0,
+//   theme: '',
+// })
+export const theme = computed({
+  get() {
+    return userConfig.value.pri_info.appearance.theme
+  },
+  set(val: string) {
+    userConfig.value.pri_info.appearance.theme = val
+  },
 })
 
 export async function _setWallpaper(paper: any) {
   if (!paper) {
-    themeOptions.value.theme = ''
+    theme.value = ''
     document.body.classList.remove('wallpaper')
 
     document.documentElement.style.setProperty('--wallpaper-color', '')
     document.documentElement.style.setProperty('--wallpaper-color-light', '')
     document.documentElement.style.setProperty('--wallpaper-color-lighter', '')
     document.documentElement.style.setProperty('--wallpaper', '')
-
-    return
   }
-  themeOptions.value.theme = paper.id
+  else {
+    theme.value = paper.id
 
-  document.body.classList.add('wallpaper')
+    document.body.classList.add('wallpaper')
 
-  document.documentElement.style.setProperty('--wallpaper-color', paper.color)
-  document.documentElement.style.setProperty('--wallpaper-color-light', `${paper.color}80`)
-  document.documentElement.style.setProperty('--wallpaper-color-lighter', `${paper.color}30`)
-  document.documentElement.style.setProperty('--wallpaper', `url(${paper.wallpaper})`)
+    document.documentElement.style.setProperty('--wallpaper-color', paper.color)
+    document.documentElement.style.setProperty('--wallpaper-color-light', `${paper.color}80`)
+    document.documentElement.style.setProperty('--wallpaper-color-lighter', `${paper.color}30`)
+    document.documentElement.style.setProperty('--wallpaper', `url(${paper.wallpaper})`)
+  }
+
+  await saveUserConfig()
 }
 
 export async function setWallpaper(paper: any, e: { clientX: number, clientY: number }) {
@@ -159,8 +169,8 @@ export async function setWallpaper(paper: any, e: { clientX: number, clientY: nu
 }
 
 export function detectWallpaper() {
-  if (themeOptions.value.theme) {
-    const paper = wallpapers.find(p => p.id === themeOptions.value.theme)
+  if (theme.value) {
+    const paper = wallpapers.find(p => p.id === theme.value)
     if (!paper || paper.free)
       return
 
@@ -171,6 +181,10 @@ export function detectWallpaper() {
       _setWallpaper(paper)
   }
 }
+
+watch(() => theme.value, () => {
+  detectWallpaper()
+})
 
 export function viewTransition(e: { clientX: number, clientY: number }, theme?: 'auto' | 'light' | 'dark') {
   const color = useColorMode()

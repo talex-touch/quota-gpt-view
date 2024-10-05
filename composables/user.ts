@@ -31,17 +31,11 @@ export interface AccountDetail {
 
 export const userStore = useLocalStorage<Partial<AccountDetail>>('user', {})
 
-// <{
-//   pub_info: any
-//   pri_info: any
-//   loading: boolean
-// }>
-
-export const userConfig = ref({
+const rawUserConfig = {
   pub_info: {},
   pri_info: {
     cms: {
-      expand: !false,
+      expand: false,
       apps: [],
     },
     home: {
@@ -52,12 +46,14 @@ export const userConfig = ref({
       tutorial: true,
     },
     appearance: {
-      expand: true,
+      theme: '',
+      expand: false,
       immersive: true,
     },
   },
   loading: false,
-})
+}
+export const userConfig = ref(JSON.parse(JSON.stringify(rawUserConfig)))
 
 watch(() => userStore.value.token?.accessToken, (token) => {
   userStore.value.isLogin = !!token
@@ -116,15 +112,12 @@ export async function $handleUserLogout() {
   if (!userStore.value.isLogin)
     console.warn(`User not login now.`)
 
-  localStorage.removeItem('user')
-
-  console.log('logout')
+  userStore.value = {}
+  userConfig.value = JSON.parse(JSON.stringify(rawUserConfig))
 
   const router = useRouter()
 
   await router.push('/')
-
-  // userStore.value = {}
 
   $event.emit('USER_LOGOUT_SUCCESS')
 }

@@ -2,7 +2,7 @@
 import { autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/vue'
 
 const props = defineProps<{
-  popperClass: string
+  popperClass?: string
 }>()
 
 const hover = ref(false)
@@ -18,7 +18,7 @@ const { floatingStyles } = useFloating(container, floating, {
   whileElementsMounted: autoUpdate,
 })
 
-const computedClass = computed(() => [hover.value ? 'enter' : '', props.popperClass])
+const computedClass = computed(() => [hover.value ? 'enter' : '', props.popperClass || 'Popover-Float-Inner'])
 </script>
 
 <template>
@@ -30,7 +30,7 @@ const computedClass = computed(() => [hover.value ? 'enter' : '', props.popperCl
       ref="floating" :style="floatingStyles" class="Popover-Float" @mouseenter="hover = true"
       @mouseleave="hover = false"
     >
-      <div :class="computedClass" class="Popover-Float-Inner">
+      <div :class="computedClass">
         <slot />
       </div>
     </div>
@@ -49,7 +49,7 @@ const computedClass = computed(() => [hover.value ? 'enter' : '', props.popperCl
     }
     transform: scale(0);
   }
-  z-index: 2;
+  z-index: 5;
   position: absolute;
 }
 </style>

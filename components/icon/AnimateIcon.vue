@@ -30,22 +30,27 @@ function handleClick() {
 </script>
 
 <template>
-  <button ref="button" :class="{ active }" class="AnimateIcon" @click="handleClick">
-    <slot />
-    <div v-if="tip" class="transition-cubic AnimateIcon-Tooltip">
+  <TemplatePopoverComp popper-class="AnimateIcon-Tooltip transition-cubic">
+    <template #inner>
+      <button ref="button" :class="{ active }" class="AnimateIcon" @click="handleClick">
+        <slot />
+      </button>
+    </template>
+    <div v-if="tip">
       {{ tip }}
     </div>
-  </button>
+  </TemplatePopoverComp>
 </template>
 
 <style lang="scss">
 .AnimateIcon-Tooltip {
-  .AnimateIcon:hover & {
+  &.enter {
     opacity: 1;
     filter: blur(0);
-    transform: translate(1rem, -50%) scale(1);
+    transform: translate(1rem, 0%) scale(1);
   }
-  position: absolute;
+
+  // position: absolute;
   padding: 0.25rem 0.5rem;
 
   top: 50%;
@@ -55,7 +60,7 @@ function handleClick() {
   opacity: 0;
   filter: blur(5px);
   border-radius: 12px;
-  transform: translate(1rem, -50%) scale(0);
+  transform: translate(1rem, 0%) scale(0);
   transform-origin: left;
   box-shadow: var(--el-box-shadow);
   background-color: var(--el-bg-color);
@@ -79,6 +84,7 @@ function handleClick() {
     // mask-repeat: no-repeat;
     // mask-size: 100% 100%;
   }
+
   position: relative;
 
   width: 32px;

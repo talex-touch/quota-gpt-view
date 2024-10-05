@@ -54,6 +54,8 @@ export class HistoryManager implements IHistoryManager {
 
   constructor() {
     $event.on('USER_LOGOUT_SUCCESS', () => {
+      console.log('logout history clear')
+
       this.options.list.clear()
     })
     $event.on('USER_LOGIN_SUCCESS', async () => {
@@ -90,7 +92,7 @@ export class HistoryManager implements IHistoryManager {
     return $endApi.v1.aigc.getConversations({
       pageSize: 25,
       page: 1,
-      topic: query
+      topic: query,
     })
   }
 

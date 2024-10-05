@@ -182,7 +182,7 @@ import IndexNavbar from '~/components/chore/IndexNavbar.vue'
     width: 64px;
     height: 100%;
 
-    overflow: visible;
+    overflow: hidden;
     box-sizing: border-box;
     background-color: var(--el-bg-color);
     border-right: 1px solid var(--el-border-color);

@@ -87,15 +87,13 @@ const menus = reactive([
         <template #inner>
           <div class="i-carbon:overflow-menu-horizontal" />
         </template>
-        <div class="History-Content-MenuWrapper">
-          <div class="History-Content-Menu">
-            <div
-              v-for="menu in menus" :key="menu.name" v-wave :class="{ danger: menu.danger }"
-              class="History-Content-Menu-Item" @click.stop="menu.trigger(modelValue.id)"
-            >
-              <div :class="menu.icon" />
-              <span v-html="menu.name" />
-            </div>
+        <div class="History-Content-Menu">
+          <div
+            v-for="menu in menus" :key="menu.name" v-wave :class="{ danger: menu.danger }"
+            class="History-Content-Menu-Item" @click.stop="menu.trigger(modelValue.id)"
+          >
+            <div :class="menu.icon" />
+            <span v-html="menu.name" />
           </div>
         </div>
       </PopoverComp>
@@ -111,6 +109,14 @@ const menus = reactive([
 </template>
 
 <style lang="scss">
+.History-Content-MenuWrapper {
+  &.enter {
+    transform: scale(1);
+  }
+  transform: scale(0);
+  transform-origin: left top;
+}
+
 .HistoryItem {
   .content-wrapper {
     // &::after {
