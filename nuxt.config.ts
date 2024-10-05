@@ -96,7 +96,11 @@ export default defineNuxtConfig({
     },
   },
 
-  pwa,
+  pwa: {
+    workbox: {
+      maximumFileSizeToCacheInBytes: parseInt(process.env.WORKBOX_MAX_FILE_SIZE || '2000000')
+    }
+  },
 
   devtools: {
     enabled: true,
