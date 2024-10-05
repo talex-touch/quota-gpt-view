@@ -13,7 +13,7 @@ export default defineNuxtConfig({
     '@element-plus/nuxt',
     '@vueuse/nuxt',
     '@unocss/nuxt',
-    '@pinia/nuxt',
+    // '@pinia/nuxt',
     '@nuxtjs/color-mode',
     '@vite-pwa/nuxt',
     '@nuxt/eslint',

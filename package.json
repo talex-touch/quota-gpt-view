@@ -83,7 +83,6 @@
     "nuxt": "^3.11.2",
     "nuxt-echarts": "^0.1.0",
     "nuxt-lodash": "^2.5.3",
-    "pinia": "^2.1.7",
     "sass": "^1.77.6",
     "typescript": "^5.4.5",
     "vue-tsc": "^2.0.17"

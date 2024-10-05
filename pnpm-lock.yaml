@@ -210,9 +210,6 @@ importers:
       nuxt-lodash:
         specifier: ^2.5.3
         version: 2.5.3(magicast@0.3.4)(rollup@4.17.2)
-      pinia:
-        specifier: ^2.1.7
-        version: 2.1.7(typescript@5.4.5)(vue@3.4.27(typescript@5.4.5))
       sass:
         specifier: ^1.77.6
         version: 1.77.6
