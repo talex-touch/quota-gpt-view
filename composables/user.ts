@@ -154,8 +154,10 @@ export async function refreshCurrentUserRPM() {
   Object.assign(userConfig.value.pri_info, toReactive(priConfig))
   Object.assign(userConfig.value.pub_info, toReactive(JSON.parse(config.pub_info || '{}')))
 
-  if (userStore.value.isLogin && !priConfig?.info?.tutorial)
-    userConfig.value.pri_info.info.tutorial = false
+  if (!document.body.classList.contains('mobile')) {
+    if (userStore.value.isLogin && !priConfig?.info?.tutorial)
+      userConfig.value.pri_info.info.tutorial = false
+  }
 }
 
 export function updateAccountDetail(obj: { nickname: string, avatar: string }) {

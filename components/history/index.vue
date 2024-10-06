@@ -4,6 +4,7 @@ import IconButton from '../button/IconButton.vue'
 import Logo from '../chore/Logo.vue'
 import UserAvatar from '../personal/UserAvatar.vue'
 import PremiumButton from '../button/PremiumButton.vue'
+import UserAccountAvatar from '../personal/UserAccountAvatar.vue'
 import { $historyManager, IHistoryStatus } from '~/composables/api/base/v1/aigc/history'
 import type { IChatConversation } from '~/composables/api/base/v1/aigc/completion-types'
 
@@ -283,8 +284,8 @@ onBeforeUnmount(() => dispose.value = true)
       <div v-loader="searchedList.loading" class="History-SearchableContent">
         <el-scrollbar>
           <HistorySection
-            v-model:select="searchedList.select"
-            title="已搜索" :history="searchedList.list" @delete="handleDelete"
+            v-model:select="searchedList.select" title="已搜索" :history="searchedList.list"
+            @delete="handleDelete"
           />
         </el-scrollbar>
       </div>
@@ -307,13 +308,14 @@ onBeforeUnmount(() => dispose.value = true)
     </div>
 
     <div class="History-Bottom">
+      <UserAccountAvatar class="only-pe-display" />
+
       <PremiumButton v-if="!userStore.subscription" @click="$router.push('/plan')" />
       <template v-else>
         <span v-if="planProgress && planProgress" class="plan">
           <span class="progress-bar" :style="`--w: ${100 - planProgress.progress}%`" />
-          <span class="text" w-full flex items-center justify-center gap-2 text-sm @click="$router.push('/plan')">{{ planProgress.text }}<el-link
-            v-if="planProgress.progress >= 30" type="primary"
-          >立即续费</el-link></span>
+          <span class="text" w-full flex items-center justify-center gap-2 text-sm @click="$router.push('/plan')">{{
+            planProgress.text }}<el-link v-if="planProgress.progress >= 30" type="primary">立即续费</el-link></span>
         </span>
       </template>
     </div>
@@ -321,6 +323,21 @@ onBeforeUnmount(() => dispose.value = true)
 </template>
 
 <style lang="scss">
+.mobile .History-Bottom {
+  .AccountAvatar-Wrapper,
+  .el-avatar {
+    height: 36px;
+    width: 36px;
+
+    flex: 1;
+  }
+  padding: 0.5rem 1rem;
+
+  display: flex;
+
+  gap: 1rem;
+}
+
 .History-SearchableContent {
   .searchable & {
     transform: translateX(0);
