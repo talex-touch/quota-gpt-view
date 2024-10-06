@@ -749,6 +749,14 @@ div.History {
 .mobile .History {
   position: absolute;
 
+  width: calc(100% - 48px) !important;
+  opacity: 1 !important;
   padding-top: 1rem;
+
+  transition: 0.5s transform cubic-bezier(0.785, 0.135, 0.15, 0.86);
+}
+
+.mobile .expand .History {
+  transition: 0.75s transform cubic-bezier(0.785, 0.135, 0.15, 0.86);
 }
 </style>

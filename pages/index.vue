@@ -258,11 +258,20 @@ function mounter() {
 }
 onActivated(mounter)
 onMounted(mounter)
+
+const expand = computed({
+  set(val: boolean) {
+    userConfig.value.pri_info.appearance.expand = val
+  },
+  get() {
+    return userConfig.value.pri_info.appearance.expand
+  },
+})
 </script>
 
 <template>
   <div
-    :class="{ expand: userConfig.pri_info.appearance.expand, empty: !pageOptions.conversation.messages.length }"
+    :class="{ expand, empty: !pageOptions.conversation.messages.length }"
     class="PageContainer"
   >
     <History
@@ -279,7 +288,8 @@ onMounted(mounter)
           <ModelSelector v-if="mount" v-model="pageOptions.model" />
         </template>
         <template #header>
-          <div i-carbon:text-short-paragraph @click="userConfig.pri_info.appearance.expand = true" />
+          <CheckboxSwanCheckBox v-model="expand" />
+          <!-- <div i-carbon:text-short-paragraph @click="userConfig.pri_info.appearance.expand = true" /> -->
 
           <ModelSelector v-if="mount" v-model="pageOptions.model" />
 
@@ -394,8 +404,15 @@ onMounted(mounter)
   }
 
   &-Main {
+    .mobile .expand & {
+      left: calc(100% - 48px);
+
+      transition: 0.5s left cubic-bezier(0.785, 0.135, 0.15, 0.86);
+    }
     // z-index: 2;
     position: relative;
+
+    left: 0;
 
     // flex: 1;
     width: 100%;
@@ -403,6 +420,8 @@ onMounted(mounter)
     height: 100%;
 
     overflow: hidden;
+
+    transition: 0.75s left cubic-bezier(0.785, 0.135, 0.15, 0.86);
   }
 
   &-History {

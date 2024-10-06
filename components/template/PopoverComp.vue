@@ -27,7 +27,7 @@ const computedClass = computed(() => [hover.value ? 'enter' : '', props.popperCl
   </div>
   <teleport to="body">
     <div
-      ref="floating" :style="floatingStyles" class="Popover-Float" @mouseenter="hover = true"
+      ref="floating" :class="{ visible: hover }" :style="floatingStyles" class="Popover-Float" @mouseenter="hover = true"
       @mouseleave="hover = false"
     >
       <div :class="computedClass">
@@ -49,7 +49,12 @@ const computedClass = computed(() => [hover.value ? 'enter' : '', props.popperCl
     }
     transform: scale(0);
   }
+  &.visible {
+    pointer-events: all;
+  }
   z-index: 5;
   position: absolute;
+
+  pointer-events: none;
 }
 </style>
