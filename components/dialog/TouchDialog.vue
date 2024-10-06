@@ -214,7 +214,7 @@ async function handleClickOutside() {
     transform: scale(1.025);
   }
 
-  z-index: 10;
+  z-index: 10000;
   position: absolute;
 
   width: 100%;

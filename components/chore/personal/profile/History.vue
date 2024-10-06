@@ -13,8 +13,51 @@ onMounted(async () => {
   historyList.value = res.data
 })
 
-function formatDate(date: string) {
-  return dayjs(date).format('YYYY-MM-DD HH:mm:ss')
+// 计算历史记录
+// 统计 设备 这一栏 groupBy
+const deviceGroup = computed(() => {
+  const res = historyList.value?.items?.reduce((acc: any, cur: any) => {
+    const key = cur.os
+
+    if (!acc[key])
+      acc[key] = []
+
+    acc[key].push(cur)
+
+    return acc
+  }, {})
+
+  return res
+    ? Object.keys(res).map((key) => {
+      const items = res[key].sort((a: any, b: any) => dayjs(b.time).diff(a.time))
+
+      // get last one
+      const item = items[0]
+
+      return { os: key, items, ...item }
+    }).sort((a: any, b: any) => b.items.length - a.items.length)
+    : []
+})
+
+// 判断是否是本设备
+function isThisDevice(item: any) {
+  const device = useDevice()
+  const ua = navigator.userAgent
+
+  const browserBrand = item.browser.split(' ')?.[0] || item.browser
+
+  if (item.os.includes('Android'))
+    return device.isAndroid && ua.includes(browserBrand)
+
+  if (item.os.includes('iOS'))
+    return device.isIos && ua.includes(browserBrand)
+
+  if (item.os.includes('Windows'))
+    return device.isWindows || ua.includes(browserBrand)
+
+  console.log('a', item, navigator.userAgent, useDevice(), browserBrand)
+
+  return false
 }
 </script>
 
@@ -28,7 +71,40 @@ function formatDate(date: string) {
     </div>
 
     <div class="ProfileWrapper-Main">
-      <el-table v-if="historyList?.items" height="100%" strip border size="large" table-layout="auto" :data="historyList.items">
+      <div v-for="device in deviceGroup" :key="device.os" class="Device-Item">
+        <div class="Device-Item-Main">
+          <p class="device-name">
+            {{ device.os }}
+            <span v-if="isThisDevice(device)" class="tag">
+              本机
+            </span>
+          </p>
+          <p class="method">
+            <span v-if="device.provider === 'WEB_WECHAT'">
+              微信扫码登录·网页版
+            </span>
+            <span v-else-if="device.provider === 'WECHAT_MINI_PROGRAM'">
+              微信登录·小程序
+            </span>
+            <span v-else-if="device.provider === 'WEB_PHONE'">
+              手机号登录·网页版
+            </span>
+            <span v-else>
+              {{ device.provider }}
+            </span>
+          </p>
+          <p class="time">
+            {{ formatDate(device.time) }}
+          </p>
+        </div>
+        <div text-sm op-75 class="Device-Item-Extra">
+          <span>{{ device.items.length }}条记录</span>
+        </div>
+      </div>
+      <el-table
+        v-if="false && historyList?.items" height="100%" strip border size="large" table-layout="auto"
+        :data="historyList.items"
+      >
         <el-table-column label="IP">
           <template #default="{ row }">
             {{ row.ip }}
@@ -65,6 +141,36 @@ function formatDate(date: string) {
 </template>
 
 <style lang="scss" scoped>
+.Device-Item {
+  p.device-name {
+    .tag {
+      padding: 0.25rem;
+
+      opacity: 0.75;
+      font-weight: normal;
+      font-size: 10px;
+      border-radius: 4px;
+      background: var(--el-overlay-color);
+    }
+    font-weight: 600;
+  }
+  p.method,
+  p.time {
+    font-size: 14px;
+    color: var(--el-text-color-secondary);
+  }
+  display: flex;
+  padding: 0.5rem;
+  margin: 1rem 0;
+
+  align-items: center;
+  justify-content: space-between;
+
+  border-radius: 16px;
+  background-color: var(--el-mask-color-extra-light);
+  box-shadow: var(--el-box-shadow);
+}
+
 :deep(.el-table) {
   --el-table-bg-color: var(--el-bg-color-page);
   --el-table-tr-bg-color: var(--el-bg-color-page);

@@ -93,10 +93,14 @@ function handleBack() {
 
 <template>
   <el-container :class="{ show, expand }" class="PersonalTemplate">
+    <div class="PersonalTemplate-Background only-pe-display" />
+
     <div class="PersonalTemplate-MainHead only-pe-display">
       <div i-carbon:arrow-left @click="handleBack" />
       <div class="head-text">
-        <p>{{ comp?.name || '' }}</p>
+        <p>
+          <OtherTextTransformer :text="comp?.name || '个人资料'" />
+        </p>
       </div>
       <div i-carbon:arrow-left op-0 />
     </div>
@@ -105,7 +109,7 @@ function handleBack() {
     </div>
 
     <div class="PersonalWrapper">
-      <div class="PersonalWrapper-Aside">
+      <div :class="{ hide: comp }" class="PersonalWrapper-Aside">
         <div class="PersonalWrapper-AsideHead">
           <AccountAvatar />
           <div class="head-text">
@@ -155,6 +159,11 @@ function handleBack() {
             开发者设置
           </CmsMenuItem>
         </div>
+
+        <div class="PersonalWrapper-AsideFooter only-pe-display">
+          <ChoreVersionBar />
+          <OtherPoweredBy />
+        </div>
       </div>
 
       <div :class="{ enter: comp }" class="PersonalWrapper-Main">
@@ -167,7 +176,30 @@ function handleBack() {
 </template>
 
 <style lang="scss">
+.PersonalWrapper-AsideFooter {
+  position: absolute;
+  display: flex;
+
+  bottom: 1rem;
+
+  font-size: 14px;
+  flex-direction: column;
+  align-items: center;
+}
+
+.PersonalTemplate-Background {
+  position: absolute;
+
+  top: 0;
+  width: 100%;
+  height: 30%;
+
+  background-image: url('/svg/back-wave.svg');
+  background-repeat: no-repeat;
+}
+
 .PersonalTemplate-MainHead {
+  z-index: 1;
   position: relative;
   padding: 1rem;
   display: flex;
@@ -177,6 +209,9 @@ function handleBack() {
   justify-content: space-between;
   top: 0;
   width: 100%;
+
+  backdrop-filter: blur(18px) saturate(180%);
+  background-color: var(--el-mask-color-extra-light);
 }
 
 .PersonalWrapper-AsideHead {
@@ -193,6 +228,15 @@ function handleBack() {
 
     top: unset;
     right: unset;
+
+    .mobile & {
+      width: 5rem;
+      height: 5rem;
+    }
+  }
+
+  .mobile & {
+    flex-direction: column;
   }
 
   padding: 1rem 0;
@@ -210,9 +254,11 @@ function handleBack() {
   &:hover {
     color: var(--el-color-danger);
   }
+
   .mobile & {
     display: none;
   }
+
   z-index: 1;
   position: absolute;
   display: flex;
@@ -293,6 +339,10 @@ function handleBack() {
       font-weight: 600;
       background-color: var(--el-bg-color-page);
       // border-top: 1px solid var(--el-border-color);
+
+      .mobile & {
+        bottom: 1rem;
+      }
     }
 
     .ProfileWrapper-Main {
@@ -317,10 +367,20 @@ function handleBack() {
       &.enter {
         transform: translateX(0);
       }
+
+      .ProfileWrapper-Header {
+        display: none;
+      }
+
       position: absolute;
 
+      border-radius: 0;
       transform: translateX(150%);
+      background-color: transparent;
       transition: transform 0.3s ease-in-out;
+
+      backdrop-filter: blur(18px) saturate(180%);
+      background-color: var(--el-mask-color-extra-light);
     }
 
     position: relative;
@@ -340,10 +400,23 @@ function handleBack() {
 
   &-Aside {
     .mobile & {
+      &.hide {
+        transform: translateX(-100%);
+        transition: 0.1s 0.15s;
+      }
+
+      .CmsMenuItem {
+        margin: 0.25rem 0;
+
+        background: var(--el-bg-color-page);
+        // border-bottom: 1px solid var(--el-border-color);
+      }
+
       width: 100%;
 
       border-radius: 0;
-      background-color: var(--el-bg-color-page);
+      transition: 0.2s;
+      // background-color: var(--el-bg-color-page);
     }
 
     & > p.title {
@@ -413,6 +486,7 @@ function handleBack() {
 
     border-radius: 0;
   }
+
   // box-shadow: var(--el-box-shadow);
   // background-color: var(--el-bg-color);
   // background: var(--el-mask-color-extra-lighter);
@@ -423,12 +497,14 @@ function handleBack() {
     width: min(1280px, 100%);
     height: min(950px, 95%);
   }
+
   &.show {
     // opacity: 1;
     visibility: unset;
     pointer-events: all;
     transform: translate(-50%, -50%);
   }
+
   // &::before {
   //   content: '';
   //   position: absolute;

@@ -318,6 +318,9 @@ p.subtitle {
 }
 
 .ProfileWrapper-Display-Theme {
+  .mobile & :deep(.ThemeBlock) {
+    width: 45%;
+  }
   flex-wrap: wrap;
 }
 
