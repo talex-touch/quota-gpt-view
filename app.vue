@@ -18,6 +18,10 @@ const pageOptions = reactive({
   },
 })
 
+onMounted(() => {
+  document.body.classList.add(isMobile ? 'mobile' : isTablet ? 'tablet' : '')
+})
+
 const globalOptionsStore = useLocalStorage('global-options', {
   url: '',
 })

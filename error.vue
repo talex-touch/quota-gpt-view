@@ -10,7 +10,8 @@ const handleError = () => clearError({ redirect: '/' })
   <div class="NotFound fake-background">
     <div class="NotFound-Main">
       <h1 class="NotFound-Title">
-        <span v-for="item in error?.statusCode" :key="item">{{ item }}</span>
+        {{ error.statusCode || error }}
+        <!-- <span v-for="item of error?.statusCode" :key="item">{{ item }}</span> -->
       </h1>
 
       <div class="NotFound-Box fake-background">

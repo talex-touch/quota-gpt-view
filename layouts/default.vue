@@ -8,8 +8,8 @@ import IndexNavbar from '~/components/chore/IndexNavbar.vue'
   <Suspense>
     <ClientOnly>
       <main class="DefaultTemplate-Container">
-        <el-aside>
-          <div class="Navbar-Header">
+        <el-aside class="only-pc-display">
+          <div class="Navbar-Aside">
             <div class="LogoContainer">
               <ChoreLogo />
               <span>科塔智爱</span>
@@ -29,6 +29,9 @@ import IndexNavbar from '~/components/chore/IndexNavbar.vue'
             <UserAccountAvatar mt-4 />
           </div>
         </el-aside>
+        <!-- <el-header class="Navbar-Header only-pe-display">
+          hi
+        </el-header> -->
         <el-main>
           <router-view v-slot="{ Component }">
             <component :is="Component" />
@@ -78,7 +81,7 @@ import IndexNavbar from '~/components/chore/IndexNavbar.vue'
   transform: translateY(1%);
 }
 
-.Navbar-Header,
+.Navbar-Aside,
 .Navbar-Footer {
   display: flex;
   flex-direction: column;
@@ -189,6 +192,9 @@ import IndexNavbar from '~/components/chore/IndexNavbar.vue'
   }
 
   & > .el-main {
+    .mobile & {
+      padding: 0.5rem;
+    }
     z-index: 1;
     position: relative;
     display: flex;
@@ -203,6 +209,10 @@ import IndexNavbar from '~/components/chore/IndexNavbar.vue'
     justify-content: center;
 
     overflow: hidden;
+  }
+
+  .mobile & {
+    flex-direction: column;
   }
 
   position: absolute;
