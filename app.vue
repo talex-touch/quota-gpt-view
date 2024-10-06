@@ -22,7 +22,7 @@ onMounted(() => {
   watchEffect(() => {
     const _total = windowSize.height.value + windowSize.width.value
 
-    console.log('refreshed')
+    console.log('refreshed', useDevice())
 
     document.body.classList.remove('mobile')
     document.body.classList.remove('tablet')
