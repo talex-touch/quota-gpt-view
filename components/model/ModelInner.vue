@@ -129,6 +129,10 @@ const mappedModel = computed(() => {
 }
 
 .ModelSelector-Item {
+  .mobile & {
+    font-size: 14px;
+  }
+
   position: absolute;
   padding: 0.5rem 1rem;
   margin: 0.5rem 0;

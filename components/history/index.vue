@@ -123,11 +123,11 @@ onMounted(() => {
       observer.unobserve(el)
   }, { immediate: true })
 
-  setTimeout(() => {
-    // 判断如果是移动端，那么从左向右滑动就要打开
-    if (document.body.classList.contains('mobile'))
-      mobileSlideProcess()
-  })
+  // setTimeout(() => {
+  //   // 判断如果是移动端，那么从左向右滑动就要打开
+  //   if (document.body.classList.contains('mobile'))
+  //     mobileSlideProcess()
+  // })
 })
 
 const dom = ref()
@@ -248,6 +248,13 @@ async function handleSearchHistory(query: string) {
   searchedList.loading = false
 }
 
+onClickOutside(dom, () => {
+  if (!document.body.classList.contains('mobile'))
+    return
+
+  expand.value = false
+})
+
 const dispose = ref(false)
 onDeactivated(() => dispose.value = true)
 onActivated(() => dispose.value = false)
@@ -257,7 +264,7 @@ onBeforeUnmount(() => dispose.value = true)
 <template>
   <div ref="dom" class="History" :class="{ plan: userStore.subscription, searchable: searchedList.enable }">
     <teleport :disabled="dispose" to="body">
-      <div v-if="!dispose" :class="{ expand }" class="History-Indicator" @click="expand = !expand" />
+      <div v-if="!dispose" :class="{ expand }" class="History-Indicator only-pc-display" @click="expand = !expand" />
     </teleport>
 
     <div class="History-Title">

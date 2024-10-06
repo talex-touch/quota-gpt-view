@@ -370,6 +370,7 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
       padding: 0.25rem 0.75rem;
 
       width: max-content;
+      max-width: 100%;
 
       cursor: pointer;
       overflow: hidden;

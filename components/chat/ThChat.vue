@@ -190,9 +190,12 @@ async function handleSuggest(content: string) {
 <template>
   <div class="ThChat">
     <div v-if="messages" :class="{ show: messages.messages?.length > 1 }" class="ThChat-Title">
-      <span class="model">
+      <span class="model only-pc-display">
         <slot name="model" />
       </span>
+      <div w-full flex items-center justify-between px-2 text-lg class="only-pe-display">
+        <slot name="header" />
+      </div>
     </div>
 
     <div class="ThChat-Container" :class="{ stop, backToBottom: options.backToBottom }">
@@ -205,12 +208,10 @@ async function handleSuggest(content: string) {
       <el-scrollbar ref="scrollbar" @scroll="handleScroll">
         <div v-if="messages" class="ThChat-Container-Wrapper">
           <ChatItem
-            v-for="(message, ind) in messagesModel.messages"
-            :key="message.id" v-model:item="messagesModel.messages[ind]" v-model:meta="msgMeta[ind]"
-            :ind="ind" :total="messages.messages.length" :share="options.share.enable"
-            :select="options.share.selected" @select="handleSelectShareItem"
-            @retry="handleRetry(ind, $event)"
-            @suggest="handleSuggest($event)"
+            v-for="(message, ind) in messagesModel.messages" :key="message.id"
+            v-model:item="messagesModel.messages[ind]" v-model:meta="msgMeta[ind]" :ind="ind"
+            :total="messages.messages.length" :share="options.share.enable" :select="options.share.selected"
+            @select="handleSelectShareItem" @retry="handleRetry(ind, $event)" @suggest="handleSuggest($event)"
           />
 
           <!-- 统一 error / warning mention -->
@@ -221,7 +222,7 @@ async function handleSuggest(content: string) {
 
         <EmptyGuide :show="!!messages.messages?.length" />
 
-        <br v-for="i in 5" :key="i">
+        <br v-for="i in 10" :key="i">
       </el-scrollbar>
 
       <div class="ThChat-BackToBottom" @click="handleBackToBottom()">
@@ -476,7 +477,9 @@ async function handleSuggest(content: string) {
 .ThChat {
   &-Title {
     .mobile & {
-      top: 2rem;
+      top: 0;
+
+      background-color: var(--el-bg-color);
     }
 
     & .model {

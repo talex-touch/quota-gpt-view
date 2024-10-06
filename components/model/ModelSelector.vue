@@ -232,7 +232,7 @@ const curSelect = computed(() => models.find(item => item.value === model.value)
 
   &:hover {
     .ModelSelector-Selections {
-      transform: scale(1);
+      transform: scale(1) translate(var(--translate));
     }
   }
 
@@ -255,15 +255,23 @@ const curSelect = computed(() => models.find(item => item.value === model.value)
 
     .mobile & {
       height: 155px;
+
+      --translate: 1.5rem, 0;
     }
 
+    --translate: 0, 0;
+
     border-radius: 16px;
-    transform: scale(0);
+    transform: scale(0) translate(var(--translate));
     transform-origin: right top;
     box-shadow: var(--el-box-shadow);
 
     background-color: var(--el-bg-color);
     transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+  }
+
+  .mobile & {
+    font-size: 14px;
   }
   position: relative;
 

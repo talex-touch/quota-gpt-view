@@ -261,7 +261,10 @@ onMounted(mounter)
 </script>
 
 <template>
-  <div :class="{ expand: userConfig.pri_info.appearance.expand, empty: !pageOptions.conversation.messages.length }" class="PageContainer">
+  <div
+    :class="{ expand: userConfig.pri_info.appearance.expand, empty: !pageOptions.conversation.messages.length }"
+    class="PageContainer"
+  >
     <History
       v-model:select="pageOptions.select" class="PageContainer-History" @create="handleCreate"
       @delete="handleDelete"
@@ -274,6 +277,13 @@ onMounted(mounter)
       >
         <template #model>
           <ModelSelector v-if="mount" v-model="pageOptions.model" />
+        </template>
+        <template #header>
+          <div i-carbon:text-short-paragraph @click="userConfig.pri_info.appearance.expand = true" />
+
+          <ModelSelector v-if="mount" v-model="pageOptions.model" />
+
+          <div i-carbon:edit @click="handleCreate" />
         </template>
       </ThChat>
 

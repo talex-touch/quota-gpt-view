@@ -10,7 +10,7 @@ useHead({
   title: appName,
 })
 
-const { isMobile, isTablet } = useDevice()
+const windowSize = useWindowSize()
 const pageOptions = reactive({
   model: {
     personal: '',
@@ -19,7 +19,15 @@ const pageOptions = reactive({
 })
 
 onMounted(() => {
-  document.body.classList.add(isMobile ? 'mobile' : isTablet ? 'tablet' : '')
+  watchEffect(() => {
+    const _total = windowSize.height.value + windowSize.width.value
+
+    document.body.classList.remove('mobile')
+    document.body.classList.remove('tablet')
+
+    const { isMobile, isTablet } = useDevice()
+    document.body.classList.add(isMobile ? 'mobile' : isTablet ? 'tablet' : 'screen')
+  })
 })
 
 const globalOptionsStore = useLocalStorage('global-options', {
@@ -258,13 +266,13 @@ span.premium-end {
 }
 
 @media (min-width: 768px) {
-  .only-pe-display {
+  *.only-pe-display {
     display: none !important;
   }
 }
 
 @media (max-width: 768px) {
-  .only-pc-display {
+  *.only-pc-display {
     display: none !important;
   }
 }

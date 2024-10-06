@@ -8,13 +8,13 @@ const props = defineProps<{
 
 <template>
   <div class="Chat-StatusBar">
-    <div class="StatusBar-Start">
+    <div class="StatusBar-Start only-pc-display">
       <slot name="start" />
     </div>
     <span>ThisAI 可能会犯错，生成的内容仅供参考。</span>
     <div class="StatusBar-End">
       <slot name="end" />
-      <ChoreVersionBar class="tag" />
+      <ChoreVersionBar class="tag only-pc-display" />
     </div>
   </div>
 </template>
@@ -61,6 +61,10 @@ const props = defineProps<{
 
     mix-blend-mode: none;
     color: var(--el-text-color-primary);
+  }
+
+  .mobile & {
+    justify-content: center;
   }
 
   z-index: 3;
