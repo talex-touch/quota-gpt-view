@@ -13,7 +13,11 @@ const menus = reactive([
     label: '个人资料',
     show: true,
     click: () => {
-      pageOptions.model.personal = 'account'
+      // if (document.body.classList.contains('mobile'))
+      //   router.push('/setting')
+      // else
+
+      pageOptions.model.personal = 'index'
     },
   },
   {
@@ -89,7 +93,7 @@ const avatarUrl = computed(() => {
             </span>
           </p>
         </div>
-        <div class="only-pc-display AccountAvatar-Selections" style="display: flex; gap: 16px; flex-direction: column">
+        <div class="AccountAvatar-Selections" style="display: flex; gap: 16px; flex-direction: column">
           <div
             v-for="item in menus" :key="item.label" v-wave :class="{ danger: item.danger, divider: item.divider }"
             :style="`${item.show ? '' : 'display: none'}`" class="AccountAvatar-MenuItem" @click="item?.click"

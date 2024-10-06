@@ -35,37 +35,72 @@ const privacyPhone = computed(() => {
 const comp = ref()
 const expand = ref(false)
 const queryComponentMapper: Record<string, any> = {
-  account: Account,
-  plan: Plan,
-  link: Link,
-  appearance: Appearance,
-  history: History,
-  developer: Developer,
+  account: {
+    name: '账号资料',
+    comp: Account,
+  },
+  plan: {
+    name: '订阅计划',
+    comp: Plan,
+  },
+  link: {
+    name: '三方绑定',
+    comp: Link,
+  },
+  appearance: {
+    name: '外观设置',
+    comp: Appearance,
+  },
+  history: {
+    name: '登录历史',
+    comp: History,
+  },
+  developer: {
+    name: '开发者设置',
+    comp: Developer,
+  },
   // notification: empty,
 }
 
-watch(() => data.value, (data) => {
-  if (data) {
+watch(() => data.value, (_data) => {
+  if (_data) {
     show.value = true
-    expand.value = data === 'plan'
+
+    if (!document.body.classList.contains('mobile') && _data === 'index')
+      data.value = 'account'
+
+    expand.value = _data === 'plan'
   }
   else {
     show.value = false
     return
   }
 
-  comp.value = queryComponentMapper[data as string]
+  comp.value = queryComponentMapper[_data as string]
 })
 
 function handleClose() {
   data.value = ''
   // router.push({ query: { ...route.query, c: null, data: null } })
 }
+
+function handleBack() {
+  if (data.value === 'index')
+    handleClose()
+  else data.value = 'index'
+}
 </script>
 
 <template>
   <el-container :class="{ show, expand }" class="PersonalTemplate">
-    <div class="BuyDialog-Close" @click="handleClose">
+    <div class="PersonalTemplate-MainHead only-pe-display">
+      <div i-carbon:arrow-left @click="handleBack" />
+      <div class="head-text">
+        <p>{{ comp?.name || '' }}</p>
+      </div>
+      <div i-carbon:arrow-left op-0 />
+    </div>
+    <div class="PersonalDialog-Close" @click="handleClose">
       <div i-carbon:close />
     </div>
 
@@ -122,9 +157,9 @@ function handleClose() {
         </div>
       </div>
 
-      <div class="PersonalWrapper-Main">
+      <div :class="{ enter: comp }" class="PersonalWrapper-Main">
         <el-scrollbar v-if="comp">
-          <component :is="comp" />
+          <component :is="comp.comp" />
         </el-scrollbar>
       </div>
     </div>
@@ -132,6 +167,18 @@ function handleClose() {
 </template>
 
 <style lang="scss">
+.PersonalTemplate-MainHead {
+  position: relative;
+  padding: 1rem;
+  display: flex;
+
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  top: 0;
+  width: 100%;
+}
+
 .PersonalWrapper-AsideHead {
   .AccountAvatar {
     .el-avatar {
@@ -159,9 +206,12 @@ function handleClose() {
   // border-bottom: 1px solid var(--wallpaper-color-light, var(--el-border-color));
 }
 
-.BuyDialog-Close {
+.PersonalDialog-Close {
   &:hover {
     color: var(--el-color-danger);
+  }
+  .mobile & {
+    display: none;
   }
   z-index: 1;
   position: absolute;
@@ -263,6 +313,16 @@ function handleClose() {
       height: 100%;
     }
 
+    .mobile & {
+      &.enter {
+        transform: translateX(0);
+      }
+      position: absolute;
+
+      transform: translateX(150%);
+      transition: transform 0.3s ease-in-out;
+    }
+
     position: relative;
     // padding: 0.5rem 1rem;
     display: flex;
@@ -279,6 +339,13 @@ function handleClose() {
   }
 
   &-Aside {
+    .mobile & {
+      width: 100%;
+
+      border-radius: 0;
+      background-color: var(--el-bg-color-page);
+    }
+
     & > p.title {
       margin: 0 0 1rem;
 
@@ -340,6 +407,12 @@ function handleClose() {
 
   overflow: hidden;
   border-radius: 18px;
+
+  .mobile & {
+    margin-top: -1.25rem;
+
+    border-radius: 0;
+  }
   // box-shadow: var(--el-box-shadow);
   // background-color: var(--el-bg-color);
   // background: var(--el-mask-color-extra-lighter);
@@ -393,5 +466,20 @@ function handleClose() {
   box-shadow: var(--el-box-shadow);
   transform: translate(-50%, 200%);
   transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+
+  .mobile & {
+    z-index: 10000;
+
+    width: 100%;
+    height: 100%;
+
+    border-radius: unset;
+    transform: translate(200%, -50%);
+    background-color: var(--el-bg-color);
+  }
+
+  .mobile &.show {
+    transform: translate(-50%, -50%);
+  }
 }
 </style>
