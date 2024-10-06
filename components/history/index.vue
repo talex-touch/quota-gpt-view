@@ -249,12 +249,12 @@ async function handleSearchHistory(query: string) {
   searchedList.loading = false
 }
 
-onClickOutside(dom, () => {
-  if (!document.body.classList.contains('mobile'))
-    return
+// onClickOutside(dom, () => {
+//   if (!document.body.classList.contains('mobile'))
+//     return
 
-  expand.value = false
-})
+//   expand.value = false
+// })
 
 const dispose = ref(false)
 onDeactivated(() => dispose.value = true)

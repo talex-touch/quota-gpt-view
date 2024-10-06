@@ -41,6 +41,14 @@ const pageOptions = reactive<{
   },
   status: IChatItemStatus.AVAILABLE,
 })
+const expand = computed({
+  set(val: boolean) {
+    userConfig.value.pri_info.appearance.expand = val
+  },
+  get() {
+    return userConfig.value.pri_info.appearance.expand
+  },
+})
 
 $event.on('USER_LOGOUT_SUCCESS', () => { pageOptions.conversation = $completion.emptyHistory() })
 $event.on('REQUEST_CREATE_NEW_CONVERSATION', () => {
@@ -91,6 +99,9 @@ watch(
 
       pageOptions.share.enable = false
       chatRef.value?.handleBackToBottom(false)
+
+      if (document.body.classList.contains('mobile'))
+        expand.value = false
     }, 200)
   },
   { deep: true },
@@ -258,15 +269,6 @@ function mounter() {
 }
 onActivated(mounter)
 onMounted(mounter)
-
-const expand = computed({
-  set(val: boolean) {
-    userConfig.value.pri_info.appearance.expand = val
-  },
-  get() {
-    return userConfig.value.pri_info.appearance.expand
-  },
-})
 </script>
 
 <template>
@@ -407,7 +409,8 @@ const expand = computed({
     .mobile .expand & {
       left: calc(100% - 48px);
 
-      transition: 0.5s left cubic-bezier(0.785, 0.135, 0.15, 0.86);
+      background-color: var(--el-overlay-color);
+      transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
     }
     // z-index: 2;
     position: relative;
@@ -421,7 +424,7 @@ const expand = computed({
 
     overflow: hidden;
 
-    transition: 0.75s left cubic-bezier(0.785, 0.135, 0.15, 0.86);
+    transition: 0.75s cubic-bezier(0.785, 0.135, 0.15, 0.86);
   }
 
   &-History {
