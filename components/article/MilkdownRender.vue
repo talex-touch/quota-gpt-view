@@ -163,6 +163,6 @@ onMounted(() => {
 </template>
 
 <style lang="scss">
-// @import './style.scss';
-@use './style.scss';
+@import './style.scss';
+// @use './style.scss';
 </style>
