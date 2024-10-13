@@ -2,6 +2,8 @@ import './index'
 import { getAccountDetail, getPermissionList, getUserSubscription } from './api/account'
 import { endHttp } from './api/axios'
 import { $endApi } from './api/base'
+import { $event } from './events'
+import { LogoutType } from './events/logout'
 
 export interface AccountDetail {
   id: number
@@ -95,8 +97,29 @@ $event.on('USER_LOGIN_SUCCESS', async () => {
   console.log('login success', userConfig)
 })
 
-$event.on('USER_LOGOUT_SUCCESS', () => {
+$event.on('USER_LOGOUT_SUCCESS', async (type) => {
+  if (!userStore.value.isLogin)
+    console.warn(`User not login now.`)
+
+  // userStore.value.token = { accessToken: '', refreshToken: '' }
+  // userStore.value = {}
+  userStore.value = { ...userStore.value, token: { accessToken: '', refreshToken: '' }, id: undefined, permissions: [], phone: undefined, roles: [], subscription: undefined }
+  userConfig.value = JSON.parse(JSON.stringify(rawUserConfig))
+
+  const router = useRouter()
+
   document.body.classList.remove('ULTIMATE', 'STANDARD', 'DEV')
+
+  await router.push('/')
+
+  if (type === LogoutType.TOKEN_EXPIRED) {
+    ElMessage({
+      message: '登录超时，请重新登录！',
+      grouping: true,
+      type: 'error',
+      plain: true,
+    })
+  }
 })
 
 export async function $handleUserLogin(token: { accessToken: string, refreshToken: string }) {
@@ -106,20 +129,6 @@ export async function $handleUserLogin(token: { accessToken: string, refreshToke
   await refreshUserSubscription()
 
   $event.emit('USER_LOGIN_SUCCESS')
-}
-
-export async function $handleUserLogout() {
-  if (!userStore.value.isLogin)
-    console.warn(`User not login now.`)
-
-  userStore.value = {}
-  userConfig.value = JSON.parse(JSON.stringify(rawUserConfig))
-
-  const router = useRouter()
-
-  await router.push('/')
-
-  $event.emit('USER_LOGOUT_SUCCESS')
 }
 
 export async function refreshUserSubscription() {

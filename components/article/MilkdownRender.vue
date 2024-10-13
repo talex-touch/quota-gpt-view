@@ -18,6 +18,7 @@ import { undoInputRule } from '@milkdown/prose/inputrules'
 import '@milkdown/theme-nord/style.css'
 import 'katex/dist/katex.min.css'
 import 'prism-themes/themes/prism-nord.css'
+import './style.scss'
 
 import markdown from 'refractor/lang/markdown'
 import css from 'refractor/lang/css'
@@ -163,6 +164,6 @@ onMounted(() => {
 </template>
 
 <style lang="scss">
-@import './style.scss';
+// @import './style.scss';
 // @use './style.scss';
 </style>

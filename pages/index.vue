@@ -10,6 +10,7 @@ import { $completion } from '~/composables/api/base/v1/aigc/completion'
 import { type IChatConversation, type IChatInnerItem, type IChatItem, IChatItemStatus, type IInnerItemMeta, PersistStatus, QuotaModel } from '~/composables/api/base/v1/aigc/completion-types'
 import { $historyManager } from '~/composables/api/base/v1/aigc/history'
 import { $endApi } from '~/composables/api/base'
+import { $event } from '~/composables/events'
 
 definePageMeta({
   layout: 'default',

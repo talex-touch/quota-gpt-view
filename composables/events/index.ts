@@ -1,3 +1,5 @@
+import type { LogoutType } from './logout'
+
 export type IEventHandler = (...args: any[]) => void
 
 export type EventName = 'REQUEST_CREATE_NEW_CONVERSATION' | 'USER_LOGIN_SUCCESS' | 'USER_LOGOUT_SUCCESS'
@@ -6,13 +8,13 @@ export type EventName = 'REQUEST_CREATE_NEW_CONVERSATION' | 'USER_LOGIN_SUCCESS'
 export interface IEventBus {
   on: {
     (eventName: 'USER_LOGIN_SUCCESS', callback: () => void): void
-    (eventName: 'USER_LOGOUT_SUCCESS', callback: () => void): void
+    (eventName: 'USER_LOGOUT_SUCCESS', callback: (type: LogoutType) => void): void
     (eventName: 'REQUEST_CREATE_NEW_CONVERSATION', callback: () => void): void
   }
 
   emit: {
     (eventName: 'USER_LOGIN_SUCCESS'): void
-    (eventName: 'USER_LOGOUT_SUCCESS'): void
+    (eventName: 'USER_LOGOUT_SUCCESS', type: LogoutType): void
     (eventName: 'REQUEST_CREATE_NEW_CONVERSATION'): void
   }
 }

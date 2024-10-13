@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import dayjs from 'dayjs'
-import { formatDate } from '~/composables/common'
-import { $handleUserLogout } from '~/composables/user'
+import { $event } from '~/composables/events'
+import { LogoutType } from '~/composables/events/logout'
 import { globalOptions } from '~/constants'
 
 const router = useRouter()
@@ -47,7 +46,7 @@ const menus = reactive([
     label: '退出登录',
     show: true,
     click: async () => {
-      $handleUserLogout()
+      $event.emit('USER_LOGOUT_SUCCESS', LogoutType.USER_LOGOUT)
     },
   },
 ])

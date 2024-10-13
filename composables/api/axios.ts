@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-import axios, { type CreateAxiosDefaults } from 'axios'
+import axios, { type AxiosResponse, type CreateAxiosDefaults } from 'axios'
+import { $event } from '../events'
+import { LogoutType } from '../events/logout'
 import type { IStandardResponse } from './base/index.type'
 import { globalOptions } from '~/constants'
 
@@ -88,46 +90,23 @@ export function genAxios(options: CreateAxiosDefaults) {
   )
 
   async function timeoutLogout() {
-    await $handleUserLogout()
-
-    ElMessage.info({
-      message: '登录超时，请重新登录!',
-      grouping: true,
-    })
+    $event.emit('USER_LOGOUT_SUCCESS', LogoutType.TOKEN_EXPIRED)
   }
 
   $http.interceptors.response.use(
-    async (res: any) => {
-      if (res.data?.code === 1101)
-        return timeoutLogout()
+    async (res: AxiosResponse) => {
+      if (res.data.code === 429)
+        return ElMessage.error(res.data.message)
 
-      return res.data
-    },
-    async (res) => {
-      console.error(res)
+      if ((res.data.code === 1101 || res.data?.code === 401)) {
+        if (!userStore.value.isLogin)
+          return timeoutLogout()
 
-      if (!res.response || res.code === 'ERR_INTERNET_DISCONNECTED') {
-        return ElMessage.error({
-          message: '无法连接至远程服务器!',
-          grouping: true,
-        })
-      }
-
-      if (res.code === 'ERR_NETWORK' && (res.message.includes('timeout') || res.message === 'Network Error'))
-        return ElMessage.error('请检查您的网络!')
-
-      if (res.response.data.code === 429)
-        return ElMessage.error(res.response.data.message)
-
-      if (res.response.data.code === 1101)
-        return timeoutLogout()
-
-      if (res.response.data?.code === 401 && userStore.value.isLogin) {
         // refresh
         const { config } = res
 
         // url不包含 renew_token
-        if (!config.url.includes('renew_token')) {
+        if (!config.url?.includes('renew_token')) {
           if (!refreshOptions.pending) {
             console.log('renew token')
 
@@ -141,7 +120,6 @@ export function genAxios(options: CreateAxiosDefaults) {
               },
             })
 
-            console.log('renew', res.data)
             refreshOptions.pending = false
             if (res.code === 200) {
               userStore.value.token = res.data
@@ -162,6 +140,21 @@ export function genAxios(options: CreateAxiosDefaults) {
           return timeoutLogout()
         }
       }
+
+      return res.data
+    },
+    async (res) => {
+      console.error(res)
+
+      if (!res.response || res.code === 'ERR_INTERNET_DISCONNECTED') {
+        return ElMessage.error({
+          message: '无法连接至远程服务器!',
+          grouping: true,
+        })
+      }
+
+      if (res.code === 'ERR_NETWORK' && (res.message.includes('timeout') || res.message === 'Network Error'))
+        return ElMessage.error('请检查您的网络!')
 
       return res.response.data
     },

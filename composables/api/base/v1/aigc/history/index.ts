@@ -2,6 +2,7 @@ import { userStore } from '#imports'
 import { $endApi } from '~/composables/api/base'
 import { type IChatConversation, PersistStatus } from '~/composables/api/base/v1/aigc/completion-types'
 import { encodeObject } from '~/composables/common'
+import { $event } from '~/composables/events'
 
 // export enum HistoryManageMode {
 //   OFFLINE,
