@@ -8,7 +8,7 @@ const props = defineProps<{
 
 <template>
   <div class="TextShading" :class="{ once }">
-    <span class="eraser" :style="animation || ''"> {{ text }}</span>
+    <span class="eraser" :style="animation || ''" v-text="`${text}`" />
   </div>
 </template>
 
@@ -22,30 +22,29 @@ const props = defineProps<{
     color: transparent;
     background: linear-gradient(
       to right,
-      var(--color, var(--el-text-color-primary)) var(--p),
-      #0000 calc(var(--p) + 5rem)
+      var(--color, var(--el-text-color-primary)) 50%,
+      #0000 calc(50% + 2rem)
     );
+
+    opacity: 0;
+    background-size: 200% 100%;
+    background-position: -100% 0;
 
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 
-    --p: -20%;
+    // cubic-bezier(0.6, -0.28, 0.735, 0.045)
     animation: cubic-bezier(0.6, -0.28, 0.735, 0.045) erasing 2s infinite;
   }
 
   position: relative;
 }
 
-@property --p {
-  syntax: '<percentage>';
-  initial-value: 0%;
-  inherits: false;
-}
-
 @keyframes erasing {
   to {
-    --p: 100%;
+    opacity: 1;
+    background-position: -200% 0;
   }
 }
 </style>

@@ -45,7 +45,7 @@ const tips = reactive([
 
     <h1 v-if="!show" class="EmptyGuide-Greet only-pc-display">
       <OtherTextShading
-        animation="animation: cubic-bezier(0.6, -0.28, 0.735, 0.045) 0.5s erasing forwards"
+        animation="animation: ease-out 1.25s erasing forwards"
         text="尽力为你做任何事."
       />
     </h1>
@@ -55,7 +55,7 @@ const tips = reactive([
     <div v-if="!show" class="EmptyGuide-Tips only-pc-display transition-cubic">
       <span
         v-for="(tip, index) in tips" :key="index" v-wave class="TipItem"
-        :style="`--d: ${index * 0.1 + 1}s;--c: ${tip.color}`"
+        :style="`--d: ${index * 0.05 + 1.5}s;--c: ${tip.color}`"
       >
         <span class="icon" block :class="tip.icon" /><span v-text="tip.title" />
       </span>
