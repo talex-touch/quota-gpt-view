@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AnimateIcon from '../icon/AnimateIcon.vue'
+import { $event } from '~/composables/events'
 
 const route = useRoute()
 const router = useRouter()

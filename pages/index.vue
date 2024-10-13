@@ -11,6 +11,7 @@ import { type IChatConversation, type IChatInnerItem, type IChatItem, IChatItemS
 import { $historyManager } from '~/composables/api/base/v1/aigc/history'
 import { $endApi } from '~/composables/api/base'
 import { $event } from '~/composables/events'
+import EmptyGuide from '~/components/chat/EmptyGuide.vue'
 
 definePageMeta({
   layout: 'default',
@@ -270,23 +271,21 @@ function mounter() {
 }
 onActivated(mounter)
 onMounted(mounter)
+
+const appOptions: any = inject('appOptions')!
+function handleLogin() {
+  appOptions.model.login = true
+}
 </script>
 
 <template>
-  <div
-    :class="{ expand, empty: !pageOptions.conversation.messages.length }"
-    class="PageContainer"
-  >
-    <History
-      v-model:select="pageOptions.select" class="PageContainer-History" @create="handleCreate"
-      @delete="handleDelete"
-    />
+  <div :class="{ expand, empty: !pageOptions.conversation.messages.length }" class="PageContainer">
+    <History v-model:select="pageOptions.select" class="PageContainer-History" @create="handleCreate"
+      @delete="handleDelete" />
 
     <div class="PageContainer-Main">
-      <ThChat
-        ref="chatRef" v-model:messages="pageOptions.conversation" :status="pageOptions.status"
-        @cancel="handleCancelReq" @retry="handleRetry" @suggest="handleSuggest"
-      >
+      <ThChat ref="chatRef" v-model:messages="pageOptions.conversation" :status="pageOptions.status"
+        @cancel="handleCancelReq" @retry="handleRetry" @suggest="handleSuggest">
         <template #model>
           <ModelSelector v-if="mount" v-model="pageOptions.model" />
         </template>
@@ -296,14 +295,17 @@ onMounted(mounter)
 
           <ModelSelector v-if="mount" v-model="pageOptions.model" />
 
-          <div i-carbon:edit @click="handleCreate" />
+          <div v-if="userStore.isLogin" i-carbon:edit @click="handleCreate" />
+          <div v-else class="login-tag" @click="handleLogin">
+            登录
+          </div>
         </template>
       </ThChat>
 
-      <ThInput
-        :template-enable="!pageOptions.conversation.messages.length" :status="pageOptions.status"
-        :hide="pageOptions.share.enable" @send="handleSend"
-      />
+      <EmptyGuide :show="!!pageOptions.conversation.messages?.length">
+        <ThInput :template-enable="!pageOptions.conversation.messages.length" :status="pageOptions.status"
+          :hide="pageOptions.share.enable" :center="pageOptions.conversation.messages?.length < 1" @send="handleSend" />
+      </EmptyGuide>
 
       <AigcChatStatusBar>
         <template #start>
@@ -318,10 +320,8 @@ onMounted(mounter)
             离线模式
           </span> -->
 
-          <span
-            v-if="!!pageOptions.conversation.messages.length"
-            :class="pageOptions.share.enable ? 'warning shining' : ''" cursor-pointer class="tag" @click="handleShare"
-          >
+          <span v-if="!!pageOptions.conversation.messages.length"
+            :class="pageOptions.share.enable ? 'warning shining' : ''" cursor-pointer class="tag" @click="handleShare">
             <i i-carbon:share />分享对话
           </span>
 
@@ -330,17 +330,15 @@ onMounted(mounter)
           </span>
         </template>
         <template #end>
-          <ChatHeadTrSyncStatus
-            v-if="!!pageOptions.conversation.messages.length"
-            :status="pageOptions.conversation.sync" @upload="handleSync"
-          />
+          <ChatHeadTrSyncStatus v-if="!!pageOptions.conversation.messages.length"
+            :status="pageOptions.conversation.sync" @upload="handleSync" />
         </template>
       </AigcChatStatusBar>
 
-      <ShareSection
-        v-if="pageOptions.conversation" :length="pageOptions.conversation.messages.length"
-        :show="pageOptions.share.enable" :selected="pageOptions.share.selected"
-      />
+      <teleport to="body">
+        <ShareSection v-if="pageOptions.conversation" :length="pageOptions.conversation.messages.length"
+          :show="pageOptions.share.enable" :selected="pageOptions.share.selected" />
+      </teleport>
 
       <!-- 根据 发送消息超过10次 控制弹窗的显示 -->
       <FeedBack v-model:show="pageOptions.feedback.visible" />
@@ -349,6 +347,15 @@ onMounted(mounter)
 </template>
 
 <style lang="scss">
+.login-tag {
+  padding: 0.02rem 0.75rem;
+
+  font-size: 12px;
+
+  border-radius: 12px;
+  background-color: var(--el-bg-color-page);
+}
+
 // .ModelSelector {
 //   z-index: 10;
 //   position: absolute;

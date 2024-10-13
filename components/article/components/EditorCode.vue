@@ -58,7 +58,7 @@ watch(() => props.node.textContent, (code) => {
         <div v-if="lang === 'html'" i-carbon:html />
         <div v-else-if="lang === 'json'" i-carbon:json />
         <div v-else-if="lang === 'vue'" i-carbon:logo-vue />
-        <div v-else-if="lang.includes('sql')" i-carbon:sql />
+        <div v-else-if="lang && lang.includes('sql')" i-carbon:sql />
         <div v-else-if="lang === 'xml'" i-carbon:xml />
         <div v-else-if="lang === 'svg'" i-carbon:svg />
         <p v-else>
@@ -148,6 +148,9 @@ watch(() => props.node.textContent, (code) => {
   &-Content {
     pre {
       height: 100%;
+      .hljs-subst {
+        color: var(--el-text-color-placeholder);
+      }
     }
     position: relative;
     padding: 0.5rem 1rem;

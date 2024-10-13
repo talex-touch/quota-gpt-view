@@ -220,8 +220,6 @@ async function handleSuggest(content: string) {
           </div> -->
         </div>
 
-        <EmptyGuide :show="!!messages.messages?.length" />
-
         <br v-for="i in 10" :key="i">
       </el-scrollbar>
 
@@ -402,7 +400,7 @@ async function handleSuggest(content: string) {
   padding: 0.25rem 0.5rem;
 
   left: 50%;
-  bottom: 10%;
+  bottom: 8rem;
 
   cursor: pointer;
   transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);

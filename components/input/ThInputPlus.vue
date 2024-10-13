@@ -7,16 +7,20 @@ const props = defineProps<{
 
 const emits = defineEmits<{
   (name: 'update:modelValue', data: InputPlusProperty): void
+  (event: 'image'): void
 }>()
 
 const property = useVModel(props, 'modelValue', emits)
 
 const options: any = reactive([
-  // {
-  //   icon: 'i-carbon-image',
-  //   type: 'button',
-  //   label: '分析图片',
-  // },
+  {
+    icon: 'i-carbon-image',
+    type: 'button',
+    label: '分析图片',
+    onclick: () => {
+      emits('image')
+    },
+  },
   // {
   //   icon: 'i-carbon-document',
   //   type: 'button',
@@ -200,7 +204,13 @@ const options: any = reactive([
     transform: scale(0.75);
     transition: 0.25s;
   }
-  z-index: 10;
+
+  .button {
+    position: relative;
+
+    margin-top: 0.25rem;
+  }
+  z-index: 20;
   position: relative;
   display: flex;
 

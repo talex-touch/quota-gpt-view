@@ -10,6 +10,7 @@ import { globalOptions } from '~/constants'
 const props = defineProps<{
   status: IChatItemStatus
   hide: boolean
+  center: boolean
   templateEnable: boolean
 }>()
 const emits = defineEmits<{
@@ -207,6 +208,76 @@ watch(() => template.value, (val) => {
 
 const tokenLimit = computed(() => userStore.value.isLogin ? 8192 : 256)
 
+function handleImageUpload(file: File) {
+  const obj = reactive<any>({
+    sync: false,
+    width: 0,
+    height: 0,
+    syncing: false,
+    error: '',
+    url: '',
+    img: null,
+    file,
+  })
+
+  const meta = reactive({
+    type: 'image',
+    value: '',
+    extra: obj,
+  }) as any
+
+  input.value.files.push(meta)
+
+  const reader = new FileReader()
+
+  reader.onload = function (e) {
+    const dataUrl = e.target?.result as string
+
+    const img = new Image()
+
+    img.onload = function () {
+      obj.width = img.width
+      obj.height = img.height
+    }
+
+    obj.img = img
+    obj.url = dataUrl
+
+    // 多余10M的图片不允许传
+    if (file.size > 10 * 1024 * 1024) {
+      obj.error = '文件太大，无法上传'
+
+      return
+    }
+
+    setTimeout(async () => {
+      obj.syncing = true
+
+      const res = await $endApi.v1.common.upload(file)
+
+      obj.syncing = false
+
+      if (res.code === 200) {
+        let endsUrl = globalOptions.getEndsUrl()
+
+        // 去除endsUrl的最后一个/
+        if (endsUrl.endsWith('/'))
+          endsUrl = endsUrl.slice(0, -1)
+
+        const url = new URL(`${endsUrl}${res.data.filename}`)
+
+        obj.url = meta.value = url.href
+        obj.sync = true
+      }
+      else {
+        obj.error = res.message
+      }
+    })
+  }
+
+  reader.readAsDataURL(file)
+}
+
 function handlePaste(e: ClipboardEvent) {
   if (!e.clipboardData)
     return
@@ -231,73 +302,7 @@ function handlePaste(e: ClipboardEvent) {
       if (!file)
         continue
 
-      const obj = reactive<any>({
-        sync: false,
-        width: 0,
-        height: 0,
-        syncing: false,
-        error: '',
-        url: '',
-        img: null,
-        file,
-      })
-
-      const meta = reactive({
-        type: 'image',
-        value: '',
-        extra: obj,
-      }) as any
-
-      input.value.files.push(meta)
-
-      const reader = new FileReader()
-
-      reader.onload = function (e) {
-        const dataUrl = e.target?.result as string
-
-        const img = new Image()
-
-        img.onload = function () {
-          obj.width = img.width
-          obj.height = img.height
-        }
-
-        obj.img = img
-        obj.url = dataUrl
-
-        // 多余10M的图片不允许传
-        if (file.size > 10 * 1024 * 1024) {
-          obj.error = '文件太大，无法上传'
-
-          return
-        }
-
-        setTimeout(async () => {
-          obj.syncing = true
-
-          const res = await $endApi.v1.common.upload(file)
-
-          obj.syncing = false
-
-          if (res.code === 200) {
-            let endsUrl = globalOptions.getEndsUrl()
-
-            // 去除endsUrl的最后一个/
-            if (endsUrl.endsWith('/'))
-              endsUrl = endsUrl.slice(0, -1)
-
-            const url = new URL(`${endsUrl}${res.data.filename}`)
-
-            obj.url = meta.value = url.href
-            obj.sync = true
-          }
-          else {
-            obj.error = res.message
-          }
-        })
-      }
-
-      reader.readAsDataURL(file)
+      handleImageUpload(file)
     }
     else {
       console.warn('unhandled clipboard data type:', item.type)
@@ -322,19 +327,40 @@ function handlePaste(e: ClipboardEvent) {
 function handleDeleteFile(index: number) {
   input.value.files.splice(index, 1)
 }
+
+const { open, reset, onChange } = useFileDialog({
+  accept: 'image/*',
+  directory: false,
+})
+
+onChange((files) => {
+  if (!files)
+    return
+
+  for (const file of files)
+    handleImageUpload(file)
+})
+
+function handleImagePlus() {
+  // 调用浏览器文件选择框
+  reset()
+  open()
+}
+
+const placeholder = computed(() => props.center ? '可以帮到你什么?' : 'Shift + Enter换行')
 </script>
 
 <template>
   <!-- error: status === Status.ERROR, -->
   <div
     :class="{
+      center,
       disabled: hide,
       collapse: nonPlusMode,
       showSend,
       generating: status === 2,
 
-    }"
-    class="ThInput" @paste="handlePaste" @keydown.enter="handleSend"
+    }" class="ThInput" @paste="handlePaste" @keydown.enter="handleSend"
   >
     <div :class="{ show: tokenLimit - len <= tokenLimit * 0.25 }" class="ThInput-Float">
       <div class="ThInput-Float-End">
@@ -345,12 +371,11 @@ function handleDeleteFile(index: number) {
     </div>
 
     <InputAddonThInputAt
-      v-if="templateEnable"
-      :input="input.text" :show="!template?.title && input.text.startsWith('@')"
-      @select="handleTemplateSelect"
+      v-if="templateEnable" :input="input.text"
+      :show="!template?.title && input.text.startsWith('@')" @select="handleTemplateSelect"
     />
 
-    <ThInputPlus v-if="!template?.title" v-model="inputProperty" />
+    <ThInputPlus v-if="!template?.title" v-model="inputProperty" @image="handleImagePlus" />
 
     <div flex class="ThInput-Input">
       <div v-if="template.content || input.files?.length" class="ThInput-InputHeader">
@@ -367,8 +392,8 @@ function handleDeleteFile(index: number) {
           <span flex class="template-tag">@{{ template.title }}</span>
         </template>
         <textarea
-          id="main-input" v-model="input.text" autofocus
-          autocomplete="off" placeholder="Shift + Enter换行" @keydown="handleInputKeydown"
+          id="main-input" v-model="input.text" autofocus autocomplete="off" :placeholder="placeholder"
+          @keydown="handleInputKeydown"
         />
       </div>
     </div>
@@ -463,6 +488,7 @@ function handleDeleteFile(index: number) {
   pointer-events: none;
   transform: translateX(-50%);
   text-shadow: 0 0 10px var(--el-bg-color);
+
   // box-shadow: var(--el-box-shadow);
   // backdrop-filter: blur(18px);
   // background: var(--el-bg-color-page);
@@ -482,6 +508,21 @@ function handleDeleteFile(index: number) {
     .ThInput-Float {
       opacity: 0;
     }
+  }
+
+  .screen &.center {
+    position: relative;
+    width: min(50%, 780px);
+
+    bottom: 0;
+    opacity: 0;
+    filter: blur(10px);
+
+    box-shadow: var(--el-box-shadow-light);
+
+    animation: inputJoin 0.25s 0.5s ease-in-out forwards;
+
+    transition: none;
   }
 
   &.disabled {
@@ -529,7 +570,7 @@ function handleDeleteFile(index: number) {
   gap: 0.5rem;
   align-items: flex-end;
 
-  left: 50%;
+  // left: 50%;
   bottom: 2.5rem;
 
   width: min(70%, 1080px);
@@ -544,16 +585,23 @@ function handleDeleteFile(index: number) {
 
   box-sizing: border-box;
   border-radius: 16px;
-  transform: translateX(-50%);
   box-shadow: var(--el-box-shadow);
   // background-color: var(--el-bg-color);
   backdrop-filter: blur(18px) saturate(180%);
   background-color: var(--el-mask-color-extra-light);
+
   transition: 0.75s cubic-bezier(0.785, 0.135, 0.15, 0.86);
 
   // transition:
   //   opacity 0.25s,
   //   width 0.75s;
+}
+
+@keyframes inputJoin {
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
 }
 
 .ThInput-Input {
@@ -569,6 +617,7 @@ function handleDeleteFile(index: number) {
       outline: none;
       border: none;
     }
+
     &::placeholder {
       color: var(--el-text-color-regular);
     }
@@ -594,6 +643,7 @@ function handleDeleteFile(index: number) {
     :deep(.el-scrollbar__bar.is-vertical) {
       width: 3px;
     }
+
     .ThInput-InputHeader-Main {
       &::before {
         z-index: -1;
@@ -611,11 +661,13 @@ function handleDeleteFile(index: number) {
         background: var(--el-bg-color);
         border: 1px solid var(--el-border-color);
       }
+
       position: relative;
       padding-right: 0.5rem;
 
       max-height: 100px;
     }
+
     position: relative;
     padding: 0.5rem 0.5rem;
 
@@ -628,6 +680,7 @@ function handleDeleteFile(index: number) {
   .ThInput-InputMain {
     width: calc(100% - 40px);
   }
+
   position: relative;
   z-index: 10;
   flex: 1;
@@ -734,6 +787,7 @@ function handleDeleteFile(index: number) {
   &:active {
     transform: scale(0.95);
   }
+
   z-index: 12;
   position: absolute;
   display: flex;
