@@ -124,10 +124,10 @@ const tips = reactive([
 }
 
 .EmptyGuide-Greet {
-  font-size: 3rem;
+  font-size: 2rem;
   font-weight: 600;
 
-  transform: translateY(-50%);
+  transform: translateY(-1rem);
 }
 
 @keyframes transforming {
