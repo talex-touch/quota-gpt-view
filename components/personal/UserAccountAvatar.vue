@@ -191,7 +191,7 @@ const avatarUrl = computed(() => {
 }
 
 div.el-popper.UserAccountAvatar-Float {
-  padding: 1rem 0.5rem !important;
+  padding: 1.5rem !important;
   border: none;
 
   border-radius: 16px;

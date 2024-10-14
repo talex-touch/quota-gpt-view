@@ -2,6 +2,7 @@
 import dayjs from 'dayjs'
 import zhLocale from 'dayjs/locale/zh-cn'
 import relativeTime from 'dayjs/plugin/relativeTime'
+import { api as viewerApi } from 'v-viewer'
 import RoundLoading from '../loaders/RoundLoading.vue'
 import TextShaving from '../other/TextShaving.vue'
 import ThWickCheckBox from '../checkbox/ThWickCheckBox.vue'
@@ -149,6 +150,11 @@ watchEffect(() => {
 //   if (rootEl && cursor)
 //     setTimeout(() => handleGeneratingDotUpdate(rootEl, cursor), 0)
 // })
+function handleViewImage(src: string) {
+  console.log('view image url', src, viewerApi)
+
+  viewerApi({ images: [src] })
+}
 </script>
 
 <template>
@@ -202,7 +208,7 @@ watchEffect(() => {
               <ErrorCard :block="block " />
             </div>
 
-            <div v-else-if="block.type === 'image'" class="image-card">
+            <div v-else-if="block.type === 'image'" class="image-card" @click="handleViewImage(block.value)">
               <img :src="block.value" alt="用户发送的图片">
             </div>
 
@@ -400,6 +406,7 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
 
       float: right;
 
+      cursor: pointer;
       overflow: hidden;
       border-radius: 4px;
       box-shadow: var(--el-box-shadow);
