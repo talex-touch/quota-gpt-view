@@ -500,6 +500,8 @@ async function handleSuggest(content: string) {
       right: 1rem;
 
       font-size: 14px;
+
+      pointer-events: auto;
     }
 
     z-index: 4;
@@ -516,6 +518,10 @@ async function handleSuggest(content: string) {
 
     width: 100%;
     height: 40px;
+
+    .screen & {
+      pointer-events: none;
+    }
 
     // backdrop-filter: blur(18px) saturate(180%);
   }

@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import UserAccountAvatar from '~/components/personal/UserAccountAvatar.vue'
 import IndexNavbar from '~/components/chore/IndexNavbar.vue'
+
+const route = useRoute()
 </script>
 
 <template>
   <!-- 包裹可能异步加载的内容，并定义加载时的备选UI。 -->
   <Suspense>
     <ClientOnly>
-      <main class="DefaultTemplate-Container">
+      <main :class="route.name" class="DefaultTemplate-Container">
         <el-aside class="only-pc-display">
           <div class="Navbar-Aside">
             <div class="LogoContainer">

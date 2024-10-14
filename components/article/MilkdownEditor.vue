@@ -3,6 +3,7 @@ import { Milkdown, useEditor } from '@milkdown/vue'
 import { Editor, defaultValueCtx, editorViewOptionsCtx, rootCtx } from '@milkdown/core'
 import { nord } from '@milkdown/theme-nord'
 import { blockquoteKeymap, blockquoteSchema, codeBlockSchema, commonmark } from '@milkdown/preset-commonmark'
+import './style.scss'
 
 import { gfm } from '@milkdown/preset-gfm'
 import { listener, listenerCtx } from '@milkdown/plugin-listener'
@@ -256,29 +257,27 @@ const editor = useEditor((root) => {
 <style lang="scss">
 .GuideEditorContainer {
   &-MainWrapper {
-    position: relative;
-    display: flex;
+    // position: relative;
+    margin: 0 auto;
     padding: 1rem 1.25rem;
 
-    left: 50%;
-
-    width: 80%;
-    max-width: 1280px;
-    min-height: 100%;
-
-    transform: translateX(-50%);
+    width: 1280px;
+    max-width: 80%;
   }
 
   // .el-scrollbar__bar.is-vertical {
   //   width: 4px;
   // }
 
+  .ProseMirror {
+    min-height: calc(100vh - 4rem);
+  }
+
   .el-scrollbar__view,
   .el-scrollbar {
-    position: relative;
+    // position: relative;
 
     width: 100%;
-    height: 100%;
     min-height: 100%;
   }
 
@@ -299,133 +298,5 @@ const editor = useEditor((root) => {
 
   width: 100%;
   height: 100%;
-}
-
-.MilkContent {
-  .milkdown {
-    height: 100%;
-    width: 100%;
-
-    // min-height: 100%;
-
-    .editor {
-      > p {
-        margin: 1rem 0;
-      }
-
-      ul {
-        li {
-          &::before {
-            content: '';
-            position: absolute;
-
-            top: 50%;
-            left: 0%;
-
-            width: 8px;
-            height: 8px;
-
-            border-radius: 50%;
-            transform: translate(0, -50%);
-            background-color: var(--theme-color);
-          }
-
-          position: relative;
-
-          text-indent: 16px;
-        }
-      }
-
-      min-height: 100%;
-
-      &:focus-visible {
-        outline: none;
-      }
-    }
-  }
-
-  position: relative;
-
-  flex: 1;
-  width: 100%;
-  min-height: 100%;
-
-  padding: 0.5rem 1.5rem;
-
-  color: var(--text-color);
-
-  --text-color: var(--el-text-color-primary);
-  --text-color-light: var(--el-text-color-regular);
-  --major-color: var(--theme-color);
-}
-
-.MilkContent h1 {
-  position: relative;
-  margin: 1rem 0;
-
-  font-size: 30px;
-  font-weight: 600;
-
-  background: radial-gradient(
-    circle at 0%,
-    #3d33f3aa 0.0125%,
-    var(--theme-color) 1.25%,
-    var(--text-color-light) 10%,
-    var(--major-color) 100%
-  );
-}
-
-.MilkContent h2 {
-  opacity: 0.95;
-  font-size: 24px;
-
-  background: radial-gradient(
-    circle at 0%,
-    #3d33f3aa 0.0125%,
-    var(--theme-color) 0.25%,
-    var(--text-color-light) 5%,
-    var(--major-color) 100%
-  );
-}
-
-.MilkContent h3 {
-  opacity: 0.9;
-  font-size: 20px;
-  background: radial-gradient(
-    circle at 0%,
-    #3d33f3aa 0.0125%,
-    var(--theme-color) 0.125%,
-    var(--text-color-light) 2.5%,
-    var(--major-color) 100%
-  );
-}
-
-.MilkContent h4 {
-  color: var(--el-text-color-primary);
-
-  opacity: 0.85;
-  font-size: 18px;
-}
-
-.MilkContent h5 {
-  color: var(--el-text-color-primary);
-
-  opacity: 0.8;
-  font-size: 16px;
-}
-
-.MilkContent h6 {
-  color: var(--el-text-color-primary);
-
-  opacity: 0.75;
-  font-size: 14px;
-}
-
-.MilkContent h1,
-.MilkContent h2,
-.MilkContent h3 {
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
 }
 </style>

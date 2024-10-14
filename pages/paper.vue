@@ -1,108 +1,82 @@
 <script setup lang="ts">
-const router = useRouter()
+import { MilkdownProvider } from '@milkdown/vue'
+import { ProsemirrorAdapterProvider } from '@prosemirror-adapter/vue'
+import Milkdown from '~/components/article/MilkdownEditor.vue'
+
+const model = ref('')
+const outline = ref<any[]>()
+const editor = ref<HTMLElement>()
+
+function handleOutline(data: any[], el: HTMLElement) {
+  outline.value = data
+  editor.value = el
+}
+
+let _func: any
+function handleOnScroll() {
+  _func?.()
+}
+
+provide('onScroll', (func: any) => _func = func)
 </script>
 
 <template>
-  <div class="NotFound fake-background">
-    <div class="NotFound-Main">
-      <h1 class="NotFound-Title">
-        <span>B</span>
-        <span>e</span>
-        <span>t</span>
-        <span>a</span>
-      </h1>
+  <div class="Paper">
+    <div class="Paper-Header">
+      <p>工作区</p>
 
-      <div class="NotFound-Box fake-background">
-        <p>您还暂时未获得内测资格.</p>
-
-        <ButtonShiningButton @click="$router.push('/')">
-          返回主页
-        </ButtonShiningButton>
+      <div class="Paper-Header-Nav">
+        <div i-carbon:copy />
       </div>
+    </div>
+
+    <div class="Paper-Main">
+      <ProsemirrorAdapterProvider>
+        <MilkdownProvider>
+          <Milkdown v-model="model" :readonly="false" @on-scroll="handleOnScroll" @outline="handleOutline" />
+        </MilkdownProvider>
+      </ProsemirrorAdapterProvider>
+    </div>
+
+    <div class="Paper-Fav">
+      <PaperFav />
     </div>
   </div>
 </template>
 
-<style lang="scss" scoped>
-.NotFound-Box {
-  p {
-    font-size: 1.5rem;
-  }
-  position: absolute;
-  display: flex;
-  padding: 1rem;
+<style lang="scss">
+.Paper {
+  &-Main {
+    // .MilkContent,
+    // .milkdown,
+    // .ProseMirror {
+    //   position: relative;
 
-  left: 50%;
-  top: 50%;
+    //   width: 100%;
+    //   height: 100%;
+    //   min-height: 100%;
+    // }
 
-  width: 20rem;
-  height: 200px;
+    :deep(.GuideEditorContainer-MainWrapper) {
+      padding: 0;
 
-  gap: 3rem;
-  align-items: center;
-  flex-direction: column;
-  justify-content: center;
+      width: 100%;
+      height: 100%;
+    }
 
-  --fake-opacity: 0.95;
-  overflow: hidden;
-  border-radius: 8px;
-  transform: translate(-50%, -50%);
-  // border: 1px solid var(--el-text-color-primary);
-  backdrop-filter: blur(18px) saturate(180%);
-}
-
-.NotFound-Title {
-  position: absolute;
-
-  top: 40%;
-  left: 50%;
-
-  // color: #00000001;
-  font-size: 10rem;
-  font-weight: 600;
-  text-align: center;
-  letter-spacing: 2rem;
-  filter: drop-shadow(0 0 4px var(--el-text-color-primary));
-  transform: translate(-50%, -50%) translateX(1rem);
-
-  span {
-    background: radial-gradient(
-      circle,
-      var(--el-text-color-primary) 0%,
-      #0000 70%
-    );
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-}
-
-.NotFound {
-  &::before {
-    z-index: -2;
-    content: '';
-    position: absolute;
-
-    top: 0;
-    left: 0;
+    position: relative;
 
     width: 100%;
     height: 100%;
 
-    background-image: url('/background_pro.png');
-    background-position: center;
-    background-size: cover;
+    flex: 1;
+    overflow: hidden;
+    // box-shadow: var(--el-box-shadow);
+    // background-color: var(--el-bg-color-page);
   }
-  position: absolute;
-
-  width: 100%;
-  height: 100%;
-
-  --fake-opacity: 0.85;
-}
-
-.NotFound-Main {
-  position: absolute;
+  z-index: 1;
+  position: relative;
+  display: flex;
 
   top: 0;
   left: 0;
@@ -110,6 +84,35 @@ const router = useRouter()
   width: 100%;
   height: 100%;
 
-  backdrop-filter: blur(18px) saturate(180%);
+  flex-direction: column;
+  justify-content: center;
+}
+
+.Paper-Header {
+  > p {
+    font-weight: 600;
+  }
+  z-index: 10;
+  position: absolute;
+  padding: 0 1rem;
+  display: flex;
+
+  top: 0;
+
+  height: 50px;
+  width: 100%;
+
+  align-items: center;
+
+  justify-content: space-between;
+}
+</style>
+
+<style lang="scss">
+.DefaultTemplate-Container.paper {
+  > .el-main {
+    padding: 0;
+    --el-main-padding: 0;
+  }
 }
 </style>

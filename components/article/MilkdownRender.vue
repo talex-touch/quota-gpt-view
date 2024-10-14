@@ -162,8 +162,3 @@ onMounted(() => {
 <template>
   <Milkdown class="MilkContent" />
 </template>
-
-<style lang="scss">
-// @import './style.scss';
-// @use './style.scss';
-</style>

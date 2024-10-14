@@ -43,12 +43,14 @@ watch(() => props.node.textContent, (code) => {
     // console.log('a', props.node.textContent)
 
     const res = hljs.highlight(code, {
-      language: lang.value,
+      language: langs.includes(lang.value) ? lang.value : 'text',
     })
 
     pre.value.innerHTML = res.value
   })
 }, { immediate: true })
+
+console.log('p', props)
 </script>
 
 <template>
