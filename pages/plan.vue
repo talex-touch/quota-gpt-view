@@ -122,6 +122,26 @@ const tableData = [
     ultimate: true,
   },
 ]
+
+function handleBuy() {
+  // router.push({
+  //   path: '/buy',
+  //   query: {
+  //     type: 'SUBSCRIPTION',
+  //     plan: 'STANDARD',
+  //     time: 'MONTH',
+  //   },
+  // })
+
+  const url = new URL(window.location.origin)
+
+  url.pathname = '/buy'
+  url.searchParams.set('type', 'SUBSCRIPTION')
+  url.searchParams.set('plan', 'STANDARD')
+  url.searchParams.set('time', 'MONTH')
+
+  window.open(url.toString(), '_blank')
+}
 </script>
 
 <template>
@@ -235,14 +255,7 @@ const tableData = [
     </div>
 
     <ShiningButton
-      mb-4 @click="$router.push({
-        path: '/buy',
-        query: {
-          type: 'SUBSCRIPTION',
-          plan: 'STANDARD',
-          time: 'MONTH',
-        },
-      })"
+      mb-4 @click="handleBuy"
     >
       立即订阅 PRO
     </ShiningButton>

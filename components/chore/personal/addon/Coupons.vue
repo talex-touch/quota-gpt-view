@@ -151,7 +151,7 @@ function handleSelectable(couponCode: string) {
           </template>
         </CardCouponCard>
 
-        <span op-50>共计 {{ orderedCoupons.length }} 个券码.</span>
+        <span op-50>共计 {{ orderedCoupons.length }} 个<span v-if="selectable">可用</span>券码.</span>
       </div>
       <el-empty v-else description="暂无优惠券" />
       <!-- </el-scrollbar> -->
