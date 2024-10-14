@@ -37,6 +37,7 @@ const nonPlusMode = computed(() => props.templateEnable && !template.value?.titl
 const inputHistories = useLocalStorage<string[]>('inputHistories', [])
 const inputHistoryIndex = ref(inputHistories.value.length - 1)
 const showSend = computed(() => input.value.text?.length || input.value.files?.length)
+const canSend = computed(() => showSend.value && (props.status === IChatItemStatus.AVAILABLE || props.status !== IChatItemStatus.CANCELLED))
 
 // function appendValue(value: string) {
 //   // 倒着找最后一个文本
@@ -54,10 +55,7 @@ const showSend = computed(() => input.value.text?.length || input.value.files?.l
 // }
 
 function handleSend(event: Event) {
-  if (!showSend.value)
-    return
-
-  if (props.status !== IChatItemStatus.AVAILABLE && props.status !== IChatItemStatus.CANCELLED)
+  if (!canSend.value)
     return
 
   if (input.value.text.startsWith('@'))
@@ -355,7 +353,8 @@ const placeholder = computed(() => props.center ? '可以帮到你什么?' : 'Sh
   <div
     :class="{
       center,
-      disabled: hide,
+      hide,
+      disabled: !canSend,
       collapse: nonPlusMode,
       showSend,
       generating: status === 2,
@@ -399,7 +398,7 @@ const placeholder = computed(() => props.center ? '可以帮到你什么?' : 'Sh
     </div>
 
     <div class="ThInput-Send" @click="handleSend">
-      <div i-carbon:send-alt />
+      <div i-carbon:arrow-up />
       <span v-if="status === 2" mr-4 text-lg text-black font-bold op-75>生成中</span>
     </div>
 
@@ -525,7 +524,7 @@ const placeholder = computed(() => props.center ? '可以帮到你什么?' : 'Sh
     transition: none;
   }
 
-  &.disabled {
+  &.hide {
     .ThInput-Float,
     .ThInput-Input,
     .ThInput-Send,
@@ -679,7 +678,7 @@ const placeholder = computed(() => props.center ? '可以帮到你什么?' : 'Sh
   }
 
   .ThInput-InputMain {
-    width: calc(100% - 40px);
+    width: 100%;
   }
 
   position: relative;
@@ -709,7 +708,7 @@ const placeholder = computed(() => props.center ? '可以帮到你什么?' : 'Sh
     pointer-events: none;
     border-radius: 16px;
     background: var(--el-color-danger);
-    box-shadow: none;
+    // box-shadow: none;
     box-shadow: 0 0 8px 2px var(--el-color-danger);
   }
 
@@ -750,7 +749,19 @@ const placeholder = computed(() => props.center ? '可以帮到你什么?' : 'Sh
     background: linear-gradient(135deg, #14ffe9, #ffeb3b, #ff00e0);
   }
 
-  .showSend & {
+  .disabled & {
+    &:hover {
+      opacity: 0.75;
+      cursor: not-allowed;
+      background-color: var(--el-border-color);
+      box-shadow: 0 0 0 0 var(--el-color-primary-light-7);
+    }
+    background-color: var(--el-border-color);
+    box-shadow: 0 0 0 0 var(--el-color-primary-light-7);
+  }
+
+  .showSend &,
+  .center & {
     transform: scale(1);
   }
 
@@ -794,20 +805,23 @@ const placeholder = computed(() => props.center ? '可以帮到你什么?' : 'Sh
   display: flex;
 
   color: #fff;
+  font-weight: 600;
   font-size: 1.25rem;
   align-items: center;
   justify-content: center;
 
-  bottom: 10px;
+  bottom: 8px;
   right: 0.75rem;
 
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
 
   font-size: 16px;
 
   cursor: pointer;
   transition:
+    background-color 0.25s,
+    box-shadow 0.5s,
     transform 0.5s,
     border-radius 0.25s,
     left 0.25s,
