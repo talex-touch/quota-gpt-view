@@ -162,9 +162,9 @@ const tips = reactive([
   }
 
   .mobile & {
-    top: 50%;
+    top: 0;
 
-    transform: translateY(-50px);
+    transform: translateY(0);
   }
 
   h1 {
@@ -200,11 +200,11 @@ const tips = reactive([
       }
       position: relative;
 
-      bottom: 50%;
+      // bottom: 50%;
 
       font-size: 40px;
 
-      transform: translateY(100%);
+      // transform: translateY(100%);
     }
 
     transition: 0.25s;

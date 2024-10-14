@@ -438,7 +438,7 @@ async function handleSuggest(content: string) {
   padding: 0.25rem 0.5rem;
 
   left: 50%;
-  bottom: 10%;
+  bottom: 8rem;
 
   height: 32px;
 
