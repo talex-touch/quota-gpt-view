@@ -38,9 +38,13 @@ const computedClass = computed(() => [hover.value ? 'enter' : '', props.popperCl
 </template>
 
 <style lang="scss">
-// .PopoverComp {
-//   position: relative;
-// }
+.PopoverComp {
+  position: relative;
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+}
 
 .Popover-Float {
   &-Inner {

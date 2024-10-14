@@ -49,6 +49,9 @@ async function push(path: string) {
 .IndexNavBar {
   display: flex;
 
+  color: var(--el-text-color-placeholder);
+  font-size: 1.75rem;
+
   gap: 2rem;
   flex-direction: column;
 }

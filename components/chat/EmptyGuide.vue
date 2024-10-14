@@ -65,12 +65,12 @@ const tips = reactive([
 
 <style lang="scss">
 .EmptyGuide-Brand {
-  opacity: 0;
+  display: none;
 }
 
 .mobile .EmptyGuide-Brand,
 .show .EmptyGuide-Brand {
-  opacity: 1;
+  display: unset;
 }
 
 .EmptyGuide-Tips {

@@ -398,7 +398,10 @@ const placeholder = computed(() => props.center ? '可以帮到你什么?' : 'Sh
     </div>
 
     <div class="ThInput-Send" @click="handleSend">
-      <div i-carbon:arrow-up />
+      <!-- <div i-carbon:arrow-up /> -->
+      <IconAnimateIcon>
+        <IconSvgArrowUpSvg />
+      </IconAnimateIcon>
       <span v-if="status === 2" mr-4 text-lg text-black font-bold op-75>生成中</span>
     </div>
 
@@ -774,7 +777,8 @@ const placeholder = computed(() => props.center ? '可以帮到你什么?' : 'Sh
       opacity: 0.5;
     }
 
-    div {
+    div,
+    :deep(.PopoverComp) {
       opacity: 0;
     }
 

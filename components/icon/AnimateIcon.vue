@@ -87,9 +87,9 @@ function handleClick() {
 
   position: relative;
 
-  width: 32px;
-  height: 32px;
+  width: 1.2em;
+  height: 1.2em;
 
-  color: var(--el-text-color-placeholder);
+  color: currentColor;
 }
 </style>
