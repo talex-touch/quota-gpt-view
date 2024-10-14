@@ -54,7 +54,7 @@ const tips = reactive([
 
     <div v-if="!show" class="EmptyGuide-Tips only-pc-display transition-cubic">
       <span
-        v-for="(tip, index) in tips" :key="index" v-wave class="TipItem"
+        v-for="(tip, index) in tips" :key="index" v-wave class="TipItem fake-background"
         :style="`--d: ${index * 0.05 + 1}s;--c: ${tip.color}`"
       >
         <span class="icon" block :class="tip.icon" /><span v-text="tip.title" />
@@ -79,6 +79,7 @@ const tips = reactive([
 
     transition: unset;
   }
+
   display: flex;
 
   gap: 0.5rem;
@@ -102,6 +103,13 @@ const tips = reactive([
 
     .icon {
       color: var(--c);
+    }
+
+    .wallpaper & {
+      overflow: hidden;
+      --fake-opacity: 0.6;
+      --fake-color: var(--el-bg-color);
+      backdrop-filter: blur(18px) saturate(180%);
     }
   }
 

@@ -236,11 +236,16 @@ async function handleSuggest(content: string) {
 <style lang="scss">
 .ToTop {
   &.in {
-    transform: translateX(0);
+    &:hover {
+      transform: translateX(0);
+
+      background-color: var(--el-bg-color-page);
+    }
+    transform: translateX(calc(100% - 40px));
   }
-  z-index: 1;
+  z-index: 3;
   position: absolute;
-  padding: 1rem 2rem 1rem 0.5rem;
+  padding: 1.5rem 2rem 1.5rem 0.75rem;
   display: flex;
 
   top: 10%;
@@ -252,7 +257,7 @@ async function handleSuggest(content: string) {
   width: max-content;
   height: 30px;
 
-  font-size: 1rem;
+  font-size: 1.25rem;
   font-weight: bold;
 
   cursor: pointer;
@@ -260,8 +265,8 @@ async function handleSuggest(content: string) {
   border-radius: 16px 0 0 16px;
   box-shadow: var(--el-box-shadow);
   backdrop-filter: blur(18px) saturate(180%);
-  background-color: var(--theme-color-light);
-  transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+  background-color: var(--el-bg-color);
+  transition: 0.35s cubic-bezier(0.785, 0.135, 0.15, 0.86);
 }
 
 .TrChat-RateLimit {
@@ -458,7 +463,8 @@ async function handleSuggest(content: string) {
     flex-direction: column;
 
     left: 50%;
-    width: min(70%, 1080px);
+    width: 1080px;
+    max-width: 70%;
 
     gap: 0.25rem;
     box-sizing: border-box;
@@ -470,6 +476,14 @@ async function handleSuggest(content: string) {
   }
 
   height: 100%;
+}
+
+@media (max-width: 1080px) {
+  .ThChat-Container {
+    &-Wrapper {
+      max-width: 90%;
+    }
+  }
 }
 
 .ThChat {

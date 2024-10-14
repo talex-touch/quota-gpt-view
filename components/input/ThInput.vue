@@ -753,10 +753,10 @@ const placeholder = computed(() => props.center ? '可以帮到你什么?' : 'Sh
     &:hover {
       opacity: 0.75;
       cursor: not-allowed;
-      background-color: var(--el-border-color);
+      background-color: var(--el-text-color-disabled);
       box-shadow: 0 0 0 0 var(--el-color-primary-light-7);
     }
-    background-color: var(--el-border-color);
+    background-color: var(--el-text-color-disabled);
     box-shadow: 0 0 0 0 var(--el-color-primary-light-7);
   }
 
@@ -850,5 +850,11 @@ const placeholder = computed(() => props.center ? '可以帮到你什么?' : 'Sh
   bottom: 3rem;
 
   width: 90%;
+}
+
+@media (max-width: 1080px) {
+  .ThInput {
+    width: 90%;
+  }
 }
 </style>

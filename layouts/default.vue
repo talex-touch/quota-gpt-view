@@ -109,20 +109,17 @@ import IndexNavbar from '~/components/chore/IndexNavbar.vue'
 
 .LogoContainer {
   span {
-    position: absolute;
-
     font-size: 12px;
-    bottom: 1.25rem;
 
     font-weight: 600;
     transform: scale(0.9);
   }
 
   position: relative;
-  padding: 1rem 0;
+  margin: 5px 0;
   display: flex;
 
-  height: calc(65px + 2rem);
+  height: calc(55px + 1rem);
 
   flex-direction: column;
 

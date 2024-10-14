@@ -9,9 +9,6 @@
 
 <style lang="scss" scoped>
 .LogoContainer {
-  img {
-    transform: scale(1.25);
-  }
   margin: 0 10px;
   display: flex;
 
@@ -23,7 +20,7 @@
   height: 32px;
 
   border-radius: 12px;
-  box-shadow: 0 0 11px 2px #3ab8fd;
+  // box-shadow: 0 0 11px 2px #3ab8fd;
   // background-color: #3ab8fd;
 }
 </style>
