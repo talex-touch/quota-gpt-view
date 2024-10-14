@@ -135,35 +135,41 @@
   margin: 1rem 0;
   font-size: 30px;
 
-  background: radial-gradient(circle at 0%,
-      #3d33f3aa 0.0125%,
-      var(--theme-color) 1.25%,
-      var(--text-color-light) 10%,
-      var(--major-color) 100%);
+  // background: radial-gradient(circle at 0%,
+  //     #3d33f3aa 0.0125%,
+  //     var(--theme-color) 1.25%,
+  //     var(--text-color-light) 10%,
+  //     var(--major-color) 100%);
 }
 
 .MilkContent h2 {
+  margin: 0.5rem 0;
+
   opacity: 0.95;
   font-size: 24px;
 
-  background: radial-gradient(circle at 0%,
-      #3d33f3aa 0.0125%,
-      var(--theme-color) 0.25%,
-      var(--text-color-light) 5%,
-      var(--major-color) 100%);
+  // background: radial-gradient(circle at 0%,
+  //     #3d33f3aa 0.0125%,
+  //     var(--theme-color) 0.25%,
+  //     var(--text-color-light) 5%,
+  //     var(--major-color) 100%);
 }
 
 .MilkContent h3 {
+  margin: 0.25rem 0;
+
   opacity: 0.9;
   font-size: 20px;
-  background: radial-gradient(circle at 0%,
-      #3d33f3aa 0.0125%,
-      var(--theme-color) 0.125%,
-      var(--text-color-light) 2.5%,
-      var(--major-color) 100%);
+  // background: radial-gradient(circle at 0%,
+  //     #3d33f3aa 0.0125%,
+  //     var(--theme-color) 0.125%,
+  //     var(--text-color-light) 2.5%,
+  //     var(--major-color) 100%);
 }
 
 .MilkContent h4 {
+  margin: 0.125rem 0;
+
   opacity: 0.85;
   font-size: 18px;
 }
@@ -178,13 +184,13 @@
   font-size: 14px;
 }
 
-.MilkContent h1,
-.MilkContent h2,
-.MilkContent h3 {
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
+// .MilkContent h1,
+// .MilkContent h2,
+// .MilkContent h3 {
+//   background-clip: text;
+//   -webkit-background-clip: text;
+//   -webkit-text-fill-color: transparent;
+// }
 
 pre .rich-copy .did {
   position: absolute;
