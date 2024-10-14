@@ -520,7 +520,7 @@ const placeholder = computed(() => props.center ? '可以帮到你什么?' : 'Sh
 
     box-shadow: var(--el-box-shadow-light);
 
-    animation: inputJoin 0.25s 0.5s ease-in-out forwards;
+    animation: inputJoin 0.5s 0.25s ease-in-out forwards;
 
     transition: none;
   }
@@ -590,6 +590,7 @@ const placeholder = computed(() => props.center ? '可以帮到你什么?' : 'Sh
   backdrop-filter: blur(18px) saturate(180%);
   background-color: var(--el-mask-color-extra-light);
 
+  pointer-events: auto;
   transition: 0.75s cubic-bezier(0.785, 0.135, 0.15, 0.86);
 
   // transition:

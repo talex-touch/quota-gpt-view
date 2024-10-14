@@ -55,7 +55,7 @@ const tips = reactive([
     <div v-if="!show" class="EmptyGuide-Tips only-pc-display transition-cubic">
       <span
         v-for="(tip, index) in tips" :key="index" v-wave class="TipItem"
-        :style="`--d: ${index * 0.05 + 1.5}s;--c: ${tip.color}`"
+        :style="`--d: ${index * 0.05 + 1}s;--c: ${tip.color}`"
       >
         <span class="icon" block :class="tip.icon" /><span v-text="tip.title" />
       </span>
@@ -107,12 +107,17 @@ const tips = reactive([
 
   justify-content: center;
 
-  transition: 0.5s 0.75s;
+  transition: cubic-bezier(0.6, -0.28, 0.735, 0.045) 0.5s 0.75s;
   transform: translateY(calc(50%));
 }
 
 @keyframes fade-join {
-  to {
+  60% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+
+  100% {
     opacity: 1;
     transform: translateY(0px);
   }
@@ -123,10 +128,6 @@ const tips = reactive([
   font-weight: 600;
 
   transform: translateY(-50%);
-}
-
-.EmptyGuide-Input {
-  height: 50px;
 }
 
 @keyframes transforming {
@@ -148,6 +149,7 @@ const tips = reactive([
 
     top: 50%;
 
+    pointer-events: none;
     transform: translateY(-50%);
   }
 
