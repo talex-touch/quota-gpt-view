@@ -726,6 +726,10 @@ export function getOrderStatus(id: string) {
   return endHttp.get(`order/status/target?time=${Date.now()}`, { id })
 }
 
+export function getOrderList() {
+  return endHttp.get('order/list')
+}
+
 export function getUserSubscription() {
   return endHttp.get('order/subscribe')
 }

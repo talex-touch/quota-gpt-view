@@ -2,6 +2,7 @@
 import { autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/vue'
 
 const props = defineProps<{
+  disabled?: boolean
   popperClass?: string
 }>()
 
@@ -27,6 +28,7 @@ const computedClass = computed(() => [hover.value ? 'enter' : '', props.popperCl
   </div>
   <teleport to="body">
     <div
+      v-if="disabled !== true"
       ref="floating" :class="{ visible: hover }" :style="floatingStyles" class="Popover-Float" @mouseenter="hover = true"
       @mouseleave="hover = false"
     >

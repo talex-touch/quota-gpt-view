@@ -154,7 +154,7 @@ function handleBack() {
           <!-- <CmsMenuItem path="/profile/mf2a">
             <div i-carbon-tablet />MF2A
           </CmsMenuItem> -->
-          <CmsMenuItem :active="data === 'developer'" danger @click="data = 'developer'">
+          <CmsMenuItem v-permission="'system:admin'" :active="data === 'developer'" danger @click="data = 'developer'">
             <div i-carbon-code />
             开发者设置
           </CmsMenuItem>

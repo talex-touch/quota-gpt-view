@@ -110,6 +110,9 @@ watch(
 )
 
 function handleCreate() {
+  if (!pageOptions.conversation.messages.length)
+    return
+
   const conversation = $completion.emptyHistory()
 
   $historyManager.options.list.set(conversation.id, conversation)

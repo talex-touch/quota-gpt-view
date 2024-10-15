@@ -2,11 +2,12 @@
 const props = defineProps<{
   title: string
   desc: string
+  danger?: boolean
 }>()
 </script>
 
 <template>
-  <div class="LineForm">
+  <div class="LineForm" :class="{ danger }">
     <div class="LineForm-Start">
       <slot name="start">
         <p class="LineForm-Title">
@@ -26,6 +27,10 @@ const props = defineProps<{
 
 <style lang="scss" scoped>
 .LineForm {
+  &.danger {
+    color: var(--el-color-danger);
+  }
+
   &-Start {
     p.LineForm-Title {
       font-weight: 400;
@@ -33,6 +38,9 @@ const props = defineProps<{
     p.LineForm-Desc {
       font-size: 14px;
       color: var(--el-text-color-secondary);
+      .danger & {
+        color: var(--el-color-danger-light-3);
+      }
     }
     display: flex;
 

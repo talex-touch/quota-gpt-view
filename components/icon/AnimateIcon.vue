@@ -30,7 +30,7 @@ function handleClick() {
 </script>
 
 <template>
-  <TemplatePopoverComp popper-class="AnimateIcon-Tooltip transition-cubic">
+  <TemplatePopoverComp :disabled="!tip" popper-class="AnimateIcon-Tooltip transition-cubic">
     <template #inner>
       <button ref="button" :class="{ active }" class="AnimateIcon" @click="handleClick">
         <slot />

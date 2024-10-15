@@ -589,6 +589,10 @@ font.immersive-translate-target-wrapper {
   --el-table-tr-bg-color: var(--el-color-error-light-9);
 }
 
+.el-table .success-row {
+  --el-table-tr-bg-color: var(--el-color-success-light-9);
+}
+
 .fake-background::after {
   z-index: -1;
   content: '';

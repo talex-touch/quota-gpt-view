@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import PlanCard from '~/components/card/PlanCard.vue'
+import { getOrderList } from '~/composables/api/account'
 import { price } from '~/constants/price'
-
-const router = useRouter()
 
 const drawerVisible = ref(false)
 const plans = computed(() => price.map((item, index) => ({
@@ -29,6 +28,28 @@ function toCheckout(plan: any) {
   window.open(`${window.origin}/plan`, '_blank')
   // router.push(`/buy?type=SUBSCRIPTION&plan=${plan.value}&time=MONTH`)
 }
+
+const orderList = ref<any[]>([])
+
+async function fetchData() {
+  const res = await getOrderList()
+
+  orderList.value = res.data
+}
+
+onMounted(fetchData)
+
+function tableRowClassName({ row, rowIndex }: any) {
+  if (row.status === 1)
+    return 'success-row'
+
+  else if (row.status === 0)
+    return 'warning-row'
+  else if (row.status === 3)
+    return 'error-row'
+
+  return ''
+}
 </script>
 
 <template>
@@ -43,7 +64,7 @@ function toCheckout(plan: any) {
     </div>
 
     <div class="ProfileWrapper-Main">
-      <div class="ProfileWrapper-MainWrapper">
+      <div v-if="!userStore.subscription?.type" class="PlanWrapper-MainWrapper">
         <!-- <el-alert title="现在下单，新人用户享受限时 2.99/月 福利。" type="success" close-text="更多福利" /> -->
         <el-alert title="价格以结算页面最终价格为准。" type="warning" close-text="了解" />
 
@@ -52,7 +73,7 @@ function toCheckout(plan: any) {
         <h1>简单，透明，高性价比计划</h1>
         <p>立即开始提升你的办公效率、生活体验</p>
 
-        <div class="ProfileWrapper-MainWrapper-Plan">
+        <div class="PlanWrapper-MainWrapper-Plan">
           <PlanCard
             v-for="plan in plans" :key="plan.name" :got="plan.got" :type="plan.type" :desc="plan.desc"
             :name="plan.name" :price="plan.price" @click="toCheckout(plan)"
@@ -63,6 +84,46 @@ function toCheckout(plan: any) {
           </PlanCard>
         </div>
         <br>
+      </div>
+      <div v-else class="PlanWrapper-List">
+        <!-- el-table -->
+        <el-table :row-class-name="tableRowClassName" size="small" :data="orderList">
+          <el-table-column label="订单号" prop="id" />
+          <el-table-column label="订单名" prop="description" />
+          <el-table-column label="订单内容">
+            <template #default="{ row }">
+              {{ row.items.length }}项
+            </template>
+          </el-table-column>
+          <el-table-column label="状态">
+            <template #default="{ row }">
+              <span v-if="row.status === 0">待支付</span>
+              <span v-if="row.status === 1">已完成</span>
+              <span v-if="row.status === 2">已取消</span>
+              <span v-if="row.status === 3">超时未支付</span>
+              <span v-if="row.status === 4">待退款</span>
+              <span v-if="row.status === 5">已退款</span>
+              <span v-if="row.status === 6">审核中</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="价格">
+            <template #default="{ row }">
+              ￥{{ row.totalAmount / 100 }}
+            </template>
+          </el-table-column>
+          <el-table-column label="支付方式">
+            <template #default="{ row }">
+              <span v-if="row.paymentMethod === 1">-</span>
+              <span v-if="row.paymentMethod === 2">微信支付</span>
+              <span v-if="row.paymentMethod === 3">*</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="创建时间">
+            <template #default="{ row }">
+              {{ formatDate(row.createdAt) }}
+            </template>
+          </el-table-column>
+        </el-table>
       </div>
     </div>
 
@@ -76,6 +137,14 @@ function toCheckout(plan: any) {
 </template>
 
 <style lang="scss" scoped>
+.PlanWrapper-List {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 1rem;
+}
+
 div.ProfileWrapper-Header {
   display: flex;
 
@@ -85,7 +154,7 @@ div.ProfileWrapper-Header {
   align-items: center;
 }
 
-.ProfileWrapper-MainWrapper-Plan {
+.PlanWrapper-MainWrapper-Plan {
   margin: 1rem 0;
   display: flex;
 
@@ -93,17 +162,19 @@ div.ProfileWrapper-Header {
   // padding: 5rem 0;
 }
 
-.ProfileWrapper-MainWrapper {
+.PlanWrapper-MainWrapper {
   h1 {
     font-size: 24px;
     font-weight: 600;
   }
+
   p {
     margin: 0.5rem 0;
 
     opacity: 0.75;
     font-weight: 400;
   }
+
   // height: 800px;
 
   text-align: center;

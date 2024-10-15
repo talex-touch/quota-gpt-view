@@ -1,4 +1,7 @@
 import Mountain from '/backgrounds/mountain.jpg'
+import Glass from '/backgrounds/glass.jpg'
+import Geometry from '/backgrounds/geometry.jpg'
+import Scallion from '/backgrounds/scallion.jpg'
 import NightMountain from '/backgrounds/night-mountain.jpg'
 import Grass from '/backgrounds/grass.jpg'
 import Dessert from '/backgrounds/dessert.jpg'
@@ -7,6 +10,11 @@ import Universe from '/backgrounds/universe.jpg'
 import Golden from '/backgrounds/golden.jpg'
 import Blocks from '/backgrounds/blocks.jpg'
 import Earth from '/backgrounds/earth.jpg'
+import Flowers from '/backgrounds/flowers.jpg'
+import Swirl from '/backgrounds/swirl.jpg'
+import Domain from '/backgrounds/Domain.jpg'
+import Sound from '/backgrounds/sound.jpg'
+import Confusion from '/backgrounds/confusion.jpg'
 import Zakaria from '/backgrounds/zakaria.jpg'
 
 // import { useColorMode } from '@vueuse/core'
@@ -36,15 +44,66 @@ export const wallpapers = [
   },
   {
     id: 'mountain',
+    free: true,
     label: '日照雪山',
     color: '#00477B',
     wallpaper: Mountain,
   },
   {
     id: 'night-mountain',
+    free: true,
     label: '晚霞橙森',
     color: '#60637A',
     wallpaper: NightMountain,
+  },
+  {
+    id: 'flowers',
+    label: '刺缪花海',
+    color: '#C55B95',
+    wallpaper: Flowers,
+  },
+  {
+    id: 'swirl',
+    label: '交替漩涡',
+    color: '#375523',
+    wallpaper: Swirl,
+  },
+  {
+    id: 'glass',
+    label: '玻璃旋花',
+    color: '#00BAAF',
+    wallpaper: Glass,
+  },
+  {
+    id: 'geometry',
+    label: '方正几何',
+    color: '#191919',
+    wallpaper: Geometry,
+  },
+  {
+    id: 'scallion',
+    label: '彩晕缩张',
+    color: '#05376C',
+    // color: '#DA633F',
+    wallpaper: Scallion,
+  },
+  {
+    id: 'domain',
+    label: '极域空间',
+    color: '#272C72',
+    wallpaper: Domain,
+  },
+  {
+    id: 'confusion',
+    label: '迷乱世界',
+    color: '#8E5462',
+    wallpaper: Confusion,
+  },
+  {
+    id: 'sound',
+    label: '悬音波浪',
+    color: '#A73F24',
+    wallpaper: Sound,
   },
   {
     id: 'grass',
