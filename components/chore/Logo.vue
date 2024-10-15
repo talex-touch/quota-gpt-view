@@ -9,6 +9,15 @@
 
 <style lang="scss" scoped>
 .LogoContainer {
+  img {
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 32px;
+    height: 32px;
+  }
   margin: 0 10px;
   display: flex;
 
