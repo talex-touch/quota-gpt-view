@@ -573,7 +573,7 @@ const placeholder = computed(() => props.center ? '可以帮到你什么?' : 'Sh
   align-items: flex-end;
 
   // left: 50%;
-  bottom: 2.5rem;
+  bottom: 3rem;
 
   width: min(70%, 1080px);
   min-height: 50px;
@@ -598,6 +598,17 @@ const placeholder = computed(() => props.center ? '可以帮到你什么?' : 'Sh
   // transition:
   //   opacity 0.25s,
   //   width 0.75s;
+  animation: cubic-bezier(0.075, 0.82, 0.165, 1) 0.35s inputBottomJoin;
+}
+
+@keyframes inputBottomJoin {
+  from {
+    transform: translateY(-50vh) translateY(50%);
+  }
+
+  to {
+    transform: translateY(0) translateY(0);
+  }
 }
 
 @keyframes inputJoin {
