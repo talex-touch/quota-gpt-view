@@ -36,15 +36,14 @@ function handleCopy() {
 const lang = computed(() => props.node.attrs.language)
 const pre = ref()
 watch(() => props.node.textContent, (code) => {
-  if (!lang.value)
-    return
-
   nextTick(() => {
     // console.log('a', props.node.textContent)
 
     const res = hljs.highlight(code, {
-      language: langs.includes(lang.value) ? lang.value : 'text',
+      language: (lang.value && langs.includes(lang.value)) ? lang.value : 'text',
     })
+
+    console.log('e', res)
 
     pre.value.innerHTML = res.value
   })
@@ -64,7 +63,12 @@ console.log('p', props)
         <div v-else-if="lang === 'xml'" i-carbon:xml />
         <div v-else-if="lang === 'svg'" i-carbon:svg />
         <p v-else>
-          {{ lang }}
+          <template v-if="lang">
+            {{ lang }}
+          </template>
+          <template v-else>
+            <div i-carbon:code />
+          </template>
         </p>
       </div>
       <div :class="{ did }" class="rich-copy" @click="handleCopy">

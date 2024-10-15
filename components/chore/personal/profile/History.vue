@@ -146,11 +146,11 @@ function isThisDevice(item: any) {
     .tag {
       padding: 0.25rem;
 
-      opacity: 0.75;
+      opacity: 0.85;
       font-weight: normal;
-      font-size: 10px;
+      font-size: 11px;
       border-radius: 4px;
-      background: var(--el-overlay-color);
+      background: var(--el-fill-color-darker);
     }
     font-weight: 600;
   }

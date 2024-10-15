@@ -280,12 +280,16 @@ function handleLogin() {
 
 <template>
   <div :class="{ expand, empty: !pageOptions.conversation.messages.length }" class="PageContainer">
-    <History v-model:select="pageOptions.select" class="PageContainer-History" @create="handleCreate"
-      @delete="handleDelete" />
+    <History
+      v-model:select="pageOptions.select" class="PageContainer-History" @create="handleCreate"
+      @delete="handleDelete"
+    />
 
     <div class="PageContainer-Main">
-      <ThChat ref="chatRef" v-model:messages="pageOptions.conversation" :status="pageOptions.status"
-        @cancel="handleCancelReq" @retry="handleRetry" @suggest="handleSuggest">
+      <ThChat
+        ref="chatRef" v-model:messages="pageOptions.conversation" :status="pageOptions.status"
+        @cancel="handleCancelReq" @retry="handleRetry" @suggest="handleSuggest"
+      >
         <template #model>
           <ModelSelector v-if="mount" v-model="pageOptions.model" />
         </template>
@@ -295,7 +299,7 @@ function handleLogin() {
 
           <ModelSelector v-if="mount" v-model="pageOptions.model" />
 
-          <div v-if="userStore.isLogin" i-carbon:edit @click="handleCreate" />
+          <div v-if="userStore.isLogin" style="font-size: 16px" i-carbon:edit @click="handleCreate" />
           <div v-else class="login-tag" @click="handleLogin">
             登录
           </div>
@@ -303,8 +307,10 @@ function handleLogin() {
       </ThChat>
 
       <EmptyGuide :show="!!pageOptions.conversation.messages?.length">
-        <ThInput :template-enable="!pageOptions.conversation.messages.length" :status="pageOptions.status"
-          :hide="pageOptions.share.enable" :center="pageOptions.conversation.messages?.length < 1" @send="handleSend" />
+        <ThInput
+          :template-enable="!pageOptions.conversation.messages.length" :status="pageOptions.status"
+          :hide="pageOptions.share.enable" :center="pageOptions.conversation.messages?.length < 1" @send="handleSend"
+        />
       </EmptyGuide>
 
       <AigcChatStatusBar>
@@ -320,8 +326,10 @@ function handleLogin() {
             离线模式
           </span> -->
 
-          <span v-if="!!pageOptions.conversation.messages.length"
-            :class="pageOptions.share.enable ? 'warning shining' : ''" cursor-pointer class="tag" @click="handleShare">
+          <span
+            v-if="!!pageOptions.conversation.messages.length"
+            :class="pageOptions.share.enable ? 'warning shining' : ''" cursor-pointer class="tag" @click="handleShare"
+          >
             <i i-carbon:share />分享对话
           </span>
 
@@ -330,14 +338,18 @@ function handleLogin() {
           </span>
         </template>
         <template #end>
-          <ChatHeadTrSyncStatus v-if="!!pageOptions.conversation.messages.length"
-            :status="pageOptions.conversation.sync" @upload="handleSync" />
+          <ChatHeadTrSyncStatus
+            v-if="!!pageOptions.conversation.messages.length"
+            :status="pageOptions.conversation.sync" @upload="handleSync"
+          />
         </template>
       </AigcChatStatusBar>
 
       <teleport to="body">
-        <ShareSection v-if="pageOptions.conversation" :length="pageOptions.conversation.messages.length"
-          :show="pageOptions.share.enable" :selected="pageOptions.share.selected" />
+        <ShareSection
+          v-if="pageOptions.conversation" :length="pageOptions.conversation.messages.length"
+          :show="pageOptions.share.enable" :selected="pageOptions.share.selected"
+        />
       </teleport>
 
       <!-- 根据 发送消息超过10次 控制弹窗的显示 -->

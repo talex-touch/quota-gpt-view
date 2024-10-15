@@ -61,7 +61,7 @@ const avatarUrl = computed(() => {
 <template>
   <div class="UserAccountAvatar">
     <div
-      v-if="!userStore.isLogin" class="AccountAvatar-Wrapper"
+      v-if="!userStore.isLogin" class="UserAccountAvatar-Wrapper"
       @click="appOptions.model.login = !appOptions.model.login"
     >
       <el-avatar>
@@ -74,12 +74,12 @@ const avatarUrl = computed(() => {
       popper-style="box-shadow: rgb(14 18 22 / 35%) 0px 10px 38px -10px, rgb(14 18 22 / 20%) 0px 10px 20px -15px; padding: 20px;"
     >
       <template #reference>
-        <div class="AccountAvatar-Wrapper" @click="router.push('/')">
+        <div class="UserAccountAvatar-Wrapper" @click="router.push('/')">
           <el-avatar :src="avatarUrl" />
         </div>
       </template>
       <template #default>
-        <div class="AccountAvatar-Head">
+        <div class="UserAccountAvatar-Head">
           <el-avatar :src="avatarUrl" />
 
           <p flex items-center>
@@ -88,14 +88,14 @@ const avatarUrl = computed(() => {
               <span v-else-if="userStore.subscription?.type === 'ULTIMATE'">高级订阅</span>
               <span v-else-if="userStore.subscription?.type === 'STANDARD'">标准订阅</span>
             </span>
-              <span mx-2 style="--c: #FB533080" class="privilege"> <span class="dummy">0.00 ￥</span></span>
+              <span v-if="false" mx-2 style="--c: #FB533080" class="privilege"> <span class="dummy">0.00 ￥</span></span>
             </span>
           </p>
         </div>
-        <div class="AccountAvatar-Selections" style="display: flex; gap: 16px; flex-direction: column">
+        <div class="UserAccountAvatar-Selections" style="display: flex; gap: 16px; flex-direction: column">
           <div
             v-for="item in menus" :key="item.label" v-wave :class="{ danger: item.danger, divider: item.divider }"
-            :style="`${item.show ? '' : 'display: none'}`" class="AccountAvatar-MenuItem" @click="item?.click"
+            :style="`${item.show ? '' : 'display: none'}`" class="UserAccountAvatar-MenuItem" @click="item?.click"
           >
             <div v-if="item.icon" :class="item.icon" />
             {{ item.label }}
@@ -107,7 +107,7 @@ const avatarUrl = computed(() => {
 </template>
 
 <style lang="scss">
-.AccountAvatar-MenuItem {
+.UserAccountAvatar-MenuItem {
   &.divider {
     margin: 0 1rem;
     padding: 0;
@@ -140,11 +140,11 @@ const avatarUrl = computed(() => {
   border-radius: 12px;
 }
 
-.AccountAvatar-Selections {
+.UserAccountAvatar-Selections {
   margin: 1rem 0;
 }
 
-.AccountAvatar-Head {
+.UserAccountAvatar-Head {
   p {
     display: flex;
 
@@ -157,7 +157,7 @@ const avatarUrl = computed(() => {
       font-size: 12px;
       border-radius: 8px;
       // background: #ffca1a50;
-      background: var(var(--c, var(--plan-color)), #21384c50);
+      background: var(--plan-color, #21384c50);
     }
 
     .name {
