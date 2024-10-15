@@ -12,7 +12,7 @@ import Blocks from '/backgrounds/blocks.jpg'
 import Earth from '/backgrounds/earth.jpg'
 import Flowers from '/backgrounds/flowers.jpg'
 import Swirl from '/backgrounds/swirl.jpg'
-import Domain from '/backgrounds/Domain.jpg'
+import Domain from '/backgrounds/domain.jpg'
 import Sound from '/backgrounds/sound.jpg'
 import Confusion from '/backgrounds/confusion.jpg'
 import Zakaria from '/backgrounds/zakaria.jpg'
@@ -163,8 +163,6 @@ export const theme = computed({
 })
 
 export const currentWallpaper = computed(() => theme.value ? wallpapers.find(w => w.id === theme.value) : null)
-
-console.log('a', currentWallpaper)
 
 export async function _setWallpaper(paper: any) {
   if (!paper) {
