@@ -149,7 +149,32 @@ const tips = reactive([
 }
 
 .ScreenGuide {
+  &::before {
+    content: '';
+    position: absolute;
+
+    top: 50%;
+    left: 50%;
+
+    width: 20%;
+    height: 10%;
+
+    opacity: 0.5;
+    filter: blur(50px);
+    background-image: radial-gradient(
+      circle at 50% 50%,
+      var(--el-overlay-color),
+      transparent
+    );
+    transition: 0.35s;
+    transform: translate(-50%, -50%);
+  }
+
   &.show {
+    &::before {
+      opacity: 0;
+    }
+
     h1 {
       opacity: 0.025;
       filter: grayscale(100%);
