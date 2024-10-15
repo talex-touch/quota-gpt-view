@@ -72,7 +72,7 @@ watch(() => userStore.value.isLogin, () => {
 }, { immediate: true })
 
 // manually trigger
-export async function saveUserConfig() {
+async function _saveUserConfig() {
   const res = await $endApi.v1.account.postUserConfig(
     JSON.stringify(userConfig.value.pub_info),
     JSON.stringify(userConfig.value.pri_info),
@@ -84,6 +84,8 @@ export async function saveUserConfig() {
     success: '',
   })
 }
+
+export const saveUserConfig = useDebounceFn(_saveUserConfig)
 
 // watch(() => userStore.value.token, async () => {
 //   if (!userStore.value.isLogin)

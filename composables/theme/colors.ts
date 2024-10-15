@@ -77,7 +77,7 @@ export const wallpapers = [
   {
     id: 'geometry',
     label: '方正几何',
-    color: '#191919',
+    color: '#8a7171',
     wallpaper: Geometry,
   },
   {
@@ -161,6 +161,10 @@ export const theme = computed({
     userConfig.value.pri_info.appearance.theme = val
   },
 })
+
+export const currentWallpaper = computed(() => theme.value ? wallpapers.find(w => w.id === theme.value) : null)
+
+console.log('a', currentWallpaper)
 
 export async function _setWallpaper(paper: any) {
   if (!paper) {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { setWallpaper, theme, themeColors, viewTransition, wallpapers } from '~/composables/theme/colors'
+import { currentWallpaper, setWallpaper, theme, viewTransition, wallpapers } from '~/composables/theme/colors'
 import ShiningButton from '~/components/button/ShiningButton.vue'
 import TextShaving from '~/components/other/TextShaving.vue'
 
@@ -181,7 +181,7 @@ function toSubscription() {
               </div>
 
               <div v-if="theme" flex class="wallpaper-end">
-                当前选择：{{ theme }}
+                当前选择：{{ currentWallpaper?.label }}
                 <el-button type="danger" @click="setWallpaper(null, $event)">
                   重置
                 </el-button>
