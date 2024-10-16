@@ -94,7 +94,7 @@ const tips = reactive([
     cursor: pointer;
     font-size: 14px;
     border-radius: 12px;
-    color: var(--el-text-color-secondary);
+    color: var(--el-text-color-primary);
     border: 1px solid var(--el-border-color-lighter);
     animation: fade-join 0.25s var(--d) ease-in-out forwards;
 
@@ -132,6 +132,8 @@ const tips = reactive([
 }
 
 .EmptyGuide-Greet {
+  z-index: 10;
+
   font-size: 2rem;
   font-weight: 600;
 
@@ -150,6 +152,7 @@ const tips = reactive([
 
 .ScreenGuide {
   &::before {
+    z-index: -1;
     content: '';
     position: absolute;
 
@@ -159,15 +162,19 @@ const tips = reactive([
     width: 20%;
     height: 10%;
 
-    opacity: 0.5;
+    opacity: 0;
     filter: blur(50px);
     background-image: radial-gradient(
       circle at 50% 50%,
-      var(--el-overlay-color),
+      var(--el-bg-color),
       transparent
     );
     transition: 0.35s;
     transform: translate(-50%, -50%);
+  }
+
+  .wallpaper &::before {
+    opacity: 0.25;
   }
 
   &.show {
