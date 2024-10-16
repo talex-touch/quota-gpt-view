@@ -396,6 +396,7 @@ function handleLogin() {
     transition: 0.35s;
     transform: scale(1.05);
     background-size: cover;
+    animation: wallpaperEnter 0.35s ease-out;
     background-image: var(--wallpaper);
   }
 
@@ -499,5 +500,15 @@ function handleLogin() {
   overflow: hidden;
 
   // background-color: red;
+}
+
+@keyframes wallpaperEnter {
+  from {
+    transform: scale(1.125);
+  }
+
+  to {
+    transform: scale(1.05);
+  }
 }
 </style>
