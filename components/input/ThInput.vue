@@ -522,7 +522,7 @@ const placeholder = computed(() => props.center ? '可以帮到你什么?' : 'Sh
 
     box-shadow: var(--el-box-shadow-light);
 
-    animation: inputJoin 0.5s 0.25s ease-in-out forwards;
+    animation: inputJoin 0.25s ease-in-out forwards;
 
     transition: none;
   }
@@ -598,7 +598,7 @@ const placeholder = computed(() => props.center ? '可以帮到你什么?' : 'Sh
   // transition:
   //   opacity 0.25s,
   //   width 0.75s;
-  animation: cubic-bezier(0.075, 0.82, 0.165, 1) 0.35s inputBottomJoin;
+  animation: cubic-bezier(0.075, 0.82, 0.165, 1) 1s inputBottomJoin;
 }
 
 @keyframes inputBottomJoin {
