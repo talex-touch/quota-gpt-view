@@ -18,7 +18,18 @@ const emits = defineEmits<{
 }>()
 
 const data = computed(() => props.block.data ? JSON.parse(props.block.data) : {})
-const value = computed(() => props.block.value ? JSON.parse(props.block.value) : {})
+const value = computed(() => {
+  if (props.block.value) {
+    try {
+      return JSON.parse(props.block.value)
+    }
+    catch (error) {
+      return {}
+    }
+  }
+
+  return {}
+})
 const isEnd = computed(() => !!props.block.extra?.end)
 
 const compMapper = reactive({
@@ -81,6 +92,12 @@ const compMapper = reactive({
     comp: Data,
     expandable: true,
     query: computed(() => isEnd.value ? '已思考完成' : '思考中'),
+  },
+  'ts-CrossCheck_2-CrossCheck_2': {
+    icon: 'i-carbon:unknown',
+    comp: Data,
+    expandable: true,
+    query: computed(() => isEnd.value ? '命题求证完成' : '命题求证中'),
   },
 })
 

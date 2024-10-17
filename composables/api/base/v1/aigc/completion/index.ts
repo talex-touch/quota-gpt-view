@@ -613,10 +613,15 @@ export const $completion = {
             else if (event === 'completion') {
               const innerMeta = innerMsg.value.at(-1)
 
-              if (innerMeta?.type === 'markdown') {
+              if (innerMeta?.type === 'markdown' && !innerMeta.extra?.done) {
                 innerMeta.value += res.content
-                if (res.completed)
+                if (res.completed) {
                   innerMeta.value = res.content
+                  innerMeta.extra = {
+                    ...innerMeta.extra,
+                    done: true,
+                  }
+                }
               }
               else {
                 innerMsg.value.push({

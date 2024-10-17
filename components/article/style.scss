@@ -70,7 +70,7 @@
 
               border-radius: 50%;
               transform: translate(0, -50%);
-              background-color: var(--theme-color);
+              background-color: currentColor;// var(--theme-color);
             }
 
             position: relative;
