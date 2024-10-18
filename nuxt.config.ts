@@ -1,6 +1,6 @@
 import { sentryVitePlugin } from '@sentry/vite-plugin'
 import { pwa } from './config/pwa'
-import { appDescription } from './constants/index'
+import { appDescription, appKeywords } from './constants/index'
 
 export default defineNuxtConfig({
   // plugins: [sentryVitePlugin({
@@ -81,6 +81,7 @@ export default defineNuxtConfig({
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { name: 'description', content: appDescription },
+        { name: 'keywords', content: appKeywords },
         { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
         { name: 'theme-color', media: '(prefers-color-scheme: light)', content: 'white' },
         { name: 'theme-color', media: '(prefers-color-scheme: dark)', content: '#222222' },

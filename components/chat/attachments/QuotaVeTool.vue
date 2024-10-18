@@ -107,6 +107,7 @@ const curItem = computed(() => {
   if (!compName)
     return compMapper['ts-ThisAI_Standard-ThisAI_Standard']
 
+  // console.log('comp', compName, props)
   if (!Object.keys(compMapper).includes(compName)) {
     console.log('comp', compName, props)
 
