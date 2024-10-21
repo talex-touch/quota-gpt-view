@@ -16,6 +16,7 @@ import Domain from '/backgrounds/domain.jpg'
 import Sound from '/backgrounds/sound.jpg'
 import Confusion from '/backgrounds/confusion.jpg'
 import Zakaria from '/backgrounds/zakaria.jpg'
+import { $event } from '../events'
 
 // import { useColorMode } from '@vueuse/core'
 
@@ -245,6 +246,10 @@ export function detectWallpaper() {
 
 watch(() => theme.value, () => {
   detectWallpaper()
+})
+
+$event.on('USER_LOGOUT_SUCCESS', () => {
+  theme.value = ''
 })
 
 export function viewTransition(e: { clientX: number, clientY: number }, theme?: 'auto' | 'light' | 'dark') {

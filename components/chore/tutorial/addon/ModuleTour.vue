@@ -54,10 +54,10 @@ function handleFinish() {
       placement="top" target=".PageContainer-Main .ThInput .ThInput-Input" title="富态编辑"
       description="你可以通过输入以@开头的角色，以/开头的超级命令。"
     /> -->
-    <el-tour-step
+    <!-- <el-tour-step
       placement="top" target=".PageContainer-Main .Chat-StatusBar" title="状态条"
       description="这里显示了当前对话的参数，会随着聊天进行改变，大部分按钮都是可以点击的。比如，在未同步情况下点击标签可以直接触发同步。"
-    />
+    /> -->
     <el-tour-step title="非常好" description="相信你已经掌握了大部分的功能，现在你可以开始使用啦！" />
   </el-tour>
 </template>

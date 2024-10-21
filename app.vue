@@ -5,6 +5,7 @@ import 'element-plus/theme-chalk/dark/css-vars.css'
 import { _setWallpaper, detectWallpaper } from '~/composables/theme/colors'
 import feishuInit from '~/composables/feishu/init'
 import { useDeviceAdapter } from './composables/hook/device-adapter'
+import { $event } from './composables/events'
 
 useHead({
   title: appName,
@@ -27,6 +28,8 @@ watch(() => pageOptions.setting.privacy, (enable) => {
   else
     document.body.classList.remove('privacy')
 })
+
+$event.on('USER_LOGOUT_SUCCESS', () => pageOptions.setting.privacy = false)
 
 onMounted(() => {
   watchEffect(() => {
