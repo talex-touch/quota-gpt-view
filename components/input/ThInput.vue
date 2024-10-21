@@ -406,6 +406,7 @@ const th_input = ref()
 const tip_floating = ref()
 
 const { floatingStyles } = useFloating(th_input, tip_floating)
+onStartTyping(focusInput)
 </script>
 
 <template>

@@ -36,7 +36,7 @@ function handleCancel() {
 }
 
 watch(
-  () => props.messages?.messages.length,
+  () => props.messages?.messages,
   () => {
     setTimeout(() => {
       handleBackToBottom()
