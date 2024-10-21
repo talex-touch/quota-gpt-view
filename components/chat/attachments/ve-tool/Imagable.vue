@@ -85,8 +85,9 @@ function handleError() {
         {{ data.arguments?.text || '已生成图片' }}
       </p>
       <OtherTextShaving v-else :text="data.arguments?.text || '图片生成中'" />
+      <!-- var(--theme-color) -->
       <el-progress
-        color="var(--theme-color)" :show-text="false" :stroke-width="2" :width="16" type="circle"
+        color="var(--el-text-color-primary)" :show-text="false" :stroke-width="2" :width="16" type="circle"
         :percentage="progress"
       />
     </div>

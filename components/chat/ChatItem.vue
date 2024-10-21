@@ -369,7 +369,7 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
   .ChatItem-Content-Inner {
     .suggest-card {
       &:hover {
-        color: var(--theme-color);
+        color: var(--el-text-color-primary);
       }
       position: relative;
       margin: 0.5rem -0.5rem;
@@ -384,6 +384,7 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
       --fake-opacity: 0.025;
       --fake-color: var(--theme-color);
       // border: var(--el-border);
+      color: var(--el-text-color-secondary);
       backdrop-filter: blur(18px) saturate(180%);
       box-shadow: var(--el-box-shadow-light);
 
