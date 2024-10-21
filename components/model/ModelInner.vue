@@ -71,7 +71,9 @@ function handleClick(item: any) {
 const mappedModel = computed(() => {
   const subscriptionType = userStore.value?.subscription?.type
 
-  const _models = [...models]
+  const _models = JSON.parse(JSON.stringify(models))
+  if (!subscriptionType)
+    return _models
 
   switch (subscriptionType) {
     case 'ULTIMATE':

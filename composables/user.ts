@@ -105,7 +105,7 @@ $event.on('USER_LOGOUT_SUCCESS', async (type) => {
 
   // userStore.value.token = { accessToken: '', refreshToken: '' }
   // userStore.value = {}
-  userStore.value = { ...userStore.value, token: { accessToken: '', refreshToken: '' }, id: undefined, permissions: [], phone: undefined, roles: [], subscription: undefined }
+  userStore.value = { ...userStore.value, subscription: undefined, token: { accessToken: '', refreshToken: '' }, id: undefined, permissions: [], phone: undefined, roles: [], subscription: undefined }
   userConfig.value = JSON.parse(JSON.stringify(rawUserConfig))
 
   const router = useRouter()
@@ -138,7 +138,7 @@ export async function refreshUserSubscription() {
   if (!data)
     return
 
-  userStore.value.subscription = data
+  userStore.value.subscription = reactive(data)
 
   const plan = userStore.value.subscription
 

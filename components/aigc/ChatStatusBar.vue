@@ -11,7 +11,7 @@ const props = defineProps<{
     <div class="StatusBar-Start only-pc-display">
       <slot name="start" />
     </div>
-    <span>ThisAI 可能会犯错，生成的内容仅供参考。</span>
+    <span>科塔智爱可能会犯错，生成的内容仅供参考。</span>
     <div class="StatusBar-End">
       <slot name="end" />
       <ChoreVersionBar class="tag only-pc-display" />

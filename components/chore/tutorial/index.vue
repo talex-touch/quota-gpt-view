@@ -65,6 +65,13 @@ onMounted(() => {
   })
 })
 
+function handleClose() {
+  handleNext({
+    component: null,
+    data: {},
+  })
+}
+
 provide('handleNext', handleNext)
 </script>
 
@@ -73,6 +80,10 @@ provide('handleNext', handleNext)
     <div class="TutorialMain">
       <div ref="main" class="TutorialInner transition-cubic">
         <component :is="options.component" v-if="options.component" />
+      </div>
+
+      <div class="TutorialDialog-Close" @click="handleClose">
+        跳过引导
       </div>
     </div>
   </div>
@@ -95,6 +106,20 @@ provide('handleNext', handleNext)
   height: 100%;
 }
 
+.TutorialDialog-Close {
+  &:hover {
+    opacity: 0.75;
+  }
+  position: absolute;
+
+  top: 1rem;
+  right: 1rem;
+
+  opacity: 0.5;
+  cursor: pointer;
+  color: var(--el-text-color-secondary);
+}
+
 .Tutorial {
   &Main {
     .show & {
@@ -107,10 +132,10 @@ provide('handleNext', handleNext)
     top: 50%;
     left: 50%;
 
-    width: max(400px, 40vw);
+    width: 720px;
     max-width: 85%;
-    height: max(320px, 45vh);
-    max-height: 45%;
+    height: 580px;
+    max-height: 75%;
 
     border-radius: 16px;
     box-shadow: var(--el-box-shadow);

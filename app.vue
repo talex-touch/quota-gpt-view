@@ -77,7 +77,7 @@ provide('appOptions', pageOptions)
     <NuxtPage />
   </NuxtLayout>
 
-  <!-- <ChoreTutorial /> -->
+  <ChoreTutorial />
   <Login v-if="!userStore.isLogin" v-model:show="pageOptions.model.login" />
   <ChorePersonalDialog v-if="userStore.isLogin" v-model="pageOptions.model.personal" />
   <!-- </div> -->
@@ -181,6 +181,12 @@ html.dark {
 
   filter: inset(5%);
   background-color: var(--el-fill-color);
+}
+
+.adapt-style {
+  .dark & {
+    filter: invert(1);
+  }
 }
 
 .el-skeleton {
