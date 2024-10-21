@@ -186,6 +186,10 @@ const avatarUrl = computed(() => {
 }
 
 .AccountAvatar {
+  .privacy & {
+    filter: blur(5px);
+  }
+
   &-Wrapper {
     .el-avatar {
       width: 28px;

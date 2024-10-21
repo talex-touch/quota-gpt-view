@@ -363,6 +363,10 @@ onBeforeUnmount(() => dispose.value = true)
 
 .History-Bottom {
   .plan {
+    .privacy & {
+      filter: blur(5px);
+    }
+
     .progress-bar {
       &::before {
         content: '';

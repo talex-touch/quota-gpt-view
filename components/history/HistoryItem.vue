@@ -156,6 +156,14 @@ const menus = reactive([
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+
+    .privacy & {
+      filter: blur(5px);
+    }
+  }
+
+  .privacy &:hover .content-wrapper {
+    filter: blur(0);
   }
 
   input {

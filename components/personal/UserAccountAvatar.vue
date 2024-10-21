@@ -180,6 +180,10 @@ const avatarUrl = computed(() => {
 }
 
 .UserAccountAvatar {
+  .privacy & {
+    filter: blur(5px);
+  }
+
   &-Wrapper {
     .el-avatar {
       width: 28px;

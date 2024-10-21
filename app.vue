@@ -16,6 +16,16 @@ const pageOptions = reactive({
     personal: '',
     login: false,
   },
+  setting: {
+    privacy: false,
+  },
+})
+
+watch(() => pageOptions.setting.privacy, (enable) => {
+  if (enable)
+    document.body.classList.add('privacy')
+  else
+    document.body.classList.remove('privacy')
 })
 
 onMounted(() => {

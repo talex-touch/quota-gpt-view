@@ -176,6 +176,10 @@ function handleBack() {
 </template>
 
 <style lang="scss">
+.privacy .head-text {
+  filter: blur(5px);
+}
+
 .PersonalWrapper-AsideFooter {
   position: absolute;
   display: flex;

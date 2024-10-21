@@ -1,7 +1,5 @@
 <script setup lang="ts">
-onMounted(async () => {
-
-})
+const pageOptions: any = inject('appOptions')!
 
 function getBuildTime() {
   return __BuildTime__
@@ -18,6 +16,9 @@ function getBuildTime() {
     <div v-v-else class="ProfileWrapper-Main">
       <TemplateLineForm title="系统信息构建" desc="当前版本构建推送时间">
         {{ formatDate(getBuildTime()) }}
+      </TemplateLineForm>
+      <TemplateLineForm title="隐私模式" desc="启用全面隐私模式，将隐藏所有展示个人隐私信息（单次有效）。">
+        <el-switch v-model="pageOptions.setting.privacy" />
       </TemplateLineForm>
       <TemplateLineForm title="应用授权AccessToken" desc="AccessToken是重要的访问凭证，复制之前请确保您知道自己在做什么。">
         <div v-copy="userStore.token?.accessToken" i-carbon:copy cursor-pointer />
