@@ -310,10 +310,13 @@ function handleLogin() {
       </ThChat>
 
       <EmptyGuide :show="!!pageOptions.conversation.messages?.length">
-        <ThInput
-          :template-enable="!pageOptions.conversation.messages.length" :status="pageOptions.status"
-          :hide="pageOptions.share.enable" :center="pageOptions.conversation.messages?.length < 1" @send="handleSend"
-        />
+        <template #default="{ tip }">
+          <ThInput
+            :template-enable="!pageOptions.conversation.messages.length" :status="pageOptions.status"
+            :hide="pageOptions.share.enable" :center="pageOptions.conversation.messages?.length < 1"
+            :tip="tip" @send="handleSend"
+          />
+        </template>
       </EmptyGuide>
 
       <AigcChatStatusBar>

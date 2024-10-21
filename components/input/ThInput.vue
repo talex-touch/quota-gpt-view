@@ -1,5 +1,8 @@
 <script name="ThInput" setup lang="ts">
 import { encode } from 'gpt-tokenizer'
+import { useFloating } from '@floating-ui/vue'
+import type { ITip, ITipItem } from '../chat/input-tips'
+import { cur, tipsVisible } from '../chat/input-tips'
 import ThInputPlus from './ThInputPlus.vue'
 import type { InputPlusProperty } from './input'
 import InputHeaderFiles from './addon/InputHeaderFiles.vue'
@@ -12,6 +15,7 @@ const props = defineProps<{
   hide: boolean
   center: boolean
   templateEnable: boolean
+  tip: ITip | null
 }>()
 const emits = defineEmits<{
   (name: 'template', data: any): void
@@ -167,6 +171,10 @@ function triggerUpdateInput() {
   el!.style.height = `${el.scrollHeight}px`
 }
 
+const focus = ref(false)
+const debouncedFocus = refDebounced(focus, 100)
+const placeholder = computed(() => props.center ? '可以帮到你什么?' : 'Shift + Enter换行')
+
 const len = ref(0)
 
 watch(
@@ -180,18 +188,25 @@ watch(
       const limit = userStore.value.isLogin ? 8192 : 256
       if (len.value > limit)
         input.value.text = oldVal!
+
+      if (props.tip) {
+        if (!_.startsWith(props.tip.value))
+          cur.value = -1
+      }
     })
   },
   { immediate: true },
 )
 
-onMounted(() => {
+function focusInput() {
   const el = document.getElementById('main-input')
 
   setTimeout(() => {
     el?.focus()
   })
-})
+}
+
+onMounted(focusInput)
 
 function handleTemplateSelect(data: any) {
   template.value = data
@@ -345,13 +360,58 @@ function handleImagePlus() {
   open()
 }
 
-const placeholder = computed(() => props.center ? '可以帮到你什么?' : 'Shift + Enter换行')
+watch(() => focus.value, (val) => {
+  if (val) {
+    if (props.tip)
+      tipsVisible.value = true
+  }
+
+  else {
+    setTimeout(() => {
+      tipsVisible.value = false
+    }, 300)
+  }
+})
+
+watch(() => props.tip, (val) => {
+  if (val) {
+    focusInput()
+    input.value.text = val.value
+  }
+})
+
+// 关键词高亮
+function highlightKeyword(text: string, keyword: string) {
+  const regex = new RegExp(keyword, 'gi')
+
+  return text.replace(regex, (match) => {
+    return `<span class="keyword">${match}</span>`
+  })
+}
+
+const tipList = computed(() => props.tip?.list.filter(item => item.content.includes(input.value.text)))
+
+async function handleTipClick(event: MouseEvent, tip: ITipItem) {
+  focusInput()
+
+  input.value.text = tip.content
+  cur.value = -1
+
+  await sleep(200)
+
+  handleSend(event)
+}
+
+const th_input = ref()
+const tip_floating = ref()
+
+const { floatingStyles } = useFloating(th_input, tip_floating)
 </script>
 
 <template>
   <!-- error: status === Status.ERROR, -->
   <div
-    :class="{
+    ref="th_input" :class="{
       center,
       hide,
       disabled: !canSend,
@@ -392,7 +452,7 @@ const placeholder = computed(() => props.center ? '可以帮到你什么?' : 'Sh
         </template>
         <textarea
           id="main-input" v-model="input.text" autofocus autocomplete="off" :placeholder="placeholder"
-          @keydown="handleInputKeydown"
+          @focus="focus = true" @blur="focus = false" @keydown="handleInputKeydown"
         />
       </div>
     </div>
@@ -406,8 +466,102 @@ const placeholder = computed(() => props.center ? '可以帮到你什么?' : 'Sh
     </div>
 
     <div class="ThInput-StatusBar" />
+
+    <ClientOnly>
+      <teleport to=".PageContainer-Main">
+        <div
+          v-if="center" ref="tip_floating" :style="floatingStyles" :class="{ display: tip && debouncedFocus }"
+          class="ThInput-Tips"
+        >
+          <div v-if="tip" class="TipFloating fake-background">
+            <div
+              v-for="(item, ind) in tipList" :key="ind" v-wave :style="`--d: ${ind * 0.05}s`" class="ThInput-TipItem"
+              @click="handleTipClick($event, item)" v-html="highlightKeyword(item.content, input.text)"
+            />
+          </div>
+        </div>
+      </teleport>
+    </ClientOnly>
   </div>
 </template>
+
+<style lang="scss">
+.ThInput-TipItem {
+  &:hover {
+    border-radius: 12px;
+    --fake-opacity: 0.95;
+
+    background-color: var(--el-mask-color-extra-light);
+  }
+
+  .keyword {
+    color: var(--el-text-color-primary);
+  }
+
+  color: var(--el-text-color-secondary);
+  margin: 0.25rem 0;
+  padding: 0.5rem 0.5rem;
+
+  height: 48px;
+  line-height: 32px;
+
+  cursor: pointer;
+  border-radius: 12px 12px 0 0;
+  border-bottom: 1px solid var(--el-text-color-secondary);
+  // background-color: var(--el-bg-color);
+
+  opacity: 0;
+
+  transform: translateY(10px);
+
+  animation: enter 0.25s var(--d) forwards;
+}
+
+@keyframes enter {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.TipFloating {
+  position: absolute;
+  padding: 1rem calc(0.5rem + 36px);
+
+  width: calc(min(50%, 780px) - 4px);
+
+  left: 50%;
+
+  overflow: hidden;
+  border-radius: 16px;
+
+  backdrop-filter: blur(18px) saturate(180%);
+  transform: translate(calc(-50% + 2px), 0.5rem);
+}
+
+.ThInput-Tips {
+  & :last-child {
+    border-bottom: none;
+  }
+
+  &.display {
+    opacity: 1;
+    pointer-events: unset;
+  }
+  z-index: 10000;
+  position: absolute;
+  // padding: 1rem calc(36px + 0.5rem);
+
+  width: 100%;
+  height: max-content;
+
+  opacity: 0;
+  pointer-events: none;
+
+  // background-color: var(--el-bg-color);
+  // backdrop-filter: blur(18px) saturate(180%);
+}
+</style>
 
 <style lang="scss" scoped>
 .template-tag {
@@ -770,6 +924,7 @@ const placeholder = computed(() => props.center ? '可以帮到你什么?' : 'Sh
       background-color: var(--el-text-color-disabled);
       box-shadow: 0 0 0 0 var(--el-color-primary-light-7);
     }
+
     background-color: var(--el-text-color-disabled);
     box-shadow: 0 0 0 0 var(--el-color-primary-light-7);
   }

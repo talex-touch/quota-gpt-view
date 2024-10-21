@@ -26,7 +26,7 @@ const computedClass = computed(() => [hover.value ? 'enter' : '', props.popperCl
   <div ref="container" class="PopoverComp" @mouseenter="hover = true" @mouseleave="hover = false">
     <slot name="inner" />
   </div>
-  <teleport to="body">
+  <teleport to="#teleports">
     <div
       v-if="disabled !== true"
       ref="floating" :class="{ visible: hover }" :style="floatingStyles" class="Popover-Float" @mouseenter="hover = true"

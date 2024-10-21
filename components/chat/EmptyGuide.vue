@@ -1,40 +1,19 @@
 <script setup lang="ts">
+import { cur, tips, tipsVisible } from './input-tips'
+
 defineProps<{
   show: boolean
 }>()
 
-const tips = reactive([
-  {
-    icon: 'i-carbon-image',
-    color: '#339C42',
-    title: '创建图片',
-  },
-  {
-    icon: 'i-carbon:ai-results-low',
-    color: '#E2C541',
-    title: '制定计划',
-  },
-  {
-    icon: 'i-carbon-document',
-    color: '#EA8444',
-    title: '总结文本',
-  },
-  {
-    icon: 'i-carbon:unknown',
-    color: '#76D0EB',
-    title: '询问问题',
-  },
-  {
-    icon: 'i-carbon-code',
-    color: '#595DC7',
-    title: '攥写代码',
-  },
-  {
-    icon: 'i-carbon-edit',
-    color: '#A070A4',
-    title: '帮写文本',
-  },
-])
+const curTip = computed(() => cur.value !== -1 ? tips[cur.value] : null)
+
+function handleIndex(index: number) {
+  cur.value = -1
+
+  setTimeout(() => {
+    cur.value = index
+  })
+}
 </script>
 
 <template>
@@ -50,12 +29,13 @@ const tips = reactive([
       />
     </h1>
 
-    <slot />
+    <slot :tip="curTip" />
 
-    <div v-if="!show" class="EmptyGuide-Tips only-pc-display transition-cubic">
+    <div v-if="!show" :style="tipsVisible ? 'opacity: 0' : ''" class="EmptyGuide-Tips only-pc-display">
       <span
-        v-for="(tip, index) in tips" :key="index" v-wave class="TipItem fake-background"
-        :style="`--d: ${index * 0.05 + 1}s;--c: ${tip.color}`"
+        v-for="(tip, index) in tips"
+        :key="index" v-wave class="TipItem fake-background" :style="`--d: ${index * 0.05 + 1}s;--c: ${tip.color}`"
+        @click="handleIndex(index)"
       >
         <span class="icon" block :class="tip.icon" /><span v-text="tip.title" />
       </span>
@@ -115,7 +95,7 @@ const tips = reactive([
 
   justify-content: center;
 
-  transition: cubic-bezier(0.6, -0.28, 0.735, 0.045) 0.5s 0.75s;
+  // transition: cubic-bezier(0.6, -0.28, 0.735, 0.045) 0.5s 0.75s;
   transform: translateY(calc(50%));
 }
 
