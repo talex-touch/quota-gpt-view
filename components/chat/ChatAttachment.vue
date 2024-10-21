@@ -104,7 +104,7 @@ const timeCost = computed(() => {
 </script>
 
 <template>
-  <div ref="container" :class="{ done: block.extra?.end }" class="ChatAttachment fake-background">
+  <div ref="container" :class="{ done: block.extra?.end }" class="ChatAttachment">
     <template v-if="block?.name === 'Quota_VE_Tool'">
       <QuotaVeTool :block="block" @expand="handleSizable" />
     </template>
@@ -216,7 +216,7 @@ const timeCost = computed(() => {
   align-items: center;
 
   margin: 0.25rem 0;
-  padding: 0.25rem 0.75rem;
+  // padding: 0.25rem 0.75rem;
 
   gap: 0.25rem;
   width: max-content;

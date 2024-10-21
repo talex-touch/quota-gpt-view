@@ -36,14 +36,14 @@ const compMapper = reactive({
   'ts-ThisAI_StandardImagable-ThisAI_StandardImagable': {
     icon: 'i-carbon:image',
     comp: Imagable,
-    expandable: true,
-    query: computed(() => data.value.arguments?.text || (isEnd.value ? '已生成图像' : `生成图像中`)),
   },
   'ts-ThisAI_TurboImagable-ThisAI_TurboImagable': {
     icon: 'i-carbon:image',
     comp: Imagable,
-    expandable: true,
-    query: computed(() => data.value.arguments?.text || (isEnd.value ? '已生成图像' : `生成图像中`)),
+  },
+  'ts-ThisAI_TurboImagable_Person-ThisAI_TurboImagable_Person': {
+    icon: 'i-carbon:image',
+    comp: Imagable,
   },
   'biyingsousuo-bingWebSearch': {
     icon: 'i-carbon:search',
@@ -116,19 +116,21 @@ const curItem = computed(() => {
 
   return compMapper[compName]
 })
+
 const timeCost = computed(() => {
   const start = props.block.extra?.start || -1
   const end = props.block.extra?.end || -1
 
   if (start === -1 || end === -1)
-    return ''
+    return 0
 
-  return `耗时: ${((end - start) / 1000).toFixed(2)}s`
+  return (end - start)
 })
+const timeCostText = computed(() => `耗时: ${(timeCost.value / 1000).toFixed(2)}s`)
 </script>
 
 <template>
-  <div :class="{ done: block.extra?.end }" class="QuotaVeTool">
+  <div :class="{ 'done': block.extra?.end, 'fake-background': curItem?.expandable }" class="QuotaVeTool">
     <template v-if="curItem">
       <template v-if="curItem?.expandable">
         <ChatQueryCollapse @expand="emits('expand', $event)">
@@ -145,7 +147,7 @@ const timeCost = computed(() => {
               </div>
               <div class="Tool-Header-Status">
                 <IconCircleLoader class="Loader" />
-                <el-tooltip placement="top" :content="timeCost">
+                <el-tooltip placement="top" :content="timeCostText">
                   <div class="_dot" />
                 </el-tooltip>
               </div>
@@ -154,13 +156,13 @@ const timeCost = computed(() => {
 
           <div class="Tool-Inner">
             <el-scrollbar>
-              <component :is="curItem.comp" :data="data" :value="value" />
+              <component :is="curItem.comp" :time-cost="timeCost" :is-end="isEnd" :data="data" :value="value" />
             </el-scrollbar>
           </div>
         </ChatQueryCollapse>
       </template>
       <template v-else>
-        <component :is="curItem.comp" :data="data" :value="value" />
+        <component :is="curItem.comp" :time-cost="timeCost" :is-end="isEnd" :data="data" :value="value" />
       </template>
     </template>
     <template v-else>
@@ -173,7 +175,13 @@ const timeCost = computed(() => {
 <style lang="scss" scoped>
 .QuotaVeTool {
   position: relative;
+  padding: 0.25rem 0.75rem;
 
+  width: 100%;
+  height: 100%;
+
+  overflow: hidden;
   transition: 0.25s;
+  border-radius: 12px;
 }
 </style>

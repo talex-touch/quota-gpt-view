@@ -166,8 +166,11 @@ export async function refreshCurrentUserRPM() {
   Object.assign(userConfig.value.pub_info, toReactive(JSON.parse(config.pub_info || '{}')))
 
   if (!document.body.classList.contains('mobile')) {
-    if (userStore.value.isLogin && !priConfig?.info?.tutorial)
+    if (userStore.value.isLogin && !priConfig?.info?.tutorial) {
+      console.log('aaaaa', priConfig?.info?.tutorial, priConfig)
+
       userConfig.value.pri_info.info.tutorial = false
+    }
   }
 }
 

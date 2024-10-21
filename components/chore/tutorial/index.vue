@@ -61,6 +61,8 @@ onMounted(() => {
   watchEffect(() => {
     const tutorial = userConfig.value.pri_info.info.tutorial
 
+    console.log('tutorial', userConfig.value.pri_info)
+
     show.value = !tutorial
   })
 })

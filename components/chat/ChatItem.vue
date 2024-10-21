@@ -443,8 +443,11 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
       backdrop-filter: blur(18px) saturate(180%);
     }
 
+    .RenderContent {
+      margin-top: 12px;
+    }
+
     position: relative;
-    margin-top: 16px;
 
     top: 0;
     right: 0;

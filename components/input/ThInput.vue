@@ -369,7 +369,7 @@ watch(() => focus.value, (val) => {
   else {
     setTimeout(() => {
       tipsVisible.value = false
-    }, 300)
+    }, 100)
   }
 })
 
@@ -495,11 +495,12 @@ const { floatingStyles } = useFloating(th_input, tip_floating)
   }
 
   .keyword {
+    font-weight: 600;
     color: var(--el-text-color-primary);
   }
 
-  color: var(--el-text-color-secondary);
-  margin: 0.25rem 0;
+  color: var(--el-text-color-primary);
+  margin: 0.5rem 0;
   padding: 0.5rem 0.5rem;
 
   height: 48px;
