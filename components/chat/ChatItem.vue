@@ -10,6 +10,7 @@ import ItemModelSelector from './addon/ItemModelSelector.vue'
 import ErrorCard from './attachments/ErrorCard.vue'
 import type { IChatInnerItem, IChatItem, QuotaModel } from '~/composables/api/base/v1/aigc/completion-types'
 import { IChatItemStatus, IChatRole } from '~/composables/api/base/v1/aigc/completion-types'
+import { InnerItemMeta } from '~/composables/api/base/v1/aigc/completion/entity'
 
 interface IChatItemProp {
   item: IChatItem
@@ -95,6 +96,10 @@ function handleRetry(model?: QuotaModel) {
   msgItem.value.page = props.item.page + 1
 }
 
+function handleCommandTranslate() {
+  emits('suggest', '将上述内容翻译为中文，如果是中文则翻译为英文。')
+}
+
 watchEffect(() => {
   // if (isUser.value)
   // return
@@ -153,7 +158,10 @@ function handleViewImage(src: string) {
           </span> -->
           <div v-for="(block, i) in innerItem.value" :key="i" class="ChatItem-Content-Inner-Block">
             <div v-if="block.data === 'suggest'">
-              <div v-if="index === total - 1" v-wave :style="`--fly-enter-delay: ${i * 0.125}s`" class="transition-cubic fake-background suggest-card" @click="emits('suggest', block.value)">
+              <div
+                v-if="index === total - 1" v-wave :style="`--fly-enter-delay: ${i * 0.125}s`"
+                class="transition-cubic fake-background suggest-card" @click="emits('suggest', block.value)"
+              >
                 <TextShaving v-if="!isEnd" :text="block.value" />
                 <template v-else>
                   {{ block.value }}
@@ -163,10 +171,7 @@ function handleViewImage(src: string) {
 
             <pre v-else-if="block.type === 'text'" class="inner" v-text="block.value" />
 
-            <RenderContent
-              v-else-if="block.type === 'markdown'" :dot-enable="!isEnd"
-              readonly :data="block.value"
-            />
+            <RenderContent v-else-if="block.type === 'markdown'" :dot-enable="!isEnd" readonly :data="block.value" />
 
             <div v-else-if="block.type === 'card'">
               Card: {{ block }}
@@ -177,7 +182,7 @@ function handleViewImage(src: string) {
             </div>
 
             <div v-else-if="block.type === 'error'">
-              <ErrorCard :block="block " />
+              <ErrorCard :block="block" />
             </div>
 
             <div v-else-if="block.type === 'image'" class="image-card" @click="handleViewImage(block.value)">
@@ -216,7 +221,10 @@ function handleViewImage(src: string) {
           </span>
         </span>
 
-        <ItemModelSelector v-if="!isUser && total === index + 1" v-model="innerItem.model" :page="item.page" :done="isEnd" @retry="handleRetry" />
+        <template v-if="!isUser && total === index + 1">
+          <ItemModelSelector v-model="innerItem.model" :page="item.page" :done="isEnd" @retry="handleRetry" />
+          <ChatAddonCommandSelector @translate="handleCommandTranslate" />
+        </template>
 
         <span class="info">
           <span class="date">{{ timeAgo }}</span>
@@ -307,6 +315,7 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
       &:hover {
         color: var(--el-text-color-primary);
       }
+
       position: relative;
       margin: 0.5rem -0.5rem;
       padding: 0.25rem 0.75rem;
@@ -333,6 +342,7 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
         width: 100%;
         height: 100%;
       }
+
       position: relative;
       margin-top: 1rem;
 
@@ -400,6 +410,7 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
   &:hover {
     .ChatItem-Mention {
       opacity: 1 !important;
+
       .toolbox,
       .info {
         opacity: 0.5 !important;
@@ -430,10 +441,12 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
           border-radius: 8px;
           background-color: var(--el-bg-color-page);
         }
+
         padding: 0.25rem;
 
         transition: 0.25s;
       }
+
       i {
         display: block;
       }
@@ -470,6 +483,7 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
       backdrop-filter: blur(18px) saturate(180%);
       // background-color: var(--el-bg-color-page);
     }
+
     z-index: 2;
     position: relative;
     margin: 0.25rem 0;
@@ -489,6 +503,7 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
     box-sizing: border-box;
     transition: 0.25s;
   }
+
   position: relative;
 
   width: max-content;

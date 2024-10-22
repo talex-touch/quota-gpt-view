@@ -1,158 +1,115 @@
 <script setup lang="ts">
 import { autoUpdate, flip, offset, useFloating } from '@floating-ui/vue'
-import { QuotaModel } from '~/composables/api/base/v1/aigc/completion-types'
-
-const props = defineProps<{
-  modelValue: string
-  done: boolean
-  page: number
-}>()
 
 const emits = defineEmits<{
-  (e: 'update:modelValue', value: string): void
-  (e: 'retry', model?: QuotaModel): void
+  (e: 'translate'): void
+  (e: 'headphones'): void
+  (e: 'archive'): void
 }>()
 
 const expand = ref(false)
 const hover = debouncedRef(ref(false))
-const model = useVModel(props, 'modelValue', emits)
 
-const models = reactive([
+const commands = reactive([
   {
-    icon: 'i-carbon:flash-filled',
-    name: '4',
-    label: 'GPT-4-mini',
-    value: 'this-normal',
-    model: QuotaModel.QUOTA_THIS_NORMAL,
-    desc: '快到极致，迅猛如电',
+    icon: 'i-carbon:translate',
+    name: '一键切换',
+    value: 'translate',
+    desc: '将内容快速交叉翻译（中英互译）',
   },
   {
-    icon: 'i-carbon:circle-filled',
-    name: '4o',
-    label: 'GPT-4o',
-    value: 'this-normal-turbo',
-    desc: '复杂任务的好手，更应手',
-    model: QuotaModel.QUOTA_THIS_NORMAL_TURBO,
-    lock: () => userStore.value?.subscription?.type === 'STANDARD' || userStore.value?.subscription?.type === 'ULTIMATE',
+    icon: 'i-carbon:headphones',
+    name: '朗读聆听',
+    value: 'headphones',
+    desc: '将内容快速转换为语音并播放',
+    lock: () => false, // userStore.value?.subscription?.type === 'STANDARD' || userStore.value?.subscription?.type === 'ULTIMATE',
   },
   {
-    icon: 'i-carbon:watsonx-ai',
-    name: '5o',
-    label: 'GPT-5o',
-    value: 'this-normal-ultimate',
-    desc: '不只是模态能力，来试试',
-    model: QuotaModel.QUOTA_THIS_NORMAL_ULTRA,
-    lock: () => userStore.value?.subscription?.type === 'ULTIMATE',
+    icon: 'i-carbon:cd-archive',
+    name: '模型比较',
+    value: 'archive',
+    desc: '将内容转换为不同模型的结果并进行审查',
+    lock: () => false,
   },
 ])
 
-const curModel = computed(() => models.find(_model => _model.value === model.value))
+const commandSelector = ref()
+const commandFloating = ref()
 
-const modelSelector = ref()
-const modelFloating = ref()
-
-const { floatingStyles } = useFloating(modelSelector, modelFloating, {
+const { floatingStyles } = useFloating(commandSelector, commandFloating, {
   middleware: [offset(10), flip()],
   whileElementsMounted: autoUpdate,
 })
 
-watchEffect(() => {
-  const _ = props.page
-
-  if (props.done) {
-    setTimeout(async () => {
-      expand.value = true
-
-      await sleep(1200)
-
-      expand.value = false
-    }, 500)
-  }
-})
-
-async function handleRetry(model?: any) {
+async function handleCommand(cmd: any) {
   await sleep(400)
 
-  const lockable = model?.lock?.() ?? true
+  const lockable = cmd.lock?.() ?? true
   if (!lockable)
     return
 
-  emits('retry', model.model)
+  emits(cmd.value as any)
 }
 </script>
 
 <template>
   <span
-    ref="modelSelector" :class="{ expand: expand || hover }" class="ItemModelSelector" @mouseenter="hover = true"
-    @mouseleave="hover = false"
+    ref="commandSelector" :class="{ expand: expand || hover }" class="ItemCommandSelector"
+    @mouseenter="hover = true" @mouseleave="hover = false"
   >
-    <i i-carbon:renew op-50 />
-    <span v-if="curModel" class="model-name">
-      {{ curModel.name }}
-    </span>
+    <i i-carbon:mac-command op-50 />
     <i style="font-size: 10px;opacity: 0.5" i-carbon:chevron-down />
   </span>
 
   <teleport to="#teleports">
-    <div ref="modelFloating" :style="floatingStyles" class="ItemModelSelector-Floating">
-      <div :class="{ hover }" class="ItemModelSelector-Popover" @mouseenter="hover = true" @mouseleave="hover = false">
+    <div ref="commandFloating" :style="floatingStyles" class="ItemCommandSelector-Floating">
+      <div
+        :class="{ hover }" class="ItemCommandSelector-Popover" @mouseenter="hover = true"
+        @mouseleave="hover = false"
+      >
         <p mb-2 op-50>
-          选择模型
+          超级命令
         </p>
-        <div class="model-selector-content">
+        <div class="command-selector-content">
           <div
-            v-for="_model in models" :key="_model.value" v-wave :class="{ lock: !(_model.lock?.() ?? true) }"
-            class="model-popover-item" @click="handleRetry(_model)"
+            v-for="_command in commands"
+            :key="_command.value" v-wave :class="{ lock: !(_command.lock?.() ?? true) }" class="command-popover-item"
+            @click="handleCommand(_command)"
           >
             <div class="icon fake-background">
-              <i :class="_model.icon" />
+              <i :class="_command.icon" />
             </div>
             <div class="main">
               <p class="title">
-                {{ _model.label }}
+                {{ _command.name }}
               </p>
               <p class="desc">
-                {{ _model.desc }}
+                {{ _command.desc }}
               </p>
             </div>
 
             <div class="lock">
               <div i-carbon:locked />
+              <p mx-2 text-lg font-normal>
+                当前订阅计划不可用.
+              </p>
             </div>
           </div>
         </div>
-        <template v-if="curModel">
-          <el-divider style="margin: 12px 0" />
-          <div v-wave class="model-selector-content" @click="handleRetry()">
-            <div class="model-popover-item">
-              <div class="icon fake-background">
-                <i i-carbon:renew />
-              </div>
-              <div class="main">
-                <p class="title">
-                  再次尝试
-                </p>
-                <p class="desc">
-                  {{ curModel.label }}
-                </p>
-              </div>
-            </div>
-          </div>
-        </template>
       </div>
     </div>
   </teleport>
 </template>
 
 <style lang="scss">
-.ItemModelSelector-Popover {
-  .model-selector-content {
+.ItemCommandSelector-Popover {
+  .command-selector-content {
     display: flex;
     flex-direction: column;
 
     gap: 0.5rem;
   }
-  .model-popover-item {
+  .command-popover-item {
     .lock {
       display: none;
     }
@@ -217,7 +174,7 @@ async function handleRetry(model?: any) {
     border-radius: 8px;
     &:hover {
       .lock {
-        opacity: 0.75;
+        opacity: 0.95;
 
         backdrop-filter: blur(18px);
       }
@@ -284,30 +241,29 @@ async function handleRetry(model?: any) {
   }
 }
 
-.ItemModelSelector-Floating {
+.ItemCommandSelector-Floating {
   .mobile & {
     display: none;
   }
   z-index: 1;
   position: absolute;
 
-  width: 248px;
-  height: 365px;
+  width: 300px;
+  height: 280px;
 
   transition: 0.25s;
 }
 
-.ItemModelSelector {
+.ItemCommandSelector {
   &:hover,
   &.expand {
-    .model-name {
+    .command-name {
       opacity: 0.5;
     }
-    width: 54px;
 
     background-color: var(--el-bg-color-page);
   }
-  .model-name {
+  .command-name {
     position: absolute;
 
     left: 50%;

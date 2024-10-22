@@ -80,7 +80,7 @@ export interface IChatInnerItemMeta {
   // TODO: context memory
 }
 
-export type IInnerItemType = 'markdown' | 'text' | 'tool' | 'card' | 'error' | 'file' | 'image'
+type IInnerItemType = 'markdown' | 'text' | 'tool' | 'card' | 'error' | 'file' | 'image'
 
 export interface IInnerItemMeta {
   type: IInnerItemType

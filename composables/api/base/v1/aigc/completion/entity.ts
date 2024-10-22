@@ -123,3 +123,4 @@ export class InnerItemMeta implements IInnerItemMeta {
     this.extra = extra
   }
 }
+export { IInnerItemType }
