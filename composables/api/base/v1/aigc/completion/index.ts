@@ -1,26 +1,6 @@
+import { calculateConversation, mapStrStatus } from './entity'
 import { endHttp } from '~/composables/api/axios'
 import { type IChatBody, type IChatConversation, type IChatInnerItem, type IChatItem, IChatItemStatus, IChatRole, type ICompletionHandler, type IInnerItemMeta, type IInnerItemType, PersistStatus, QuotaModel } from '~/composables/api/base/v1/aigc/completion-types'
-
-function mapStrStatus(str: string) {
-  if (str === 'progress')
-    return IChatItemStatus.GENERATING
-  else if (str === 'start')
-    return IChatItemStatus.WAITING
-  else if (str === 'end')
-    return IChatItemStatus.AVAILABLE
-  else if (str === 'calling')
-    return IChatItemStatus.TOOL_CALLING
-  else if (str === 'result')
-    return IChatItemStatus.TOOL_RESULT
-  else if (str === 'cancelled')
-    return IChatItemStatus.CANCELLED
-  else if (str === 'failed')
-    return IChatItemStatus.ERROR
-
-  console.error('unknown status', str)
-
-  return IChatItemStatus.AVAILABLE
-}
 
 let lastReceive = ''
 async function handleExecutorItem(item: string, callback: (data: any) => void) {
@@ -152,35 +132,6 @@ async function handleExecutorResult(reader: ReadableStreamDefaultReader<string>,
   }
 }
 
-function processContentEach(content: IChatInnerItem) {
-  // const contents = item.content
-  // const page = item.page
-
-  // if (page >= contents.length)
-  //   return
-
-  // const content = contents[page]
-
-  if (!content)
-    throw new Error('content is empty')
-
-  // let contentText = ''
-
-  // content.value.forEach((_) => {
-  //   if (_.type === 'markdown' || _.type === 'text')
-  //     contentText += _.value
-  // })
-
-  // if (contentText) {
-  //   // force ignored
-  //   // item.content = content as any
-
-  //   return contentText
-  // }
-
-  return content.value
-}
-
 function processMessageEach({ ques, ans }: { ques: IChatItem, ans: IChatItem }) {
   const quesContent = ques.content[ques.page]!
   const ansContent = ans.content[ans.page]!
@@ -192,14 +143,20 @@ function processMessageEach({ ques, ans }: { ques: IChatItem, ans: IChatItem }) 
   if (!ansContent.value.length)
     return false
 
-  const quesText = processContentEach(quesContent)
-  const ansText = processContentEach(ansContent)
+  const quesText = quesContent.value
+  const ansText = ansContent.value
 
   return [quesText, ansText]
 }
 
 async function useCompletionExecutor(body: IChatBody, callback: (data: any) => void) {
-  const msgList = body.messages
+  const messages = ref(body.messages)
+
+  messages.value = calculateConversation(messages)
+
+  console.log('a', messages)
+
+  const msgList = messages.value
   const convertedMsgList: any = []
 
   msgList.pop()
@@ -228,11 +185,17 @@ async function useCompletionExecutor(body: IChatBody, callback: (data: any) => v
   }
 
   const lastOne = msgList[msgList.length - 1]
-  const lastContent = lastOne.content[lastOne.page]!
+  const lastContent = lastOne.content.find(item => item?.page === lastOne.page)
+
+  if (!lastContent) {
+    console.warn('lastContent', lastContent, msgList)
+
+    throw new Error('LastContent is null!')
+  }
 
   convertedMsgList.push({
     ...lastOne,
-    content: processContentEach(lastContent),
+    content: lastContent?.value,
   })
 
   // console.log('msgList', convertedMsgList)
@@ -335,14 +298,16 @@ export const $completion = {
     model,
     value,
     meta,
+    page,
     status,
     timestamp,
-  }: IChatInnerItem = { model: QuotaModel.QUOTA_THIS_NORMAL, value: [], meta: {}, timestamp: Date.now(), status: IChatItemStatus.AVAILABLE }) {
+  }: IChatInnerItem = { model: QuotaModel.QUOTA_THIS_NORMAL, page: 0, value: [], meta: {}, timestamp: Date.now(), status: IChatItemStatus.AVAILABLE }) {
     return {
       model,
       value,
       status,
       meta,
+      page,
       timestamp,
     } as IChatInnerItem
   },
@@ -377,11 +342,10 @@ export const $completion = {
     const tempMessage = reactive(isAdd ? this.emptyChatItem(IChatRole.ASSISTANT) : conversation.messages[itemIndex])
     const innerMsg = reactive(isAdd ? this.emptyChatInnerItem() : curItem.content[index]!)
 
-    console.log('cc', curItem, index)
-
     if (isAdd) {
       // 获得某一条消息的指定 innerItem
       const curInnerItem = curItem.content[index]
+      tempMessage.page = innerMsg.page = index
       innerMsg.meta = (curInnerItem || curItem.content[0])!.meta
 
       while (tempMessage.content.length < index - 1)
@@ -400,22 +364,9 @@ export const $completion = {
      * 当全部解析结束之后，将所有没有返回的工具链设定为超时
      */
     function handleEndToolParser() {
-      // innerMsg.value.push({
-      //   type: 'tool',
-      //   value: data,
-      //   data: '',
-      //   name,
-      //   extra: {
-      //     end: true,
-      //   },
-      // })
-      console.log('parser', innerMsg)
-
       innerMsg.value.forEach((item) => {
         if (item.type !== 'tool')
           return
-
-        // console.log('aaa', item)
 
         if (!item.extra?.end) {
           item.extra = {

@@ -3,7 +3,9 @@ import { $event } from '../events'
 
 export function useHotKeysHook() {
   // Ctrl + O 新建对话
-  hotkeys('ctrl+o,command+o', 'chat', () => {
+  hotkeys('ctrl+o,command+o', 'chat', (e) => {
+    e.preventDefault()
+
     $event.emit('REQUEST_CREATE_NEW_CONVERSATION')
   })
 

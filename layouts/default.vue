@@ -7,21 +7,24 @@ import { $event } from '~/composables/events'
 const route = useRoute()
 const router = useRouter()
 
-watch(() => route.fullPath, refreshHotKeyScope, { immediate: true })
+// nuxt client only
+const { isClient } = useNuxtApp()
 
-router.afterEach(refreshHotKeyScope)
+if (isClient) {
+  watch(() => route.fullPath, refreshHotKeyScope, { immediate: true })
 
-function refreshHotKeyScope() {
-  const scope = (route.meta?.scope as string) || 'all'
+  router.afterEach(refreshHotKeyScope)
 
-  $event.emit('HOTKEY_SCOPE_CHANGE', scope)
+  function refreshHotKeyScope() {
+    const scope = (route.meta?.scope as string) || 'all'
+
+    $event.emit('HOTKEY_SCOPE_CHANGE', scope)
+  }
+
+  $event.on('HOTKEY_SCOPE_CHANGE', (scope: string) => {
+    hotkeys.setScope(scope || 'all')
+  })
 }
-
-$event.on('HOTKEY_SCOPE_CHANGE', (scope: string) => {
-  hotkeys.setScope(scope || 'all')
-
-  console.log('current scope', hotkeys.getScope())
-})
 </script>
 
 <template>

@@ -91,6 +91,7 @@ export interface IInnerItemMeta {
 }
 
 export interface IChatInnerItem {
+  page: number
   model: QuotaModel
   status: IChatItemStatus
   timestamp: number
@@ -190,10 +191,3 @@ export interface IToolHandler {
   onToolStart: (name: string, input?: string) => void
   onToolEnd: (name: string, output?: string) => void
 }
-
-// interface ITransmissionFormat {
-//   id: string // 单聊天ID
-//   role: ITransmissionRole
-//   event: IFormatEvent
-//   chat_id: string // 对话ID
-// }

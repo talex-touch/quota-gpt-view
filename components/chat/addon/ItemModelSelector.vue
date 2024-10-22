@@ -1,13 +1,19 @@
 <script setup lang="ts">
+import { autoUpdate, flip, offset, useFloating } from '@floating-ui/vue'
+import { QuotaModel } from '~/composables/api/base/v1/aigc/completion-types'
+
 const props = defineProps<{
   modelValue: string
+  done: boolean
+  page: number
 }>()
 
 const emits = defineEmits<{
   (e: 'update:modelValue', value: string): void
-  (e: 'retry'): void
+  (e: 'retry', model?: QuotaModel): void
 }>()
 
+const expand = ref(false)
 const hover = debouncedRef(ref(false))
 const model = useVModel(props, 'modelValue', emits)
 
@@ -17,6 +23,7 @@ const models = reactive([
     name: '4',
     label: 'GPT-4-mini',
     value: 'this-normal',
+    model: QuotaModel.QUOTA_THIS_NORMAL,
     desc: '快到极致，迅猛如电',
   },
   {
@@ -25,6 +32,7 @@ const models = reactive([
     label: 'GPT-4o',
     value: 'this-normal-turbo',
     desc: '复杂任务的好手，更应手',
+    model: QuotaModel.QUOTA_THIS_NORMAL_TURBO,
     lock: () => userStore.value?.subscription?.type === 'STANDARD' || userStore.value?.subscription?.type === 'ULTIMATE',
   },
   {
@@ -33,15 +41,47 @@ const models = reactive([
     label: 'GPT-5o',
     value: 'this-normal-ultimate',
     desc: '不只是模态能力，来试试',
+    model: QuotaModel.QUOTA_THIS_NORMAL_ULTRA,
     lock: () => userStore.value?.subscription?.type === 'ULTIMATE',
   },
 ])
 
 const curModel = computed(() => models.find(_model => _model.value === model.value))
+
+const modelSelector = ref()
+const modelFloating = ref()
+
+const { floatingStyles } = useFloating(modelSelector, modelFloating, {
+  middleware: [offset(10), flip()],
+  whileElementsMounted: autoUpdate,
+})
+
+watchEffect(() => {
+  const _ = props.page
+
+  if (props.done) {
+    setTimeout(async () => {
+      expand.value = true
+
+      await sleep(1200)
+
+      expand.value = false
+    }, 500)
+  }
+})
+
+async function handleRetry(model?: QuotaModel) {
+  await sleep(400)
+
+  emits('retry', model)
+}
 </script>
 
 <template>
-  <span class="ItemModelSelector" @mouseenter="hover = true" @mouseleave="hover = false">
+  <span
+    ref="modelSelector" :class="{ expand: expand || hover }" class="ItemModelSelector" @mouseenter="hover = true"
+    @mouseleave="hover = false"
+  >
     <i i-carbon:renew op-50 />
     <span v-if="curModel" class="model-name">
       {{ curModel.name }}
@@ -49,51 +89,55 @@ const curModel = computed(() => models.find(_model => _model.value === model.val
     <i style="font-size: 10px;opacity: 0.5" i-carbon:chevron-down />
   </span>
 
-  <div :class="{ hover }" class="ItemModelSelector-Popover" @mouseenter="hover = true" @mouseleave="hover = false">
-    <p mb-2 op-50>
-      选择模型
-    </p>
-    <div class="model-selector-content">
-      <div
-        v-for="_model in models" :key="_model.value" v-wave :class="{ lock: !(_model.lock?.() ?? true) }"
-        class="model-popover-item"
-      >
-        <div class="icon fake-background">
-          <i :class="_model.icon" />
-        </div>
-        <div class="main">
-          <p class="title">
-            {{ _model.label }}
-          </p>
-          <p class="desc">
-            {{ _model.desc }}
-          </p>
-        </div>
+  <teleport to="#teleports">
+    <div ref="modelFloating" :style="floatingStyles" class="ItemModelSelector-Floating">
+      <div :class="{ hover }" class="ItemModelSelector-Popover" @mouseenter="hover = true" @mouseleave="hover = false">
+        <p mb-2 op-50>
+          选择模型
+        </p>
+        <div class="model-selector-content">
+          <div
+            v-for="_model in models" :key="_model.value" v-wave :class="{ lock: !(_model.lock?.() ?? true) }"
+            class="model-popover-item" @click="handleRetry(_model.model)"
+          >
+            <div class="icon fake-background">
+              <i :class="_model.icon" />
+            </div>
+            <div class="main">
+              <p class="title">
+                {{ _model.label }}
+              </p>
+              <p class="desc">
+                {{ _model.desc }}
+              </p>
+            </div>
 
-        <div class="lock">
-          <div i-carbon:locked />
+            <div class="lock">
+              <div i-carbon:locked />
+            </div>
+          </div>
         </div>
+        <template v-if="curModel">
+          <el-divider style="margin: 12px 0" />
+          <div v-wave class="model-selector-content" @click="handleRetry()">
+            <div class="model-popover-item">
+              <div class="icon fake-background">
+                <i i-carbon:renew />
+              </div>
+              <div class="main">
+                <p class="title">
+                  再次尝试
+                </p>
+                <p class="desc">
+                  {{ curModel.label }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </template>
       </div>
     </div>
-    <template v-if="curModel">
-      <el-divider style="margin: 12px 0" />
-      <div v-wave class="model-selector-content" @click="emits('retry')">
-        <div class="model-popover-item">
-          <div class="icon fake-background">
-            <i i-carbon:renew />
-          </div>
-          <div class="main">
-            <p class="title">
-              再次尝试
-            </p>
-            <p class="desc">
-              {{ curModel.label }}
-            </p>
-          </div>
-        </div>
-      </div>
-    </template>
-  </div>
+  </teleport>
 </template>
 
 <style lang="scss">
@@ -212,15 +256,14 @@ const curModel = computed(() => models.find(_model => _model.value === model.val
     filter: blur(8px);
     background-color: var(--el-bg-color);
   }
-  z-index: 2;
   position: absolute;
   padding: 1rem;
 
-  left: 0;
-  top: 2rem;
+  // left: 0;
+  // top: 2rem;
 
-  width: 248px;
-  min-height: 248px;
+  // width: 248px;
+  // min-height: 248px;
 
   border-radius: 16px;
   box-shadow: var(--el-box-shadow);
@@ -237,8 +280,22 @@ const curModel = computed(() => models.find(_model => _model.value === model.val
   }
 }
 
+.ItemModelSelector-Floating {
+  .mobile & {
+    display: none;
+  }
+  z-index: 1;
+  position: absolute;
+
+  width: 248px;
+  height: 365px;
+
+  transition: 0.25s;
+}
+
 .ItemModelSelector {
-  &:hover {
+  &:hover,
+  &.expand {
     .model-name {
       opacity: 0.5;
     }

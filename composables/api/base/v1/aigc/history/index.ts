@@ -55,8 +55,6 @@ export class HistoryManager implements IHistoryManager {
 
   constructor() {
     $event.on('USER_LOGOUT_SUCCESS', () => {
-      console.log('logout history clear')
-
       this.options.list.clear()
     })
     $event.on('USER_LOGIN_SUCCESS', async () => {

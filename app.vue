@@ -1,17 +1,16 @@
 <script setup lang="ts">
+import { useDeviceAdapter } from './composables/hook/device-adapter'
+import { $event } from './composables/events'
 import Login from '~/components/chore/Login.vue'
 import { appName, globalOptions } from '~/constants'
 import 'element-plus/theme-chalk/dark/css-vars.css'
 import { _setWallpaper, detectWallpaper } from '~/composables/theme/colors'
 import feishuInit from '~/composables/feishu/init'
-import { useDeviceAdapter } from './composables/hook/device-adapter'
-import { $event } from './composables/events'
 
 useHead({
   title: appName,
 })
 
-const windowSize = useWindowSize()
 const pageOptions = reactive({
   model: {
     personal: '',
@@ -32,17 +31,11 @@ watch(() => pageOptions.setting.privacy, (enable) => {
 $event.on('USER_LOGOUT_SUCCESS', () => pageOptions.setting.privacy = false)
 
 onMounted(() => {
-  watchEffect(() => {
-    const _total = windowSize.height.value + windowSize.width.value
+  document.body.classList.remove('mobile')
+  document.body.classList.remove('tablet')
 
-    console.log('refreshed', useDevice())
-
-    document.body.classList.remove('mobile')
-    document.body.classList.remove('tablet')
-
-    const { isMobile, isTablet } = useDevice()
-    document.body.classList.add(isMobile ? 'mobile' : isTablet ? 'tablet' : 'screen')
-  })
+  const { isMobile, isTablet } = useDevice()
+  document.body.classList.add(isMobile ? 'mobile' : isTablet ? 'tablet' : 'screen')
 })
 
 const globalOptionsStore = useLocalStorage('global-options', {

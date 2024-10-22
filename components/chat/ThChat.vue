@@ -6,7 +6,8 @@ import TrChatTitle from './head/TrChatTitle.vue'
 import TrSyncStatus from './head/TrSyncStatus.vue'
 import AccountAvatar from '~/components/personal/AccountAvatar.vue'
 import IconButton from '~/components/button/IconButton.vue'
-import { type IChatConversation, type IChatInnerItem, IChatItemStatus } from '~/composables/api/base/v1/aigc/completion-types'
+import { type IChatConversation, type IChatInnerItem, type IChatItem, IChatItemStatus } from '~/composables/api/base/v1/aigc/completion-types'
+import { calculateConversation } from '~/composables/api/base/v1/aigc/completion/entity'
 
 const props = defineProps<{
   messages: IChatConversation
@@ -66,13 +67,11 @@ function handleScroll() {
 
   const { scrollTop, scrollHeight, clientHeight } = scrollbarEl
 
-  // 如果滚动距离超过了一个屏幕
+  // 如果滚动距离超过了一个3/4屏幕
   options.backToTop = false
   if (scrollTop > window.innerWidth * 0.75)
     options.backToTop = true
 
-  // const rect = scrollbarEl.getBoundingClientRect()
-  // console.log(clientHeight, scrollTop, '|', scrollHeight, 'a', rect, scrollbarEl.parentElement.parentElement.clientHeight)
   if (Math.abs(clientHeight - scrollHeight) < 10) {
     options.backToBottom = false
     return
@@ -104,55 +103,6 @@ const stop = computed(() =>
   props.status === IChatItemStatus.GENERATING || props.status === IChatItemStatus.WAITING,
 )
 
-// dict index是参考值 即从当前消息向上的最大页数
-// 根据 dp[i + 1](page) = max(dp[i](page), dp[i - 1](page)) 推导
-// 还要考虑到用户发送的消息没有换页
-function getDictIndex(ind: number) {
-  // 如果给入的ind不是奇数 则固定返回ind+1
-  if (ind % 2 === 0)
-    return getDictIndex(ind + 1)
-
-  // console.log('mm', messagesModel, ind)
-  const msg = messagesModel.value.messages[ind]
-  if (!msg)
-    return 0
-
-  // 如果本来就是 0 直接返回
-  if (ind === 1)
-    return msg.page
-
-  const prev = messagesModel.value.messages[ind - 2]
-  const page = Math.max(prev.page, msg.page)
-
-  // 如果 prev 的 content 没有这么多直接push null即可
-  while (prev.content.length < page)
-    prev.content.push(null)
-
-  return page
-}
-
-// 计算每一条消息的属性 从后向前
-const msgMeta = computed(() => {
-  const meta = reactive<{
-    dictIndex: number
-    show: boolean
-  }[]>([])
-  const msgList = messagesModel.value.messages
-
-  for (let i = 0; i < msgList.length - 1; i += 2) {
-    const dictIndex = getDictIndex(i)
-
-    const obj = reactive({
-      dictIndex,
-      show: false,
-    })
-
-    meta.push(...[obj, obj])
-  }
-
-  return meta
-})
-
 defineExpose({
   handleBackToBottom,
   generateScroll: () => {
@@ -161,21 +111,13 @@ defineExpose({
     if (!options.backToBottom)
       handleBackToBottom()
   },
-  getDictMeta: () => msgMeta,
+  // getDictMeta: () => msgMeta,
 })
 
 function handleRetry(ind: number, item: IChatInnerItem) {
   const chat = messagesModel.value.messages[ind]
 
-  console.log('a', ind, item)
-
-  // const index = chat.content.findIndex(_ => _?.value === item.value)
-  // chat.content.push({
-  //   ...item,
-  //   value: [],
-  // })
-
-  emits('retry', ind, chat.content.length, item)
+  emits('retry', ind, chat.page + 1, item)
 }
 
 async function handleSuggest(content: string) {
@@ -185,6 +127,12 @@ async function handleSuggest(content: string) {
 
   emits('suggest', content)
 }
+
+const processedMessageList = computed(() => {
+  const messageList = ref(messagesModel.value.messages)
+
+  return calculateConversation(messageList)
+})
 </script>
 
 <template>
@@ -207,11 +155,13 @@ async function handleSuggest(content: string) {
 
       <el-scrollbar ref="scrollbar" @scroll="handleScroll">
         <div v-if="messages" class="ThChat-Container-Wrapper">
+          <!-- v-model:meta="msgMeta[ind]" -->
+          <!-- {{ processedMessageList }} -->
           <ChatItem
-            v-for="(message, ind) in messagesModel.messages" :key="message.id"
-            v-model:item="messagesModel.messages[ind]" v-model:meta="msgMeta[ind]" :ind="ind"
-            :total="messages.messages.length" :share="options.share.enable" :select="options.share.selected"
-            @select="handleSelectShareItem" @retry="handleRetry(ind, $event)" @suggest="handleSuggest($event)"
+            v-for="(message, index) in processedMessageList" :key="message.id" v-model:item="messagesModel.messages[message.$index]"
+            :index="index" :ind="message.$index"
+            :total="processedMessageList.length" :share="options.share.enable" :select="options.share.selected"
+            @select="handleSelectShareItem" @retry="handleRetry(message.$index, $event)" @suggest="handleSuggest($event)"
           />
 
           <!-- 统一 error / warning mention -->

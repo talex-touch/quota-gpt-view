@@ -5,24 +5,21 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 import { api as viewerApi } from 'v-viewer'
 import RoundLoading from '../loaders/RoundLoading.vue'
 import TextShaving from '../other/TextShaving.vue'
-import ThWickCheckBox from '../checkbox/ThWickCheckBox.vue'
 import ChatAttachment from './ChatAttachment.vue'
 import ItemModelSelector from './addon/ItemModelSelector.vue'
 import ErrorCard from './attachments/ErrorCard.vue'
-import { type IChatInnerItem, type IChatItem, IChatItemStatus, IChatRole } from '~/composables/api/base/v1/aigc/completion-types'
+import type { IChatInnerItem, IChatItem, QuotaModel } from '~/composables/api/base/v1/aigc/completion-types'
+import { IChatItemStatus, IChatRole } from '~/composables/api/base/v1/aigc/completion-types'
 
 interface IChatItemProp {
   item: IChatItem
+  // 在实际对话中的序列
   ind: number
+  // 在分支对话中的序列
+  index: number
   total: number
   share: boolean
   select: number[]
-
-  // 表指应该渲染第几个顺序 由上一级决定
-  meta: {
-    dictIndex: number
-    show: boolean
-  }
 }
 
 const props = defineProps<IChatItemProp>()
@@ -36,16 +33,8 @@ const emits = defineEmits<{
 }>()
 
 const msgItem = useVModel(props, 'item', emits)
-const metaModel = useVModel(props, 'meta', emits)
 const dom = ref()
 
-const settingMode = reactive({
-  visible: false,
-  render: {
-    enable: true,
-    media: true,
-  },
-})
 dayjs.locale(zhLocale)
 dayjs.extend(relativeTime)
 
@@ -59,23 +48,12 @@ watch(() => props.select, (val) => {
   check.value = val.includes(props.ind)
 })
 
-const nullLen = computed(() => props.item.content?.filter(item => item === null).length || 0)
-const innerItem = computed(() => props.item.content?.[msgItem.value.page + nullLen.value] || null)
+const innerItem = computed(() => props.item.content.find(item => item?.page === msgItem.value.page) || null)
 const timeAgo = computed(() => innerItem.value ? dayjs(innerItem.value.timestamp).fromNow() : '-')
 const isUser = computed(() => props.item.role === IChatRole.USER)
 
 const endStatus = [IChatItemStatus.AVAILABLE, IChatItemStatus.BANNED, IChatItemStatus.CANCELLED, IChatItemStatus.ERROR, IChatItemStatus.REJECTED, IChatItemStatus.TIMEOUT, IChatItemStatus.TOOL_ERROR]
 const isEnd = computed(() => endStatus.includes(innerItem.value?.status || 0))
-
-// watch(() => reactive([innerItem.value, innerItem.value?.value, innerItem.value?.status]), () => {
-//   const rootEl = dom.value?.querySelector('.RenderContent-Inner')
-//   const cursor: HTMLElement = dom.value?.querySelector('.Generating-Dot')
-
-//   console.log('update', rootEl, cursor)
-
-//   if (rootEl && cursor)
-//     setTimeout(() => handleGeneratingDotUpdate(rootEl, cursor), 0)
-// })
 
 const tools = reactive([
   {
@@ -103,63 +81,57 @@ const tools = reactive([
       }, 1200)
     },
   },
-  // {
-  //   name: '属性',
-  //   icon: 'i-carbon-settings-adjust',
-  //   userIgnored: true,
-  //   errorHide: true,
-  //   trigger: () => {
-  //     settingMode.visible = !settingMode.visible
-  //   },
-  // },
   // { name: '朗读', icon: 'i-carbon-user-speaker' },
 ])
 
-function filterTools(item: any) {
-  return tools.filter((tool) => {
-    if (item.status === 2 && tool.errorHide)
-      return false
+function handleRetry(model?: QuotaModel) {
+  const inner: IChatInnerItem = JSON.parse(JSON.stringify(innerItem.value!))
 
-    return item.role === 'user'
-      ? !tool.userIgnored
-      : true
-  })
-}
+  if (model)
+    inner.model = model
 
-function handleRetry() {
-  emits('retry', innerItem.value!)
+  emits('retry', inner)
 
-  msgItem.value.page = props.item.content?.length - 1
+  msgItem.value.page = props.item.page + 1
 }
 
 watchEffect(() => {
-  if (isUser.value)
+  // if (isUser.value)
+  // return
+
+  const item = props.item
+  if (!item?.content?.length)
     return
+
+  // 如果找不到目标页数，则设置为第一个
+  const targetPageItem = item.content.find(_item => item.page === _item?.page)
+  if (!targetPageItem) {
+    const firstPageItem = item.content[0]
+
+    msgItem.value.page = firstPageItem!.page
+  }
+
+  // 如果当前页数大于内容，则将页数设置为第一个
+  // const totalLength = props.item.content.length
+
+  // if (props.item.page > totalLength - 1) {
+  //   msgItem.value.page = 0
+  // }
 
   // const selfIndex = innerItem.value ? props.item.content.findIndex(_ => _?.timestamp === innerItem.value?.timestamp) : 0
   // console.log('refresh', selfIndex, innerItem.value, props)
 
   // 计算自己的content中有多少个null
-  metaModel.value.show = !!innerItem.value && metaModel.value.dictIndex <= props.item.page + nullLen.value
+  // metaModel.value.show = !!innerItem.value && metaModel.value.dictIndex <= props.item.page + nullLen.value
 })
 
-// onMounted(() => {
-//   const rootEl = dom.value?.querySelector('.RenderContent-Inner')
-//   const cursor: HTMLElement = dom.value?.querySelector('.Generating-Dot')
-
-//   if (rootEl && cursor)
-//     setTimeout(() => handleGeneratingDotUpdate(rootEl, cursor), 0)
-// })
 function handleViewImage(src: string) {
-  console.log('view image url', src, viewerApi)
-
   viewerApi({ images: [src] })
 }
 </script>
 
 <template>
-  <!-- <span v-if="!isUser">{{ meta }} {{ item.page }} - {{ nullLen }}</span> -->
-  <div v-if="metaModel.show" :class="{ check, share, user: isUser }" class="ChatItem">
+  <div :class="{ check, share, user: isUser }" class="ChatItem">
     <div class="ChatItem-Select">
       <el-checkbox v-model="check" />
     </div>
@@ -168,7 +140,7 @@ function handleViewImage(src: string) {
       <img src="/logo.png">
     </div>
     <!-- error: innerItem.status === IChatItemStatus.ERROR, -->
-    <div v-if="innerItem" :class="{ settingVisible: settingMode.visible }" class="ChatItem-Wrapper">
+    <div v-if="innerItem" class="ChatItem-Wrapper">
       <div class="ChatItem-Content">
         <div v-if="innerItem.status === IChatItemStatus.WAITING" class="ChatItem-Generating">
           <div class="ChatItem-GeneratingWrapper">
@@ -181,7 +153,7 @@ function handleViewImage(src: string) {
           </span> -->
           <div v-for="(block, i) in innerItem.value" :key="i" class="ChatItem-Content-Inner-Block">
             <div v-if="block.data === 'suggest'">
-              <div v-if="ind === total - 1" v-wave :style="`--fly-enter-delay: ${i * 0.125}s`" class="transition-cubic fake-background suggest-card" @click="emits('suggest', block.value)">
+              <div v-if="index === total - 1" v-wave :style="`--fly-enter-delay: ${i * 0.125}s`" class="transition-cubic fake-background suggest-card" @click="emits('suggest', block.value)">
                 <TextShaving v-if="!isEnd" :text="block.value" />
                 <template v-else>
                   {{ block.value }}
@@ -192,7 +164,7 @@ function handleViewImage(src: string) {
             <pre v-else-if="block.type === 'text'" class="inner" v-text="block.value" />
 
             <RenderContent
-              v-else-if="block.type === 'markdown'" :dot-enable="!isEnd" :render="settingMode.render"
+              v-else-if="block.type === 'markdown'" :dot-enable="!isEnd"
               readonly :data="block.value"
             />
 
@@ -221,18 +193,6 @@ function handleViewImage(src: string) {
           <TextShaving :text="isEnd ? '分析失败' : '正在分析中'" />
           <br>
         </p>
-
-        <!-- <div class="ChatItem-Setting">
-          <ThWickCheckBox v-model="settingMode.render.enable">
-            启用渲染
-          </ThWickCheckBox>
-
-          <template v-if="settingMode.render.enable">
-            <ThWickCheckBox v-model="settingMode.render.media">
-              渲染视频
-            </ThWickCheckBox>
-          </template>
-        </div> -->
       </div>
 
       <div
@@ -240,23 +200,23 @@ function handleViewImage(src: string) {
           isEnd
             && !!item.content?.length
         " class="ChatItem-Mention" :class="{
-          autoHide: isUser || total !== ind + 1,
+          autoHide: isUser || total !== index + 1,
         }"
       >
         <ChatAddonChatPageSelector
-          v-if="!isUser && item.content.length - nullLen > 1" v-model="msgItem.page"
-          :total-page="item.content.length - nullLen"
+          v-if="!isUser && item.content.length > 1" v-model="msgItem.page"
+          :total-page="item.content.length"
         />
 
         <span class="toolbox">
-          <span v-for="tool in filterTools(item)" :key="tool.name" class="toolbox-item" @click="tool.trigger">
+          <span v-for="tool in tools" :key="tool.name" class="toolbox-item" @click="tool.trigger">
             <el-tooltip :content="tool.name">
               <i :class="tool.icon" />
             </el-tooltip>
           </span>
         </span>
 
-        <!-- <ItemModelSelector v-if="!isUser && total === ind + 1" v-model="innerItem.model" @retry="handleRetry" /> -->
+        <ItemModelSelector v-if="!isUser && total === index + 1" v-model="innerItem.model" :page="item.page" :done="isEnd" @retry="handleRetry" />
 
         <span class="info">
           <span class="date">{{ timeAgo }}</span>
@@ -297,31 +257,6 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
   }
 }
 
-.ChatItem-Setting {
-  .settingVisible & {
-    transform: translateY(100%) scale(1);
-  }
-
-  z-index: 10;
-  position: absolute;
-  padding: 0.5rem 1rem;
-
-  left: 0;
-  bottom: -30px;
-
-  width: 125px;
-  height: 70px;
-  // display: flex;
-
-  transition: 0.25s;
-  user-select: none;
-  border-radius: 18px;
-  transform-origin: left top;
-  box-shadow: var(--el-box-shadow);
-  transform: translateY(100%) scale(0);
-  background-color: var(--el-bg-color);
-}
-
 .ChatItem-Select {
   position: absolute;
 
@@ -349,17 +284,18 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
   left: 10px;
 }
 
-.ChatItem-Reference {
-  padding-left: 0.5rem;
-}
-
 @keyframes fly_enter {
-  from {
+  0% {
     opacity: 0;
     transform: translateY(10px);
   }
 
-  to {
+  60% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+
+  100% {
     opacity: 1;
     transform: translateY(0);
   }

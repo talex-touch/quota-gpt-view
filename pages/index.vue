@@ -13,6 +13,7 @@ import { $endApi } from '~/composables/api/base'
 import { $event } from '~/composables/events'
 import EmptyGuide from '~/components/chat/EmptyGuide.vue'
 import { useHotKeysHook } from '~/composables/aigc'
+import { calculateConversation } from '~/composables/api/base/v1/aigc/completion/entity'
 
 definePageMeta({
   layout: 'default',
@@ -96,6 +97,15 @@ watch(
 
       pageOptions.conversation = conversation
 
+      // get last msg
+      if (conversation.messages.length) {
+        const lastMsg = conversation.messages.at(-1)
+
+        const content = lastMsg?.content[lastMsg.page]
+
+        pageOptions.model = content?.model || QuotaModel.QUOTA_THIS_NORMAL
+      }
+
       pageOptions.share.enable = false
       chatRef.value?.handleBackToBottom(false)
 
@@ -134,8 +144,6 @@ async function innerSend(conversation: IChatConversation, chatItem: IChatItem, i
   conversation.sync = PersistStatus.MODIFIED
 
   const chatCompletion = $completion.createCompletion(conversation, chatItem, index)
-
-  console.log('chatCompletion.innerMsg', chatCompletion.innerMsg)
 
   chatCompletion.registerHandler({
     onCompletion: () => {
@@ -183,6 +191,7 @@ async function handleRetry(index: number, page: number, innerItem: IChatInnerIte
     value: [],
     meta: innerItem.meta,
     timestamp: Date.now(),
+    page,
     status: IChatItemStatus.AVAILABLE,
   })
 
@@ -191,6 +200,8 @@ async function handleRetry(index: number, page: number, innerItem: IChatInnerIte
   const completion = await innerSend(conversation, chatItem, page)
 
   curController = completion.send()
+
+  pageOptions.model = innerItem.model
 }
 
 async function handleSend(query: IInnerItemMeta[], _meta: any) {
@@ -201,15 +212,13 @@ async function handleSend(query: IInnerItemMeta[], _meta: any) {
   if (!$historyManager.options.list.get(conversation.id))
     $historyManager.options.list.set(conversation.id, conversation)
 
-  const meta = chatRef.value.getDictMeta()
-  // console.log('meta', meta)
-  let i = conversation.messages.length - 1
-  // let shiftItem /* = conversation.messages.at(-1) */
-  while (meta?.[i] && !meta[i].show)
-    i -= 1
+  const messages = ref(conversation.messages)
+  messages.value = calculateConversation(messages)
 
   // getDictMeta
-  const shiftItem = i >= 0 ? conversation.messages.at(i) : null
+  const shiftItem = messages.value.at(-1)
+
+  console.log('shiftItem', shiftItem, shiftItem?.page)
 
   function getModel() {
     if (!shiftItem)
@@ -227,16 +236,18 @@ async function handleSend(query: IInnerItemMeta[], _meta: any) {
     meta: {
       temperature: 0,
     },
+    page: shiftItem?.page || 0,
     timestamp: Date.now(),
     status: IChatItemStatus.AVAILABLE,
   })
 
+  chatItem.page = innerItem.page
   chatItem.content.push(innerItem)
   conversation.messages.push(chatItem)
 
-  console.log('hs', shiftItem, conversation)
+  console.log('hs', shiftItem, conversation, innerItem)
 
-  const completion = await innerSend(conversation, chatItem, (shiftItem?.content.length ?? 1) - 1)
+  const completion = await innerSend(conversation, chatItem, chatItem.page)
 
   completion.innerMsg.model = pageOptions.model
 
@@ -292,6 +303,8 @@ const appOptions: any = inject('appOptions')!
 function handleLogin() {
   appOptions.model.login = true
 }
+
+console.log('PO', pageOptions)
 </script>
 
 <template>
