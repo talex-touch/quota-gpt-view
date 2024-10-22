@@ -26,8 +26,8 @@ const handleNext: any = inject('handleNext')
       <el-carousel-item>
         <div class="FeatureAnimation">
           <div class="FeatureAnimation-Text">
-            <h1>科塔智爱</h1>
-            <p>全情境分析感知</p>
+            <h1>融合对话</h1>
+            <p>尽全力为你做任何事</p>
           </div>
 
           <Vue3Lottie class="adapt-style" :animation-data="ChatMsg" />

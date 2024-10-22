@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useNow } from '@vueuse/core'
 import { api as viewerApi } from 'v-viewer'
+import { UseImage } from '@vueuse/components'
 import type { IInnerItemMeta } from '~/composables/api/base/v1/aigc/completion-types'
 
 const props = defineProps<{
@@ -71,27 +72,10 @@ function handleViewImage(src: string) {
 
   viewerApi({ images: [src] })
 }
-
-function handleError() {
-  console.warn('Image Error', props, image.value)
-}
 </script>
 
 <template>
   <div class="Imagable">
-    <div class="Imagable-Gen">
-      <div i-carbon:image />
-      <p v-if="isEnd">
-        {{ data.arguments?.text || '已生成图片' }}
-      </p>
-      <OtherTextShaving v-else :text="data.arguments?.text || '图片生成中'" />
-      <!-- var(--theme-color) -->
-      <el-progress
-        color="var(--el-text-color-primary)" :show-text="false" :stroke-width="2" :width="16" type="circle"
-        :percentage="progress"
-      />
-    </div>
-
     <div class="Imagable-Inner">
       <div
         class="Imagable-Inner-Back bg-radial [animation-delay:.7s] h-14 w-14 animate-spin rounded-full bg-gradient-to-tr"
@@ -102,11 +86,35 @@ function handleError() {
       </div>
 
       <div class="Imagable-Inner-Img" @click="handleViewImage(image)">
-        <div v-if="!image" class="Imagable-Inner-Cover">
-          无法加载图片
-        </div>
+        <UseImage v-if="image" :src="image" :alt="data.arguments?.text || 'QuotaGenImage'">
+          <template #loading>
+            <div class="Imagable-Inner-Cover">
+              图片下载中
+              <IconCircleLoader class="Loader" />
+            </div>
+          </template>
 
-        <img v-else :src="image" :alt="data.arguments?.text || 'QuotaGenImage'" @error="handleError">
+          <template #error>
+            <div class="Imagable-Inner-Cover">
+              无法加载图片
+            </div>
+          </template>
+        </UseImage>
+
+        <!-- <img v-else :src="image" @error="handleError"> -->
+      </div>
+
+      <div class="Imagable-Gen transition-cubic">
+        <div i-carbon:image />
+        <p v-if="isEnd">
+          {{ data.arguments?.text || '已生成图片' }}
+        </p>
+        <OtherTextShaving v-else :text="data.arguments?.text || '图片生成中'" />
+        <!-- var(--theme-color) -->
+        <el-progress
+          color="var(--el-text-color-primary)" :show-text="false" :stroke-width="2" :width="16" type="circle"
+          :percentage="progress"
+        />
       </div>
     </div>
   </div>
@@ -139,7 +147,11 @@ function handleError() {
 .Imagable {
   &-Inner {
     &-Cover {
+      :deep(.Loader) {
+        transform: scale(0.85);
+      }
       position: absolute;
+      display: flex;
 
       top: 50%;
       left: 50%;
@@ -151,6 +163,8 @@ function handleError() {
       font-weight: 600;
       text-align: center;
 
+      gap: 0.5rem;
+      align-items: center;
       text-shadow: 0 0 1rem var(--el-text-color-placeholder);
     }
 
@@ -201,7 +215,7 @@ function handleError() {
 
     overflow: hidden;
     border-radius: 16px;
-    background-color: var(--el-bg-color);
+    background-color: var(--el-bg-color-page);
 
     &-Back {
       .done & {
@@ -237,8 +251,24 @@ function handleError() {
   }
 
   &-Gen {
+    .done & {
+      opacity: 0;
+      pointer-events: none;
+    }
+    z-index: 2;
+    position: absolute;
     padding: 0 0.25rem;
     display: flex;
+
+    top: 50%;
+    left: 50%;
+
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-align: center;
+
+    text-shadow: 0 0 1rem var(--el-text-color-placeholder);
+    transform: translate(-50%, -50%);
 
     height: 32px;
 
@@ -247,9 +277,6 @@ function handleError() {
   }
 
   position: relative;
-  display: flex;
-
-  flex-direction: column;
 }
 
 .spinner {

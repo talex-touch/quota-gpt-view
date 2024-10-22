@@ -1,8 +1,27 @@
 <script setup lang="ts">
+import hotkeys from 'hotkeys-js'
 import UserAccountAvatar from '~/components/personal/UserAccountAvatar.vue'
 import IndexNavbar from '~/components/chore/IndexNavbar.vue'
+import { $event } from '~/composables/events'
 
 const route = useRoute()
+const router = useRouter()
+
+watch(() => route.fullPath, refreshHotKeyScope, { immediate: true })
+
+router.afterEach(refreshHotKeyScope)
+
+function refreshHotKeyScope() {
+  const scope = (route.meta?.scope as string) || 'all'
+
+  $event.emit('HOTKEY_SCOPE_CHANGE', scope)
+}
+
+$event.on('HOTKEY_SCOPE_CHANGE', (scope: string) => {
+  hotkeys.setScope(scope || 'all')
+
+  console.log('current scope', hotkeys.getScope())
+})
 </script>
 
 <template>

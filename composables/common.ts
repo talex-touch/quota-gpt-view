@@ -224,3 +224,23 @@ export function readFile(file, dataType = 'DataURL') {
 export function svgFile2Png(file) {
   return readFile(file, 'Text').then(svgToPng)
 }
+
+export function withResolvers<T>(): {
+  promise: Promise<T>
+  resolve?: (value: T | PromiseLike<T>) => void
+  reject?: (reason?: any) => void
+} {
+  let resolve: ((value: T | PromiseLike<T>) => void) | undefined
+  let reject: ((reason?: any) => void) | undefined
+
+  const promise = new Promise<T>((res, rej) => {
+    resolve = res
+    reject = rej
+  })
+
+  return {
+    promise,
+    resolve,
+    reject,
+  }
+}

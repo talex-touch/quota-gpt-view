@@ -52,6 +52,7 @@
     "gpt-tokenizer": "^2.2.1",
     "gsap": "^3.12.5",
     "highlight.js": "^11.10.0",
+    "hotkeys-js": "^3.13.7",
     "html2canvas": "^1.4.1",
     "js-confetti": "^0.12.0",
     "lottie": "^0.0.1",

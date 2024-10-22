@@ -30,7 +30,11 @@ async function handleNext(next: TutorialOption) {
     show.value = false
     return
   }
-  else { show.value = true }
+  else {
+    show.value = true
+
+    console.log('next', next)
+  }
 
   el.style.opacity = '0'
   await sleep(200)
@@ -52,12 +56,19 @@ async function handleNext(next: TutorialOption) {
   el.style.opacity = '1'
 }
 
-onMounted(() => {
+watch(() => show.value, (val) => {
+  if (!val)
+    return
+
+  console.log('show changed')
+
   handleNext({
     component: Welcome,
     data: {},
   })
+})
 
+onMounted(() => {
   watchEffect(() => {
     const tutorial = userConfig.value.pri_info.info.tutorial
 

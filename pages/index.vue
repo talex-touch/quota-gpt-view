@@ -12,9 +12,11 @@ import { $historyManager } from '~/composables/api/base/v1/aigc/history'
 import { $endApi } from '~/composables/api/base'
 import { $event } from '~/composables/events'
 import EmptyGuide from '~/components/chat/EmptyGuide.vue'
+import { useHotKeysHook } from '~/composables/aigc'
 
 definePageMeta({
   layout: 'default',
+  scope: 'chat',
 })
 
 const chatRef = ref()
@@ -50,11 +52,6 @@ const expand = computed({
   get() {
     return userConfig.value.pri_info.appearance.expand
   },
-})
-
-$event.on('USER_LOGOUT_SUCCESS', () => { pageOptions.conversation = $completion.emptyHistory() })
-$event.on('REQUEST_CREATE_NEW_CONVERSATION', () => {
-  handleCreate()
 })
 
 async function handleDelete(id: string) {
@@ -264,10 +261,26 @@ function handleCancelReq() {
     curController.abort()
 }
 
-console.log('PO', pageOptions)
-
 const mount = ref(false)
+
 function mounter() {
+  const eventScope = $event.startScope()
+  const hotKeyScope = useHotKeysHook()
+
+  eventScope.on('REQUEST_TOGGLE_SIDEBAR', () => {
+    expand.value = !expand.value
+  })
+  eventScope.on('USER_LOGOUT_SUCCESS', () => { pageOptions.conversation = $completion.emptyHistory() })
+  eventScope.on('REQUEST_CREATE_NEW_CONVERSATION', () => {
+    handleCreate()
+  })
+  eventScope.on('REQUEST_SAVE_CURRENT_CONVERSATION', handleSync)
+
+  onUnmounted(() => {
+    eventScope.endScope()
+    hotKeyScope()
+  })
+
   setTimeout(() => {
     mount.value = true
   }, 200)

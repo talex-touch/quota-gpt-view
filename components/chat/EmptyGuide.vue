@@ -34,7 +34,7 @@ function handleIndex(index: number) {
     <div v-if="!show" :style="tipsVisible ? 'opacity: 0' : ''" class="EmptyGuide-Tips only-pc-display">
       <span
         v-for="(tip, index) in tips"
-        :key="index" v-wave class="TipItem fake-background" :style="`--d: ${index * 0.05 + 1}s;--c: ${tip.color}`"
+        :key="index" v-wave class="TipItem fake-background" :style="`--d: ${index * 0.05 + 0.5}s;--c: ${tip.color}`"
         @click="handleIndex(index)"
       >
         <span class="icon" block :class="tip.icon" /><span v-text="tip.title" />

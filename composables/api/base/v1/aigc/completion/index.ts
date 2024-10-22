@@ -235,11 +235,11 @@ async function useCompletionExecutor(body: IChatBody, callback: (data: any) => v
     content: processContentEach(lastContent),
   })
 
-  console.log('msgList', convertedMsgList)
+  // console.log('msgList', convertedMsgList)
 
   body.messages = convertedMsgList
 
-  const { promise, resolve } = Promise.withResolvers()
+  const { promise, resolve } = withResolvers()
 
   function _callback() {
     let doComplete = false
@@ -289,7 +289,7 @@ async function useCompletionExecutor(body: IChatBody, callback: (data: any) => v
       })
     }
 
-    resolve(void 0)
+    resolve!(void 0)
   }
 
   _func()
