@@ -155,7 +155,7 @@ async function innerSend(conversation: IChatConversation, chatItem: IChatItem, i
     onTriggerStatus(status) {
       pageOptions.status = status
 
-      console.log('current status', status)
+      chatRef.value?.generateScroll()
     },
     async onReqCompleted() {
       // 判断如果是第一条消息那么就要生成title
