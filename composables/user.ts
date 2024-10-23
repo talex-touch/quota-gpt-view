@@ -134,6 +134,8 @@ export async function $handleUserLogin(token: { accessToken: string, refreshToke
 }
 
 export async function refreshUserSubscription() {
+  userStore.value.subscription = undefined
+
   const { data } = await getUserSubscription()
   if (!data)
     return

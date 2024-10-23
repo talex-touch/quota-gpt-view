@@ -237,10 +237,17 @@ export function detectWallpaper() {
       return
 
     if (
-      !userStore.value.subscription?.type)
+      !userStore.value.subscription?.type) {
+      ElNotification({
+        title: '订阅已过期',
+        message: '您的订阅已过期，相关权益已自动取消。',
+        type: 'warning',
+        duration: 8000,
+      })
+
       _setWallpaper(null)
-    else
-      _setWallpaper(paper)
+    }
+    else { _setWallpaper(paper) }
   }
 }
 

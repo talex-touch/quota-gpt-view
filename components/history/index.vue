@@ -380,7 +380,7 @@ onBeforeUnmount(() => dispose.value = true)
         width: 100%;
 
         opacity: 0.5;
-        background-color: var(--plan-color);
+        background-color: var(--plan-color, var(--theme-color));
       }
 
       &::after {
@@ -394,7 +394,7 @@ onBeforeUnmount(() => dispose.value = true)
         height: 100%;
         width: var(--w);
 
-        background-color: var(--plan-color);
+        background-color: var(--plan-color, var(--theme-color));
       }
 
       position: absolute;
