@@ -225,6 +225,13 @@ function handleViewImage(src: string) {
           <ItemModelSelector v-model="innerItem.model" :page="item.page" :done="isEnd" @retry="handleRetry" />
           <ChatAddonCommandSelector @translate="handleCommandTranslate" />
         </template>
+        <template v-else>
+          <span class="info">
+            <span v-if="innerItem.model === 'this-normal'">4</span>
+            <span v-else-if="innerItem.model === 'this-normal-turbo'">4o</span>
+            <span v-else-if="innerItem.model === 'this-normal-ultra'">5</span>
+          </span>
+        </template>
 
         <span class="info">
           <span class="date">{{ timeAgo }}</span>
