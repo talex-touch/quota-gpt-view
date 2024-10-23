@@ -43,21 +43,6 @@ const inputHistoryIndex = ref(inputHistories.value.length - 1)
 const showSend = computed(() => input.value.text?.length || input.value.files?.length)
 const canSend = computed(() => showSend.value && (props.status === IChatItemStatus.AVAILABLE || props.status === IChatItemStatus.CANCELLED))
 
-// function appendValue(value: string) {
-//   // 倒着找最后一个文本
-//   const lastText = [ ...input.value ].filter(item => item.type === 'text').pop()
-
-//   if (lastText) {
-//     lastText.value += value
-//   }
-//   else {
-//     input.value.push({
-//       type: 'text',
-//       value,
-//     })
-//   }
-// }
-
 function handleSend(event: Event) {
   if (!canSend.value)
     return
@@ -115,6 +100,14 @@ function handleInputKeydown(event: KeyboardEvent) {
         input.value.files = []
       else input.value.files.pop()
     }
+
+    setTimeout(() => {
+      if (!input.value.text) {
+        cur.value = -1
+
+        tipsVisible.value = false
+      }
+    }, 300)
   }
 
   if (event.key === 'Enter') {
