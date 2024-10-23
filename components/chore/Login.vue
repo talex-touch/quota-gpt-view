@@ -331,7 +331,7 @@ async function codeStatusTimer() {
   if (Date.now() - startTime >= 120000)
     show.value = false
 
-  if (props.show)
+  if (props.show && !document.body.classList.contains('mobile'))
     await _codeStatusTimer()
 
   setTimeout(codeStatusTimer, 2000)
@@ -666,13 +666,17 @@ const codeUrl = computed(() => `https://mp.weixin.qq.com/cgi-bin/showqrcode?tick
   align-items: center;
   justify-content: center;
 
+  left: 50%;
   bottom: 0;
 
-  width: 100%;
+  width: max-content;
+  max-width: 80%;
   height: 80px;
 
   opacity: 0.75;
   font-size: 14px;
+
+  transform: translateX(-50%);
 }
 
 .Login-Head {
@@ -742,13 +746,38 @@ const codeUrl = computed(() => `https://mp.weixin.qq.com/cgi-bin/showqrcode?tick
   transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
 }
 
+// 如果屏幕宽高太小
+@media screen and (max-width: 375px) {
+  div.Login-Container {
+    top: 10%;
+    left: 1rem;
+
+    width: calc(100% - 2rem) !important;
+    height: 80% !important;
+
+    transform: translate(0, 0) scale(1) !important;
+  }
+}
+
+@media screen and (max-height: 500px) {
+  div.Login-Container {
+    top: 10%;
+    left: 1rem;
+
+    width: calc(100% - 2rem) !important;
+    height: 80% !important;
+
+    transform: translate(0, 0) scale(1) !important;
+  }
+}
+
 .Login {
   &.show {
     opacity: 1;
     pointer-events: all;
   }
 
-  z-index: 2000;
+  z-index: 1000;
   position: absolute;
 
   top: 0;

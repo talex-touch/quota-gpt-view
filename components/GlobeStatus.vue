@@ -90,10 +90,6 @@ watch(() => online.value, detectEndStatus)
 <style lang="scss" scoped>
 .GlobeStatus {
   .Mentions {
-    span {
-      max-width: 100%;
-      text-wrap: break-word;
-    }
     z-index: 100;
     position: absolute;
 
@@ -101,7 +97,10 @@ watch(() => online.value, detectEndStatus)
     left: 50%;
 
     width: max-content;
+    max-width: 80%;
     height: 100px;
+
+    text-align: center;
 
     font-size: 24px;
     font-weight: 600;
