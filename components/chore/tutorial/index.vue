@@ -1,17 +1,10 @@
 <script setup lang="ts">
 import Welcome from './addon/Welcome.vue'
 import type { TutorialOption } from './tutorial-types'
+import { $event } from '~/composables/events'
 
-// const props = defineProps<{
-//   show: boolean
-// }>()
-
-// const emits = defineEmits<{
-//   (e: 'update:show', data: boolean): void
-// }>()
-
-// const show = useVModel(props, 'show', emits)
 const show = ref(false)
+const router = useRouter()
 
 const main = ref<HTMLElement>()
 const options = reactive<TutorialOption>({
@@ -32,8 +25,6 @@ async function handleNext(next: TutorialOption) {
   }
   else {
     show.value = true
-
-    console.log('next', next)
   }
 
   el.style.opacity = '0'
@@ -56,18 +47,6 @@ async function handleNext(next: TutorialOption) {
   el.style.opacity = '1'
 }
 
-watch(() => show.value, (val) => {
-  if (!val)
-    return
-
-  console.log('show changed')
-
-  handleNext({
-    component: Welcome,
-    data: {},
-  })
-})
-
 onMounted(() => {
   watchEffect(() => {
     const tutorial = userConfig.value.pri_info.info.tutorial
@@ -75,6 +54,20 @@ onMounted(() => {
     console.log('tutorial', userConfig.value.pri_info)
 
     show.value = !tutorial
+
+    setTimeout(() => {
+      if (!show.value)
+        return
+
+      handleNext({
+        component: Welcome,
+        data: {},
+      })
+
+      router.push('/')
+
+      $event.emit('REQUEST_TOGGLE_SIDEBAR', false)
+    })
   })
 })
 

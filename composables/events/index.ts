@@ -12,7 +12,7 @@ export interface IEventBus {
     (eventName: 'REQUEST_CREATE_NEW_CONVERSATION', callback: () => void): void
     (eventName: 'HOTKEY_SCOPE_CHANGE', callback: (scope: string) => void): void
     (eventName: 'REQUEST_SAVE_CURRENT_CONVERSATION', callback: () => void): void
-    (eventName: 'REQUEST_TOGGLE_SIDEBAR', callback: () => void): void
+    (eventName: 'REQUEST_TOGGLE_SIDEBAR', callback: (visible?: boolean) => void): void
     (eventName: 'REQUEST_TOGGLE_MODEL', callback: () => void): void
     (eventName: 'REQUEST_SHOW_HOTKEYS', callback: () => void): void
   }
@@ -23,7 +23,7 @@ export interface IEventBus {
     (eventName: 'REQUEST_CREATE_NEW_CONVERSATION'): void
     (eventName: 'HOTKEY_SCOPE_CHANGE', scope: string): void
     (eventName: 'REQUEST_SAVE_CURRENT_CONVERSATION'): void
-    (eventName: 'REQUEST_TOGGLE_SIDEBAR'): void
+    (eventName: 'REQUEST_TOGGLE_SIDEBAR', visible?: boolean): void
     (eventName: 'REQUEST_TOGGLE_MODEL'): void
     (eventName: 'REQUEST_SHOW_HOTKEYS'): void
   }
@@ -35,7 +35,7 @@ export interface IEventBus {
     (eventName: 'HOTKEY_SCOPE_CHANGE', callback: (scope: string) => void): void
     (eventName: 'REQUEST_SHOW_HOTKEYS', callback: () => void): void
     (eventName: 'REQUEST_SAVE_CURRENT_CONVERSATION', callback: () => void): void
-    (eventName: 'REQUEST_TOGGLE_SIDEBAR', callback: () => void): void
+    (eventName: 'REQUEST_TOGGLE_SIDEBAR', callback: (visible?: boolean) => void): void
     (eventName: 'REQUEST_TOGGLE_MODEL', callback: () => void): void
   }
 }
@@ -69,8 +69,6 @@ export class EventBus implements IEventBus {
         handlers.splice(index, 1)
 
       this.eventMap.set(eventName, handlers)
-
-      console.log('off', eventName, handlers)
     }
   }
 
@@ -88,10 +86,6 @@ export class EventBus implements IEventBus {
       this.on(eventName as any, callback)
     }
 
-    // const emit: IEventBus['emit'] = (eventName: EventName, ...args: any) => {
-    //   this.emit(eventName as any, args)
-    // }
-
     const endScope = () => {
       scopeHandlerMap.forEach((handlers, eventName) => {
         handlers.forEach((handler) => {
@@ -100,8 +94,6 @@ export class EventBus implements IEventBus {
       })
 
       scopeHandlerMap.clear()
-
-      console.log('scope end')
     }
 
     return {

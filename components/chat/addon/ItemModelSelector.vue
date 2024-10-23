@@ -13,7 +13,7 @@ const emits = defineEmits<{
   (e: 'retry', model?: QuotaModel): void
 }>()
 
-const expand = ref(false)
+const expand = ref(!false)
 const hover = debouncedRef(ref(false))
 const model = useVModel(props, 'modelValue', emits)
 

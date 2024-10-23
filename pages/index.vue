@@ -278,8 +278,8 @@ function mounter() {
   const eventScope = $event.startScope()
   const hotKeyScope = useHotKeysHook()
 
-  eventScope.on('REQUEST_TOGGLE_SIDEBAR', () => {
-    expand.value = !expand.value
+  eventScope.on('REQUEST_TOGGLE_SIDEBAR', (visible?: boolean) => {
+    expand.value = visible !== undefined ? visible : !expand.value
   })
   eventScope.on('USER_LOGOUT_SUCCESS', () => { pageOptions.conversation = $completion.emptyHistory() })
   eventScope.on('REQUEST_CREATE_NEW_CONVERSATION', () => {
