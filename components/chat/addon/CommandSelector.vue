@@ -62,19 +62,15 @@ async function handleCommand(cmd: any) {
   </span>
 
   <teleport to="#teleports">
-    <div ref="commandFloating" :style="floatingStyles" class="ItemCommandSelector-Floating">
-      <div
-        :class="{ hover }" class="ItemCommandSelector-Popover" @mouseenter="hover = true"
-        @mouseleave="hover = false"
-      >
+    <div ref="commandFloating" :class="{ hover }" :style="floatingStyles" class="ItemCommandSelector-Floating">
+      <div class="ItemCommandSelector-Popover" @mouseenter="hover = true" @mouseleave="hover = false">
         <p mb-2 op-50>
           超级命令
         </p>
         <div class="command-selector-content">
           <div
-            v-for="_command in commands"
-            :key="_command.value" v-wave :class="{ lock: !(_command.lock?.() ?? true) }" class="command-popover-item"
-            @click="handleCommand(_command)"
+            v-for="_command in commands" :key="_command.value" v-wave :class="{ lock: !(_command.lock?.() ?? true) }"
+            class="command-popover-item" @click="handleCommand(_command)"
           >
             <div class="icon fake-background">
               <i :class="_command.icon" />
@@ -236,7 +232,7 @@ async function handleCommand(cmd: any) {
 
   backdrop-filter: blur(18px) saturate(180%);
 
-  &.hover {
+  .hover & {
     transform: scale(1);
   }
 }
@@ -245,6 +241,9 @@ async function handleCommand(cmd: any) {
   .mobile & {
     display: none;
   }
+  &.hover {
+    pointer-events: all;
+  }
   z-index: 1;
   position: absolute;
 
@@ -252,6 +251,8 @@ async function handleCommand(cmd: any) {
   height: 280px;
 
   transition: 0.25s;
+
+  pointer-events: none;
 }
 
 .ItemCommandSelector {

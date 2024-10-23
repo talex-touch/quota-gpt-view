@@ -94,8 +94,8 @@ async function handleRetry(model?: any) {
   </span>
 
   <teleport to="#teleports">
-    <div ref="modelFloating" :style="floatingStyles" class="ItemModelSelector-Floating">
-      <div :class="{ hover }" class="ItemModelSelector-Popover" @mouseenter="hover = true" @mouseleave="hover = false">
+    <div ref="modelFloating" :class="{ hover }" :style="floatingStyles" class="ItemModelSelector-Floating">
+      <div class="ItemModelSelector-Popover" @mouseenter="hover = true" @mouseleave="hover = false">
         <p mb-2 op-50>
           选择模型
         </p>
@@ -279,7 +279,7 @@ async function handleRetry(model?: any) {
 
   backdrop-filter: blur(18px) saturate(180%);
 
-  &.hover {
+  .hover & {
     transform: scale(1);
   }
 }
@@ -288,6 +288,9 @@ async function handleRetry(model?: any) {
   .mobile & {
     display: none;
   }
+  &.hover {
+    pointer-events: all;
+  }
   z-index: 1;
   position: absolute;
 
@@ -295,6 +298,7 @@ async function handleRetry(model?: any) {
   height: 365px;
 
   transition: 0.25s;
+  pointer-events: none;
 }
 
 .ItemModelSelector {

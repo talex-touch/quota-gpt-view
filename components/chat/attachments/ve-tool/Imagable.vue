@@ -58,6 +58,17 @@ const progress = computed(() => {
   return 90/* Math.min(Math.max(Math.round(start / duration * 90), 10), 90) */
 })
 
+function handleViewImage(src: string) {
+  if (!props.isEnd)
+    return
+
+  viewerApi({ images: [src] })
+}
+
+const imageSrc = ref('')
+const fallbackMode = ref(false)
+const loadProgress = ref(10)
+
 const image = computed(() => {
   const value = props.value
 
@@ -66,16 +77,44 @@ const image = computed(() => {
   return src
 })
 
-function handleViewImage(src: string) {
-  if (!props.isEnd)
-    return
+async function loadImage() {
+  const src = image.value
+  if (!src)
+    return imageSrc.value = ''
 
-  viewerApi({ images: [src] })
+  const req = new XMLHttpRequest()
+
+  req.open('GET', src, true)
+  req.responseType = 'blob'
+
+  req.addEventListener('progress', (event) => {
+    if (event.lengthComputable) {
+      fallbackMode.value = false
+
+      loadProgress.value = event.loaded / event.total * 100
+    }
+    else {
+      // 总大小未知时不能计算进程信息
+      fallbackMode.value = true
+    }
+  })
+
+  req.addEventListener('load', () => {
+    const blob = req.response
+
+    const url = URL.createObjectURL(blob)
+
+    imageSrc.value = url
+  })
+
+  req.send()
 }
+
+watchEffect(loadImage)
 </script>
 
 <template>
-  <div class="Imagable">
+  <div :style="`--percentage: ${loadProgress}%`" :class="{ loaded: loadProgress >= 100 }" class="Imagable">
     <div class="Imagable-Inner">
       <div
         class="Imagable-Inner-Back bg-radial [animation-delay:.7s] h-14 w-14 animate-spin rounded-full bg-gradient-to-tr"
@@ -85,8 +124,13 @@ function handleViewImage(src: string) {
         </div>
       </div>
 
+      <div class="Imagable-Progress transition-cubic" />
+
       <div class="Imagable-Inner-Img" @click="handleViewImage(image)">
-        <UseImage v-if="image" :src="image" :alt="data.arguments?.text || 'QuotaGenImage'">
+        <UseImage
+          v-if="fallbackMode || loadProgress < 100" :src="imageSrc"
+          :alt="data.arguments?.text || 'QuotaGenImage'"
+        >
           <template #loading>
             <div class="Imagable-Inner-Cover">
               图片下载中
@@ -96,12 +140,15 @@ function handleViewImage(src: string) {
 
           <template #error>
             <div class="Imagable-Inner-Cover">
-              无法加载图片
+              图片下载中
+              <IconCircleLoader class="Loader" />
             </div>
           </template>
         </UseImage>
 
-        <!-- <img v-else :src="image" @error="handleError"> -->
+        <div v-if="!fallbackMode" class="Imagable-Inner-ImgWrapper">
+          <img :src="imageSrc" @load="loadProgress = 100">
+        </div>
       </div>
 
       <div class="Imagable-Gen transition-cubic">
@@ -144,12 +191,57 @@ function handleViewImage(src: string) {
   }
 }
 
+@property --offset {
+  syntax: '<length-percentage>';
+  inherits: false;
+  initial-value: 0;
+}
+
 .Imagable {
+  &-Progress {
+    &::before {
+      position: absolute;
+      content: '';
+
+      top: 2px;
+      left: 2px;
+
+      width: calc(100% - 4px);
+      height: calc(100% - 4px);
+
+      border-radius: 16px;
+      background-color: var(--el-bg-color-page);
+    }
+    .done & {
+      opacity: 1;
+    }
+    .loaded & {
+      opacity: 0;
+    }
+    position: absolute;
+
+    top: -2px;
+    left: -2px;
+
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+
+    background-image: conic-gradient(
+      var(--theme-color) 0%,
+      var(--theme-color) var(--percentage),
+      transparent var(--percentage) 100%
+    );
+
+    opacity: 0;
+    border-radius: 16px;
+  }
+
   &-Inner {
     &-Cover {
       :deep(.Loader) {
         transform: scale(0.85);
       }
+
       position: absolute;
       display: flex;
 
@@ -171,11 +263,7 @@ function handleViewImage(src: string) {
     &-Img {
       .done & {
         opacity: 1;
-
-        filter: blur(0px);
-        transform: scale(1);
       }
-
       z-index: 1;
       position: relative;
 
@@ -186,9 +274,26 @@ function handleViewImage(src: string) {
       height: 100%;
 
       opacity: 0;
-      filter: blur(50px);
-      transform: scale(1.25);
-      transition: 0.5s 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+      overflow: hidden;
+      border-radius: 16px;
+
+      &Wrapper {
+        .loaded & {
+          opacity: 1;
+
+          filter: blur(0px);
+          transform: scale(1);
+
+          transition: 0.5s 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        z-index: 1;
+        position: relative;
+
+        opacity: 0;
+        filter: blur(50px);
+        transform: scale(1.25);
+      }
+
       img {
         position: relative;
 
@@ -202,6 +307,10 @@ function handleViewImage(src: string) {
       }
     }
 
+    .done & {
+      background-color: var(--el-bg-color-page);
+    }
+
     position: relative;
 
     top: 0;
@@ -213,9 +322,7 @@ function handleViewImage(src: string) {
 
     cursor: pointer;
 
-    overflow: hidden;
     border-radius: 16px;
-    background-color: var(--el-bg-color-page);
 
     &-Back {
       .done & {
@@ -255,6 +362,7 @@ function handleViewImage(src: string) {
       opacity: 0;
       pointer-events: none;
     }
+
     z-index: 2;
     position: absolute;
     padding: 0 0.25rem;

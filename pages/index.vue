@@ -14,6 +14,7 @@ import { $event } from '~/composables/events'
 import EmptyGuide from '~/components/chat/EmptyGuide.vue'
 import { useHotKeysHook } from '~/composables/aigc'
 import { calculateConversation } from '~/composables/api/base/v1/aigc/completion/entity'
+import '~/composables/index.d.ts'
 
 definePageMeta({
   layout: 'default',
@@ -287,6 +288,12 @@ function mounter() {
   })
   eventScope.on('REQUEST_SAVE_CURRENT_CONVERSATION', handleSync)
 
+  if (userStore.value.isAdmin) {
+    window.$chat = {
+      pageOptions,
+    }
+  }
+
   onUnmounted(() => {
     eventScope.endScope()
     hotKeyScope()
@@ -303,8 +310,6 @@ const appOptions: any = inject('appOptions')!
 function handleLogin() {
   appOptions.model.login = true
 }
-
-console.log('PO', pageOptions)
 </script>
 
 <template>
