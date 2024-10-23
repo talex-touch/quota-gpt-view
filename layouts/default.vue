@@ -7,10 +7,7 @@ import { $event } from '~/composables/events'
 const route = useRoute()
 const router = useRouter()
 
-// nuxt client only
-const { isClient } = useNuxtApp()
-
-if (isClient) {
+onMounted(() => {
   watch(() => route.fullPath, refreshHotKeyScope, { immediate: true })
 
   router.afterEach(refreshHotKeyScope)
@@ -24,7 +21,7 @@ if (isClient) {
   $event.on('HOTKEY_SCOPE_CHANGE', (scope: string) => {
     hotkeys.setScope(scope || 'all')
   })
-}
+})
 </script>
 
 <template>
