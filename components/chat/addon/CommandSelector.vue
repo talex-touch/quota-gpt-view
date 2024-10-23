@@ -8,7 +8,8 @@ const emits = defineEmits<{
 }>()
 
 const expand = ref(false)
-const hover = debouncedRef(ref(false))
+const hover = ref(false)
+const hoverMode = debouncedRef(hover, 50)
 
 const commands = reactive([
   {
@@ -54,16 +55,16 @@ async function handleCommand(cmd: any) {
 
 <template>
   <span
-    ref="commandSelector" :class="{ expand: expand || hover }" class="ItemCommandSelector"
-    @mouseenter="hover = true" @mouseleave="hover = false"
+    ref="commandSelector" :class="{ expand: expand || hoverMode }" class="ItemCommandSelector"
+    @mouseenter="hoverMode = hover = true" @mouseleave="hover = false"
   >
     <i i-carbon:mac-command op-50 />
     <i style="font-size: 10px;opacity: 0.5" i-carbon:chevron-down />
   </span>
 
   <teleport to="#teleports">
-    <div ref="commandFloating" :class="{ hover }" :style="floatingStyles" class="ItemCommandSelector-Floating">
-      <div class="ItemCommandSelector-Popover" @mouseenter="hover = true" @mouseleave="hover = false">
+    <div ref="commandFloating" :class="{ hover: hoverMode }" :style="floatingStyles" class="ItemCommandSelector-Floating">
+      <div class="ItemCommandSelector-Popover" @mouseenter="hoverMode = hover = true" @mouseleave="hover = false">
         <p mb-2 op-50>
           超级命令
         </p>
@@ -226,14 +227,16 @@ async function handleCommand(cmd: any) {
   box-shadow: var(--el-box-shadow);
   border: 1px solid var(--el-border-color);
 
-  transform: scale(0);
-  transition: 0.25s;
+  opacity: 0;
+  transform: scale(0.9) translateY(10%);
+  transition: cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.35s;
   transform-origin: center 10%;
 
   backdrop-filter: blur(18px) saturate(180%);
 
   .hover & {
-    transform: scale(1);
+    opacity: 1;
+    transform: scale(1) translateY(0);
   }
 }
 

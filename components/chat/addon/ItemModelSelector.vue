@@ -14,7 +14,8 @@ const emits = defineEmits<{
 }>()
 
 const expand = ref(!false)
-const hover = debouncedRef(ref(false))
+const hover = ref(false)
+const hoverMode = debouncedRef(hover, 50)
 const model = useVModel(props, 'modelValue', emits)
 
 const models = reactive([
@@ -83,7 +84,7 @@ async function handleRetry(model?: any) {
 
 <template>
   <span
-    ref="modelSelector" :class="{ expand: expand || hover }" class="ItemModelSelector" @mouseenter="hover = true"
+    ref="modelSelector" :class="{ expand: expand || hoverMode }" class="ItemModelSelector" @mouseenter="hoverMode = hover = true"
     @mouseleave="hover = false"
   >
     <i i-carbon:renew op-50 />
@@ -94,8 +95,11 @@ async function handleRetry(model?: any) {
   </span>
 
   <teleport to="#teleports">
-    <div ref="modelFloating" :class="{ hover }" :style="floatingStyles" class="ItemModelSelector-Floating">
-      <div class="ItemModelSelector-Popover" @mouseenter="hover = true" @mouseleave="hover = false">
+    <div
+      ref="modelFloating" :class="{ hover: hoverMode }" :style="floatingStyles" class="ItemModelSelector-Floating"
+      @mouseenter="hoverMode = hover = true" @mouseleave="hover = false"
+    >
+      <div class="ItemModelSelector-Popover">
         <p mb-2 op-50>
           选择模型
         </p>
@@ -273,14 +277,16 @@ async function handleRetry(model?: any) {
   box-shadow: var(--el-box-shadow);
   border: 1px solid var(--el-border-color);
 
-  transform: scale(0);
-  transition: 0.25s;
+  opacity: 0;
+  transform: scale(0.9) translateY(10%);
+  transition: cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.35s;
   transform-origin: center 10%;
 
   backdrop-filter: blur(18px) saturate(180%);
 
   .hover & {
-    transform: scale(1);
+    opacity: 1;
+    transform: scale(1) translateY(0);
   }
 }
 

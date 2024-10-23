@@ -154,6 +154,8 @@ async function innerSend(conversation: IChatConversation, chatItem: IChatItem, i
     },
     onTriggerStatus(status) {
       pageOptions.status = status
+
+      console.log('current status', status)
     },
     async onReqCompleted() {
       // 判断如果是第一条消息那么就要生成title
@@ -216,10 +218,9 @@ async function handleSend(query: IInnerItemMeta[], _meta: any) {
   const messages = ref(conversation.messages)
   messages.value = calculateConversation(messages)
 
-  // getDictMeta
   const shiftItem = messages.value.at(-1)
 
-  console.log('shiftItem', shiftItem, shiftItem?.page)
+  // console.log('shiftItem', shiftItem, shiftItem?.page)
 
   function getModel() {
     if (!shiftItem)

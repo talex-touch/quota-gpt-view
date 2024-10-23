@@ -67,7 +67,7 @@ function handleViewImage(src: string) {
 
 const imageSrc = ref('')
 const fallbackMode = ref(false)
-const loadProgress = ref(10)
+const loadProgress = ref(0)
 
 const image = computed(() => {
   const value = props.value
@@ -124,7 +124,7 @@ watchEffect(loadImage)
         </div>
       </div>
 
-      <div class="Imagable-Progress transition-cubic" />
+      <div class="Imagable-Progress" />
 
       <div class="Imagable-Inner-Img" @click="handleViewImage(image)">
         <UseImage
@@ -234,6 +234,7 @@ watchEffect(loadImage)
 
     opacity: 0;
     border-radius: 16px;
+    transition: cubic-bezier(0.25, 0.46, 0.45, 0.94) 1s 0.5s;
   }
 
   &-Inner {

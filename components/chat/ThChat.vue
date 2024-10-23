@@ -100,7 +100,7 @@ function handleBackToTop() {
 }
 
 const stop = computed(() =>
-  props.status === IChatItemStatus.GENERATING || props.status === IChatItemStatus.WAITING,
+  props.status === IChatItemStatus.GENERATING || props.status === IChatItemStatus.WAITING || props.status === IChatItemStatus.TOOL_CALLING || props.status === IChatItemStatus.TOOL_RESULT,
 )
 
 defineExpose({

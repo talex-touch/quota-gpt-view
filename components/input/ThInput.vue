@@ -41,7 +41,7 @@ const nonPlusMode = computed(() => props.templateEnable && !template.value?.titl
 const inputHistories = useLocalStorage<string[]>('inputHistories', [])
 const inputHistoryIndex = ref(inputHistories.value.length - 1)
 const showSend = computed(() => input.value.text?.length || input.value.files?.length)
-const canSend = computed(() => showSend.value && (props.status === IChatItemStatus.AVAILABLE || props.status !== IChatItemStatus.CANCELLED))
+const canSend = computed(() => showSend.value && (props.status === IChatItemStatus.AVAILABLE || props.status === IChatItemStatus.CANCELLED))
 
 // function appendValue(value: string) {
 //   // 倒着找最后一个文本
@@ -418,7 +418,7 @@ onStartTyping(focusInput)
       disabled: !canSend,
       collapse: nonPlusMode,
       showSend,
-      generating: status === 2,
+      generating: status === 1,
 
     }" class="ThInput" @paste="handlePaste" @keydown.enter="handleSend"
   >
@@ -463,7 +463,7 @@ onStartTyping(focusInput)
       <IconAnimateIcon>
         <IconSvgArrowUpSvg />
       </IconAnimateIcon>
-      <span v-if="status === 2" mr-4 text-lg text-black font-bold op-75>生成中</span>
+      <span v-if="status === 1" mr-4 text-lg text-black font-bold op-75>生成中</span>
     </div>
 
     <div class="ThInput-StatusBar" />
