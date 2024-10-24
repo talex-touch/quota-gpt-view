@@ -184,6 +184,7 @@ export interface ICompletionHandler {
   onChainEnd?: (name: string) => void
   onToolStart?: (name: string, input?: string) => void
   onToolEnd?: (name: string, output?: string) => void
+  onVerbose?: (name: string, data: string) => void
   onError?: () => void
 }
 

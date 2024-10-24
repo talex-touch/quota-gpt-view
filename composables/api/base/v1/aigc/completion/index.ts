@@ -519,7 +519,7 @@ export const $completion = {
                 handler?.onChainEnd?.(res.id)
 
               if (mappedStatus === IChatItemStatus.TOOL_CALLING) {
-                handler.onToolStart?.(name, data)
+                handler.onVerbose?.(name, data)
                 console.log('tool calling', res)
 
                 innerMsg.value.push({
@@ -588,6 +588,17 @@ export const $completion = {
                 data: 'suggest',
                 type: res.content_type as any,
                 value: res.content,
+              })
+            }
+            else if (event === 'verbose') {
+              handler.onVerbose?.(name, data)
+              console.log('verbose calling', res)
+
+              innerMsg.value.push({
+                type: 'card',
+                value: res.addon,
+                data,
+                name,
               })
             }
             else if (event === 'error') {

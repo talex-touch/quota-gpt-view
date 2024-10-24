@@ -127,8 +127,12 @@ watchEffect(loadImage)
       <div class="Imagable-Progress" />
 
       <div class="Imagable-Inner-Img" @click="handleViewImage(image)">
+        <div v-if="!image" class="Imagable-Inner-Cover">
+          图片生成失败
+        </div>
+
         <UseImage
-          v-if="fallbackMode || loadProgress < 100" :src="imageSrc"
+          v-else-if="fallbackMode || loadProgress < 100" :src="imageSrc"
           :alt="data.arguments?.text || 'QuotaGenImage'"
         >
           <template #loading>
@@ -148,6 +152,11 @@ watchEffect(loadImage)
 
         <div v-if="!fallbackMode" class="Imagable-Inner-ImgWrapper">
           <img :src="imageSrc" @load="loadProgress = 100">
+
+          <div class="Imagable-Inner-ImgWrapper-Mention">
+            <span class="brand">Powered by QuotaGPT.</span>
+            <span class="time">{{ (timeCost / 1000).toFixed(1) }} 秒生成</span>
+          </div>
         </div>
       </div>
 
@@ -265,6 +274,13 @@ watchEffect(loadImage)
       .done & {
         opacity: 1;
       }
+
+      &:hover {
+        .time,
+        .brand {
+          opacity: 0.75;
+        }
+      }
       z-index: 1;
       position: relative;
 
@@ -279,6 +295,42 @@ watchEffect(loadImage)
       border-radius: 16px;
 
       &Wrapper {
+        &-Mention {
+          .brand {
+            padding: 0.25rem 0.5rem;
+
+            opacity: 0;
+            transition: 0.25s;
+            border-radius: 12px;
+            background-color: var(--el-overlay-color);
+          }
+          .time {
+            padding: 0.25rem 0.5rem;
+
+            opacity: 0;
+            transition: 0.25s;
+            border-radius: 12px;
+            background-color: var(--el-overlay-color);
+          }
+
+          z-index: 1;
+          position: absolute;
+          display: flex;
+
+          align-items: center;
+          justify-content: space-between;
+          flex-direction: row-reverse;
+
+          width: calc(100% - 1rem);
+          // height: calc(100% - 1rem);
+
+          right: 0.5rem;
+          bottom: 0.5rem;
+
+          font-size: 10px;
+          color: var(--el-text-color-placeholder);
+        }
+
         .loaded & {
           opacity: 1;
 
@@ -301,7 +353,7 @@ watchEffect(loadImage)
         top: 0;
         left: 0;
 
-        // width: 20rem;
+        min-width: 20rem;
         height: 20rem;
 
         object-fit: contain;

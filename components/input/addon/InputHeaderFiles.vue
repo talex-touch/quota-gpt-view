@@ -158,6 +158,9 @@ function formateSize(num: number) {
     width: 100%;
     height: 100%;
 
+    min-width: 5rem;
+    min-height: 5rem;
+
     max-width: 300px;
     max-height: 200px;
 

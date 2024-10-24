@@ -8,7 +8,7 @@ import TextShaving from '../other/TextShaving.vue'
 import ChatAttachment from './ChatAttachment.vue'
 import ItemModelSelector from './addon/ItemModelSelector.vue'
 import ErrorCard from './attachments/ErrorCard.vue'
-import type { IChatInnerItem, IChatItem, QuotaModel } from '~/composables/api/base/v1/aigc/completion-types'
+import type { IChatInnerItem, IChatItem, IInnerItemMeta, QuotaModel } from '~/composables/api/base/v1/aigc/completion-types'
 import { IChatItemStatus, IChatRole } from '~/composables/api/base/v1/aigc/completion-types'
 import { InnerItemMeta } from '~/composables/api/base/v1/aigc/completion/entity'
 
@@ -133,6 +133,10 @@ watchEffect(() => {
 function handleViewImage(src: string) {
   viewerApi({ images: [src] })
 }
+
+function noneCard(block: IInnerItemMeta) {
+  console.log('none card result', block)
+}
 </script>
 
 <template>
@@ -174,7 +178,11 @@ function handleViewImage(src: string) {
             <RenderContent v-else-if="block.type === 'markdown'" :dot-enable="!isEnd" readonly :data="block.value" />
 
             <div v-else-if="block.type === 'card'">
-              Card: {{ block }}
+              <ChatAttachmentsCardMultiAgentJumpCard v-if="block.name === 'multi_agents_jump_to_agent'" :block="block" />
+              <ChatAttachmentsCardTimeCapsuleRecallCard v-else-if="block.name === 'time_capsule_recall'" :block="block" />
+              <template v-else>
+                {{ noneCard(block) }}
+              </template>
             </div>
 
             <div v-else-if="block.type === 'tool'">
@@ -406,12 +414,15 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
     top: 0;
     right: 0;
 
-    width: max-content;
-    max-width: 100%;
-    min-width: 48px;
+    width: 100%;
     height: fit-content;
 
     transition: 0.5s;
+    .user & {
+      width: max-content;
+      max-width: 100%;
+      min-width: 48px;
+    }
   }
 
   &:hover {

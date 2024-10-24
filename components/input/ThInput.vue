@@ -456,7 +456,7 @@ onStartTyping(focusInput)
       <IconAnimateIcon>
         <IconSvgArrowUpSvg />
       </IconAnimateIcon>
-      <span v-if="status === 1" mr-4 text-lg text-black font-bold op-75>生成中</span>
+      <span v-if="status === 1" mr-4 text-lg text-black font-bold op-75>等待响应中</span>
     </div>
 
     <div class="ThInput-StatusBar" />

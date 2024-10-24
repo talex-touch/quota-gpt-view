@@ -105,6 +105,10 @@ watch(
         const content = lastMsg?.content[lastMsg.page]
 
         pageOptions.model = content?.model || QuotaModel.QUOTA_THIS_NORMAL
+        pageOptions.status = content?.status || IChatItemStatus.AVAILABLE
+      }
+      else {
+        pageOptions.status = IChatItemStatus.AVAILABLE
       }
 
       pageOptions.share.enable = false
@@ -166,9 +170,11 @@ async function innerSend(conversation: IChatConversation, chatItem: IChatItem, i
       }
       // await genTitle(pageOptions.select)
 
-      $historyManager.syncHistory(conversation)
+      chatRef.value?.generateScroll()
 
-      setTimeout(() => chatRef.value?.generateScroll(), 500)
+      await $historyManager.syncHistory(conversation)
+
+      setTimeout(() => chatRef.value?.generateScroll(), 800)
     },
     onFrequentLimit() {
       // chatManager.cancelCurrentReq()

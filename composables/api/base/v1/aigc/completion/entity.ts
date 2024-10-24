@@ -23,6 +23,8 @@ export function mapStrStatus(str: string) {
     return IChatItemStatus.CANCELLED
   else if (str === 'failed')
     return IChatItemStatus.ERROR
+  else if (str === 'verbose')
+    return IChatItemStatus.VERBOSE
 
   console.error('unknown status', str)
 

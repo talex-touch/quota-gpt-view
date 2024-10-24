@@ -1,18 +1,20 @@
 <script setup lang="ts">
 import { Milkdown, useEditor } from '@milkdown/vue'
-import { Editor, defaultValueCtx, editorViewOptionsCtx, rootCtx } from '@milkdown/core'
+import { Editor, defaultValueCtx, editorViewOptionsCtx, rootCtx } from '@milkdown/kit/core'
 import { nord } from '@milkdown/theme-nord'
-import { blockquoteKeymap, blockquoteSchema, codeBlockSchema, commonmark } from '@milkdown/preset-commonmark'
+import { imageBlockComponent } from '@milkdown/kit/component/image-block'
+import { blockquoteKeymap, blockquoteSchema, codeBlockSchema, commonmark } from '@milkdown/kit/preset/commonmark'
+import { codeBlockConfig } from '@milkdown/kit/component/code-block'
 import { katexOptionsCtx, math } from '@milkdown/plugin-math'
-import { gfm } from '@milkdown/preset-gfm'
-import { listener, listenerCtx } from '@milkdown/plugin-listener'
-import { history } from '@milkdown/plugin-history'
-import { clipboard } from '@milkdown/plugin-clipboard'
-import { trailing } from '@milkdown/plugin-trailing'
+import { gfm } from '@milkdown/kit/preset/gfm'
+import { listener, listenerCtx } from '@milkdown/kit/plugin/listener'
+import { history } from '@milkdown/kit/plugin/history'
+import { clipboard } from '@milkdown/kit/plugin/clipboard'
+import { trailing } from '@milkdown/kit/plugin/trailing'
 import { keymap as createKeymap } from '@milkdown/prose/keymap'
-import { TooltipProvider, tooltipFactory } from '@milkdown/plugin-tooltip'
-import { SlashProvider, slashFactory } from '@milkdown/plugin-slash'
-import { prism, prismConfig } from '@milkdown/plugin-prism'
+import { TooltipProvider, tooltipFactory } from '@milkdown/kit/plugin/tooltip'
+import { SlashProvider, slashFactory } from '@milkdown/kit/plugin/slash'
+import { prism, prismConfig } from '@milkdown/kit/plugin/prism'
 import { $view, getMarkdown, outline, replaceAll } from '@milkdown/utils'
 import { undoInputRule } from '@milkdown/prose/inputrules'
 import '@milkdown/theme-nord/style.css'
@@ -102,8 +104,13 @@ const editor = useEditor((root) => {
         view: tooltipPluginView,
       })
 
+      ctx.update(codeBlockConfig.key, defaultConfig => ({
+        ...defaultConfig,
+        view: nodeViewFactory({ component: EditorCodeBlock }),
+      }))
+
       ctx.set(prismConfig.key, {
-        configureRefractor: (refractor) => {
+        configureRefractor: (refractor: any) => {
           refractor.register(markdown)
           refractor.register(css)
           refractor.register(javascript)
@@ -126,13 +133,14 @@ const editor = useEditor((root) => {
     .use(prism)
     .use(trailing)
     .use(listener)
-    .use(math)
-    .use(
-      $view(codeBlockSchema.node, () => nodeViewFactory({ component: EditorCodeBlock })),
-    )
-    .use(
-      $view(blockquoteSchema.node, () => nodeViewFactory({ component: EditorBlockQuote })),
-    )
+    // .use(math)
+    .use(imageBlockComponent)
+    // .use(
+    //   $view(codeBlockSchema.node, () => nodeViewFactory({ component: EditorCodeBlock })),
+    // )
+    // .use(
+    //   $view(blockquoteSchema.node, () => nodeViewFactory({ component: EditorBlockQuote })),
+    // )
 })
 
 onMounted(() => {
