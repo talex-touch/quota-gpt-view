@@ -225,7 +225,7 @@ function handleViewImage(src: string) {
           <ItemModelSelector v-model="innerItem.model" :page="item.page" :done="isEnd" @retry="handleRetry" />
           <ChatAddonCommandSelector @translate="handleCommandTranslate" />
         </template>
-        <template v-else>
+        <template v-else-if="!isUser">
           <span class="info">
             <span v-if="innerItem.model === 'this-normal'">4</span>
             <span v-else-if="innerItem.model === 'this-normal-turbo'">4o</span>
@@ -513,10 +513,14 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
 
   position: relative;
 
-  width: max-content;
-  max-width: 70%;
-  min-width: 48px;
+  width: 70%;
   height: max-content;
+
+  .user & {
+    width: max-content;
+    max-width: 70%;
+    min-width: 48px;
+  }
 
   .mobile & {
     max-width: 80%;
