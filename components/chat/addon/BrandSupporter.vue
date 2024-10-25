@@ -10,12 +10,14 @@ onMounted(() => {
     if (!tutorial) { localStorage.removeItem('brand-supporter') }
 
     else if (localStorage.getItem('brand-supporter') !== 'hide') {
-      show.value = true
-
       setTimeout(() => {
-        show.value = false
-        localStorage.setItem('brand-supporter', 'hide')
-      }, 5200)
+        show.value = true
+
+        setTimeout(() => {
+          show.value = false
+          localStorage.setItem('brand-supporter', 'hide')
+        }, 8200)
+      }, 2000)
     }
   })
 })
