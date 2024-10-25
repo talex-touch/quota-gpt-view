@@ -35,6 +35,7 @@ onMounted(() => {
 .BrandSupporter {
   &.show {
     opacity: 1;
+    filter: blur(0);
     transform: translate(-50%) scale(1) translateY(0);
   }
   p {
@@ -66,6 +67,7 @@ onMounted(() => {
   flex-direction: column;
   justify-content: space-between;
 
+  filter: blur(5px);
   border-radius: 16px;
   box-shadow: var(--el-box-shadow);
   background-color: var(--el-bg-color);
