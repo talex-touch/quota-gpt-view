@@ -39,9 +39,13 @@ function handleCancel() {
 watch(
   () => props.messages?.messages,
   () => {
-    setTimeout(() => {
-      handleBackToBottom()
-    }, 10)
+    nextTick(() => {
+      handleScroll()
+
+      setTimeout(() => {
+        handleBackToBottom()
+      }, 10)
+    })
   },
 )
 
