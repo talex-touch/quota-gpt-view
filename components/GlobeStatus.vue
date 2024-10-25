@@ -5,7 +5,7 @@ import { $endApi } from '~/composables/api/base'
 const online = useOnline()
 const status = ref(true)
 const router: any = useRouter()
-const powerMode = ref(false)
+// const powerMode = ref(false)
 
 // 检测后端接口 如果无法使用则直接提示
 async function detectEndStatus() {
@@ -19,14 +19,14 @@ async function detectEndStatus() {
 
   status.value = res?.data?.message === 'OK'
 
-  if (localStorage.getItem('powered-by') !== 'initial') {
-    status.value = powerMode.value = true
+  // if (localStorage.getItem('powered-by') !== 'initial') {
+  //   status.value = powerMode.value = true
 
-    setTimeout(() => {
-      status.value = powerMode.value = false
-      localStorage.setItem('powered-by', 'initial')
-    }, 3000)
-  }
+  //   setTimeout(() => {
+  //     status.value = powerMode.value = false
+  //     localStorage.setItem('powered-by', 'initial')
+  //   }, 3000)
+  // }
 }
 
 let lastSave = ''
@@ -88,21 +88,21 @@ watch(() => online.value, detectEndStatus)
 
     <div class="Mentions">
       <div class="Tip">
-        <span v-if="powerMode">
+        <!-- <span v-if="powerMode">
           科塔智爱 | ThisAI
-        </span>
-        <span v-else-if="online">系统服务器正在维护中，请关注官方QQ群了解更多：635268678</span>
+        </span> -->
+        <span v-if="online">系统服务器正在维护中，请关注官方QQ群了解更多：635268678</span>
         <span v-else>请连接至互联网后使用</span>
       </div>
 
-      <div class="powered-by">
+      <!-- <div class="powered-by">
         <p>由 ChatGPT和豆包 联合驱动</p>
 
         <div class="brands">
           <ChorePoweredByOpenAI />
           <ChorePoweredByDouBao />
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>

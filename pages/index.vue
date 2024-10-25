@@ -400,6 +400,8 @@ function handleLogin() {
 
       <!-- 根据 发送消息超过10次 控制弹窗的显示 -->
       <FeedBack v-model:show="pageOptions.feedback.visible" />
+
+      <ChatAddonBrandSupporter />
     </div>
   </div>
 </template>

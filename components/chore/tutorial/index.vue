@@ -11,6 +11,7 @@ const options = reactive<TutorialOption>({
   component: null,
   data: {},
 })
+const pageOptions: any = inject('appOptions')!
 
 async function handleNext(next: TutorialOption) {
   const el = main.value
@@ -58,6 +59,8 @@ onMounted(() => {
     setTimeout(() => {
       if (!show.value)
         return
+
+      pageOptions.model.personal = ''
 
       handleNext({
         component: Welcome,
