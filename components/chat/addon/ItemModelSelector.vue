@@ -78,7 +78,7 @@ async function handleRetry(model?: any) {
   if (!lockable)
     return
 
-  emits('retry', model.model)
+  emits('retry', model?.model)
 }
 </script>
 

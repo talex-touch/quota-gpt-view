@@ -5,6 +5,7 @@ import { $endApi } from '~/composables/api/base'
 const online = useOnline()
 const status = ref(true)
 const router: any = useRouter()
+const powerMode = ref(false)
 
 // 检测后端接口 如果无法使用则直接提示
 async function detectEndStatus() {
@@ -17,6 +18,15 @@ async function detectEndStatus() {
   const res = await $endApi.v1.common.status()
 
   status.value = res?.data?.message === 'OK'
+
+  if (localStorage.getItem('powered-by') !== 'initial') {
+    status.value = powerMode.value = true
+
+    setTimeout(() => {
+      status.value = powerMode.value = false
+      localStorage.setItem('powered-by', 'initial')
+    }, 3000)
+  }
 }
 
 let lastSave = ''
@@ -77,37 +87,72 @@ watch(() => online.value, detectEndStatus)
     <div v-for="i in 4" :key="i" :class="`item-${i}`" class="item" />
 
     <div class="Mentions">
-      <span v-if="online">
-        系统服务器正在维护中，请关注官方QQ群了解更多：635268678
-      </span>
-      <span v-else>
-        请连接互联网使用！
-      </span>
+      <div class="Tip">
+        <span v-if="powerMode">
+          科塔智爱 | ThisAI
+        </span>
+        <span v-else-if="online">系统服务器正在维护中，请关注官方QQ群了解更多：635268678</span>
+        <span v-else>请连接至互联网后使用</span>
+      </div>
+
+      <div class="powered-by">
+        <p>由 ChatGPT和豆包 联合驱动</p>
+
+        <div class="brands">
+          <ChorePoweredByOpenAI />
+          <ChorePoweredByDouBao />
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .GlobeStatus {
+  .powered-by {
+    p {
+      color: var(--el-text-color-primary);
+      font-weight: 600;
+    }
+    .brands {
+      display: flex;
+
+      gap: 0.5rem;
+    }
+    position: absolute;
+    display: flex;
+
+    gap: 1rem;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    bottom: 5%;
+  }
+
   .Mentions {
     z-index: 100;
     position: absolute;
+    display: flex;
 
     top: 50%;
     left: 50%;
 
-    width: max-content;
-    max-width: 80%;
-    height: 100px;
+    width: 100%;
+    height: 100%;
 
     text-align: center;
+    align-items: center;
+    justify-content: center;
 
     font-size: 24px;
     font-weight: 600;
     color: var(--el-color-danger);
     transition: 0.25s;
     transform: translate(-50%, -50%) scale(1);
-    animation: q_shining 1s infinite linear;
+    .Tip {
+      animation: q_shining 1s infinite linear;
+    }
   }
 
   &.display {
