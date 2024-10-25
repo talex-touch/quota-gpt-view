@@ -25,17 +25,20 @@ const props = defineProps<{
   align-items: center;
   width: 240px;
   height: 70px;
-  background-color: #1c5749;
+  background-color: var(--el-color-primary-light-9);
   color: #dadada;
   text-decoration: none;
   font-weight: bold;
-  border: 3px solid #000;
   padding: 0 12px;
   box-sizing: border-box;
   position: relative;
-  box-shadow: 5px 5px 0 #000;
   overflow: hidden;
   transition: all 0.3s ease;
+
+  border-radius: 16px;
+  border: 3px solid #000000;
+  transform: translate(2px, 2px);
+  box-shadow: 3px 3px 0 var(--el-fill-color-lighter);
 }
 
 .brutalist-button.doubao::before {
@@ -52,22 +55,15 @@ const props = defineProps<{
     transparent
   );
   transition: all 0.6s ease;
+
+  animation: waving_forward 2s ease infinite;
 }
 
-.brutalist-button.doubao:hover::before {
-  left: 100%;
-}
-
-.brutalist-button.doubao:hover {
-  background-color: var(--el-color-primary-light-9);
-  border: 3px solid #000000;
-  transform: translate(-2px, -2px);
-  box-shadow: 7px 7px 0 #020504;
-}
-
-.brutalist-button.doubao:active {
-  transform: translate(2px, 2px);
-  box-shadow: 3px 3px 0 #000;
+@keyframes waving_forward {
+  50%,
+  100% {
+    left: 100%;
+  }
 }
 
 @keyframes spin-and-zoom {
@@ -78,10 +74,6 @@ const props = defineProps<{
   100% {
     transform: rotate(360deg) scale(1.1);
   }
-}
-
-.brutalist-button:hover .doubao-icon {
-  animation: spin-and-zoom 1s linear infinite;
 }
 
 .doubao-logo {
@@ -97,6 +89,8 @@ const props = defineProps<{
   margin-bottom: 2px;
   fill: #000;
   transition: all 0.3s ease;
+
+  animation: spin-and-zoom 1s linear infinite;
 }
 
 .doubao-text {
@@ -126,10 +120,7 @@ const props = defineProps<{
   text-transform: uppercase;
   letter-spacing: 0.5px;
   transition: color 0.3s ease;
-}
 
-.brutalist-button:hover .button-text span:last-child {
   color: #2eae7f;
-  /* Change this to your desired hover color */
 }
 </style>

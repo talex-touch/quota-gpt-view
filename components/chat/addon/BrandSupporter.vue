@@ -23,7 +23,7 @@ onMounted(() => {
 
 <template>
   <div :class="{ show }" class="BrandSupporter transition-cubic">
-    <p>能力由 豆包大模型 驱动.</p>
+    <p>能力由 <span>豆包大模型</span> 驱动.</p>
 
     <PoweredByDouBao />
   </div>
@@ -36,6 +36,9 @@ onMounted(() => {
     transform: translate(-50%) scale(1) translateY(0);
   }
   p {
+    span {
+      color: #2eae7f;
+    }
     color: var(--el-text-color-secondary);
     font-size: 20px;
     font-weight: 600;
