@@ -46,6 +46,9 @@ onMounted(() => {
     font-size: 20px;
     font-weight: 600;
   }
+  .mobile {
+    top: max(5%, 80px);
+  }
   z-index: 3;
   position: absolute;
   display: flex;
