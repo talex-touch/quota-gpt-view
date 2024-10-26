@@ -50,6 +50,10 @@ function tableRowClassName({ row, rowIndex }: any) {
 
   return ''
 }
+
+function handleViewOrder(id: string) {
+  window.open(`${window.origin}/buy?orderId=${id}`, '_blank')
+}
 </script>
 
 <template>
@@ -88,14 +92,14 @@ function tableRowClassName({ row, rowIndex }: any) {
       <div v-else class="PlanWrapper-List">
         <!-- el-table -->
         <el-table :row-class-name="tableRowClassName" size="small" :data="orderList">
-          <el-table-column label="订单号" prop="id" />
+          <!-- <el-table-column label="订单号" prop="id" /> -->
           <el-table-column label="订单名" prop="description" />
-          <el-table-column label="订单内容">
+          <!-- <el-table-column label="订单内容">
             <template #default="{ row }">
               {{ row.items.length }}项
             </template>
-          </el-table-column>
-          <el-table-column label="状态">
+          </el-table-column> -->
+          <!-- <el-table-column label="状态">
             <template #default="{ row }">
               <span v-if="row.status === 0">待支付</span>
               <span v-if="row.status === 1">已完成</span>
@@ -105,22 +109,29 @@ function tableRowClassName({ row, rowIndex }: any) {
               <span v-if="row.status === 5">已退款</span>
               <span v-if="row.status === 6">审核中</span>
             </template>
-          </el-table-column>
+          </el-table-column> -->
           <el-table-column label="价格">
             <template #default="{ row }">
               ￥{{ row.totalAmount / 100 }}
             </template>
           </el-table-column>
-          <el-table-column label="支付方式">
+          <!-- <el-table-column label="支付方式">
             <template #default="{ row }">
               <span v-if="row.paymentMethod === 1">-</span>
               <span v-if="row.paymentMethod === 2">微信支付</span>
               <span v-if="row.paymentMethod === 3">*</span>
             </template>
-          </el-table-column>
+          </el-table-column> -->
           <el-table-column label="创建时间">
             <template #default="{ row }">
               {{ formatDate(row.createdAt) }}
+            </template>
+          </el-table-column>
+          <el-table-column fixed="right" label="查看详情">
+            <template #default="{ row }">
+              <el-button type="text" size="small" @click="handleViewOrder(row.id)">
+                查看
+              </el-button>
             </template>
           </el-table-column>
         </el-table>

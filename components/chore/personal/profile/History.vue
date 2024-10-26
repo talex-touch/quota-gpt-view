@@ -160,7 +160,7 @@ function isThisDevice(item: any) {
     color: var(--el-text-color-secondary);
   }
   display: flex;
-  padding: 0.5rem;
+  padding: 0.5rem 1rem;
   margin: 1rem 0;
 
   align-items: center;
