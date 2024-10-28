@@ -209,9 +209,10 @@ async function handleRetry(index: number, page: number, innerItem: IChatInnerIte
   const completion = await innerSend(conversation, chatItem, page)
 
   curController = completion.send()
-  chatRef.value?.generateScroll()
 
   pageOptions.model = innerItem.model
+
+  chatRef.value?.handleBackToBottom()
 }
 
 async function handleSend(query: IInnerItemMeta[], _meta: any) {
@@ -261,7 +262,8 @@ async function handleSend(query: IInnerItemMeta[], _meta: any) {
   completion.innerMsg.model = pageOptions.model
 
   curController = completion.send()
-  chatRef.value?.generateScroll()
+
+  chatRef.value?.handleBackToBottom()
 }
 
 function handleSuggest(suggestion: string) {
