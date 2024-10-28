@@ -1012,7 +1012,7 @@ onStartTyping(focusInput)
 }
 
 .mobile .ThInput {
-  bottom: 3rem;
+  bottom: 3.5rem;
 
   width: 90%;
 }

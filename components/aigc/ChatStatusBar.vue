@@ -64,6 +64,8 @@ const props = defineProps<{
   }
 
   .mobile & {
+    padding-top: 14px;
+    padding-bottom: 28px;
     justify-content: center;
   }
 

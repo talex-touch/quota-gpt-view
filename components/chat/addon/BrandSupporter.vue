@@ -46,8 +46,8 @@ onMounted(() => {
     font-size: 20px;
     font-weight: 600;
   }
-  .mobile {
-    top: max(5%, 80px);
+  .mobile & {
+    top: max(5%, 50px);
   }
   z-index: 3;
   position: absolute;
