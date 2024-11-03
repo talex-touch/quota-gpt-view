@@ -178,8 +178,14 @@ function noneCard(block: IInnerItemMeta) {
             <RenderContent v-else-if="block.type === 'markdown'" :dot-enable="!isEnd" readonly :data="block.value" />
 
             <div v-else-if="block.type === 'card'">
-              <ChatAttachmentsCardMultiAgentJumpCard v-if="block.name === 'multi_agents_jump_to_agent'" :block="block" />
-              <ChatAttachmentsCardTimeCapsuleRecallCard v-else-if="block.name === 'time_capsule_recall'" :block="block" />
+              <ChatAttachmentsCardMultiAgentJumpCard
+                v-if="block.name === 'multi_agents_jump_to_agent'"
+                :block="block"
+              />
+              <ChatAttachmentsCardTimeCapsuleRecallCard
+                v-else-if="block.name === 'time_capsule_recall'"
+                :block="block"
+              />
               <template v-else>
                 {{ noneCard(block) }}
               </template>
@@ -218,10 +224,10 @@ function noneCard(block: IInnerItemMeta) {
       >
         <ChatAddonChatPageSelector
           v-if="!isUser && item.content.length > 1" v-model="msgItem.page"
-          :total-page="item.content.length"
+          class="view-none-display" :total-page="item.content.length"
         />
 
-        <span class="toolbox">
+        <span class="toolbox view-none-display">
           <span v-for="tool in tools" :key="tool.name" class="toolbox-item" @click="tool.trigger">
             <el-tooltip :content="tool.name">
               <i :class="tool.icon" />
@@ -230,8 +236,11 @@ function noneCard(block: IInnerItemMeta) {
         </span>
 
         <template v-if="!isUser && total === index + 1">
-          <ItemModelSelector v-model="innerItem.model" :page="item.page" :done="isEnd" @retry="handleRetry" />
-          <ChatAddonCommandSelector @translate="handleCommandTranslate" />
+          <ItemModelSelector
+            v-model="innerItem.model" class="view-none-display" :page="item.page" :done="isEnd"
+            @retry="handleRetry"
+          />
+          <ChatAddonCommandSelector class="view-none-display" @translate="handleCommandTranslate" />
         </template>
         <template v-else-if="!isUser">
           <span class="info">

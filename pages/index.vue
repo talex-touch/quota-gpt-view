@@ -22,6 +22,8 @@ definePageMeta({
 })
 
 const chatRef = ref()
+const route = useRoute()
+const viewMode = computed(() => route.query?.share)
 const initConversation = $completion.emptyHistory()
 const pageOptions = reactive<{
   select: string
@@ -30,6 +32,7 @@ const pageOptions = reactive<{
   status: IChatItemStatus
   feedback: any
   model: QuotaModel
+  view: any
 }>({
   model: QuotaModel.QUOTA_THIS_NORMAL,
   feedback: {
@@ -45,6 +48,7 @@ const pageOptions = reactive<{
       return [pageOptions.conversation.messages.filter((_, index) => pageOptions.share.selected.includes(index)), pageOptions.conversation.topic]
     },
   },
+  view: null,
   status: IChatItemStatus.AVAILABLE,
 })
 const expand = computed({
@@ -286,7 +290,22 @@ function handleCancelReq() {
 
 const mount = ref(false)
 
-function mounter() {
+async function mounter() {
+  setTimeout(() => {
+    mount.value = true
+  }, 200)
+
+  if (viewMode.value) {
+    const res = await $endApi.v1.aigc.getShareMessage(route.query.share as string)
+
+    const chat = pageOptions.view = res.data
+    const conversation = decodeObject(chat.value)
+
+    pageOptions.conversation = conversation
+
+    return
+  }
+
   const eventScope = $event.startScope()
   const hotKeyScope = useHotKeysHook()
 
@@ -309,10 +328,6 @@ function mounter() {
     eventScope.endScope()
     hotKeyScope()
   })
-
-  setTimeout(() => {
-    mount.value = true
-  }, 200)
 }
 onActivated(mounter)
 onMounted(mounter)
@@ -324,21 +339,34 @@ function handleLogin() {
 </script>
 
 <template>
-  <div :class="{ expand, empty: !pageOptions.conversation.messages.length }" class="PageContainer">
+  <div :class="{ expand, empty: !pageOptions.conversation.messages.length, view: viewMode }" class="PageContainer">
     <History
-      v-model:select="pageOptions.select" class="PageContainer-History" @create="handleCreate"
+      v-if="!viewMode" v-model:select="pageOptions.select" class="PageContainer-History" @create="handleCreate"
       @delete="handleDelete"
     />
 
     <div class="PageContainer-Main">
+      <div v-if="viewMode" class="ViewModeBar">
+        <div class="ViewModeBar-User">
+          <PersonalUserAvatar :avatar="pageOptions.view?.user?.avatar" />
+          <span class="name">{{ pageOptions.view?.user?.nickname }}分享</span>
+        </div>
+
+        <div class="ViewModeBar-Addon">
+          <el-button>举报内容</el-button>
+          <el-button>使用条款</el-button>
+          <el-button>隐私政策</el-button>
+        </div>
+      </div>
+
       <ThChat
         ref="chatRef" v-model:messages="pageOptions.conversation" :status="pageOptions.status"
         @cancel="handleCancelReq" @retry="handleRetry" @suggest="handleSuggest"
       >
-        <template #model>
+        <template v-if="!viewMode" #model>
           <ModelSelector v-if="mount" v-model="pageOptions.model" />
         </template>
-        <template #header>
+        <template v-if="!viewMode" #header>
           <CheckboxSwanCheckBox v-model="expand" />
           <!-- <div i-carbon:text-short-paragraph @click="userConfig.pri_info.appearance.expand = true" /> -->
 
@@ -351,19 +379,19 @@ function handleLogin() {
         </template>
       </ThChat>
 
-      <EmptyGuide :show="!!pageOptions.conversation.messages?.length">
+      <EmptyGuide v-if="!viewMode" :show="!!pageOptions.conversation.messages?.length">
         <template #default="{ tip }">
           <ThInput
             :template-enable="!pageOptions.conversation.messages.length" :status="pageOptions.status"
-            :hide="pageOptions.share.enable" :center="pageOptions.conversation.messages?.length < 1"
-            :tip="tip" @send="handleSend"
+            :hide="pageOptions.share.enable" :center="pageOptions.conversation.messages?.length < 1" :tip="tip"
+            @send="handleSend"
           />
         </template>
       </EmptyGuide>
 
       <AigcChatStatusBar>
         <template #start>
-          <span v-if="!userStore.isLogin" class="tag warning shining">
+          <span v-if="!viewMode && !userStore.isLogin" class="tag warning shining">
             未登录无法使用
           </span>
 
@@ -401,7 +429,7 @@ function handleLogin() {
       </teleport>
 
       <!-- 根据 发送消息超过10次 控制弹窗的显示 -->
-      <FeedBack v-model:show="pageOptions.feedback.visible" />
+      <FeedBack v-if="!viewMode" v-model:show="pageOptions.feedback.visible" />
 
       <ChatAddonBrandSupporter />
     </div>
@@ -416,6 +444,60 @@ function handleLogin() {
 
   border-radius: 12px;
   background-color: var(--el-bg-color-page);
+}
+
+.ViewModeBar {
+  &-Addon {
+    position: absolute;
+    display: flex;
+
+    top: 70px;
+
+    width: 100%;
+
+    justify-content: center;
+  }
+
+  &:hover {
+    width: 380px;
+    height: 120px;
+  }
+
+  &-User {
+    gap: 0.5rem;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  z-index: 3;
+  position: absolute;
+
+  padding: 0.5rem 1rem;
+
+  top: 1rem;
+  left: 50%;
+
+  width: 165px;
+  height: 56px;
+
+  transform: translateX(-50%);
+
+  overflow: hidden;
+  box-shadow: var(--el-box-shadow);
+  background-color: var(--el-bg-color-page);
+  transition: 0.25s;
+
+  .name {
+    font-size: 14px;
+    font-weight: 600;
+  }
+}
+
+.view-none-display {
+  .view & {
+    display: none !important;
+  }
 }
 
 // .ModelSelector {

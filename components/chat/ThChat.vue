@@ -22,7 +22,8 @@ const emits = defineEmits<{
 }>()
 
 const scrollbar = ref()
-
+const route = useRoute()
+const viewMode = computed(() => route.query?.share)
 const share: any = (inject('pageOptions')! as any).share
 const options = reactive({
   backToTop: false,
@@ -162,19 +163,25 @@ const processedMessageList = computed(() => {
           <!-- v-model:meta="msgMeta[ind]" -->
           <!-- {{ processedMessageList }} -->
           <ChatItem
-            v-for="(message, index) in processedMessageList" :key="message.id" v-model:item="messagesModel.messages[message.$index]"
-            :index="index" :ind="message.$index"
+            v-for="(message, index) in processedMessageList" :key="message.id"
+            v-model:item="messagesModel.messages[message.$index]" :index="index" :ind="message.$index"
             :total="processedMessageList.length" :share="options.share.enable" :select="options.share.selected"
-            @select="handleSelectShareItem" @retry="handleRetry(message.$index, $event)" @suggest="handleSuggest($event)"
+            @select="handleSelectShareItem" @retry="handleRetry(message.$index, $event)"
+            @suggest="handleSuggest($event)"
           />
 
           <!-- 统一 error / warning mention -->
-          <!-- <div v-if="!options.share.enable" class="TrChat-RateLimit">
-            为了避免恶意使用，你需要登录来解锁聊天限制！
-          </div> -->
-        </div>
+          <!-- v-if="!options.share.enable" -->
 
-        <br v-for="i in 10" :key="i">
+          <br v-for="i in 10" :key="i">
+
+          <div v-if="viewMode" class="ThChat-RateLimit">
+            <span v-if="viewMode">
+              此对话为分享对话，你无法做任何修改。
+            </span>
+            <!-- 为了避免恶意使用，你需要登录来解锁聊天限制！ -->
+          </div>
+        </div>
       </el-scrollbar>
 
       <div class="ThChat-BackToBottom" @click="handleBackToBottom()">
@@ -223,21 +230,18 @@ const processedMessageList = computed(() => {
   transition: 0.35s cubic-bezier(0.785, 0.135, 0.15, 0.86);
 }
 
-.TrChat-RateLimit {
+.ThChat-RateLimit {
   &::before {
+    z-index: -1;
     content: '';
     position: absolute;
 
     left: -10%;
     width: 120%;
 
-    height: 50px;
+    height: 20px;
 
-    background: linear-gradient(
-      to bottom,
-      transparent 0%,
-      var(--el-bg-color-page)
-    );
+    background: linear-gradient(to bottom, transparent 0%, var(--el-bg-color));
   }
 
   z-index: 3;

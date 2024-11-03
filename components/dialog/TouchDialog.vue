@@ -2,6 +2,7 @@
 const props = defineProps<{
   modelValue: boolean
   loading: boolean
+  footer?: boolean
 }>()
 
 const emits = defineEmits(['update:modelValue'])
@@ -22,7 +23,7 @@ async function handleClickOutside() {
 </script>
 
 <template>
-  <teleport to="body">
+  <teleport to="#teleports">
     <div
       :class="{ visible, forbidden: dialogOptions.forbidden, loading }" class="TouchDialog"
       @click="handleClickOutside"
@@ -40,7 +41,7 @@ async function handleClickOutside() {
           <slot />
         </div>
 
-        <div class="TouchDialog-Footer">
+        <div v-if="footer || footer === undefined" class="TouchDialog-Footer">
           <slot name="Footer" />
         </div>
       </div>
@@ -128,13 +129,13 @@ async function handleClickOutside() {
     }
 
     .TouchDialog-Title {
-      padding: 0.5rem 0;
+      padding: 1.5rem;
       display: flex;
 
       gap: 0.5rem;
       align-items: center;
 
-      font-size: 22px;
+      font-size: 20px;
 
       width: 100%;
 
@@ -142,7 +143,7 @@ async function handleClickOutside() {
     }
 
     .TouchDialog-Content {
-      padding: 0.5rem 0;
+      padding: 1rem;
       display: flex;
 
       flex-direction: column;
@@ -154,7 +155,7 @@ async function handleClickOutside() {
 
     .TouchDialog-Footer {
       display: flex;
-      padding: 0.5rem 0;
+      padding: 1rem;
 
       width: 100%;
 
@@ -171,8 +172,6 @@ async function handleClickOutside() {
     transition: 0.35s 0.25s;
     transform: translate(-50%, -50%) scale(1);
   }
-
-  padding: 1rem;
 
   max-height: calc(100% - 48px);
   width: auto;
@@ -249,6 +248,6 @@ async function handleClickOutside() {
 
   border-radius: 50%;
   transform: translate(50%, -50%);
-  background-color: var(--el-bg-color-page);
+  background-color: var(--el-bg-color);
 }
 </style>

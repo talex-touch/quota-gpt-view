@@ -20,4 +20,22 @@ export default {
       keyword: '',
     }) as Promise<IPageResponse<any>>
   },
+  getPromptDetail(id: string) {
+    return endHttp.get(`aigc/prompts/detail/${id}`)
+  },
+  createShareMessage(chat_id: string) {
+    return endHttp.post(`aigc/conversation/share/${chat_id}`)
+  },
+  getShareMessage(uuid: string) {
+    return endHttp.get(`aigc/conversation/share/${uuid}`)
+  },
+  getChatShareMessage(chat_id: string) {
+    return endHttp.get(`aigc/conversation/share_chat/${chat_id}`)
+  },
+  getUserShareList(page: number, pageSize: number) {
+    return endHttp.get('aigc/conversation/share_list', {
+      page,
+      pageSize,
+    })
+  },
 }
