@@ -14,13 +14,100 @@
  * limitations under the License.
  */
 import { createApp, h, ref, render } from 'vue'
-import type { TipType } from '../enum'
+import { TipType } from '../enum'
 import type { MentionTip } from '.'
 import { mentionManager } from '.'
 import WikiTip from '~/components/message/WikiTip.vue'
 import TalexTip from '~/components/message/TalexTip.vue'
 
 import WikiDialogTip from '~/components/message/WikiDialogTip.vue'
+import TapTip from '~/components/message/TapTip.vue'
+
+export interface ITip {
+  stay: number
+  type: TipType
+  loading: boolean
+  message: string
+}
+
+/**
+ * 仅当 loading 结束的时候，stay才会开始计时，如果 stay 期间 loading 状态改变，stay将会重置。
+ */
+export function createTapTip(message: string, options: {
+  stay?: number
+  type?: TipType
+  loading?: boolean
+} = {}) {
+  options.stay = options.stay ?? 2200
+  options.type = options.type ?? TipType.DEFAULT
+
+  const _options = reactive<ITip>({ stay: 0, type: TipType.DEFAULT, loading: false, ...options, message })
+
+  const root: HTMLDivElement = document.createElement('div')
+
+  root.classList.add('transition-cubic')
+
+  root.style.zIndex = '1000'
+  root.style.position = 'absolute'
+  root.style.bottom = `max(5%, 1rem)`
+  root.style.left = '50%'
+  root.style.transform = 'translate(-50%, 500%)'
+
+  if (_options.loading)
+    _options.stay = -1
+
+  const close = async (dispose: boolean = true) => {
+    root.style.opacity = '0'
+    root.style.transform = 'translate(-50%, 500%)'
+
+    if (dispose) {
+      await sleep(500)
+
+      render(null, root)
+
+      document.body.removeChild(root)
+    }
+  }
+
+  const vNode = h(TapTip, {
+    tip: _options,
+    close,
+  })
+
+  const $obj = {
+    setMessage(message: string) {
+      _options.message = message
+
+      return $obj
+    },
+    setType(type: TipType) {
+      _options.type = type
+
+      return $obj
+    },
+    setLoading(loading: boolean) {
+      _options.loading = loading
+
+      return $obj
+    },
+    setStay(stay: number) {
+      _options.stay = stay
+
+      return $obj
+    },
+  }
+
+  document.body.appendChild(root)
+  render(vNode, root)
+
+  return {
+    show() {
+      root.style.transform = 'translate(-50%, 0%)'
+    },
+    close,
+    ...$obj,
+  }
+}
 
 export async function forWikiTip(message: string, stay: number = 2200, type: TipType = TipType.DEFAULT, loading: boolean = false, left: boolean = false) {
   const root: HTMLDivElement = document.createElement('div')

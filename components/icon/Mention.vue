@@ -14,44 +14,25 @@
   - limitations under the License.
   -->
 
+<script name="Mention" lang="ts" setup>
+const props = defineProps(['mode'])
+</script>
+
 <template>
-  <div class="Mention-Icon-Wrapper" :class="{
-    'normal': mode === null,
-  'warning': mode === TipType.WARNING,
-  'info': mode === TipType.INFO,
-   'error': mode === TipType.ERROR,
-    'success': mode === TipType.SUCCESS,
-     'loading': mode === 'loading' }">
+  <div
+    class="Mention-Icon-Wrapper" :class="{
+      normal: mode === null,
+      warning: mode === TipType.WARNING,
+      info: mode === TipType.INFO,
+      error: mode === TipType.ERROR,
+      success: mode === TipType.SUCCESS,
+      loading: mode === 'loading' }"
+  >
     <div class="Mention-Icon-Container transition-cubic">
-      <div class="Mention-Icon-Floater transition-cubic"></div>
+      <div class="Mention-Icon-Floater transition-cubic" />
     </div>
   </div>
 </template>
-
-<script setup>
-
-import { debounceRef } from '~/plugins/Common'
-import { TipType } from '~/plugins/addon/Tipper.ts'
-import { toRef } from 'vue'
-
-const props = defineProps({
-  mode: {
-    type: Object ,//TipType | 'loading',
-    // validator(value) {
-    //   return ['success', 'warning', 'error', 'loading', 'normal'].includes(value)
-    // },
-    default: null
-  }
-})
-
-const tMode = debounceRef(toRef(props, 'mode'), 200)
-</script>
-
-<script>
-export default {
-  name: "Mention"
-}
-</script>
 
 <style lang="scss" scoped>
 .Mention-Icon-Wrapper.normal {
@@ -68,7 +49,7 @@ export default {
 
     position: relative;
     &:before {
-      content: "";
+      content: '';
       position: absolute;
 
       top: 0;
@@ -81,8 +62,9 @@ export default {
       background-color: var(--bg-color, var(--el-text-color-regular));
     }
     .Mention-Icon-Floater {
-      &:before, &:after {
-        content: "";
+      &:before,
+      &:after {
+        content: '';
         position: absolute;
 
         left: 50%;
@@ -93,7 +75,7 @@ export default {
 
         border-radius: 8px;
         transform: translate(-50%, -50%) rotate(0deg);
-        transition: .15s;
+        transition: 0.15s;
         background-color: var(--bg-color, var(--el-text-color-regular));
       }
 
@@ -118,18 +100,16 @@ export default {
 
   width: 36px;
   height: 36px;
-
 }
 
 .Mention-Icon-Wrapper.success .Mention-Icon-Container {
-
   .Mention-Icon-Floater {
     &:before {
       left: 0;
       top: 0;
       width: 30%;
       height: 130%;
-      transition: .25s .05s;
+      transition: 0.25s 0.05s;
       transform: translate(-50%, -10%) rotate(-45deg);
     }
 
@@ -139,7 +119,7 @@ export default {
       width: 30%;
       height: 200%;
 
-      transition: .25s .1s;
+      transition: 0.25s 0.1s;
       transform: translate(300%, -40%) rotate(45deg);
     }
     top: 60%;
@@ -148,27 +128,25 @@ export default {
     transform: translate(-50%, -50%);
   }
   &:before {
-    animation: floater-wave .65s forwards;
+    animation: floater-wave 0.65s forwards;
   }
   //animation: rotate .85s linear infinite;
   --bg-color: var(--el-color-success);
-
 }
 
 .Mention-Icon-Wrapper.error .Mention-Icon-Container {
-
   .Mention-Icon-Floater {
-    &:before, &:after {
+    &:before,
+    &:after {
       left: 50%;
       top: 50%;
       width: 30%;
       height: 200%;
-      transition: .25s .1s;
+      transition: 0.25s 0.1s;
       transform: translate(-50%, -65%) rotate(-45deg);
     }
 
     &:after {
-
       transform: translate(-50%, -65%) rotate(45deg);
     }
     top: 60%;
@@ -177,22 +155,21 @@ export default {
     transform: translate(-50%, -50%);
   }
   &:before {
-    animation: floater-wave .65s forwards;
+    animation: floater-wave 0.65s forwards;
   }
   //animation: rotate .85s linear infinite;
   --bg-color: var(--el-color-error);
-
 }
 
 .Mention-Icon-Wrapper.warning .Mention-Icon-Container {
-
   .Mention-Icon-Floater {
-    &:before, &:after {
+    &:before,
+    &:after {
       left: 50%;
       top: 50%;
       width: 30%;
       height: 150%;
-      transition: .25s .1s;
+      transition: 0.25s 0.1s;
       transform: translate(-50%, -100%) rotate(0);
     }
 
@@ -207,22 +184,21 @@ export default {
     transform: translate(-50%, -50%);
   }
   &:before {
-    animation: floater-wave .65s forwards;
+    animation: floater-wave 0.65s forwards;
   }
   //animation: rotate .85s linear infinite;
   --bg-color: var(--el-color-warning);
-
 }
 
 .Mention-Icon-Wrapper.info .Mention-Icon-Container {
-
   .Mention-Icon-Floater {
-    &:before, &:after {
+    &:before,
+    &:after {
       left: 50%;
       top: 50%;
       width: 30%;
       height: 150%;
-      transition: .25s .1s;
+      transition: 0.25s 0.1s;
       transform: translate(-50%, -100%) rotate(0);
     }
 
@@ -237,57 +213,42 @@ export default {
     transform: translate(-50%, -50%);
   }
   &:before {
-    animation: floater-wave .65s forwards;
+    animation: floater-wave 0.65s forwards;
   }
   //animation: rotate .85s linear infinite;
   --bg-color: var(--el-color-primary);
-
 }
 
 .Mention-Icon-Wrapper.loading .Mention-Icon-Container {
-
   &:before {
-    animation: floater-wave .65s infinite;
+    animation: floater-wave 0.65s infinite;
   }
   .Mention-Icon-Floater {
     background-color: var(--bg-color, var(--el-text-color-regular));
   }
-  animation: rotate .85s linear infinite;
+  animation: rotate 0.85s linear infinite;
   --bg-color: var(--el-text-color-regular);
-
 }
 
 @keyframes floater-wave {
-
   from {
-
     transform: scale(0);
     opacity: 1;
-
   }
 
   to {
-
     transform: scale(1);
-    opacity: .45;
-
+    opacity: 0.45;
   }
-
 }
 
 @keyframes rotate {
-
   0% {
-
     transform: rotate(0deg);
-
   }
 
   100% {
-
     transform: rotate(360deg);
-
   }
-
 }
 </style>
