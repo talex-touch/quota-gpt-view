@@ -1,5 +1,10 @@
 <script setup lang="ts">
 import ItemModelSelector from '../chat/addon/ItemModelSelector.vue'
+
+const pageOptions = inject<any>('appOptions')!
+function openPersonalSetting() {
+  pageOptions.model.personal = 'index'
+}
 </script>
 
 <template>
@@ -27,6 +32,10 @@ import ItemModelSelector from '../chat/addon/ItemModelSelector.vue'
           <p class="desc">
             {{ userStore.remark || '酷酷的人没有签名' }}
           </p>
+        </div>
+
+        <div class="CmsUser-Fav" @click="openPersonalSetting">
+          <div i-carbon:settings />
         </div>
       </div>
     </div>
@@ -65,9 +74,21 @@ import ItemModelSelector from '../chat/addon/ItemModelSelector.vue'
 }
 
 .CmsUser-Header {
+  .CmsUser-Fav {
+    position: absolute;
+
+    right: 1.5rem;
+
+    color: #fff;
+    font-weight: 600;
+
+    cursor: pointer;
+    // font-size: 1.25rem;
+  }
+
   .CmsUser-Content {
     z-index: 1;
-    padding: 1rem 0.5rem;
+    padding: 1rem 1.5rem;
     display: flex;
 
     gap: 0.5rem;
