@@ -129,7 +129,7 @@ const rules = reactive<FormRules<PromptEntityDto>>({
   ],
   content: [
     { required: true, message: '请输入模板内容', trigger: 'blur' },
-    { min: 150, max: 512, message: '模板内容需要在 150-512 位之间', trigger: 'blur' },
+    { min: 200, max: 512, message: '模板内容需要在 150-512 位之间', trigger: 'blur' },
   ],
   avatar: [{ required: true, message: '请上传头像', trigger: 'blur' }],
   description: [

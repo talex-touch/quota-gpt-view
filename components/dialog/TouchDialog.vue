@@ -41,7 +41,7 @@ async function handleClickOutside() {
           <slot />
         </div>
 
-        <div v-if="footer || footer === undefined" class="TouchDialog-Footer">
+        <div v-if="footer" class="TouchDialog-Footer">
           <slot name="Footer" />
         </div>
       </div>
