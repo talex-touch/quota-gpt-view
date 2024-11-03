@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { FormInstance, FormRules } from 'element-plus'
 import StandardPrompt from './standard-prompt.txt?raw'
+import ImageUpload from '~/components/personal/ImageUpload.vue'
 import UserAvatar from '~/components/personal/UserAvatar.vue'
 import UserUploadAvatar from '~/components/personal/UserUploadAvatar.vue'
 import RenderContentOld from '~/components/render/RenderContent.vue'
@@ -94,43 +95,9 @@ const dialogOptions = reactive<{
   loading: false,
   meta: {
     stashContent: '',
-    polish: false,
-    translation: false,
     dialog: false,
   },
 })
-
-// async function polishContent(type: number) {
-//   if (!dialogOptions.data?.content)
-//     return
-
-// const completion = $completion.v1.createCompletion(
-//   $completion.v1.createEmptyHistoryWithInput(dialogOptions.data?.content),
-// )
-
-// completion.registerHandler({
-//   onCompletionStart() {
-//     dialogOptions.loading = true
-//   },
-//   onCompletion() {
-//     dialogOptions.meta.stashContent = completion.tempMessage.content
-
-//     return false
-//   },
-//   onReqCompleted() {
-//     if (type === 1)
-//       dialogOptions.meta.polish = true
-//     else if (type === 2)
-//       dialogOptions.meta.translation = true
-
-//     dialogOptions.loading = false
-//   },
-// })
-
-// await completion.send({
-//   generateSummary: type + 1,
-// })
-// }
 
 function handleDialog(data: PromptEntityDto | null, mode: 'edit' | 'read' | 'new') {
   dialogOptions.mode = mode
@@ -688,9 +655,8 @@ const statusOptions = [
           </div>
 
           <el-pagination
-            v-if="prompts?.meta"
-            v-model:current-page="prompts.meta.currentPage" v-model:page-size="prompts.meta.itemsPerPage"
-            :disabled="formLoading" :page-sizes="[15, 30, 50, 100]"
+            v-if="prompts?.meta" v-model:current-page="prompts.meta.currentPage"
+            v-model:page-size="prompts.meta.itemsPerPage" :disabled="formLoading" :page-sizes="[15, 30, 50, 100]"
             layout="total, sizes, prev, pager, next, jumper" :total="prompts.meta.totalItems" @change="fetchData"
           />
         </div>
@@ -713,7 +679,7 @@ const statusOptions = [
           :model="dialogOptions.data" :rules="rules" label-width="auto" status-icon
         >
           <el-form-item label="模板头像" prop="avatar">
-            <UserUploadAvatar
+            <ImageUpload
               v-model="dialogOptions.data.avatar!"
               :disabled="dialogOptions.loading || dialogOptions.mode === 'read'"
             />
@@ -739,10 +705,7 @@ const statusOptions = [
             <el-input v-model="dialogOptions.data.title" :maxlength="255" :disabled="dialogOptions.mode !== 'new'" />
           </el-form-item>
           <el-form-item label="模板介绍" prop="description">
-            <el-input
-              v-model="dialogOptions.data.description" :maxlength="255"
-              type="textarea"
-            />
+            <el-input v-model="dialogOptions.data.description" :maxlength="255" type="textarea" />
           </el-form-item>
           <el-form-item label="模板关键词">
             <el-select
@@ -771,25 +734,12 @@ const statusOptions = [
           </el-form-item>
           <el-form-item label="模板内容" prop="content">
             <el-input
-              v-model="dialogOptions.data.content" show-word-limit :maxlength="1024"
+              v-model="dialogOptions.data.content" show-word-limit :maxlength="512"
               :autosize="{ minRows: 5, maxRows: 30 }" type="textarea"
             />
           </el-form-item>
           <el-form-item v-if="dialogOptions.mode === 'read'" label="创建者" prop="content">
             <PersonalNormalUser :data="dialogOptions.data.creator" />
-          </el-form-item>
-          <el-form-item v-if="dialogOptions.mode !== 'read'" label="模板须知" prop="agreement">
-            <ul>
-              <li>1.当您完成攥写后请依次点击"润色"，"翻译"按钮</li>
-              <li>2.系统AI会自动将您的模板进行润色翻译调整</li>
-              <li>3.如果您不满意效果可以进行微调</li>
-              <li>4.请您仔细核验AI生成的内容，如果存在违规会自动审核失败</li>
-              <li>5.如果您发现A生成的内容违规，请及时联系管理员</li>
-              <li>
-                6.您可以在模板中穿插以下变量：{{ `\{\{ history \}\}` }},
-                {{ `\{\{ input \}\}` }}, {{ `\{\{ memory \}\}` }}
-              </li>
-            </ul>
           </el-form-item>
           <el-form-item v-if="dialogOptions.mode === 'read'" label="操作记录">
             <el-timeline style="max-width: 600px">
@@ -820,41 +770,15 @@ const statusOptions = [
               </el-timeline-item>
             </el-timeline>
           </el-form-item>
-          <el-form-item v-if="dialogOptions.mode !== 'read'" label="操作按钮">
-            <!-- <el-button
-              :loading="dialogOptions.loading" :disabled="dialogOptions.data.content!.length < 200"
-              @click="polishContent(0)"
-            >
-              润色
-            </el-button>
-            <el-button
-              :loading="dialogOptions.loading" :disabled="dialogOptions.data.content!.length < 200"
-              @click="polishContent(1)"
-            >
-              翻译
-            </el-button> -->
-            <el-button
-              :loading="dialogOptions.loading" :disabled="!dialogOptions.meta.stashContent!.length"
-              @click="dialogOptions.data.content = dialogOptions.meta.stashContent!"
-            >
-              接受
-            </el-button>
-          </el-form-item>
-          <el-form-item v-if="dialogOptions.mode !== 'read'" label="翻译润色" prop="content">
-            <el-input
-              v-model="dialogOptions.meta.stashContent" :disabled="true" show-word-limit :maxlength="1024"
-              :autosize="{ minRows: 5, maxRows: 30 }" type="textarea"
-            />
-          </el-form-item>
 
           <el-form-item v-if="dialogOptions.mode !== 'read'" label="提交须知" prop="agreement">
             <ul>
-              <li>1.您的提示词需要为英文格式</li>
+              <li>1.您的提示词需要为标准格式</li>
               <li>2.您的提示词需要保证清晰明了，不能包含任何恶意内容</li>
               <li>3.提示词必须至少200字以保证模板效果</li>
               <li>4.请您在提交之前仔细核验变量</li>
               <li>
-                5.提交后，您的模板将会进入审核流程，审核通过后，您的模板将会在模板市场中展示
+                5.提交后，您的模板将会进入审核流程，审核通过后，您的模板将会在角色市场中展示
               </li>
             </ul>
           </el-form-item>

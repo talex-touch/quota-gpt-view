@@ -294,6 +294,8 @@ span.premium-end {
 }
 
 .el-message {
+  z-index: 10000 !important;
+
   border-radius: 16px;
 }
 
