@@ -227,7 +227,7 @@ const props = defineProps(['mode'])
     background-color: var(--bg-color, var(--el-text-color-regular));
   }
   animation: rotate 0.85s linear infinite;
-  --bg-color: var(--el-text-color-regular);
+  // --bg-color: var(--el-text-color-regular);
 }
 
 @keyframes floater-wave {

@@ -74,7 +74,6 @@ const codeData = useLocalStorage('code-data', {
   data: {},
 })
 const data = reactive({
-  mode: 'code',
   account: '',
   code: '',
   agreement: true,
@@ -91,30 +90,23 @@ const smsOptions = reactive({
 })
 
 async function handleSendCode() {
-  data.mode = 'code'
+  const tapTip = createTapTip('正在发送短信验证码')
+
+  tapTip.setLoading(true).setType(TipType.INFO)
+  tapTip.show()
+
+  await sleep(600)
+
   if (!data.agreement) {
-    ElMessage({
-      message: '请先同意协议！',
-      grouping: true,
-      type: 'info',
-      plain: true,
-    })
+    tapTip.setLoading(false).setMessage('请先同意协议！').setType(TipType.WARNING)
     return
   }
 
   const phone = data.account.replaceAll(' ', '')
   if (phone.length !== 11) {
-    ElMessage({
-      message: '请输入正确的手机号！',
-      grouping: true,
-      type: 'error',
-      plain: true,
-    })
+    tapTip.setLoading(false).setMessage('请输入正确的手机号！').setType(TipType.WARNING)
     return
   }
-
-  // const button = document.getElementById('captcha-button')
-  // button?.click()
 
   if (smsOptions.disabled)
     return
@@ -122,72 +114,49 @@ async function handleSendCode() {
   smsOptions.loading = true
 
   try {
-    const res = await sendSMSCode(data.account.replaceAll(' ', ''), '')
-    const result = await res.json()
+    const res = await sendSMSCode(data.account.replaceAll(' ', ''))
 
-    if (result.message === 'sms-sent-err') {
-      ElMessage({
-        message: '无法向目标手机号发送消息，请稍后重试！',
-        grouping: true,
-        type: 'error',
-        plain: true,
-      })
+    if (res.message === 'sms-sent-err') {
+      tapTip.setLoading(false).setMessage('无法向目标手机号发送消息').setType(TipType.ERROR)
     }
-    else if (result.code === 200) {
+    else if (res.code === 200) {
       smsOptions.lastSent = Date.now()
 
       refreshSmsTitle()
 
-      ElMessage({
-        message: '发送成功！',
-        grouping: true,
-        type: 'success',
-        plain: true,
-      })
+      tapTip.setLoading(false).setMessage('验证码发送成功!').setType(TipType.SUCCESS)
     }
   }
   catch (e: any) {
     console.error(e)
 
-    ElMessage({
-      message: `发送失败(${e.message || 'error'})！`,
-      grouping: true,
-      type: 'error',
-      plain: true,
-    })
+    tapTip.setLoading(false).setMessage(`发送失败(${e.message || 'error'})！`).setType(TipType.ERROR)
   }
+
+  smsOptions.loading = false
 }
 
 async function handleLogin() {
-  data.mode = 'login'
+  const tapTip = createTapTip('正在准备登录')
+
+  tapTip.setLoading(true).setType(TipType.INFO)
+  tapTip.show()
+
+  await sleep(600)
+
   if (!data.agreement) {
-    ElMessage({
-      message: '请先同意协议！',
-      grouping: true,
-      type: 'info',
-      plain: true,
-    })
+    tapTip.setLoading(false).setMessage('请先同意协议！').setType(TipType.WARNING)
     return
   }
 
   const phone = data.account.replaceAll(' ', '')
   if (phone.length !== 11) {
-    ElMessage({
-      message: '请输入正确的手机号！',
-      grouping: true,
-      type: 'error',
-      plain: true,
-    })
+    tapTip.setLoading(false).setMessage('请输入正确的手机号！').setType(TipType.WARNING)
     return
   }
 
   if (+data.code < 100000 || +data.code > 999999) {
-    ElMessage({
-      message: '请输入正确的验证码！',
-      grouping: true,
-      type: 'error',
-      plain: true,
-    })
+    tapTip.setLoading(false).setMessage('请输入正确的验证码！').setType(TipType.WARNING)
     return
   }
 
@@ -206,55 +175,34 @@ async function handleLogin() {
     const state = (codeStatus.value !== 4 || codeData.value.expired) ? undefined : (codeData.value.data as any)?.loginCode
 
     const res = await useSMSLogin(data.account.replaceAll(' ', ''), data.code, '', state)
-    const result = await res.json()
 
-    if (result.code === 1003) {
-      ElMessage({
-        message: '短信验证码有误！',
-        grouping: true,
-        type: 'error',
-        plain: true,
-      })
+    if (res.code === 1003) {
+      tapTip.setLoading(false).setMessage('短信验证码有误！').setType(TipType.ERROR)
     }
-    else if (result.code === 200) {
-      if (!result.data) {
-        ElMessage({
-          message: result.message,
-          grouping: true,
-          type: 'error',
-          plain: true,
-        })
+    else if (res.code === 200) {
+      if (!res.data) {
+        tapTip.setLoading(false).setMessage(res.message).setType(TipType.ERROR)
         smsOptions.smsLogin = false
       }
       else {
+        localStorage.removeItem('code-data')
+
+        $handleUserLogin(res.data)
+
+        tapTip.setLoading(false).setMessage('登录成功！').setType(TipType.SUCCESS)
+
         setTimeout(() => {
-          localStorage.removeItem('code-data')
-
-          $handleUserLogin(result.data)
-
-          ElMessage({
-            message: '登录成功！',
-            grouping: true,
-            type: 'success',
-            plain: true,
-          })
-
           show.value = false
-        }, 200)
+        }, 1200)
       }
     }
 
-    console.error(result)
+    console.error(res)
   }
   catch (e: any) {
     console.error(e)
 
-    ElMessage({
-      message: `发送失败(${e.message || 'error'})！`,
-      grouping: true,
-      type: 'error',
-      plain: true,
-    })
+    tapTip.setLoading(false).setMessage(`发送失败(${e.message || 'error'})！`).setType(TipType.ERROR)
   }
 }
 
@@ -277,147 +225,6 @@ watch(() => show.value, (val) => {
 })
 
 onMounted(async () => {
-  // newCaptcha(CaptchaSceneId.Auth, '#captcha-element', '#captcha-button', {
-  //   captchaVerifyCallback: async (param: string) => {
-  //     const _res = {
-  //       captchaResult: false, // 验证码验证是否通过，boolean类型，必选 result.captchaVerifyResult
-  //       bizResult: false, // 业务验证是否通过，boolean类型，可选；若为无业务验证结果的场景，bizResult可以为空
-  //     }
-
-  //     if (data.mode === 'code') {
-  //       if (smsOptions.disabled) {
-  //         _res.captchaResult = true
-
-  //         return _res
-  //       }
-  //       smsOptions.loading = true
-
-  //       try {
-  //         const res = await sendSMSCode(data.account.replaceAll(' ', ''), param)
-  //         const result = await res.json()
-  //         if (result.code !== 1002)
-  //           _res.captchaResult = true
-
-  //         if (result.message === 'sms-sent-err') {
-  //           ElMessage({
-  //             message: '无法向目标手机号发送消息，请稍后重试！',
-  //             grouping: true,
-  //             type: 'error',
-  //             plain: true,
-  //           })
-  //         }
-  //         else if (result.code === 200) {
-  //           smsOptions.lastSent = Date.now()
-
-  //           refreshSmsTitle()
-
-  //           ElMessage({
-  //             message: '发送成功！',
-  //             grouping: true,
-  //             type: 'success',
-  //             plain: true,
-  //           })
-  //         }
-  //       }
-  //       catch (e: any) {
-  //         console.error(e)
-
-  //         ElMessage({
-  //           message: `发送失败(${e.message || 'error'})！`,
-  //           grouping: true,
-  //           type: 'error',
-  //           plain: true,
-  //         })
-  //       }
-
-  //       smsOptions.loading = false
-  //     }
-  //     else {
-  //       try {
-  //         smsOptions.smsLogin = true
-  //         const state = (codeStatus.value !== 4 || codeData.value.expired) ? undefined : (codeData.value.data as any)?.loginCode
-
-  //         const res = await useSMSLogin(data.account.replaceAll(' ', ''), data.code, param, state)
-  //         const result = await res.json()
-  //         if (result.code !== 1002)
-  //           _res.captchaResult = true
-
-  //         if (result.code === 1003) {
-  //           ElMessage({
-  //             message: '短信验证码有误！',
-  //             grouping: true,
-  //             type: 'error',
-  //             plain: true,
-  //           })
-  //         }
-  //         else { _res.bizResult = true }
-
-  //         if (result.code === 200) {
-  //           if (!result.data) {
-  //             ElMessage({
-  //               message: result.message,
-  //               grouping: true,
-  //               type: 'error',
-  //               plain: true,
-  //             })
-  //             smsOptions.smsLogin = false
-  //           }
-  //           else {
-  //             setTimeout(() => {
-  //               localStorage.removeItem('code-data')
-
-  //               $handleUserLogin(result.data)
-
-  //               ElMessage({
-  //                 message: '登录成功！',
-  //                 grouping: true,
-  //                 type: 'success',
-  //                 plain: true,
-  //               })
-
-  //               show.value = false
-  //             }, 200)
-  //           }
-  //         }
-
-  //         console.error(result)
-  //       }
-  //       catch (e: any) {
-  //         console.error(e)
-
-  //         ElMessage({
-  //           message: `发送失败(${e.message || 'error'})！`,
-  //           grouping: true,
-  //           type: 'error',
-  //           plain: true,
-  //         })
-  //       }
-  //     }
-
-  //     return _res
-  //   },
-  //   onBizResultCallback: () => void 0,
-  // })
-
-  setTimeout(async () => {
-    const tapTip = createTapTip('正在登陆中，请稍后...')
-    tapTip.show()
-
-    await sleep(2000)
-
-    tapTip.setLoading(true)
-    tapTip.setType(TipType.WARNING)
-
-    await sleep(3200)
-
-    tapTip.setMessage('无法与目标服务器通信。')
-    tapTip.setType(TipType.ERROR)
-
-    await sleep(500)
-
-    tapTip.setLoading(false)
-  }, 300)
-
   if (document.body.classList.contains('mobile'))
     return
 

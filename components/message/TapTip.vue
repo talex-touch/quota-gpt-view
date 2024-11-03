@@ -13,10 +13,12 @@ const shade = ref(false)
 const msg = ref('')
 
 watchEffect(async () => {
+  const content = props.tip.message
+
   shade.value = true
 
   await sleep(100)
-  msg.value = props.tip.message
+  msg.value = content
   await sleep(300)
 
   shade.value = false
@@ -24,8 +26,6 @@ watchEffect(async () => {
 
 let timer: any
 async function stayTimer(time: number) {
-  console.log('time', time, props.tip.loading)
-
   clearTimeout(timer)
 
   if (time <= 0)
@@ -39,12 +39,8 @@ async function stayTimer(time: number) {
   }, time)
 }
 
-console.log('1')
-
 watchEffect(() => {
   const { stay, loading } = props.tip
-
-  console.log('we', stay, loading)
 
   if (stay > 0 && !loading)
     stayTimer(stay)
@@ -64,9 +60,9 @@ const type = computed(() => props.tip.type)
       'text-shade': shade,
     }"
   >
-    <span>{{ msg }}</span>
+    {{ msg }}
     <div class="TapTip-Icon-Wrapper">
-      <Mention :mode="type" />
+      <Mention :mode="tip.loading ? 'loading' : type" />
     </div>
   </div>
 </template>
@@ -74,17 +70,17 @@ const type = computed(() => props.tip.type)
 <style lang="scss">
 @keyframes whole-shade {
   0% {
-    opacity: 1;
+    filter: blur(0px);
     transform: scale(1);
   }
 
   50% {
-    opacity: 0;
+    filter: blur(10px);
     transform: scale(0.75);
   }
 
   100% {
-    opacity: 1;
+    filter: blur(0px);
     transform: scale(1);
   }
 }
@@ -92,22 +88,22 @@ const type = computed(() => props.tip.type)
 @keyframes text-shade {
   0% {
     opacity: 1;
-    transform: translate(-17px, -50%) translateX(0);
+    transform: translate(0, -50%) translateX(0);
   }
 
   25% {
     opacity: 0;
-    transform: translate(-17px, -50%) translateX(5px);
+    transform: translate(0, -50%) translateX(5px);
   }
 
   75% {
     opacity: 0;
-    transform: translate(-17px, -50%) translateX(-5px);
+    transform: translate(0, -50%) translateX(-5px);
   }
 
   100% {
     opacity: 1;
-    transform: translate(-17px, -50%) translateX(0);
+    transform: translate(0, -50%) translateX(0);
   }
 }
 
@@ -181,6 +177,8 @@ const type = computed(() => props.tip.type)
   transition:
     box-shadow 0.5s,
     0.25s;
+
+  --bg-color: --theme-color;
 }
 
 .TapTip.text-shade {
@@ -188,7 +186,7 @@ const type = computed(() => props.tip.type)
     animation: text-shade 0.5s;
   }
 
-  animation: whole-shade 0.5s 0.1s;
+  animation: whole-shade 0.1s 0.05s;
 }
 
 .success-tip {

@@ -33,7 +33,7 @@ export interface ITip {
 /**
  * 仅当 loading 结束的时候，stay才会开始计时，如果 stay 期间 loading 状态改变，stay将会重置。
  */
-export function createTapTip(message: string, options: {
+export function createTapTip(message: string = '', options: {
   stay?: number
   type?: TipType
   loading?: boolean
@@ -45,11 +45,19 @@ export function createTapTip(message: string, options: {
 
   const root: HTMLDivElement = document.createElement('div')
 
+  let index: number = 0
+
+  while (document.getElementById(`tap-tip-${index}`))
+
+    index++
+
+  root.id = `tap-tip-${index}`
+
   root.classList.add('transition-cubic')
 
   root.style.zIndex = '1000'
   root.style.position = 'absolute'
-  root.style.bottom = `max(5%, 1rem)`
+  root.style.bottom = `calc(max(5%, 1rem) + ${index * 64}px)`
   root.style.left = '50%'
   root.style.transform = 'translate(-50%, 500%)'
 
@@ -95,18 +103,16 @@ export function createTapTip(message: string, options: {
 
       return $obj
     },
+    show() {
+      root.style.transform = 'translate(-50%, 0%)'
+    },
+    close,
   }
 
   document.body.appendChild(root)
   render(vNode, root)
 
-  return {
-    show() {
-      root.style.transform = 'translate(-50%, 0%)'
-    },
-    close,
-    ...$obj,
-  }
+  return $obj
 }
 
 export async function forWikiTip(message: string, stay: number = 2200, type: TipType = TipType.DEFAULT, loading: boolean = false, left: boolean = false) {

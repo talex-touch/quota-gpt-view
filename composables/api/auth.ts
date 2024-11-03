@@ -1,31 +1,19 @@
 import { endHttp } from './axios'
 import { globalOptions } from '~/constants'
 
-export async function sendSMSCode(phone: string, param: string) {
-  return fetch(`${globalOptions.getEndsUrl()}api/auth/sms_code`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      phone,
-      param,
-    }),
+export async function sendSMSCode(phone: string) {
+  return endHttp.post('auth/sms_code', {
+    phone,
+    param: '',
   })
 }
 
 export async function useSMSLogin(phone: string, code: string, param: string, state?: string) {
-  return fetch(`${globalOptions.getEndsUrl()}api/auth/sms_login`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      code,
-      phone,
-      param,
-      state,
-    }),
+  return endHttp.post('auth/sms_login', {
+    code,
+    phone,
+    state,
+    param: '',
   })
 }
 
