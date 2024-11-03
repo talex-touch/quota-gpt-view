@@ -710,7 +710,7 @@ div.History {
 
       opacity: 0.5;
       filter: blur(18px);
-      background-color: var(--el-bg-color);
+      background-color: var(--el-fill-color);
     }
 
     z-index: 2;

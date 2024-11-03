@@ -796,6 +796,8 @@ onStartTyping(focusInput)
     min-height: 32px;
     overflow: visible;
 
+    // caret-color: var(--theme-color);
+
     resize: none;
     box-sizing: border-box;
     // transition: 0.25s cubic-bezier(0.785, 0.135, 0.15, 0.86);
