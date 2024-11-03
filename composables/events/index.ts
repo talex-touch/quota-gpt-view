@@ -1,4 +1,4 @@
-import type { LogoutType } from './logout'
+import type { LogoutType } from '../logout'
 
 export type IEventHandler = (...args: any[]) => void
 

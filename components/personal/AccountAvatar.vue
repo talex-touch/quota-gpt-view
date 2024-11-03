@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { $event } from '~/composables/events'
-import { LogoutType } from '~/composables/events/logout'
 import { globalOptions } from '~/constants'
 
 const router = useRouter()

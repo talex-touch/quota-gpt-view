@@ -16,7 +16,6 @@
 
 import axios, { type AxiosResponse, type CreateAxiosDefaults } from 'axios'
 import { $event } from '../events'
-import { LogoutType } from '../events/logout'
 import type { IStandardResponse } from './base/index.type'
 import { globalOptions } from '~/constants'
 
@@ -60,22 +59,14 @@ export function genAxios(options: CreateAxiosDefaults) {
           Object.keys(data).forEach(key => formData.append('file', data[key]))
 
           reqConfig.data = formData
-
-          // console.log("File", formData)
         })(reqConfig.data)
       }
 
       if (userStore.value.isLogin)
         reqConfig.headers.Authorization = `Bearer ${userStore.value.token?.accessToken}`
 
-      // if (refreshOptions.pending) {
-      //   return new Promise((resolve, reject) => {
-      //     refreshOptions.queue.push({ resolve, reject, reqConfig })
-      //   })
-      // }
       if (!refreshOptions.pending) {
         if (refreshOptions.queue.length > 0) {
-          console.log('process queue', refreshOptions)
           refreshOptions.queue.forEach((item) => {
             $http(item.reqConfig).then(item.resolve).catch(item.reject)
           })
@@ -108,8 +99,6 @@ export function genAxios(options: CreateAxiosDefaults) {
         // url不包含 renew_token
         if (!config.url?.includes('renew_token')) {
           if (!refreshOptions.pending) {
-            console.log('renew token')
-
             refreshOptions.pending = true
 
             const res: any = await $http({

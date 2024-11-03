@@ -3,3 +3,7 @@ export enum LogoutType {
   USER_LOGOUT,
   UNKNOWN,
 }
+
+export enum TipType {
+  DEFAULT, ERROR, WARNING, INFO, SUCCESS,
+}

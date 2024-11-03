@@ -1,47 +1,24 @@
-<template>
-  <teleport to="body">
-    <div ref="dom" class="WikiMentioner-Wrapper"
-      :class="{ 'info-tip': nowStatus === TipType.INFO,
-        'warn-tip': nowStatus === TipType.WARNING,
-        'error-tip': nowStatus === TipType.ERROR,
-        'success-tip': nowStatus === TipType.SUCCESS }"
-    >
-<!--      <Mention v-if="nowStatus" :mode="nowStatus"/>-->
-<!--      <div class="WikiMentioner-Container">-->
-
-<!--      </div>-->
-    </div>
-  </teleport>
-</template>
-
 <script setup>
-import { computed, onMounted, ref } from 'vue'
-import { sleep } from '~/plugins/Common.ts'
-import { TipType } from '~/plugins/addon/Tipper'
-import Mention from '~/components/common/icon/Mention.vue'
+// import Mention from '~/components/common/icon/Mention.vue'
 
-const props = defineProps( {
-  list: Object, close: Function,
-} )
+const props = defineProps({
+  list: Object,
+  close: Function,
+})
 const dom = ref(null)
 const nowStatus = ref()
 
 // const _type = ref() //computed(() => props.type.value || props.type)
 
 onMounted(async () => {
-
-  while( props.list[0] ) {
+  while (props.list[0])
 
     await mention(props.list.pop())
 
-  }
-
   props.close()
-
 })
 
 async function mention(tip) {
-
   nowStatus.value = tip.type
 
   const el = dom.value
@@ -57,22 +34,18 @@ async function mention(tip) {
 
   await sleep(150)
 
-  for( let c of [...tip.content] ) {
-
+  for (const c of [...tip.content]) {
     el.innerText += c
 
     await sleep(20)
-
   }
 
   await sleep(150)
 
-  if( tip?.emphasis ) {
-
+  if (tip?.emphasis) {
     style.boxShadow = '0 0 4px 2px var(--theme-color)'
 
     await sleep(150)
-
   }
 
   await sleep(tip.time)
@@ -81,12 +54,10 @@ async function mention(tip) {
 
   await sleep(150)
 
-  while( el.innerText ) {
-
+  while (el.innerText) {
     el.innerText = el.innerText.substring(0, el.innerText.length - 1)
 
     await sleep(20)
-
   }
 
   await sleep(150)
@@ -98,21 +69,36 @@ async function mention(tip) {
   style.transform = 'translate(-50%, 0) translateY(100px) scale(0)'
 
   await sleep(200)
-
 }
-
 </script>
 
 <script>
 export default {
-  name: "WikiMentioner"
+  name: 'WikiMentioner',
 }
 </script>
+
+<template>
+  <teleport to="body">
+    <div
+      ref="dom" class="WikiMentioner-Wrapper"
+      :class="{ 'info-tip': nowStatus === TipType.INFO,
+                'warn-tip': nowStatus === TipType.WARNING,
+                'error-tip': nowStatus === TipType.ERROR,
+                'success-tip': nowStatus === TipType.SUCCESS }"
+    >
+      <!--      <Mention v-if="nowStatus" :mode="nowStatus"/> -->
+      <!--      <div class="WikiMentioner-Container"> -->
+
+      <!--      </div> -->
+    </div>
+  </teleport>
+</template>
 
 <style lang="scss" scoped>
 .WikiMentioner-Wrapper {
   &:before {
-    content: "";
+    content: '';
     position: absolute;
 
     left: 0;
@@ -121,12 +107,14 @@ export default {
     width: 100%;
     height: 100%;
 
-    opacity: .45;
+    opacity: 0.45;
     filter: invert(5%);
     border-radius: var(--radius);
     background-color: var(--theme-color, var(--el-text-color-regular));
-    box-shadow: 0 0 1px 2px var(--theme-color, var(--el-text-color-regular)) inset, var(--el-box-shadow-light);
-    transition: .3s cubic-bezier(.25,.8,.25,1);
+    box-shadow:
+      0 0 1px 2px var(--theme-color, var(--el-text-color-regular)) inset,
+      var(--el-box-shadow-light);
+    transition: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   }
   z-index: 10000;
   position: absolute;
@@ -148,30 +136,22 @@ export default {
   border-radius: var(--radius);
   backdrop-filter: saturate(200%) blur(10px);
   transform: translate(-50%, 0) translateY(100px) scale(0);
-  transition: .3s cubic-bezier(.25,.8,.25,1);
+  transition: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .success-tip {
-
   --theme-color: #629168;
-
 }
 
 .info-tip {
-
   --theme-color: #284f90;
-
 }
 
 .warn-tip {
-
   --theme-color: #f0a732;
-
 }
 
 .error-tip {
-
   --theme-color: #d0493c;
-
 }
 </style>

@@ -1,23 +1,5 @@
-<template>
-  <div :message="msg" class="TalexTip-Container"
-       :class="{ 'info-tip': _type === TipType.INFO, left,
-        'warn-tip': _type === TipType.WARNING,
-        'error-tip': _type === TipType.ERROR,
-        'success-tip': _type === TipType.SUCCESS,
-        'loading-tip': loading || _type === 'loading',
-         'text-shade': shade }">
-    {{ msg }}
-    <div class="TalexTip-Icon-Wrapper">
-      <Mention :mode="_type" />
-    </div>
-  </div>
-</template>
-
 <script setup>
-import { computed, defineProps, onMounted, ref, toRef, watchEffect } from 'vue'
-import { sleep } from '~/plugins/Common.ts'
-import { TipType } from '~/plugins/addon/Tipper'
-import Mention from '~/components/common/icon/Mention.vue'
+// import Mention from '~/components/common/icon/Mention.vue'
 
 const props = defineProps({
   message: String | Object,
@@ -25,14 +7,14 @@ const props = defineProps({
   close: Function,
   type: TipType,
   loading: Boolean,
-  left: Boolean
+  left: Boolean,
 })
 
 // const mode = toRef(props, 'type')
 
 // const msg = computed(() => props.message.value || props.message)
 const shade = ref(false)
-const msg = ref("")
+const msg = ref('')
 const _type = computed(() => props.type.value || props.type)
 
 watchEffect(async () => {
@@ -46,23 +28,40 @@ watchEffect(async () => {
   shade.value = false
 })
 onMounted(async () => {
-  if (props.stay <= 0) return
+  if (props.stay <= 0)
+    return
 
   await sleep(props.stay)
 
   props.close()
 })
-
 </script>
 
 <script>
 export default {
-  name: 'TalexTip'
+  name: 'TalexTip',
 }
 </script>
 
-<style lang="scss" scoped>
+<template>
+  <div
+    :message="msg" class="TalexTip-Container"
+    :class="{ 'info-tip': _type === TipType.INFO,
+              left,
+              'warn-tip': _type === TipType.WARNING,
+              'error-tip': _type === TipType.ERROR,
+              'success-tip': _type === TipType.SUCCESS,
+              'loading-tip': loading || _type === 'loading',
+              'text-shade': shade }"
+  >
+    {{ msg }}
+    <div class="TalexTip-Icon-Wrapper">
+      <Mention :mode="_type" />
+    </div>
+  </div>
+</template>
 
+<style lang="scss" scoped>
 @keyframes whole-shade {
   0% {
     opacity: 1;
@@ -70,7 +69,7 @@ export default {
   }
   50% {
     opacity: 0;
-    transform: scale(.75);
+    transform: scale(0.75);
   }
   100% {
     opacity: 1;
@@ -117,7 +116,6 @@ export default {
 }
 
 .TalexTip-Container {
-
   .TalexTip-Icon-Wrapper {
     position: relative;
     display: inline-block;
@@ -128,12 +126,12 @@ export default {
     width: 16px;
     height: 16px;
 
-    transform: scale(.5);
+    transform: scale(0.5);
     --bg-color: var(--theme-color);
   }
   &:before {
     z-index: 0;
-    content: "";
+    content: '';
     position: absolute;
 
     width: 100%;
@@ -147,7 +145,7 @@ export default {
     filter: invert(5%);
     box-shadow: var(--el-box-shadow-light);
     backdrop-filter: contrast(200%) saturate(180%) blur(10px);
-    transition: .5s;
+    transition: 0.5s;
   }
   &:after {
     z-index: 10;
@@ -163,7 +161,7 @@ export default {
     text-align: center;
     //color: var(--el-text-color-primary);
     transform: translate(-17px, -50%);
-    transition: .25s
+    transition: 0.25s;
   }
 
   position: relative;
@@ -179,23 +177,24 @@ export default {
   color: var(--theme-color, var(--el-text-color-primary));
   border-radius: 8px;
   user-select: none;
-  transition: box-shadow .5s, .25s;
+  transition:
+    box-shadow 0.5s,
+    0.25s;
   //background-color: var(--el-bg-color);
-
 }
 
 .TalexTip-Container.text-shade {
   &:after {
-    animation: text-shade .5s;
+    animation: text-shade 0.5s;
   }
-  animation: whole-shade .05s .1s;
+  animation: whole-shade 0.05s 0.1s;
 }
 
 .TalexTip-Container.left.text-shade {
   &:after {
-    animation: text-shade-left .5s !important;
+    animation: text-shade-left 0.5s !important;
   }
-  animation: whole-shade .1s .05s;
+  animation: whole-shade 0.1s 0.05s;
 }
 
 .TalexTip-Container.left {
@@ -206,7 +205,7 @@ export default {
     width: 16px;
     height: 16px;
 
-    transform: scale(.5);
+    transform: scale(0.5);
     --bg-color: var(--theme-color);
   }
   &:after {
@@ -215,31 +214,23 @@ export default {
 }
 
 .success-tip {
-
   --theme-color: var(--el-color-success);
   --theme-light-color: var(--el-color-success-light-5);
-
 }
 
 .info-tip {
-
   --theme-color: var(--el-color-primary);
   --theme-light-color: var(--el-color-primary-light-5);
-
 }
 
 .warn-tip {
-
   --theme-color: var(--el-color-warning);
   --theme-light-color: var(--el-color-warning-light-5);
-
 }
 
 .error-tip {
-
   --theme-color: var(--el-color-error);
   --theme-light-color: var(--el-color-error-light-5);
-
 }
 
 //.loading-tip {
@@ -248,5 +239,4 @@ export default {
 //  0 0 4px 2px var(--theme-light-color);
 //
 //}
-
 </style>

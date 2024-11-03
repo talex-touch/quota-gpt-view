@@ -3,7 +3,6 @@ import { getAccountDetail, getPermissionList, getUserSubscription } from './api/
 import { endHttp } from './api/axios'
 import { $endApi } from './api/base'
 import { $event } from './events'
-import { LogoutType } from './events/logout'
 
 export interface AccountDetail {
   id: number
@@ -87,24 +86,10 @@ async function _saveUserConfig() {
 
 export const saveUserConfig = useDebounceFn(_saveUserConfig)
 
-// watch(() => userStore.value.token, async () => {
-//   if (!userStore.value.isLogin)
-//     return
-
-//   await refreshCurrentUserRPM()
-//   await refreshUserSubscription()
-// }, { deep: true, immediate: true })
-
-$event.on('USER_LOGIN_SUCCESS', async () => {
-  console.log('login success', userConfig)
-})
-
 $event.on('USER_LOGOUT_SUCCESS', async (type) => {
   if (!userStore.value.isLogin)
     console.warn(`User not login now.`)
 
-  // userStore.value.token = { accessToken: '', refreshToken: '' }
-  // userStore.value = {}
   userStore.value = { ...userStore.value, token: { accessToken: '', refreshToken: '' }, id: undefined, permissions: [], phone: undefined, roles: [], subscription: undefined }
   userConfig.value = JSON.parse(JSON.stringify(rawUserConfig))
 
@@ -168,11 +153,8 @@ export async function refreshCurrentUserRPM() {
   Object.assign(userConfig.value.pub_info, toReactive(JSON.parse(config.pub_info || '{}')))
 
   if (!document.body.classList.contains('mobile')) {
-    if (userStore.value.isLogin && !priConfig?.info?.tutorial) {
-      console.log('aaaaa', priConfig?.info?.tutorial, priConfig)
-
+    if (userStore.value.isLogin && !priConfig?.info?.tutorial)
       userConfig.value.pri_info.info.tutorial = false
-    }
   }
 }
 

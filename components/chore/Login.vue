@@ -3,6 +3,7 @@ import LoginCore from './login/LoginCore.vue'
 import { Platform, getQrCodeStatus, postQrCodeReq, qrCodeLogin, sendSMSCode, useSMSLogin } from '~/composables/api/auth'
 import ThCheckBox from '~/components/checkbox/ThCheckBox.vue'
 import { $handleUserLogin } from '~/composables/user'
+import { forWikiDialogTip, forWikiTip, sendTip } from '~/composables/tip'
 
 const props = defineProps<{
   show: boolean
@@ -67,6 +68,7 @@ function parser(input: string) {
 
 const show = useVModel(props, 'show', emits)
 const codeData = useLocalStorage('code-data', {
+  active: 'phone',
   expired: true,
   lastFetch: -1,
   data: {},
@@ -75,7 +77,9 @@ const data = reactive({
   mode: 'code',
   account: '',
   code: '',
-  agreement: false,
+  agreement: true,
+  user: '',
+  pass: '',
 })
 
 function handleSendCode() {
@@ -176,8 +180,6 @@ watch(() => show.value, (val) => {
 })
 
 onMounted(async () => {
-  data.agreement = localStorage.getItem('user') != null
-
   newCaptcha(CaptchaSceneId.Auth, '#captcha-element', '#captcha-button', {
     captchaVerifyCallback: async (param: string) => {
       const _res = {
@@ -395,6 +397,12 @@ watch(() => codeStatus.value, async (status) => {
   }, 800)
 })
 
+function handleAccountLogin() {
+  // forWikiTip('正在登录，请稍后...', 2600, TipType.INFO, true)
+
+  forWikiDialogTip('Hi', 'there')
+}
+
 // @ts-expect-error force exist
 const codeUrl = computed(() => `https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=${codeData.value.data?.ticket}`)
 </script>
@@ -413,33 +421,60 @@ const codeUrl = computed(() => `https://mp.weixin.qq.com/cgi-bin/showqrcode?tick
 
       <div class="Login-Main">
         <div :class="{ bind: codeStatus === 4 }" class="Login-Main-Major">
-          <p>手机登录</p>
+          <el-tabs v-model="codeData.active">
+            <el-tab-pane name="phone" label="手机号登录">
+              <br>
+
+              <el-form>
+                <el-input v-model="data.account" maxlength="13" :parser="parser" :formatter="formatter" size="large">
+                  <template #prepend>
+                    +86
+                  </template>
+                </el-input>
+                <el-input v-model="data.code" maxlength="6" size="large">
+                  <template #append>
+                    <el-button
+                      v-wave :loading="smsOptions.loading"
+                      :disabled="smsOptions.disabled || data.account.length !== 13" @click="handleSendCode"
+                    >
+                      {{ smsOptions.title }}
+                    </el-button>
+                  </template>
+                </el-input>
+                <el-button v-wave size="large" type="primary" :disabled="data.code.length !== 6" @click="handleLogin">
+                  登 录
+                </el-button>
+              </el-form>
+            </el-tab-pane>
+            <el-tab-pane name="account" label="账号密码登录">
+              <br>
+
+              <el-form>
+                <el-input v-model="data.user" size="large">
+                  <template #prepend>
+                    账号
+                  </template>
+                </el-input>
+                <el-input v-model="data.pass" type="password" size="large">
+                  <template #prepend>
+                    密码
+                  </template>
+                </el-input>
+                <el-button
+                  v-wave :disabled="!data.user || !data.pass" size="large" type="primary"
+                  @click="handleAccountLogin"
+                >
+                  登 录
+                </el-button>
+              </el-form>
+            </el-tab-pane>
+          </el-tabs>
+          <!-- <p>手机登录</p> -->
 
           <div id="captcha-element" absolute />
           <button id="captcha-button" absolute />
 
           <div class="indicator" />
-
-          <el-form>
-            <el-input v-model="data.account" maxlength="13" :parser="parser" :formatter="formatter" size="large">
-              <template #prepend>
-                +86
-              </template>
-            </el-input>
-            <el-input v-model="data.code" maxlength="6" size="large">
-              <template #append>
-                <el-button
-                  v-wave :loading="smsOptions.loading"
-                  :disabled="smsOptions.disabled || data.account.length !== 13" @click="handleSendCode"
-                >
-                  {{ smsOptions.title }}
-                </el-button>
-              </template>
-            </el-input>
-            <el-button v-wave size="large" type="primary" :disabled="data.code.length !== 6" @click="handleLogin">
-              登 录
-            </el-button>
-          </el-form>
         </div>
         <div class="Login-Main-Vice only-pc-display">
           <p>微信扫码登录</p>
@@ -471,13 +506,21 @@ const codeUrl = computed(() => `https://mp.weixin.qq.com/cgi-bin/showqrcode?tick
               <span>请在手机上确认登录</span>
             </div>
 
-            <el-image style=" border-radius: 12px;aspect-ratio: 1 / 1;min-height: 120px;" :src="codeUrl" />
+            <el-image style=" border-radius: 12px;aspect-ratio: 1 / 1;min-height: 120px;" :src="`${codeUrl}`" />
           </div>
         </div>
       </div>
 
       <div class="Login-Supper">
-        <ThCheckBox v-model="data.agreement" />&nbsp;登录即代表您已阅读同意《使用服务协议》和《用户隐私协议》
+        <ThCheckBox v-model="data.agreement" />&nbsp;登录即代表您已阅读同意<el-link
+          src="https://jcn6saobodid.feishu.cn/wiki/MPcuwXOTAiJdiNklwTpcGTw8nhd?from=from_copylink"
+        >
+          《使用服务协议》
+        </el-link>和<el-link
+          src="https://jcn6saobodid.feishu.cn/wiki/UXqQwvdn6iLLd6k5WKrcWrdcnab?from=from_copylink"
+        >
+          《用户隐私协议》
+        </el-link>
       </div>
     </div>
   </div>
@@ -521,6 +564,14 @@ const codeUrl = computed(() => `https://mp.weixin.qq.com/cgi-bin/showqrcode?tick
       align-items: center;
       gap: 0.5rem;
     }
+  }
+
+  .el-image {
+    min-height: 172px;
+    min-width: 172px;
+
+    width: 172px;
+    height: 172px;
   }
 }
 
@@ -618,8 +669,8 @@ const codeUrl = computed(() => `https://mp.weixin.qq.com/cgi-bin/showqrcode?tick
   z-index: 10;
   position: absolute;
 
-  top: 102px;
-  left: 350px;
+  top: 108px;
+  left: 355px;
 
   width: 60px;
   height: 5px;
