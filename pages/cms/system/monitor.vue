@@ -1,11 +1,8 @@
 <script lang="ts" setup>
-
+import * as echarts from 'echarts'
 import { $endApi } from '~/composables/api/base'
 import type { ServeStatInfo } from '~/composables/api/base/v1/cms.type'
 import type { IDataResponse } from '~/composables/api/base/index.type'
-
-import * as echarts from 'echarts'
-
 
 definePageMeta({
   name: '系统监控',
@@ -29,41 +26,40 @@ onMounted(() => {
   fetchData()
 })
 
-
 const sysInfo = ref<ServeStatInfo>({
 
   runtime: {
-    npmVersion: "10.7.0",
-    nodeVersion: "22.2.0",
-    os: "linux",
-    arch: "x64"
+    npmVersion: '10.7.0',
+    nodeVersion: '22.2.0',
+    os: 'linux',
+    arch: 'x64',
   },
   cpu: {
-    manufacturer: "Intel",
-    brand: "Xeon® Platinum 8336C",
+    manufacturer: 'Intel',
+    brand: 'Xeon® Platinum 8336C',
     physicalCores: 4,
-    model: "106",
+    model: '106',
     speed: 2.3,
     rawCurrentLoad: 5865170,
     rawCurrentLoadIdle: 752606110,
     coresLoad: [
       {
         rawLoad: 1509030,
-        rawLoadIdle: 188067440
+        rawLoadIdle: 188067440,
       },
       {
         rawLoad: 1504340,
-        rawLoadIdle: 188070050
+        rawLoadIdle: 188070050,
       },
       {
         rawLoad: 1468080,
-        rawLoadIdle: 188238140
+        rawLoadIdle: 188238140,
       },
       {
         rawLoad: 1383720,
-        rawLoadIdle: 188230480
-      }
-    ]
+        rawLoadIdle: 188230480,
+      },
+    ],
   },
   disk: {
     size: 0,
@@ -73,13 +69,10 @@ const sysInfo = ref<ServeStatInfo>({
   },
   memory: {
     total: 8333570048,
-    available: 3071422464
-  }
-
-
+    available: 3071422464,
+  },
 
 })
-
 
 async function fetchData() {
   const res: IDataResponse<ServeStatInfo> = (await $dataApi.list())
@@ -95,12 +88,10 @@ async function fetchData() {
 }
 
 function onFetchDataSucceed() {
-
   const option = generateEChartsConfig(sysInfo.value.cpu)
   // 使用 ECharts 初始化图表
   const cpuChart = echarts.init(cpuChartRef.value)
   cpuChart.setOption(option)
-
 
   /**
    * 内存
@@ -115,30 +106,27 @@ function onFetchDataSucceed() {
   const pieOption2 = generatePieEChartsConfig2(sysInfo.value.disk)
   const memoryChart = echarts.init(pieChartRef2.value)
   memoryChart.setOption(pieOption2)
-
 }
 /**
  * cpu
- * @param data 
- * @returns 
+ * @param data
+ * @returns
  */
 function generateEChartsConfig(data: any) {
-
   const rawLoad = data.coresLoad.map((core: { rawLoad: any }) => Number.parseInt(core.rawLoad))
   const rawLoadIdle = data.coresLoad.map((core: { rawLoadIdle: any }) => Number.parseInt(core.rawLoadIdle))
 
   rawLoad.push(data.rawCurrentLoad)
   rawLoadIdle.push(data.rawCurrentLoadIdle)
 
-
   const options = {
     title: {
-      text: 'CPU资源消耗',
-      subtext: '根据消息类型和模型',
-
+      text: 'CPU Monitor',
+      subtext: 'Consume and Idle',
       left: 'center',
-
-
+      textStyle: {
+        color: '#3AB8FD',
+      },
     },
     tooltip: {
       trigger: 'axis',
@@ -148,73 +136,68 @@ function generateEChartsConfig(data: any) {
     },
     legend: {
       data: ['CPU资源消耗', '空闲CPU资源'],
-      top: '20%'
+      top: '20%',
 
     },
     xAxis: {
-      data: ['核心1', '核心2', '核心3', '核心4', "总核心"],
+      data: ['核心1', '核心2', '核心3', '核心4', '总核心'],
       axisLable: {
         rotate: 30,
-      }
+      },
 
     },
     yAxis: {
       type: 'value',
       left: '5%',
       axisLabel: {
-        show: true, // 显示 Y 轴标签
-        interval: 0 // 不省略任何标签
+        show: true,
+        interval: 0,
       },
       splitLine: {
-        show: true, // 显示分割线
-        interval: 0 // 不省略任何分割线
-      }
+        show: true,
+        interval: 0,
+      },
 
     },
-
     series: [
       {
-        name: 'CPU资源消耗',
+        name: 'Resource Consume',
         data: rawLoad,
         type: 'bar',
         stack: 'x',
-        itemStyle: {
-          color: ' #ff0000'
-        }
+
       },
       {
-        name: '空闲CPU资源',
+        name: 'Resource Idle',
         data: rawLoadIdle,
         type: 'bar',
         stack: 'x',
-        itemStyle: {
-          color: '#00bfff'
-        }
-      }
 
+      },
 
-    ]
+    ],
 
   }
 
-
   return options
-
 }
 
 function generatePieEChartsConfig(data: any) {
   const options = {
     title: {
-      text: '内存情况',
+      text: 'RAM',
       left: 'center',
-      subtext: 'Fake Data',
+      subtext: 'Live Data',
+      textStyle: {
+        color: '#3AB8FD',
+      },
     },
     tooltip: {
-      trigger: 'item'
+      trigger: 'item',
     },
     legend: {
       orient: 'vertical',
-      left: 'left'
+      left: 'left',
     },
     series: [
       {
@@ -222,51 +205,40 @@ function generatePieEChartsConfig(data: any) {
         data: [
           {
             value: data.total - data.available,
-            name: '已使用',
-            itemStyle: {
-              color: '#ff0000'
-            }
+            name: 'Used',
           },
           {
             value: data.available,
-            name: '可用内存',
-            itemStyle: {
-              color: '#00bfff'
-            }
-          }
+            name: 'Available',
+          },
 
         ],
         radius: ['20%', '40%'],
 
-
-
-      }]
+      },
+    ],
 
   }
 
   return options
-
-
-
-
 }
 
 function generatePieEChartsConfig2(data: any) {
- 
-
   const options = {
     title: {
-      text: '磁盘资源消耗',
+      text: 'Disk',
       left: 'center',
-      subtext: 'Fake Data',
-
+      subtext: 'Live Data',
+      textStyle: {
+        color: '#3AB8FD',
+      },
     },
     tooltip: {
-      trigger: 'item'
+      trigger: 'item',
     },
     legend: {
       orient: 'vertical',
-      left: 'left'
+      left: 'left',
     },
     series: [
       {
@@ -274,49 +246,42 @@ function generatePieEChartsConfig2(data: any) {
         data: [
           {
             value: data.used,
-            name: '已使用磁盘空间 (bytes)',
-            itemStyle: {
-              color: '#ff0000'
-            }
+            name: 'Used (bytes)',
           },
           {
             value: data.available,
-            name: '可用磁盘空间 (bytes)',
-            itemStyle: {
-              color: '#00bfff'
-            }
+            name: 'Available (bytes)',
           },
 
         ],
         radius: ['20%', '40%'],
-      }]
+      },
+    ],
 
   }
 
   return options
 }
-
-
 </script>
 
 <template>
   <el-container class="CmsUser">
-
     <el-main>
       <ClientOnly>
         <div class="CmsBox">
           <el-row class="title">
             <el-col :span="24" p-2>
-              <h1 text-2xl border-b-1px border-b-coolGray>
-                CPU情况
+              <h1 text-2xl>
+                CPU
               </h1>
             </el-col>
-
           </el-row>
           <el-row :span="24" type="flex" justify="space-around">
             <el-col :span="4">
               <div class="card">
-                <div class="card-header">cpu的品牌 </div>
+                <div class="card-header">
+                  Brand
+                </div>
                 <div class="card-body" color-blue>
                   {{ sysInfo.cpu.brand }}
                 </div>
@@ -325,7 +290,9 @@ function generatePieEChartsConfig2(data: any) {
 
             <el-col :span="4">
               <div class="card">
-                <div class="card-header">制造商 </div>
+                <div class="card-header">
+                  Manufacturer
+                </div>
                 <div class="card-body" color-blue>
                   {{ sysInfo.cpu.manufacturer }}
                 </div>
@@ -334,7 +301,9 @@ function generatePieEChartsConfig2(data: any) {
 
             <el-col :span="4">
               <div class="card">
-                <div class="card-header">物理核心数</div>
+                <div class="card-header">
+                  Core
+                </div>
                 <div class="card-body" color-blue>
                   {{ sysInfo.cpu.physicalCores }}
                 </div>
@@ -343,7 +312,9 @@ function generatePieEChartsConfig2(data: any) {
 
             <el-col :span="4">
               <div class="card">
-                <div class="card-header">型号</div>
+                <div class="card-header">
+                  Model
+                </div>
                 <div class="card-body" color-blue>
                   {{ sysInfo.cpu.model }}
                 </div>
@@ -351,51 +322,43 @@ function generatePieEChartsConfig2(data: any) {
             </el-col>
             <el-col :span="4">
               <div class="card">
-                <div class="card-header">速度 </div>
+                <div class="card-header">
+                  Frequency
+                </div>
                 <div class="card-body" color-blue>
                   {{ sysInfo.cpu.speed }}
                 </div>
               </div>
             </el-col>
+          </el-row>
+        </div>
 
-
-
+        <div class="CmsBox">
+          <el-row class="title">
+            <el-col :span="24" p-2>
+              <h1 text-2xl>
+                Monitor
+              </h1>
+            </el-col>
           </el-row>
 
           <el-row type="flex" justify="space-around">
-            <el-col :span="14" border="1px" border-gray  flex class="left" >
-              <div ref="cpuChartRef" w-120 h-100></div>
+            <el-col :span="8" flex class="left">
+              <div ref="cpuChartRef" h-100 w-120 />
             </el-col>
-            <el-col :span="10">
-              <div class="right">
-                <div class="card">
-                  <div class="card-header">内存使用情况 </div>
-                    <div class="card-body" flex justify-center>
-                       <div ref="pieChartRef1" w-120 h-50 >
-                    </div>
-                  </div>
-                </div>
-
-                <div class="card">
-                  <div class="card-header">磁盘使用情况 </div>
-                    <div class="card-body" flex justify-center>
-                       <div ref="pieChartRef2" w-120 h-50>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-
-
+            <el-col :span="8" flex class="left">
+              <div ref="pieChartRef1" h-50 w-120 />
+            </el-col>
+            <el-col :span="8" flex class="left">
+              <div ref="pieChartRef2" h-50 w-120 />
             </el-col>
           </el-row>
         </div>
 
-
         <div class="CmsBox">
           <el-row :span="24" class="title">
             <el-col :span="24" p-2>
-              <h1 text-2xl border-b-1px border-b-coolGray>
+              <h1 text-2xl>
                 运行情况
               </h1>
             </el-col>
@@ -404,7 +367,9 @@ function generatePieEChartsConfig2(data: any) {
           <el-row>
             <el-col :span="6">
               <div class="card">
-                <div class="card-header">系统 </div>
+                <div class="card-header">
+                  OS
+                </div>
                 <div class="card-body" color-blue>
                   {{ sysInfo.runtime.os }}
                 </div>
@@ -412,7 +377,9 @@ function generatePieEChartsConfig2(data: any) {
             </el-col>
             <el-col :span="6">
               <div class="card">
-                <div class="card-header">服务器架构 </div>
+                <div class="card-header">
+                  Arch
+                </div>
                 <div class="card-body" color-blue>
                   {{ sysInfo.runtime.arch }}
                 </div>
@@ -420,7 +387,8 @@ function generatePieEChartsConfig2(data: any) {
             </el-col>
             <el-col :span="6">
               <div class="card">
-                <div class="card-header">Node版本
+                <div class="card-header">
+                  Node
                 </div>
                 <div class="card-body" color-blue>
                   {{ sysInfo.runtime.nodeVersion }}
@@ -429,30 +397,18 @@ function generatePieEChartsConfig2(data: any) {
             </el-col>
             <el-col :span="6">
               <div class="card">
-                <div class="card-header">Npm版本
+                <div class="card-header">
+                  Npm
                 </div>
                 <div class="card-body" color-blue>
                   {{ sysInfo.runtime.npmVersion }}
                 </div>
               </div>
             </el-col>
-
           </el-row>
-
-
-
-
-
-
         </div>
-
       </ClientOnly>
-
-
-
     </el-main>
-
-
   </el-container>
 </template>
 
@@ -463,18 +419,19 @@ function generatePieEChartsConfig2(data: any) {
   }
 
   .CmsBox {
+    margin: 1rem 0;
+
+    border-radius: 16px;
     border: 1px solid var(--el-border-color);
   }
 
-.left{
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+  .left {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 
   .card {
-    border: 1px solid var(--el-border-color);
-
     padding: 5px 10px;
 
     .card-header {
@@ -482,9 +439,5 @@ function generatePieEChartsConfig2(data: any) {
       font-weight: 600;
     }
   }
-
-
-
-
 }
 </style>

@@ -73,6 +73,13 @@ onMounted(async () => {
     }
   }
 
+  &-Content {
+    display: grid;
+
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
   &-Main {
     position: relative;
     display: flex;
@@ -102,7 +109,7 @@ onMounted(async () => {
   min-height: 70px;
 
   border-radius: 12px;
-  box-shadow: var(--el-box-shadow);
-  background-color: var(--el-bg-color);
+  // box-shadow: var(--el-box-shadow);
+  // background-color: var(--el-bg-color);
 }
 </style>

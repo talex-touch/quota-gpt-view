@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
+import monitor from './system/monitor.vue'
+
 definePageMeta({
   name: '管理中心',
   layout: 'cms',
@@ -11,17 +14,81 @@ definePageMeta({
 <template>
   <div class="Cms">
     <div class="Cms-Addon">
-      <div class="Cms-Application cms-card">
+      <el-card class="Cms-Application cms-card">
         <lazy-cms-application />
-      </div>
+      </el-card>
+
+      <el-card v-for="i in 5" class="cms-card">
+        <div class="CmsApplication-Header cms-header">
+          <div class="CmsApplication-Start cms-start">
+            <IconMimicIcon color="var(--el-color-primary);color: #fff" icon="i-carbon:locked" />
+            等待解锁
+          </div>
+          <div class="CmsApplication-End cms-end">
+            <el-link type="primary">
+              -
+            </el-link>
+          </div>
+        </div>
+      </el-card>
     </div>
 
     <div class="Cms-Content">
-      2
+      <el-card class="cms-card">
+        <div class="CmsApplication-Header cms-header">
+          <div class="CmsApplication-Start cms-start">
+            <IconMimicIcon color="var(--el-color-primary);color: #fff" icon="i-carbon:notification" />
+            系统公告
+          </div>
+          请注意保护系统隐私,请勿在公共场合打开管理系统.
+          <div class="CmsApplication-End cms-end">
+            <el-link type="primary">
+              更多公告
+            </el-link>
+          </div>
+        </div>
+      </el-card>
+      <el-card class="cms-card">
+        <div class="CmsApplication-Header cms-header">
+          <div class="CmsApplication-Start cms-start">
+            <IconMimicIcon color="var(--el-color-primary);color: #fff" icon="i-carbon:application-web" />
+            系统监控
+          </div>
+
+          <div class="CmsApplication-End cms-end">
+            <el-link type="primary">
+              查看更多
+            </el-link>
+          </div>
+        </div>
+
+        <monitor />
+      </el-card>
     </div>
 
     <div class="Cms-User">
       <LazyCmsUser />
+
+      <el-card class="cms-card">
+        <el-config-provider :locale="zhCn">
+          <el-calendar>
+            <template #date-cell="{ data }">
+              <p :class="data.isSelected ? 'is-selected' : ''">
+                {{ data.day.split('-').slice(2).join('') }}
+                {{ data.isSelected ? '✔️' : '' }}
+              </p>
+            </template>
+            <template #header="{ date }">
+              <span>工作日历</span>
+              <span>{{ date }}</span>
+            </template>
+          </el-calendar>
+        </el-config-provider>
+      </el-card>
+
+      <el-card class="cms-card">
+        <ChorePersonalFortuneCard />
+      </el-card>
     </div>
   </div>
 </template>
@@ -45,12 +112,12 @@ definePageMeta({
     font-size: 14px;
     justify-content: space-between;
   }
-  padding: 0.5rem 1rem;
+  margin: 1rem 0;
 
   flex-shrink: 0;
 
   overflow: hidden;
-  border-radius: 2px;
+  border-radius: 16px;
   background-color: var(--el-fill-color);
 }
 
@@ -62,13 +129,10 @@ definePageMeta({
 }
 
 .Cms-Content {
-  padding: 1rem;
-
   width: 100%;
   height: 100%;
 
   border-radius: 16px;
-  background-color: var(--el-fill-color-light);
 }
 
 .Cms-User {

@@ -4,7 +4,7 @@ import ItemModelSelector from '../chat/addon/ItemModelSelector.vue'
 
 <template>
   <div class="CmsUser cms-card">
-    <div v-if="userStore.avatar" class="CmsUser-Header cms-header">
+    <div class="CmsUser-Header cms-header">
       <div class="CmsUser-Background">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
           <path
@@ -14,7 +14,7 @@ import ItemModelSelector from '../chat/addon/ItemModelSelector.vue'
         </svg>
       </div>
 
-      <div class="CmsUser-Content">
+      <div v-if="userStore.avatar" class="CmsUser-Content">
         <PersonalUserAvatar :avatar="userStore.avatar" />
 
         <div class="CmsUser-Name">
