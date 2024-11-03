@@ -24,7 +24,6 @@ interface IChatItemProp {
 }
 
 const props = defineProps<IChatItemProp>()
-
 const emits = defineEmits<{
   (e: 'select', index: number, checked: boolean): void
   (e: 'retry', innerItem: IChatInnerItem): void
@@ -32,7 +31,8 @@ const emits = defineEmits<{
   (e: 'update:item', data: IChatItem): void
   (e: 'update:meta', data: IChatItem): void
 }>()
-
+const route = useRoute()
+const viewMode = computed(() => route.query?.share)
 const msgItem = useVModel(props, 'item', emits)
 const dom = ref()
 
@@ -163,7 +163,7 @@ function noneCard(block: IInnerItemMeta) {
           <div v-for="(block, i) in innerItem.value" :key="i" class="ChatItem-Content-Inner-Block">
             <div v-if="block.data === 'suggest'">
               <div
-                v-if="index === total - 1" v-wave :style="`--fly-enter-delay: ${i * 0.125}s`"
+                v-if="!viewMode && index === total - 1" v-wave :style="`--fly-enter-delay: ${i * 0.125}s`"
                 class="transition-cubic fake-background suggest-card" @click="emits('suggest', block.value)"
               >
                 <TextShaving v-if="!isEnd" :text="block.value" />
@@ -227,7 +227,7 @@ function noneCard(block: IInnerItemMeta) {
           class="view-none-display" :total-page="item.content.length"
         />
 
-        <span class="toolbox view-none-display">
+        <span class="toolbox">
           <span v-for="tool in tools" :key="tool.name" class="toolbox-item" @click="tool.trigger">
             <el-tooltip :content="tool.name">
               <i :class="tool.icon" />
@@ -235,12 +235,12 @@ function noneCard(block: IInnerItemMeta) {
           </span>
         </span>
 
-        <template v-if="!isUser && total === index + 1">
+        <template v-if="!viewMode && !isUser && total === index + 1">
           <ItemModelSelector
-            v-model="innerItem.model" class="view-none-display" :page="item.page" :done="isEnd"
+            v-model="innerItem.model" :page="item.page" :done="isEnd"
             @retry="handleRetry"
           />
-          <ChatAddonCommandSelector class="view-none-display" @translate="handleCommandTranslate" />
+          <ChatAddonCommandSelector @translate="handleCommandTranslate" />
         </template>
         <template v-else-if="!isUser">
           <span class="info">
