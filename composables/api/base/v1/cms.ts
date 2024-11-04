@@ -56,6 +56,12 @@ export default {
     info(id: number) {
       return endHttp.get(`doc/${id}`) as Promise<IDataResponse<[IDoc, { content: string }]>>
     },
+    associateAgreement(id: number, key: string) {
+      return endHttp.post(`doc/agreement/${id}?key=${key}`)
+    },
+    agreementInfo(key: string) {
+      return endHttp.get(`doc/agreement/${key}`)
+    },
   },
 
   users: {

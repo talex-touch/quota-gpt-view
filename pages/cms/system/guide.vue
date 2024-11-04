@@ -351,6 +351,36 @@ async function handlePublishVersion(id: number) {
 
   fetchData()
 }
+
+async function handleAssociateProtocol(id: number) {
+  ElMessageBox.prompt('请输入关联协议key', '文档关联协议', {
+    confirmButtonText: '关联',
+    cancelButtonText: '取消',
+  })
+    .then(async ({ value }) => {
+      const res = await $endApi.v1.cms.doc.associateAgreement(id, value)
+
+      if (res.code !== 200) {
+        ElMessage.error(res.message || '关联失败！')
+
+        return
+      }
+
+      ElNotification({
+        title: 'Info',
+        message: `你关联了协议文档 #${id} 及其相关数据！`,
+        type: 'info',
+      })
+
+      fetchData()
+    })
+    .catch(() => {
+      ElMessage({
+        type: 'info',
+        message: '协议取消关联',
+      })
+    })
+}
 </script>
 
 <template>
@@ -409,6 +439,9 @@ async function handlePublishVersion(id: number) {
               <el-tag v-else-if="row.status === 3" type="danger">
                 归档
               </el-tag>
+              <el-tag v-else-if="row.status === 4" type="primary">
+                协议
+              </el-tag>
             </template>
           </el-table-column>
           <el-table-column prop="createdAt" label="创建时间">
@@ -452,12 +485,20 @@ async function handlePublishVersion(id: number) {
               >
                 归档
               </el-button>
-              <el-button
-                v-if="row.status === 1" plain text size="small" type="primary"
-                @click="handlePublishVersion(row.id)"
-              >
-                发版
-              </el-button>
+
+              <el-popover v-if="row.status === 1" placement="bottom" :width="200" trigger="hover">
+                <template #reference>
+                  <el-button v-if="row.status !== 0" plain type="primary" text size="small">
+                    发版
+                  </el-button>
+                </template>
+                <el-button plain text size="small" type="primary" @click="handlePublishVersion(row.id)">
+                  直接发版
+                </el-button>
+                <el-button plain text size="small" type="success" @click="handleAssociateProtocol(row.id)">
+                  关联为协议
+                </el-button>
+              </el-popover>
             </template>
           </el-table-column>
         </el-table>
@@ -511,9 +552,9 @@ async function handlePublishVersion(id: number) {
             >
               <template #property>
                 <el-form
-                  v-if="!false"
-                  ref="ruleFormRef" :disabled="dialogOptions.loading || dialogOptions.mode === 'read'"
-                  :model="dialogOptions.data" :rules="rules" label-width="auto" status-icon my-4 inline
+                  v-if="!false" ref="ruleFormRef"
+                  :disabled="dialogOptions.loading || dialogOptions.mode === 'read'" :model="dialogOptions.data"
+                  :rules="rules" label-width="auto" status-icon my-4 inline
                 >
                   <el-form-item label="文档权限" prop="permission">
                     <el-input v-model="dialogOptions.data.permission" :disabled="dialogOptions.mode === 'read'" />

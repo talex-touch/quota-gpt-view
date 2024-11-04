@@ -531,7 +531,7 @@ const statusOptions = [
 
       <ClientOnly>
         <el-table
-          v-if="prompts?.items" :row-class-name="handleTableRowClass" :data="prompts.items" height="90%"
+          v-if="prompts?.items" :row-class-name="handleTableRowClass" :data="prompts.items" height="80%"
           table-layout="auto"
         >
           <el-table-column prop="id" label="编号" />

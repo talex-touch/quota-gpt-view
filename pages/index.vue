@@ -41,7 +41,6 @@ const pageOptions = reactive<{
   select: '',
   conversation: initConversation,
   share: {
-    meta: [],
     enable: false,
     selected: new Array<number>(),
     getMessages() {
@@ -277,8 +276,6 @@ function handleSuggest(suggestion: string) {
 provide('pageOptions', pageOptions)
 
 function handleShare() {
-  pageOptions.share.meta = chatRef.value.getDictMeta()
-
   pageOptions.share.selected.length = 0
   pageOptions.share.enable = !pageOptions.share.enable
 }
@@ -339,9 +336,15 @@ function handleLogin() {
 </script>
 
 <template>
-  <div :class="{ expand, empty: !pageOptions.conversation.messages.length, view: viewMode }" class="PageContainer">
+  <div
+    :class="{ expand, empty: !pageOptions.conversation.messages.length, view: viewMode }"
+    class="PageContainer"
+  >
     <History
-      v-if="!viewMode" v-model:select="pageOptions.select" class="PageContainer-History" @create="handleCreate"
+      v-if="!viewMode"
+      v-model:select="pageOptions.select"
+      class="PageContainer-History"
+      @create="handleCreate"
       @delete="handleDelete"
     />
 
@@ -360,8 +363,12 @@ function handleLogin() {
       </div>
 
       <ThChat
-        ref="chatRef" v-model:messages="pageOptions.conversation" :status="pageOptions.status"
-        @cancel="handleCancelReq" @retry="handleRetry" @suggest="handleSuggest"
+        ref="chatRef"
+        v-model:messages="pageOptions.conversation"
+        :status="pageOptions.status"
+        @cancel="handleCancelReq"
+        @retry="handleRetry"
+        @suggest="handleSuggest"
       >
         <template v-if="!viewMode" #model>
           <ModelSelector v-if="mount" v-model="pageOptions.model" />
@@ -372,18 +379,24 @@ function handleLogin() {
 
           <ModelSelector v-if="mount" v-model="pageOptions.model" />
 
-          <div v-if="userStore.isLogin" style="font-size: 16px" i-carbon:edit @click="handleCreate" />
-          <div v-else class="login-tag" @click="handleLogin">
-            登录
-          </div>
+          <div
+            v-if="userStore.isLogin"
+            style="font-size: 16px"
+            i-carbon:edit
+            @click="handleCreate"
+          />
+          <div v-else class="login-tag" @click="handleLogin">登录</div>
         </template>
       </ThChat>
 
       <EmptyGuide v-if="!viewMode" :show="!!pageOptions.conversation.messages?.length">
         <template #default="{ tip }">
           <ThInput
-            :template-enable="!pageOptions.conversation.messages.length" :status="pageOptions.status"
-            :hide="pageOptions.share.enable" :center="pageOptions.conversation.messages?.length < 1" :tip="tip"
+            :template-enable="!pageOptions.conversation.messages.length"
+            :status="pageOptions.status"
+            :hide="pageOptions.share.enable"
+            :center="pageOptions.conversation.messages?.length < 1"
+            :tip="tip"
             @send="handleSend"
           />
         </template>
@@ -404,29 +417,31 @@ function handleLogin() {
 
           <span
             v-if="!viewMode && !!pageOptions.conversation.messages.length"
-            :class="pageOptions.share.enable ? 'warning shining' : ''" cursor-pointer class="tag" @click="handleShare"
+            :class="pageOptions.share.enable ? 'warning shining' : ''"
+            cursor-pointer
+            class="tag"
+            @click="handleShare"
           >
             <i i-carbon:share />分享对话
           </span>
 
-          <span class="tag">
-            <i i-carbon:time />0 mins
-          </span>
+          <span class="tag"> <i i-carbon:time />0 mins </span>
         </template>
         <template #end>
           <ChatHeadTrSyncStatus
             v-if="!!pageOptions.conversation.messages.length"
-            :status="pageOptions.conversation.sync" @upload="handleSync"
+            :status="pageOptions.conversation.sync"
+            @upload="handleSync"
           />
         </template>
       </AigcChatStatusBar>
 
-      <teleport to="body">
-        <ShareSection
-          v-if="pageOptions.conversation" :length="pageOptions.conversation.messages.length"
-          :show="pageOptions.share.enable" :selected="pageOptions.share.selected"
-        />
-      </teleport>
+      <ShareSection
+        v-if="pageOptions.conversation"
+        :length="pageOptions.conversation.messages.length"
+        :show="pageOptions.share.enable"
+        :selected="pageOptions.share.selected"
+      />
 
       <!-- 根据 发送消息超过10次 控制弹窗的显示 -->
       <FeedBack v-if="!viewMode" v-model:show="pageOptions.feedback.visible" />
@@ -512,7 +527,7 @@ function handleLogin() {
 .PageContainer {
   &::before {
     z-index: -2;
-    content: '';
+    content: "";
     position: absolute;
 
     top: 0;
@@ -532,7 +547,7 @@ function handleLogin() {
 
   &::after {
     z-index: -1;
-    content: '';
+    content: "";
     position: absolute;
 
     top: 0;
@@ -584,7 +599,7 @@ function handleLogin() {
   &-History {
     &::before {
       z-index: -2;
-      content: '';
+      content: "";
       position: absolute;
 
       top: 0;
@@ -601,7 +616,7 @@ function handleLogin() {
 
     &::after {
       z-index: -1;
-      content: '';
+      content: "";
       position: absolute;
 
       top: 0;

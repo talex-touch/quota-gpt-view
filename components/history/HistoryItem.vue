@@ -126,14 +126,14 @@ async function createShareLink() {
 
   const res = await $endApi.v1.aigc.createShareMessage(props.modelValue.id)
 
-  if (res.code === 200) {
+  if (res.code === 200 && res.data) {
     shareOptions.share = reactive(res.data)
     shareOptions.origin = location.origin
 
     tip.setMessage('分享链接已创建').setLoading(false).setType(TipType.SUCCESS).show()
   }
   else {
-    tip.setMessage('分享链接创建失败').setLoading(false).setType(TipType.ERROR).show()
+    tip.setMessage('分享链接创建失败0(' + res.message + ')').setLoading(false).setType(TipType.ERROR).show()
   }
 
   await sleep(200)
@@ -156,84 +156,123 @@ const update = computed(() => {
 <template>
   <div class="HistoryItem" :class="{ edit: editMode }">
     <div class="content-wrapper">
-      <input v-if="editMode" ref="input" v-model="topic" @blur="editMode = false" @keydown.enter="editMode = false">
+      <input
+        v-if="editMode"
+        ref="input"
+        v-model="topic"
+        @blur="editMode = false"
+        @keydown.enter="editMode = false"
+      />
       <span v-else class="content">{{ modelValue.topic }}</span>
     </div>
     <div
-      ref="itemLine" class="History-Content-Fixed" @mouseenter="hoverMode = hover = true"
+      ref="itemLine"
+      class="History-Content-Fixed"
+      @mouseenter="hoverMode = hover = true"
       @mouseleave="hover = false"
     >
       <div class="i-carbon:overflow-menu-horizontal" />
     </div>
   </div>
 
-  <DialogTouchDialog v-model="shareOptions.visible" :footer="false" :loading="shareOptions.loading">
+  <DialogTouchDialog
+    v-model="shareOptions.visible"
+    :footer="false"
+    :loading="shareOptions.loading"
+  >
     <template #Title>
       <div i-carbon:share />
       <span>分享对话</span>
     </template>
 
     <p px-4>
-      您的个人信息、自定义指令以及您在共享后添加的任何消息都将予以保密处理。<el-link>了解更多</el-link>
+      您的个人信息、自定义指令以及您在共享后添加的任何消息都将予以保密处理。<el-link
+        >了解更多</el-link
+      >
     </p>
 
     <template v-if="update">
       <div class="ShareButton" disabled>
-        <span class="url"> {{ shareOptions.origin }}<span v-if="shareOptions.share?.uuid">?share={{
-          shareOptions.share.uuid
-        }}</span></span>
+        <span class="url">
+          {{ shareOptions.origin
+          }}<span v-if="shareOptions.share?.uuid"
+            >?share={{ shareOptions.share.uuid }}</span
+          ></span
+        >
 
-        <div v-loader="shareOptions.waiting" v-wave class="ShareButton-Inner" @click="createShareLink">
-          <div i-carbon:share /><span>更新链接</span>
+        <div
+          v-loader="shareOptions.waiting"
+          v-wave
+          class="ShareButton-Inner"
+          @click="createShareLink"
+        >
+          <div i-carbon:share />
+          <span>更新链接</span>
         </div>
       </div>
 
-      <p px-4>
-        自上次共享后，会话被修改。
-      </p>
-      <p px-4>
-        已共享此聊天的旧版本。您可以通过设置管理此前共享的聊天。
-      </p>
+      <p px-4>自上次共享后，会话被修改。</p>
+      <p px-4>已共享此聊天的旧版本。您可以通过设置管理此前共享的聊天。</p>
     </template>
     <template v-else-if="shareOptions.share?.uuid">
       <div class="ShareButton" disabled>
-        <span class="url"> {{ shareOptions.origin }}<span v-if="shareOptions.share?.uuid">?share={{
-          shareOptions.share.uuid
-        }}</span></span>
+        <span class="url">
+          {{ shareOptions.origin
+          }}<span v-if="shareOptions.share?.uuid"
+            >?share={{ shareOptions.share.uuid }}</span
+          ></span
+        >
 
         <div
-          v-loader="shareOptions.waiting" v-wave v-copy="`${shareOptions.origin}?share=${shareOptions.share.uuid}`"
+          v-loader="shareOptions.waiting"
+          v-wave
+          v-copy="`${shareOptions.origin}?share=${shareOptions.share.uuid}`"
           class="ShareButton-Inner"
         >
-          <div i-carbon:share /><span>复制链接</span>
+          <div i-carbon:share />
+          <span>复制链接</span>
         </div>
       </div>
 
-      <p px-4>
-        已共享此聊天。您可以通过设置管理共享的聊天。
-      </p>
+      <p px-4>已共享此聊天。您可以通过设置管理共享的聊天。</p>
     </template>
 
     <di v-else class="ShareButton" disabled>
-      <span class="url"> {{ shareOptions.origin }}<span v-if="shareOptions.share?.uuid">?share={{
-        shareOptions.share.uuid
-      }}</span></span>
+      <span class="url">
+        {{ shareOptions.origin
+        }}<span v-if="shareOptions.share?.uuid"
+          >?share={{ shareOptions.share.uuid }}</span
+        ></span
+      >
 
-      <div v-loader="shareOptions.waiting" v-wave class="ShareButton-Inner" @click="createShareLink">
-        <div i-carbon:share /><span>创建链接</span>
+      <div
+        v-loader="shareOptions.waiting"
+        v-wave
+        class="ShareButton-Inner"
+        @click="createShareLink"
+      >
+        <div i-carbon:share />
+        <span>创建链接</span>
       </div>
     </di>
   </DialogTouchDialog>
 
   <teleport to="#teleports">
     <div
-      ref="itemFloating" :class="{ hover: hoverMode }" :style="floatingStyles" class="History-Content-MenuWrapper"
-      @mouseenter="hoverMode = hover = true" @mouseleave="hover = false"
+      ref="itemFloating"
+      :class="{ hover: hoverMode }"
+      :style="floatingStyles"
+      class="History-Content-MenuWrapper"
+      @mouseenter="hoverMode = hover = true"
+      @mouseleave="hover = false"
     >
       <div class="History-Content-Menu fake-background">
         <div
-          v-for="menu in menus" :key="menu.name" v-wave
-          :class="{ divider: menu.type === 'divider', danger: menu.danger }" class="History-Content-Menu-Item"
+          v-for="menu in menus"
+          :key="menu.name"
+          v-wave
+          :class="{ divider: menu.type === 'divider', danger: menu.danger }"
+          class="History-Content-Menu-Item"
           @click.stop="menu.trigger(modelValue.id)"
         >
           <template v-if="menu.type === 'divider'">
@@ -366,18 +405,12 @@ const update = computed(() => {
       }
 
       color: #fff;
-      background-color: var(
-        --wallpaper-color-light,
-        var(--el-color-primary-light-5)
-      );
+      background-color: var(--wallpaper-color-light, var(--el-color-primary-light-5));
     }
 
     &.active {
       color: var(--el-text-color-primary);
-      background-color: var(
-        --wallpaper-color-light,
-        var(--el-color-primary-light-5)
-      );
+      background-color: var(--wallpaper-color-light, var(--el-color-primary-light-5));
     }
 
     position: relative;
