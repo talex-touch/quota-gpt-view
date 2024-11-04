@@ -107,14 +107,17 @@ provide('appOptions', pageOptions)
 } */
 
 .ULTIMATE {
+  --plan-fill: #299b48;
   --plan-color: #299b4850;
 }
 
 .STANDARD {
+  --plan-fill: #306df7;
   --plan-color: #306df750;
 }
 
 .DEV {
+  --plan-fill: #fc4870;
   --plan-color: #fc487050;
 }
 

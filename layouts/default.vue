@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import hotkeys from 'hotkeys-js'
-import UserAccountAvatar from '~/components/personal/UserAccountAvatar.vue'
+import ShrinkAccountAvatar from '~/components/personal/ShrinkAccountAvatar.vue'
 import IndexNavbar from '~/components/chore/IndexNavbar.vue'
 import { $event } from '~/composables/events'
 
@@ -47,7 +47,7 @@ onMounted(() => {
               <IconSvgStartSvg />
             </AnimateIcon> -->
 
-            <UserAccountAvatar mt-4 />
+            <ShrinkAccountAvatar mt-4 />
           </div>
         </el-aside>
         <!-- <el-header class="Navbar-Header only-pe-display">
