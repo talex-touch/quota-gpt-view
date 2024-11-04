@@ -259,6 +259,10 @@ const update = computed(() => {
     text-overflow: ellipsis;
   }
 
+  span {
+    width: 80%;
+  }
+
   &-Inner {
     &:hover {
       background-color: var(--el-fill-color-light);

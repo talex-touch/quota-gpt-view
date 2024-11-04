@@ -403,7 +403,7 @@ function handleLogin() {
           </span> -->
 
           <span
-            v-if="!!pageOptions.conversation.messages.length"
+            v-if="!viewMode && !!pageOptions.conversation.messages.length"
             :class="pageOptions.share.enable ? 'warning shining' : ''" cursor-pointer class="tag" @click="handleShare"
           >
             <i i-carbon:share />分享对话
@@ -484,6 +484,7 @@ function handleLogin() {
   transform: translateX(-50%);
 
   overflow: hidden;
+  border-radius: 18px;
   box-shadow: var(--el-box-shadow);
   background-color: var(--el-bg-color-page);
   transition: 0.25s;

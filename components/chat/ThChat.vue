@@ -176,9 +176,14 @@ const processedMessageList = computed(() => {
           <br v-for="i in 10" :key="i">
 
           <div v-if="viewMode" class="ThChat-RateLimit">
-            <span v-if="viewMode">
-              此对话为分享对话，你无法做任何修改。
-            </span>
+            <div v-if="viewMode">
+              <p>
+                此对话为分享对话，你无法做任何修改。
+              </p>
+              <p>
+                当前对话涵盖分享者主观信息，科塔智爱不对此负责。
+              </p>
+            </div>
             <!-- 为了避免恶意使用，你需要登录来解锁聊天限制！ -->
           </div>
         </div>
@@ -231,27 +236,31 @@ const processedMessageList = computed(() => {
 }
 
 .ThChat-RateLimit {
-  &::before {
-    z-index: -1;
-    content: '';
-    position: absolute;
+  // &::before {
+  //   z-index: -1;
+  //   content: '';
+  //   position: absolute;
 
-    left: -10%;
-    width: 120%;
+  //   left: -10%;
+  //   width: 120%;
 
-    height: 20px;
+  //   height: 20px;
 
-    background: linear-gradient(to bottom, transparent 0%, var(--el-bg-color));
-  }
+  //   background: linear-gradient(to bottom, transparent 0%, var(--el-bg-color));
+  // }
 
   z-index: 3;
   position: sticky;
   margin: 1rem 0 2rem;
 
-  bottom: 20px;
+  bottom: 30px;
 
   text-align: center;
   color: var(--el-color-danger);
+
+  p {
+    text-shadow: 0 0 24px var(--theme-color);
+  }
 }
 
 .ThChat-Setting {
