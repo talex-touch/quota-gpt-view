@@ -56,6 +56,9 @@ const expand = computed({
     userConfig.value.pri_info.appearance.expand = val
   },
   get() {
+    if (viewMode.value)
+      return false
+
     return userConfig.value.pri_info.appearance.expand
   },
 })
