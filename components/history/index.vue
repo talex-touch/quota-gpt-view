@@ -265,7 +265,7 @@ onBeforeUnmount(() => dispose.value = true)
 <template>
   <div ref="dom" class="History" :class="{ plan: userStore.subscription, searchable: searchedList.enable }">
     <teleport :disabled="dispose" to="body">
-      <div v-if="!dispose" :class="{ expand }" class="History-Indicator only-pc-display" @click="expand = !expand" />
+      <div v-if="!dispose" :class="{ expand }" class="History-Indicator" @click="expand = !expand" />
     </teleport>
 
     <div class="History-Title">
@@ -529,6 +529,10 @@ div.History {
 }
 
 .History-Indicator {
+  .mobile & {
+    display: none;
+  }
+
   &:hover {
     opacity: 1;
 

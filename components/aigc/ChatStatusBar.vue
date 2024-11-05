@@ -63,7 +63,8 @@ const props = defineProps<{
     color: var(--el-text-color-primary);
   }
 
-  .mobile & {
+  .mobile &,
+  .tablet & {
     padding-top: 14px;
     padding-bottom: 28px;
     justify-content: center;

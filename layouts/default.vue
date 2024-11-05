@@ -29,7 +29,7 @@ onMounted(() => {
   <Suspense>
     <ClientOnly>
       <main :class="route.name" class="DefaultTemplate-Container">
-        <el-aside class="only-pc-display">
+        <el-aside>
           <div class="Navbar-Aside">
             <div class="LogoContainer">
               <ChoreLogo />
@@ -190,6 +190,10 @@ onMounted(() => {
 
       opacity: 0.85;
       background-color: var(--el-bg-color);
+    }
+
+    .mobile & {
+      display: none;
     }
     z-index: 2;
     position: relative;
