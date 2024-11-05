@@ -20,7 +20,7 @@ export default {
       keyword: '',
     }) as Promise<IPageResponse<any>>
   },
-  getPromptDetail(id: string) {
+  getPromptDetail(id: number) {
     return endHttp.get(`aigc/prompts/detail/${id}`)
   },
   createShareMessage(chat_id: string) {

@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import { autoUpdate, flip, offset, useFloating } from '@floating-ui/vue'
 import UserAvatar from '~/components/personal/UserAvatar.vue'
 import { getPromptTemplate } from '~/composables/api/chat'
 
 const props = defineProps<{
   input: string
   show: boolean
+  target: any
 }>()
 
 const emits = defineEmits<{
@@ -98,32 +100,44 @@ function handleKeyDown(e: KeyboardEvent) {
 
 onMounted(() => document.addEventListener('keydown', handleKeyDown))
 onUnmounted(() => document.removeEventListener('keydown', handleKeyDown))
+
+const inputRef = computed(() => props.target)
+const floatingRef = ref()
+
+const { floatingStyles } = useFloating(inputRef, floatingRef, {
+  placement: 'left-start',
+  middleware: [offset(({ rects }) => ({
+    alignmentAxis: -rects.floating.height,
+  })), flip()],
+  whileElementsMounted: autoUpdate,
+})
 </script>
 
 <template>
-  <div :class="{ show }" class="ThInputAt">
-    <!-- <div class="ThInputAt-Header">
-      <el-input v-model.lazy="query" placeholder="搜索角色模板..." />
-    </div> -->
-    <el-scrollbar>
-      <el-empty v-if="!roles.length" description="暂无角色" />
-      <div v-else class="ThInputAt-Wrapper">
-        <div
-          v-for="(item, ind) in roles" :id="`at-prompt-role-${ind}`" :key="item.id" v-wave
-          :class="{ active: index === ind }" class="ThInputAt-Item" @click="handleSelect(ind)"
-        >
-          <UserAvatar :avatar="item.avatar" />
-          <div class="ThInputAt-Item-Info">
-            <p>{{ item.title }}</p>
-            <p class="description">
-              {{ item.content }}
-            </p>
+  <teleport to="#teleports">
+    <div ref="floatingRef" :class="{ show }" class="ThInputAt-Wrapper" :style="floatingStyles">
+      <div class="ThInputAt fake-background">
+        <el-scrollbar>
+          <el-empty v-if="!roles.length" description="暂无角色" />
+          <div v-else class="ThInputAt-Main">
+            <div
+              v-for="(item, ind) in roles" :id="`at-prompt-role-${ind}`" :key="item.id" v-wave
+              :class="{ active: index === ind }" class="ThInputAt-Item" @click="handleSelect(ind)"
+            >
+              <UserAvatar :avatar="item.avatar" />
+              <div class="ThInputAt-Item-Info">
+                <p>{{ item.title }}</p>
+                <p class="description">
+                  {{ item.description || '-' }}
+                </p>
+              </div>
+              <span class="usage">{{ item.usages?.length }}人正在使用</span>
+            </div>
           </div>
-          <span class="usage">{{ item.usages?.length }}人正在使用</span>
-        </div>
+        </el-scrollbar>
       </div>
-    </el-scrollbar>
-  </div>
+    </div>
+  </teleport>
 </template>
 
 <style lang="scss">
@@ -131,6 +145,7 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeyDown))
   &.active {
     background-color: var(--el-fill-color);
   }
+
   position: relative;
   display: flex;
   align-items: center;
@@ -167,6 +182,7 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeyDown))
     flex: 1;
     width: 80%;
     margin-left: 1rem;
+
     p {
       &.description {
         // 高度只有一行 溢出隐藏
@@ -178,10 +194,12 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeyDown))
       }
 
       margin: 0;
+
       &:first-child {
         font-size: 1.2rem;
         font-weight: bold;
       }
+
       &:last-child {
         font-size: 0.8rem;
         color: var(--el-text-color-secondary);
@@ -191,9 +209,8 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeyDown))
   }
 }
 
-.ThInputAt-Wrapper {
+.ThInputAt-Main {
   position: relative;
-  padding-right: 0.5rem;
 
   width: 100%;
 }
@@ -203,23 +220,37 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeyDown))
     width: 3px;
   }
 
-  &.show {
-    transform: translateY(0) scale(1);
+  .show & {
+    opacity: 1;
+    transform: translateX(100%) scale(1) translateY(-1rem);
   }
-  z-index: 0;
+
+  &-Wrapper {
+    z-index: 2;
+    pointer-events: none;
+
+    width: 380px;
+    height: 300px;
+
+    &.show {
+      pointer-events: all;
+    }
+  }
+
   position: absolute;
   padding: 1rem;
 
-  width: 380px;
-  height: 300px;
-
-  bottom: 60px;
+  width: 100%;
+  height: 100%;
 
   border-radius: 16px;
-  transform-origin: left bottom;
   box-shadow: var(--el-box-shadow);
-  transform: translateY(10%) scale(0);
-  background-color: var(--el-bg-color);
-  transition: 0.25s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+
+  opacity: 0;
+  transform: translateX(100%) scale(0.9) translateY(10%);
+  transition: cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.35s;
+  transform-origin: center 10%;
+
+  backdrop-filter: blur(18px) saturate(180%);
 }
 </style>

@@ -75,6 +75,7 @@ export enum IChatRole {
 }
 
 export interface IChatInnerItemMeta {
+  internet?: boolean
   temperature?: number
 
   // TODO: context memory
@@ -137,7 +138,12 @@ export interface IChatConversation extends IChatPersist {
   lastUpdate: number
   // lastSummarizeIndex: number
 
-  templateId: number
+  template?: {
+    id: number
+    avatar: string
+    title: string
+    description: string
+  }
 }
 
 export interface IChatBody {

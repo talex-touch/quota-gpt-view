@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { InputPlusProperty } from './input'
+import type { IChatInnerItemMeta } from '~/composables/api/base/v1/aigc/completion-types'
 
 const props = defineProps<{
-  modelValue: InputPlusProperty
+  modelValue: IChatInnerItemMeta
 }>()
 
 const emits = defineEmits<{
-  (name: 'update:modelValue', data: InputPlusProperty): void
+  (name: 'update:modelValue', data: IChatInnerItemMeta): void
   (event: 'image'): void
 }>()
 

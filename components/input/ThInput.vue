@@ -6,7 +6,7 @@ import { cur, tipsVisible } from '../chat/input-tips'
 import ThInputPlus from './ThInputPlus.vue'
 import type { InputPlusProperty } from './input'
 import InputHeaderFiles from './addon/InputHeaderFiles.vue'
-import { IChatItemStatus, type IInnerItemMeta, type IInnerItemType } from '~/composables/api/base/v1/aigc/completion-types'
+import { type IChatInnerItemMeta, IChatItemStatus, type IInnerItemMeta } from '~/composables/api/base/v1/aigc/completion-types'
 import { $endApi } from '~/composables/api/base'
 import { globalOptions } from '~/constants'
 
@@ -18,13 +18,14 @@ const props = defineProps<{
   tip: ITip | null
 }>()
 const emits = defineEmits<{
-  (name: 'template', data: any): void
-  (name: 'send', data: IInnerItemMeta[], meta: InputPlusProperty): void
+  (event: 'selectTemplate', data: any): void
+  (event: 'send', data: IInnerItemMeta[], meta: IChatInnerItemMeta): void
 }>()
 
-const inputProperty = ref<InputPlusProperty>({
-  internet: false,
-  temperature: 0,
+const template = ref<any>()
+const inputProperty = ref<IChatInnerItemMeta>({
+  internet: true,
+  temperature: 50,
 })
 
 const input = ref<{
@@ -35,7 +36,6 @@ const input = ref<{
   files: [],
 })
 // const textInput = computed(() => input.value.filter((item: IInnerItemMeta) => item.type === 'text').map(item => item.value).join(''))
-const template = ref<any>({})
 const nonPlusMode = computed(() => props.templateEnable && !template.value?.title && (input.value.text.startsWith('/') || input.value.text.startsWith('@')))
 
 const inputHistories = useLocalStorage<string[]>('inputHistories', [])
@@ -77,9 +77,12 @@ function handleSend(event: Event) {
     ...files,
   ].filter(item => item.value)
 
-  emits('send', inputMeta, inputProperty.value, /* {
-    template: template.value?.id || -1,
-  } */)
+  emits('selectTemplate', template.value?.id ? template.value : null)
+
+  emits('send', inputMeta, {
+    ...inputProperty.value,
+    temperature: (inputProperty.value.temperature || 0) / 100,
+  })
 
   input.value = {
     text: '',
@@ -191,6 +194,8 @@ watch(
   { immediate: true },
 )
 
+// watch(() => template.value, (val) => { emits('selectTemplate', val?.description ? val : null) })
+
 function focusInput() {
   const el = document.getElementById('main-input')
 
@@ -207,10 +212,6 @@ function handleTemplateSelect(data: any) {
   input.value.text = ''
   input.value.files = []
 }
-
-watch(() => template.value, (val) => {
-  emits('template', val)
-})
 
 const tokenLimit = computed(() => userStore.value.isLogin ? 8192 : 256)
 
@@ -424,18 +425,19 @@ onStartTyping(focusInput)
     </div>
 
     <InputAddonThInputAt
-      v-if="templateEnable" :input="input.text"
+      v-if="templateEnable"
+      :target="th_input" :input="input.text"
       :show="!template?.title && input.text.startsWith('@')" @select="handleTemplateSelect"
     />
 
     <ThInputPlus v-if="!template?.title" v-model="inputProperty" @image="handleImagePlus" />
 
     <div flex class="ThInput-Input">
-      <div v-if="template.content || input.files?.length" class="ThInput-InputHeader">
+      <div v-if="template?.id || input.files?.length" class="ThInput-InputHeader">
         <el-scrollbar>
           <InputHeaderFiles :files="input.files" @delete="handleDeleteFile" />
-          <div class="ThInput-InputHeader-Main">
-            {{ template.content }}
+          <div v-if="template" class="ThInput-InputHeader-Main">
+            {{ template.description }}
           </div>
         </el-scrollbar>
       </div>

@@ -21,6 +21,7 @@ interface IChatItemProp {
   total: number
   share: boolean
   select: number[]
+  template: any
 }
 
 const props = defineProps<IChatItemProp>()
@@ -146,10 +147,17 @@ function noneCard(block: IInnerItemMeta) {
     </div>
 
     <div class="ChatItem-Avatar">
-      <img src="/logo.png">
+      <PersonalUserAvatar v-if="template.avatar" :avatar="template.avatar" />
+      <img v-else src="/logo.png">
     </div>
     <!-- error: innerItem.status === IChatItemStatus.ERROR, -->
     <div v-if="innerItem" class="ChatItem-Wrapper">
+      <el-tooltip placement="top" :content="`百变角色 ${template.title}`">
+        <div v-if="!isUser" class="agent-name">
+          <div i-carbon:ai-launch />{{ template.title }}
+        </div>
+      </el-tooltip>
+
       <div class="ChatItem-Content">
         <div v-if="innerItem.status === IChatItemStatus.WAITING" class="ChatItem-Generating">
           <div class="ChatItem-GeneratingWrapper">
@@ -236,10 +244,7 @@ function noneCard(block: IInnerItemMeta) {
         </span>
 
         <template v-if="!viewMode && !isUser && total === index + 1">
-          <ItemModelSelector
-            v-model="innerItem.model" :page="item.page" :done="isEnd"
-            @retry="handleRetry"
-          />
+          <ItemModelSelector v-model="innerItem.model" :page="item.page" :done="isEnd" @retry="handleRetry" />
           <ChatAddonCommandSelector @translate="handleCommandTranslate" />
         </template>
         <template v-else-if="!isUser">
@@ -334,6 +339,32 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
 }
 
 .ChatItem-Wrapper {
+  .agent-name {
+    &::after {
+      content: '';
+      position: absolute;
+
+      left: 0;
+      bottom: -2px;
+
+      width: 100%;
+      height: 2px;
+
+      border-radius: 4px;
+      background-color: var(--theme-color);
+    }
+    position: relative;
+    display: flex;
+
+    width: max-content;
+
+    gap: 0.5rem;
+    align-items: center;
+
+    color: var(--el-text-color-secondary);
+    font-weight: 600;
+  }
+
   .ChatItem-Content-Inner {
     .suggest-card {
       &:hover {

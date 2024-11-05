@@ -38,6 +38,7 @@ const commandSelector = ref()
 const commandFloating = ref()
 
 const { floatingStyles } = useFloating(commandSelector, commandFloating, {
+  placement: 'bottom',
   middleware: [offset(10), flip()],
   whileElementsMounted: autoUpdate,
 })

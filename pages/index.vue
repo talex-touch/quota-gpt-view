@@ -7,7 +7,7 @@ import ModelSelector from '~/components/model/ModelSelector.vue'
 import type { InputPlusProperty } from '~/components/input/input'
 import { getTargetPrompt } from '~/composables/api/chat'
 import { $completion } from '~/composables/api/base/v1/aigc/completion'
-import { type IChatConversation, type IChatInnerItem, type IChatItem, IChatItemStatus, type IInnerItemMeta, PersistStatus, QuotaModel } from '~/composables/api/base/v1/aigc/completion-types'
+import { type IChatConversation, type IChatInnerItem, type IChatInnerItemMeta, type IChatItem, IChatItemStatus, type IInnerItemMeta, PersistStatus, QuotaModel } from '~/composables/api/base/v1/aigc/completion-types'
 import { $historyManager } from '~/composables/api/base/v1/aigc/history'
 import { $endApi } from '~/composables/api/base'
 import { $event } from '~/composables/events'
@@ -50,6 +50,7 @@ const pageOptions = reactive<{
   view: null,
   status: IChatItemStatus.AVAILABLE,
 })
+
 const expand = computed({
   set(val: boolean) {
     userConfig.value.pri_info.appearance.expand = val
@@ -76,6 +77,11 @@ async function handleDelete(id: string) {
   $historyManager.options.list.delete(id)
 }
 
+function handleSelectTemplate(data: any) {
+  if (!pageOptions.conversation.template)
+    pageOptions.conversation.template = data
+}
+
 watch(
   () => pageOptions.select,
   (select) => {
@@ -91,14 +97,6 @@ watch(
     }
 
     setTimeout(async () => {
-      // get template
-      // pageOptions.template
-      // if (conversation.templateId !== undefined && conversation.templateId !== -1) {
-      //   const res: any = await getTargetPrompt(conversation.templateId)
-
-      //   pageOptions.template = res.data
-      // }
-
       pageOptions.conversation = conversation
 
       // get last msg
@@ -218,7 +216,7 @@ async function handleRetry(index: number, page: number, innerItem: IChatInnerIte
   chatRef.value?.handleBackToBottom()
 }
 
-async function handleSend(query: IInnerItemMeta[], _meta: any) {
+async function handleSend(query: IInnerItemMeta[], meta: IChatInnerItemMeta) {
   handleCancelReq()
 
   const conversation = pageOptions.conversation
@@ -246,9 +244,7 @@ async function handleSend(query: IInnerItemMeta[], _meta: any) {
   const innerItem = $completion.emptyChatInnerItem({
     model: getModel(),
     value: query,
-    meta: {
-      temperature: 0,
-    },
+    meta,
     page: shiftItem?.page || 0,
     timestamp: Date.now(),
     status: IChatItemStatus.AVAILABLE,
@@ -385,7 +381,9 @@ function handleLogin() {
             i-carbon:edit
             @click="handleCreate"
           />
-          <div v-else class="login-tag" @click="handleLogin">登录</div>
+          <div v-else class="login-tag" @click="handleLogin">
+            登录
+          </div>
         </template>
       </ThChat>
 
@@ -398,6 +396,7 @@ function handleLogin() {
             :center="pageOptions.conversation.messages?.length < 1"
             :tip="tip"
             @send="handleSend"
+            @select-template="handleSelectTemplate"
           />
         </template>
       </EmptyGuide>
@@ -527,7 +526,7 @@ function handleLogin() {
 .PageContainer {
   &::before {
     z-index: -2;
-    content: "";
+    content: '';
     position: absolute;
 
     top: 0;
@@ -547,7 +546,7 @@ function handleLogin() {
 
   &::after {
     z-index: -1;
-    content: "";
+    content: '';
     position: absolute;
 
     top: 0;
@@ -599,7 +598,7 @@ function handleLogin() {
   &-History {
     &::before {
       z-index: -2;
-      content: "";
+      content: '';
       position: absolute;
 
       top: 0;
@@ -616,7 +615,7 @@ function handleLogin() {
 
     &::after {
       z-index: -1;
-      content: "";
+      content: '';
       position: absolute;
 
       top: 0;

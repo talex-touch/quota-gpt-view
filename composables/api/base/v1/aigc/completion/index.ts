@@ -274,7 +274,6 @@ export const $completion = {
       topic: '新的聊天',
       messages: [],
       lastUpdate: Date.now(),
-      templateId: -1,
       sync: PersistStatus.SUCCESS,
     } as IChatConversation
   },
@@ -458,11 +457,13 @@ export const $completion = {
         //   innerMsg.status = IChatItemStatus.CANCELLED
         // })
 
+        console.log('template', conversation, conversation.template, conversation.template?.id ?? -1)
+
         useCompletionExecutor(
           {
             ...options || {},
-            temperature: innerMsg.meta.temperature || 0,
-            templateId: -1,
+            temperature: innerMsg.meta.temperature || 0.5,
+            templateId: conversation.template?.id ?? -1,
             messages: JSON.parse(JSON.stringify(conversation.messages)),
             index: index === -1 ? 0 : index,
             chat_id: conversation.id,

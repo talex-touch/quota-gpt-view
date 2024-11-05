@@ -166,6 +166,7 @@ const processedMessageList = computed(() => {
             v-for="(message, index) in processedMessageList" :key="message.id"
             v-model:item="messagesModel.messages[message.$index]" :index="index" :ind="message.$index"
             :total="processedMessageList.length" :share="options.share.enable" :select="options.share.selected"
+            :template="messages.template"
             @select="handleSelectShareItem" @retry="handleRetry(message.$index, $event)"
             @suggest="handleSuggest($event)"
           />
