@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { autoUpdate, flip, offset, useFloating } from '@floating-ui/vue'
 import type { IChatInnerItemMeta } from '~/composables/api/base/v1/aigc/completion-types'
 
 const props = defineProps<{
@@ -9,6 +10,9 @@ const emits = defineEmits<{
   (name: 'update:modelValue', data: IChatInnerItemMeta): void
   (event: 'image'): void
 }>()
+
+const hover = ref(false)
+const hoverMode = debouncedRef(hover, 50)
 
 const property = useVModel(props, 'modelValue', emits)
 
@@ -42,47 +46,74 @@ const options: any = reactive([
     model: property.value.temperature,
   },
 ])
+
+const buttonTrigger = ref()
+const popoverFloating = ref()
+
+const { floatingStyles } = useFloating(buttonTrigger, popoverFloating, {
+  placement: 'top',
+  middleware: [offset(25), flip()],
+  whileElementsMounted: autoUpdate,
+})
 </script>
 
 <template>
-  <div class="ThInput-Plus">
-    <div class="ThInput-Plus-Option">
-      <div
-        v-for="option in options" :key="option.label" v-wave :class="{ checked: option.checked?.() }"
-        class="ThInput-Plus-Option-Item" @click="option.onclick"
-      >
-        <template v-if="option.type === 'button'">
-          <div :class="option.icon" />
-          <div>{{ option.label }}</div>
-        </template>
-        <template v-else-if="option.type === 'checkbox'">
-          <div :class="option.icon" />
-          <div>{{ option.label }}</div>
+  <div class="ThInput-Plus fake-background" @mouseenter="hoverMode = hover = true" @mouseleave="hover = false">
+    <div ref="buttonTrigger" class="button" i-carbon-add-large />
+  </div>
 
-          <div class="checkbox-status">
-            <div i-carbon-checkmark />
-          </div>
-        </template>
-        <template v-else-if="option.type === 'slider'">
-          <InputOptionSlider v-model="option.model" />
-          <!-- <el-slider v-model="option.model" /> -->
+  <teleport to="#teleports">
+    <div ref="popoverFloating" :class="{ hover: hoverMode }" :style="floatingStyles" class="ThInput-PlusWrapper">
+      <div class="ThInput-Plus-Option fake-background">
+        <div
+          v-for="option in options" :key="option.label" v-wave
+          :class="{ checked: option.checked?.() }" class="ThInput-Plus-Option-Item" @mouseenter="hoverMode = hover = true" @mouseleave="hover = false"
+          @click="option.onclick"
+        >
+          <template v-if="option.type === 'button'">
+            <div :class="option.icon" />
+            <div>{{ option.label }}</div>
+          </template>
+          <template v-else-if="option.type === 'checkbox'">
+            <div :class="option.icon" />
+            <div>{{ option.label }}</div>
 
-          <div :class="option.icon" />
-          <div class="slider-wrapper">
-            <span>{{ option.label }}</span>
-
-            <div style="opacity: .75;font-size: 14px" class="checkbox-status">
-              {{ option.model }}%
+            <div class="checkbox-status">
+              <div i-carbon-checkmark />
             </div>
-          </div>
-        </template>
+          </template>
+          <template v-else-if="option.type === 'slider'">
+            <InputOptionSlider v-model="option.model" />
+            <!-- <el-slider v-model="option.model" /> -->
+
+            <div :class="option.icon" />
+            <div class="slider-wrapper">
+              <span>{{ option.label }}</span>
+
+              <div style="opacity: .75;font-size: 14px" class="checkbox-status">
+                {{ option.model }}%
+              </div>
+            </div>
+          </template>
+        </div>
       </div>
     </div>
-    <div class="button" i-carbon-add-large />
-  </div>
+  </teleport>
 </template>
 
 <style lang="scss">
+.ThInput-PlusWrapper {
+  &.hover {
+    pointer-events: all;
+  }
+  z-index: 2;
+
+  width: 180px;
+  height: 152px;
+
+  pointer-events: none;
+}
+
 .ThInput-Plus-Option {
   &-Item {
     .slider-wrapper {
@@ -170,23 +201,26 @@ const options: any = reactive([
 
     user-select: none;
   }
+
+  .hover & {
+    opacity: 1;
+    transform: translate(50%) translateX(-24px) scale(1) translateY(0);
+  }
+
   position: absolute;
   padding: 0.5rem 0.5rem;
 
-  left: -0.5rem;
-  bottom: 0;
-
-  width: 180px;
-  height: max-content;
+  width: 100%;
+  height: 100%;
 
   border-radius: 18px;
   box-shadow: var(--el-box-shadow);
-  background-color: var(--el-bg-color);
 
-  // opacity: 0;
-  transition: 0.25s;
-  transform-origin: left bottom;
-  transform: translateY(-50px) translateY(10%) scale(0);
+  opacity: 0;
+  transform: translateX(50%) translateX(-24px) scale(0.9) translateY(10%);
+  transition: cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.35s;
+
+  backdrop-filter: blur(18px) saturate(180%);
 }
 
 .ThInput-Plus {
@@ -197,7 +231,8 @@ const options: any = reactive([
     }
 
     cursor: pointer;
-    background: var(--el-border-color-extra-light);
+    --fake-opacity: 0.5;
+    // background: var(--el-border-color-extra-light);
   }
 
   .button:active {
@@ -210,6 +245,7 @@ const options: any = reactive([
 
     margin-top: 0.25rem;
   }
+
   z-index: 20;
   position: relative;
   display: flex;
@@ -220,10 +256,10 @@ const options: any = reactive([
   width: 32px;
   height: 32px;
 
-  bottom: 2px;
-
   border-radius: 12px;
   transition: 0.25s;
+
+  --fake-opacity: 0;
 
   .generating & {
     opacity: 0;
