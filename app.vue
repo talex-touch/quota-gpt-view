@@ -624,6 +624,7 @@ font.immersive-translate-target-wrapper {
   height: 100%;
 
   opacity: var(--fake-opacity, 0.25);
+  border-radius: inherit;
   background-color: var(--fake-color, var(--el-bg-color-page));
 }
 </style>

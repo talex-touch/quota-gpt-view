@@ -152,11 +152,16 @@ function noneCard(block: IInnerItemMeta) {
     </div>
     <!-- error: innerItem.status === IChatItemStatus.ERROR, -->
     <div v-if="innerItem" class="ChatItem-Wrapper">
-      <el-tooltip placement="top" :content="`百变角色 ${template.title}`">
-        <div v-if="!isUser" class="agent-name">
-          <div i-carbon:ai-launch />{{ template.title }}
+      <div v-if="template.id && !isUser" class="ChatItem-TemplateAgent">
+        <el-tooltip placement="top" :content="`百变角色 ${template.title}`">
+          <div class="agent-name">
+            <div i-carbon:ai-launch />{{ template.title }}
+          </div>
+        </el-tooltip>
+        <div class="agent-addon fake-background">
+          {{ template.description }}
         </div>
-      </el-tooltip>
+      </div>
 
       <div class="ChatItem-Content">
         <div v-if="innerItem.status === IChatItemStatus.WAITING" class="ChatItem-Generating">
@@ -338,7 +343,31 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
   }
 }
 
-.ChatItem-Wrapper {
+.ChatItem-TemplateAgent {
+  &:hover {
+    .agent-addon {
+      margin: 0.5rem 0;
+
+      opacity: 1;
+      max-height: 200px;
+    }
+  }
+
+  .agent-addon {
+    position: relative;
+    padding: 0.75rem;
+
+    border-radius: 16px;
+    --fake-opacity: 0.75;
+    color: var(--el-text-color-secondary);
+
+    opacity: 0;
+    max-height: 0;
+    margin: 0 0 -1rem;
+    overflow: hidden;
+    transition: 0.35s;
+  }
+
   .agent-name {
     &::after {
       content: '';
@@ -353,6 +382,7 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
       border-radius: 4px;
       background-color: var(--theme-color);
     }
+
     position: relative;
     display: flex;
 
@@ -364,7 +394,9 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
     color: var(--el-text-color-secondary);
     font-weight: 600;
   }
+}
 
+.ChatItem-Wrapper {
   .ChatItem-Content-Inner {
     .suggest-card {
       &:hover {
@@ -458,6 +490,7 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
     height: fit-content;
 
     transition: 0.5s;
+
     .user & {
       width: max-content;
       max-width: 100%;

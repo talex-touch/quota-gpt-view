@@ -125,7 +125,7 @@ const { floatingStyles } = useFloating(inputRef, floatingRef, {
               :class="{ active: index === ind }" class="ThInputAt-Item" @click="handleSelect(ind)"
             >
               <UserAvatar :avatar="item.avatar" />
-              <div class="ThInputAt-Item-Info">
+              <div class="ThInputAt-Item-Info fake-background">
                 <p>{{ item.title }}</p>
                 <p class="description">
                   {{ item.description || '-' }}
@@ -142,11 +142,6 @@ const { floatingStyles } = useFloating(inputRef, floatingRef, {
 
 <style lang="scss">
 .ThInputAt-Item {
-  &.active {
-    border: 1px solid var(--theme-color);
-    background-color: var(--el-fill-color);
-  }
-
   position: relative;
   display: flex;
   align-items: center;
@@ -160,10 +155,16 @@ const { floatingStyles } = useFloating(inputRef, floatingRef, {
   overflow-x: hidden;
   width: 100%;
 
-  border: 1px solid transparent;
+  --fake-opacity: 0;
+  border: 2px solid transparent;
 
   &:hover {
-    background-color: var(--el-fill-color);
+    --fake-opacity: 0.25; // var(--el-fill-color);
+  }
+
+  &.active {
+    border: 2px solid var(--theme-color);
+    --fake-opacity: 0.5;
   }
 
   .el-avatar {
