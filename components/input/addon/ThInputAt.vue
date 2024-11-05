@@ -143,6 +143,7 @@ const { floatingStyles } = useFloating(inputRef, floatingRef, {
 <style lang="scss">
 .ThInputAt-Item {
   &.active {
+    border: 1px solid var(--theme-color);
     background-color: var(--el-fill-color);
   }
 
@@ -158,6 +159,8 @@ const { floatingStyles } = useFloating(inputRef, floatingRef, {
 
   overflow-x: hidden;
   width: 100%;
+
+  border: 1px solid transparent;
 
   &:hover {
     background-color: var(--el-fill-color);
