@@ -158,7 +158,7 @@ function noneCard(block: IInnerItemMeta) {
             <div i-carbon:ai-launch />{{ template.title }}
           </div>
         </el-tooltip>
-        <div class="agent-addon fake-background">
+        <div v-if="template.description" class="agent-addon fake-background">
           {{ template.description }}
         </div>
       </div>
