@@ -147,12 +147,12 @@ function noneCard(block: IInnerItemMeta) {
     </div>
 
     <div class="ChatItem-Avatar">
-      <PersonalUserAvatar v-if="template.avatar" :avatar="template.avatar" />
+      <PersonalUserAvatar v-if="template?.avatar" :avatar="template.avatar" />
       <img v-else src="/logo.png">
     </div>
     <!-- error: innerItem.status === IChatItemStatus.ERROR, -->
     <div v-if="innerItem" class="ChatItem-Wrapper">
-      <div v-if="template.id && !isUser" class="ChatItem-TemplateAgent">
+      <div v-if="template?.id && !isUser" class="ChatItem-TemplateAgent">
         <el-tooltip placement="top" :content="`百变角色 ${template.title}`">
           <div class="agent-name">
             <div i-carbon:ai-launch />{{ template.title }}
