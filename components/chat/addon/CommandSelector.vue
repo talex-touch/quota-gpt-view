@@ -64,7 +64,10 @@ async function handleCommand(cmd: any) {
   </span>
 
   <teleport to="#teleports">
-    <div ref="commandFloating" :class="{ hover: hoverMode }" :style="floatingStyles" class="ItemCommandSelector-Floating">
+    <div
+      ref="commandFloating" :class="{ hover: hoverMode }" :style="floatingStyles"
+      class="ItemCommandSelector-Floating"
+    >
       <div class="ItemCommandSelector-Popover" @mouseenter="hoverMode = hover = true" @mouseleave="hover = false">
         <p mb-2 op-50>
           超级命令
@@ -107,6 +110,7 @@ async function handleCommand(cmd: any) {
 
     gap: 0.5rem;
   }
+
   .command-popover-item {
     .lock {
       display: none;
@@ -137,6 +141,7 @@ async function handleCommand(cmd: any) {
       i {
         display: block;
       }
+
       // z-index: 1;
       position: relative;
       display: flex;
@@ -153,10 +158,12 @@ async function handleCommand(cmd: any) {
       --fake-color: var(--theme-color);
       // background-color: var(--el-bg-color);
     }
+
     .main p.desc {
       opacity: 0.75;
       font-size: 12px;
     }
+
     position: relative;
     display: flex;
     padding: 0.75rem;
@@ -170,19 +177,23 @@ async function handleCommand(cmd: any) {
     cursor: pointer;
     overflow: hidden;
     border-radius: 8px;
+
     &:hover {
       .lock {
         opacity: 0.95;
 
         backdrop-filter: blur(18px);
       }
+
       .icon {
         --fake-opacity: 1;
       }
+
       &::after {
         opacity: 0.5;
       }
     }
+
     &::after {
       z-index: -1;
       content: '';
@@ -215,6 +226,7 @@ async function handleCommand(cmd: any) {
     filter: blur(8px);
     background-color: var(--el-bg-color);
   }
+
   position: absolute;
   padding: 1rem;
 
@@ -242,12 +254,10 @@ async function handleCommand(cmd: any) {
 }
 
 .ItemCommandSelector-Floating {
-  .mobile & {
-    display: none;
-  }
   &.hover {
     pointer-events: all;
   }
+
   z-index: 1;
   position: absolute;
 
@@ -268,6 +278,7 @@ async function handleCommand(cmd: any) {
 
     background-color: var(--el-bg-color-page);
   }
+
   .command-name {
     position: absolute;
 
@@ -277,6 +288,11 @@ async function handleCommand(cmd: any) {
     transition: 0.25s;
     transform: translateX(-50%) translateX(2.5px);
   }
+
+  .mobile & {
+    display: none;
+  }
+
   position: relative;
   display: flex;
   padding: 0.25rem;
