@@ -366,6 +366,8 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
     margin: 0 0 -1rem;
     overflow: hidden;
     transition: 0.35s;
+
+    backdrop-filter: blur(18px) saturate(180%);
   }
 
   .agent-name {
