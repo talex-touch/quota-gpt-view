@@ -11,10 +11,6 @@ export function postHistory(history: HistoryPostQuery) {
   return endHttp.post('aigc/conversations', history)
 }
 
-export function getPromptTemplate(keyword: string) {
-  return endHttp.get('aigc/prompts/search', { keyword })
-}
-
 export function getTargetPrompt(id: number) {
   return endHttp.get(`aigc/prompts/${id}`)
 }

@@ -38,4 +38,10 @@ export default {
       pageSize,
     })
   },
+  searchPromptTemplate(keyword: string) {
+    return endHttp.get('aigc/prompts/search', { keyword, pageSize: 50 })
+  },
+  getHostList() {
+    return endHttp.get('aigc/prompts/hot')
+  },
 }

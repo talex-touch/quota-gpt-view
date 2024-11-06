@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { autoUpdate, flip, offset, useFloating } from '@floating-ui/vue'
 import UserAvatar from '~/components/personal/UserAvatar.vue'
-import { getPromptTemplate } from '~/composables/api/chat'
+import { $endApi } from '~/composables/api/base'
 
 const props = defineProps<{
   input: string
@@ -16,15 +16,14 @@ const emits = defineEmits<{
 const index = ref(-1)
 // const query = ref('')
 const roles = ref<any>([])
+const hotList = ref<any>([])
+const loading = ref(false)
 
-async function fetchData() {
-  // 去除第一个字符
-  const query = props.input.slice(1)
-
-  const res: any = await getPromptTemplate(query)
+async function hotData() {
+  const res: any = await $endApi.v1.aigc.getHostList()
 
   if (res.code === 200) {
-    roles.value = res.data.items
+    roles.value = res.data
 
     if (roles.value.length)
       index.value = 0
@@ -38,6 +37,37 @@ async function fetchData() {
       plain: true,
     })
   }
+}
+
+async function fetchData() {
+  roles.value.length = 0
+
+  // 去除第一个字符
+  const query = props.input.slice(1)
+  if (!query)
+    return
+
+  loading.value = true
+
+  const res: any = await $endApi.v1.aigc.searchPromptTemplate(query)
+
+  if (res.code === 200) {
+    roles.value = res.data
+
+    if (roles.value.length)
+      index.value = 0
+    else index.value = -1
+  }
+  else {
+    ElMessage({
+      message: res.message || '无法搜索模板！',
+      grouping: true,
+      type: 'error',
+      plain: true,
+    })
+  }
+
+  loading.value = false
 }
 
 function handleSelect(ind: number) {
@@ -65,7 +95,7 @@ watch(() => index.value, (ind) => {
   const el = document.getElementById(id)
 
   if (el)
-    el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' })
+    el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' })
 })
 
 function handleKeyDown(e: KeyboardEvent) {
@@ -80,9 +110,11 @@ function handleKeyDown(e: KeyboardEvent) {
 
   switch (e.key) {
     case 'ArrowUp':
+      e.preventDefault()
       index.value = index.value > 0 ? index.value - 1 : roles.value.length - 1
       break
     case 'ArrowDown':
+      e.preventDefault()
       index.value = index.value < roles.value.length - 1 ? index.value + 1 : 0
       break
     case 'Enter': {
@@ -98,7 +130,11 @@ function handleKeyDown(e: KeyboardEvent) {
   // 判断小键盘上下键选择
 }
 
-onMounted(() => document.addEventListener('keydown', handleKeyDown))
+onMounted(() => {
+  document.addEventListener('keydown', handleKeyDown)
+
+  hotData()
+})
 onUnmounted(() => document.removeEventListener('keydown', handleKeyDown))
 
 const inputRef = computed(() => props.target)
@@ -111,6 +147,8 @@ const { floatingStyles } = useFloating(inputRef, floatingRef, {
   })), flip()],
   whileElementsMounted: autoUpdate,
 })
+
+const list = computed(() => roles.value.length ? roles.value : hotList.value)
 </script>
 
 <template>
@@ -118,20 +156,25 @@ const { floatingStyles } = useFloating(inputRef, floatingRef, {
     <div ref="floatingRef" :class="{ show }" class="ThInputAt-Wrapper" :style="floatingStyles">
       <div class="ThInputAt fake-background">
         <el-scrollbar>
-          <el-empty v-if="!roles.length" description="暂无角色" />
-          <div v-else class="ThInputAt-Main">
-            <div
-              v-for="(item, ind) in roles" :id="`at-prompt-role-${ind}`" :key="item.id" v-wave
-              :class="{ active: index === ind }" class="ThInputAt-Item" @click="handleSelect(ind)"
-            >
-              <UserAvatar :avatar="item.avatar" />
-              <div class="ThInputAt-Item-Info fake-background">
-                <p>{{ item.title }}</p>
-                <p class="description">
-                  {{ item.description || '-' }}
-                </p>
+          <div v-loader="loading" class="ThInputAt-Main">
+            <el-empty v-if="input.length > 1 && !roles.length" description="暂无角色" />
+            <div v-else class="ThInputAt-Main">
+              <p v-if="list.length" class="mention">
+                搜索到 {{ list.length }} 个结果
+              </p>
+              <div
+                v-for="(item, ind) in list" :id="`at-prompt-role-${ind}`" :key="item.id" v-wave
+                :class="{ active: index === ind }" class="ThInputAt-Item" @click="handleSelect(ind)"
+              >
+                <UserAvatar :avatar="item.avatar" />
+                <div class="ThInputAt-Item-Info fake-background">
+                  <p>{{ item.title }}</p>
+                  <p class="description">
+                    {{ item.description || '-' }}
+                  </p>
+                </div>
+                <!-- <span class="usage">{{ item.usages?.length || 0 }}人正在使用</span> -->
               </div>
-              <span class="usage">{{ item.usages?.length }}人正在使用</span>
             </div>
           </div>
         </el-scrollbar>
@@ -141,12 +184,25 @@ const { floatingStyles } = useFloating(inputRef, floatingRef, {
 </template>
 
 <style lang="scss">
+.ThInputAt-Main {
+  .mention {
+    color: var(--el-text-color-secondary);
+    font-size: 0.75em;
+    font-weight: 600;
+  }
+  position: relative;
+  padding: 0.25rem;
+
+  width: 100%;
+  min-height: 100%;
+}
+
 .ThInputAt-Item {
   position: relative;
   display: flex;
   align-items: center;
-  padding: 0.75rem 0.5rem;
-  padding-bottom: 1.5rem;
+  padding: 0.5rem 0.5rem;
+  // padding-bottom: 1.5rem;
   margin: 0.5rem 0;
   border-radius: 8px;
   transition: 0.3s;
@@ -168,6 +224,8 @@ const { floatingStyles } = useFloating(inputRef, floatingRef, {
   }
 
   .el-avatar {
+    flex-shrink: 0;
+
     width: 48px;
     height: 48px;
   }
@@ -194,13 +252,13 @@ const { floatingStyles } = useFloating(inputRef, floatingRef, {
         text-overflow: ellipsis;
         white-space: nowrap;
 
-        width: 70%;
+        width: 90%;
       }
 
       margin: 0;
 
       &:first-child {
-        font-size: 1.2rem;
+        font-size: 0.9em;
         font-weight: bold;
       }
 
@@ -235,6 +293,7 @@ const { floatingStyles } = useFloating(inputRef, floatingRef, {
 
     width: 380px;
     height: 300px;
+    max-width: 85vw;
 
     &.show {
       pointer-events: all;
