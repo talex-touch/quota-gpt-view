@@ -9,10 +9,113 @@ const src = computed(() => formatEndsImage(props.modelValue.avatar))
 
 const _keywordsTags = computed(() => [...(props.modelValue.keywords || '').split(',')].filter(i => i).slice(0, 3))
 const keywordsTags = computed(() => _keywordsTags.value.length ? ['角色'] : _keywordsTags.value)
+
+const expand = ref(false)
+const el = ref(null)
+const dialog = ref<HTMLElement>()
+const { x, y, top, right, bottom, left, width, height }
+  = useElementBounding(el)
+
+async function triggerExpand() {
+  if (expand.value) {
+    await shrinkDialog()
+
+    expand.value = false
+
+    return
+  }
+  expand.value = true
+
+  await expandDialog()
+}
+
+function resetDialog() {
+  const dom = dialog.value
+  if (!dom)
+    return
+
+  Object.assign(dom.style, {
+    'top': `${top.value}px`,
+    'left': `${left.value}px`,
+    'width': `${width.value}px`,
+    'height': `${height.value}px`,
+    'opacity': 0,
+    'pointer-events': 'none',
+    'transform': 'translate(0, 0) scale(0)',
+  })
+}
+
+function fixDialog() {
+  const dom = dialog.value
+  if (!dom)
+    return
+
+  Object.assign(dom.style, {
+    top: `${top.value}px`,
+    left: `${left.value}px`,
+    width: `${width.value}px`,
+    height: `${height.value}px`,
+  })
+}
+
+async function shrinkDialog() {
+  const dom = dialog.value
+  if (!dom)
+    return
+
+  fixDialog()
+
+  Object.assign(dom.style, {
+    'pointer-events': 'none',
+    'transform': 'translate(0, 0) scale(1)',
+  })
+
+  await sleep(200)
+
+  dom.style.opacity = '0'
+
+  await sleep(200)
+
+  resetDialog()
+}
+
+async function expandDialog() {
+  const dom = dialog.value
+  if (!dom)
+    return
+
+  fixDialog()
+
+  Object.assign(dom.style, {
+    'pointer-events': 'auto',
+    'transform': 'translate(0, 0) scale(1)',
+  })
+
+  await sleep(200)
+
+  dom.style.opacity = '1'
+
+  await sleep(200)
+
+  Object.assign(dom.style, {
+    'top': `50%`,
+    'left': `50%`,
+    'width': '',
+    'height': '',
+    'opacity': 1,
+    'pointer-events': 'auto',
+    'transform': 'translate(-50%, -50%) scale(1)',
+    // 'transform-origin': `${meta.x}px ${meta.y}px`,
+  })
+}
+
+nextTick(() => {
+  fixDialog()
+})
 </script>
 
 <template>
-  <div v-wave class="PromptRoleCard transition-cubic">
+  <div ref="el" v-wave :class="{ expand }" class="PromptRoleCard" @click="triggerExpand">
     <div class="PromptroleCard-Header">
       <div class="PromptRoleCard-Header-Main">
         <p class="title">
@@ -42,9 +145,62 @@ const keywordsTags = computed(() => _keywordsTags.value.length ? ['角色'] : _k
       </div>
     </div>
   </div>
+
+  <teleport to="#teleports">
+    <div class="PromptRoleCard-DialogWrapper" :class="{ expand }" @click="triggerExpand">
+      <div ref="dialog" class="PromptRoleCard-Dialog transition-cubic" @click.stop="">
+        <img :src="src" :alt="modelValue.title">
+        <!-- <p>{{ modelValue.title }}</p> -->
+      </div>
+    </div>
+  </teleport>
 </template>
 
 <style lang="scss" scoped>
+.PromptRoleCard-DialogWrapper {
+  &.expand {
+    opacity: 1;
+    pointer-events: all;
+    backdrop-filter: blur(18px) saturate(180%);
+  }
+
+  z-index: 3;
+  position: absolute;
+
+  width: 100%;
+  height: 100%;
+
+  top: 0;
+  left: 0;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.25s opacity;
+  background-color: var(--el-mask-color-extra-light);
+}
+
+.PromptRoleCard-Dialog {
+  .expand & {
+    border: none;
+
+    box-shadow: var(--el-box-shadow);
+  }
+
+  position: absolute;
+  padding: 1rem;
+
+  width: 320px;
+  height: 320px;
+
+  opacity: 0;
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid var(--el-border-color);
+  background-color: var(--el-fill-color-lighter);
+
+  pointer-events: none;
+}
+
 .PromptRoleCard-Footer {
   .PromptRoleCard-Keywords {
     display: flex;
@@ -59,6 +215,7 @@ const keywordsTags = computed(() => _keywordsTags.value.length ? ['角色'] : _k
       background-color: var(--el-fill-color);
     }
   }
+
   position: relative;
   margin-top: 1rem;
 
@@ -69,6 +226,7 @@ const keywordsTags = computed(() => _keywordsTags.value.length ? ['角色'] : _k
   max-height: 2.5em;
 
   overflow: hidden;
+
   p {
     font-size: 14px;
     line-height: 20px;
@@ -87,12 +245,14 @@ const keywordsTags = computed(() => _keywordsTags.value.length ? ['角色'] : _k
     line-height: 24px;
     font-weight: 600;
   }
+
   .subtitle {
     opacity: 0.75;
     font-size: 14px;
     line-height: 20px;
     color: var(--el-text-color-secondary);
   }
+
   display: flex;
 
   width: 100%;
@@ -102,12 +262,29 @@ const keywordsTags = computed(() => _keywordsTags.value.length ? ['角色'] : _k
 }
 
 .PromptRoleCard {
+  &:hover {
+    transform: scale(1.05);
+
+    box-shadow: var(--el-box-shadow-light);
+    border: 1px solid var(--theme-color);
+  }
+
+  &.expand {
+    // 3d旋转
+    transform: rotateY(180deg);
+
+    opacity: 0;
+    // pointer-events: none;
+    // backface-visibility: hidden;
+  }
+
   img {
     width: 16px;
     height: 16px;
 
     border-radius: 50%;
   }
+
   position: relative;
   padding: 0.75rem;
 
@@ -117,14 +294,14 @@ const keywordsTags = computed(() => _keywordsTags.value.length ? ['角色'] : _k
   cursor: pointer;
 
   border-radius: 18px;
+  // pointer-events: all;
   background-color: var(--el-fill-color-lighter);
   border: 1px solid var(--el-border-color);
 
-  &:hover {
-    transform: scale(1.05);
-
-    box-shadow: var(--el-box-shadow-light);
-    border: 1px solid var(--theme-color);
-  }
+  perspective: 10px;
+  transition:
+    transform 0.25s,
+    opacity 0.25s 0.125s;
+  transform-style: preserve-3d;
 }
 </style>
