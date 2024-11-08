@@ -80,7 +80,10 @@ onMounted(async () => {
         </template>
       </el-input>
       <div class="PromptRole-MainVice-Tags">
-        <span v-for="tag in items.tagList" :key="tag.id" :class="{ active: tag.id === items.tagSelected }" class="tag-item" @click="items.tagSelected = tag.id">
+        <span
+          v-for="tag in items.tagList" :key="tag.id" :class="{ active: tag.id === items.tagSelected }"
+          class="tag-item" @click="items.tagSelected = tag.id"
+        >
           {{ tag.name }}
         </span>
       </div>
@@ -88,27 +91,11 @@ onMounted(async () => {
 
     <div class="PromptRole-Main">
       <el-scrollbar>
-        <masonry-wall :items="list" :column-width="300" :gap="24">
-          <template #default="{ item }">
-            <div class="PromptRole-Item">
-              <img :src="`${globalOptions.getEndsUrl()}${item.avatar}`" :alt="item.title">
-
-              <div my-2 class="PromptRole-Footer">
-                <p flex items-center justify-between gap-2>
-                  <span class="title">{{ item.title }}</span>
-                  <span flex cursor-pointer items-center gap-1 class="func">
-                    <i i-carbon:favorite block />
-                    0
-                  </span>
-                </p>
-
-                <p>
-                  {{ item.description }}
-                </p>
-              </div>
-            </div>
-          </template>
-        </masonry-wall>
+        <div class="PromptRole-MainInner">
+          <div v-for="item in list" :key="item.id" class="PromptRole-Item">
+            <CardPromptRoleCard :model-value="item" />
+          </div>
+        </div>
 
         <br v-for="i in 4" :key="i">
       </el-scrollbar>
@@ -117,6 +104,29 @@ onMounted(async () => {
 </template>
 
 <style lang="scss">
+.PromptRole-MainInner {
+  padding: 1rem;
+  display: grid;
+
+  gap: 1rem;
+
+  justify-items: center;
+  align-content: center;
+  place-content: center;
+}
+
+@media (min-width: 640px) {
+  .PromptRole-MainInner {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 780px) {
+  .PromptRole-MainInner {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
 .PromptRole-MainVice-Tags {
   span {
     &.active::before {
@@ -138,12 +148,14 @@ onMounted(async () => {
       background-color: var(--theme-color);
       transition: 0.25s cubic-bezier(0.215, 0.61, 0.355, 1);
     }
+
     position: relative;
     padding: 0.25rem 0.5rem;
 
     cursor: pointer;
     color: var(--el-text-color-regular);
   }
+
   display: flex;
 
   gap: 0.25rem;
@@ -168,54 +180,16 @@ onMounted(async () => {
   justify-content: center;
 }
 
-.PromptRole-Loader {
-  position: relative;
-
-  margin: 2rem auto;
-
-  width: max-content;
-
-  opacity: 0.75;
-  font-size: 1rem;
-}
-
-.PromptRole-Footer {
-  span.title {
-    font-weight: 600;
-    font-size: 1.05rem;
-  }
-
-  padding: 0 1rem;
-
-  display: flex;
-
-  gap: 0.5rem;
-  flex-direction: column;
-}
-
-.PromptRole-Item {
-  img {
-    min-width: 100%;
-
-    border-radius: 12px;
-    border: 1px solid var(--el-border-color);
-  }
-
-  padding: 0.5rem;
-
-  // box-shadow: var(--el-box-shadow);
-  background-color: var(--el-bg-color);
-}
-
 .PromptRole {
   &-Main {
-    .masonry-wall {
-      margin: 0 auto;
-
-      max-width: 1280px;
+    @media (min-width: 1400px) {
+      & {
+        max-width: 1400px;
+      }
     }
 
     position: relative;
+    margin: 0 auto;
     padding: 1rem;
 
     height: calc(100% - 64px);

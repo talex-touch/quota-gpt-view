@@ -30,3 +30,10 @@ export interface IStandardPageModel<T> {
 export interface IPageResponse<T> extends IStandardResponse {
   data: IStandardPageModel<T>
 }
+
+export interface IBaseEntity {
+  id?: number
+
+  createdAt?: string
+  updatedAt?: string
+}

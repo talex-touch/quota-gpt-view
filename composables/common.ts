@@ -2,6 +2,7 @@ import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import gsap from 'gsap'
 import type { IStandardResponse } from './api/base/index.type'
+import { globalOptions } from '~/constants'
 
 dayjs.extend(duration)
 
@@ -243,4 +244,14 @@ export function withResolvers<T>(): {
     resolve,
     reject,
   }
+}
+
+export function formatEndsImage(url: string) {
+  if (!url)
+    return ''
+
+  if (url.startsWith('http'))
+    return url
+
+  return globalOptions.getEndsUrl() + url
 }
