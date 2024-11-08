@@ -7,11 +7,12 @@ const props = defineProps<{
 
 const src = computed(() => formatEndsImage(props.modelValue.avatar))
 
-const keywordsTags = computed(() => [...(props.modelValue.keywords || '').split(',')].filter(i => i).slice(0, 3))
+const _keywordsTags = computed(() => [...(props.modelValue.keywords || '').split(',')].filter(i => i).slice(0, 3))
+const keywordsTags = computed(() => _keywordsTags.value.length ? ['角色'] : _keywordsTags.value)
 </script>
 
 <template>
-  <div class="PromptRoleCard transition-cubic">
+  <div v-wave class="PromptRoleCard transition-cubic">
     <div class="PromptroleCard-Header">
       <div class="PromptRoleCard-Header-Main">
         <p class="title">
@@ -25,7 +26,7 @@ const keywordsTags = computed(() => [...(props.modelValue.keywords || '').split(
     </div>
 
     <div class="PromptRoleCard-Main">
-      <p>{{ modelValue.description }}</p>
+      <p>{{ modelValue.description || '-' }}</p>
     </div>
 
     <div flex items-center justify-between gap-2 class="PromptRoleCard-Footer">
@@ -110,11 +111,10 @@ const keywordsTags = computed(() => [...(props.modelValue.keywords || '').split(
   position: relative;
   padding: 0.75rem;
 
-  // width: 200px;
-  // height: 100px;
+  width: 100%;
+  height: 100%;
 
   cursor: pointer;
-  // box-shadow: var(--el-box-shadow);
 
   border-radius: 18px;
   background-color: var(--el-fill-color-lighter);

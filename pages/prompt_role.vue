@@ -92,9 +92,7 @@ onMounted(async () => {
     <div class="PromptRole-Main">
       <el-scrollbar>
         <div class="PromptRole-MainInner">
-          <div v-for="item in list" :key="item.id" class="PromptRole-Item">
-            <CardPromptRoleCard :model-value="item" />
-          </div>
+          <CardPromptRoleCard v-for="item in list" :key="item.id" :model-value="item" />
         </div>
 
         <br v-for="i in 4" :key="i">
