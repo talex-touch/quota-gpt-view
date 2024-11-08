@@ -18,14 +18,15 @@ const index = ref(-1)
 const roles = ref<any>([])
 const hotList = ref<any>([])
 const loading = ref(false)
+const list = computed(() => roles.value.length ? roles.value : hotList.value)
 
 async function hotData() {
   const res: any = await $endApi.v1.aigc.getHostList()
 
   if (res.code === 200) {
-    roles.value = res.data
+    hotList.value = res.data
 
-    if (roles.value.length)
+    if (hotList.value.length)
       index.value = 0
     else index.value = -1
   }
@@ -102,7 +103,7 @@ function handleKeyDown(e: KeyboardEvent) {
   if (!props.show)
     return
 
-  if (!roles.value.length)
+  if (!list.value.length)
     return
 
   if (index.value === -1)
@@ -111,7 +112,7 @@ function handleKeyDown(e: KeyboardEvent) {
   switch (e.key) {
     case 'ArrowUp':
       e.preventDefault()
-      index.value = index.value > 0 ? index.value - 1 : roles.value.length - 1
+      index.value = index.value > 0 ? index.value - 1 : list.value.length - 1
       break
     case 'ArrowDown':
       e.preventDefault()
@@ -147,21 +148,20 @@ const { floatingStyles } = useFloating(inputRef, floatingRef, {
   })), flip()],
   whileElementsMounted: autoUpdate,
 })
-
-const list = computed(() => roles.value.length ? roles.value : hotList.value)
 </script>
 
 <template>
   <teleport to="#teleports">
     <div ref="floatingRef" :class="{ show }" class="ThInputAt-Wrapper" :style="floatingStyles">
       <div class="ThInputAt fake-background">
+        <p v-if="list.length" class="mention">
+          <span v-if="roles.length"> 搜索到 {{ list.length }} 个结果</span>
+          <span v-else>热门角色列表</span>
+        </p>
         <el-scrollbar>
           <div v-loader="loading" class="ThInputAt-Main">
             <el-empty v-if="input.length > 1 && !roles.length" description="暂无角色" />
             <div v-else class="ThInputAt-Main">
-              <p v-if="list.length" class="mention">
-                搜索到 {{ list.length }} 个结果
-              </p>
               <div
                 v-for="(item, ind) in list" :id="`at-prompt-role-${ind}`" :key="item.id" v-wave
                 :class="{ active: index === ind }" class="ThInputAt-Item" @click="handleSelect(ind)"
@@ -185,11 +185,6 @@ const list = computed(() => roles.value.length ? roles.value : hotList.value)
 
 <style lang="scss">
 .ThInputAt-Main {
-  .mention {
-    color: var(--el-text-color-secondary);
-    font-size: 0.75em;
-    font-weight: 600;
-  }
   position: relative;
   padding: 0.25rem;
 
@@ -271,13 +266,17 @@ const list = computed(() => roles.value.length ? roles.value : hotList.value)
   }
 }
 
-.ThInputAt-Main {
-  position: relative;
-
-  width: 100%;
-}
-
 .ThInputAt {
+  .mention {
+    position: sticky;
+
+    top: 0;
+
+    color: var(--el-text-color-secondary);
+    font-size: 0.75em;
+    font-weight: 600;
+  }
+
   .el-scrollbar__bar.is-vertical {
     width: 3px;
   }
