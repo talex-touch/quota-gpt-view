@@ -8,8 +8,8 @@ const props = defineProps<{
 
 const src = computed(() => formatEndsImage(props.modelValue.avatar))
 
-const _keywordsTags = computed(() => [...(props.modelValue.keywords || '').split(',')].filter(i => i).slice(0, 3))
-const keywordsTags = computed(() => _keywordsTags.value.length ? ['角色'] : _keywordsTags.value)
+const _keywordsTags = computed(() => [...(props.modelValue.keywords || '').split(',')].filter(i => i))
+const keywordsTags = computed(() => !_keywordsTags.value.length ? ['角色'] : _keywordsTags.value)
 
 const expand = ref(false)
 const el = ref(null)
@@ -142,7 +142,7 @@ nextTick(() => {
       </div>
 
       <div class="PromptRoleCard-Keywords">
-        <span v-for="(i, ind) in keywordsTags" :key="ind">{{ i }}</span>
+        <span v-for="(i, ind) in keywordsTags.slice(0, 3)" :key="ind">{{ i }}</span>
       </div>
     </div>
   </div>
@@ -164,7 +164,7 @@ nextTick(() => {
           </p>
 
           <div class="keywords">
-            <span v-for="(i, ind) in keywordsTags" :key="ind">#{{ i }}</span>
+            <span v-for="(i, ind) in keywordsTags.slice(0, 5)" :key="ind">#{{ i }}</span>
           </div>
         </div>
       </div>
@@ -175,8 +175,11 @@ nextTick(() => {
 <style lang="scss" scoped>
 .PromptRoleCard-DialogMain {
   .keywords {
+    display: flex;
     margin: 2rem 0 0;
 
+    gap: 0.5rem;
+    flex-wrap: wrap;
     color: var(--el-text-color-placeholder);
   }
 
@@ -277,7 +280,7 @@ nextTick(() => {
 
 .PromptRoleCard-Dialog {
   .PROMPT {
-    margin: 2rem 0 0;
+    margin-bottom: 2rem;
 
     font-weight: 600;
     opacity: 0.25;
