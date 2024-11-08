@@ -3,6 +3,7 @@ import type { IPromptRole } from '~/composables/api/base/v1/aigc/index.type'
 
 const props = defineProps<{
   modelValue: IPromptRole
+  animation: boolean
 }>()
 
 const src = computed(() => formatEndsImage(props.modelValue.avatar))
@@ -115,7 +116,7 @@ nextTick(() => {
 </script>
 
 <template>
-  <div ref="el" v-wave :class="{ expand }" class="PromptRoleCard" @click="triggerExpand">
+  <div ref="el" v-wave :class="{ expand, animation }" class="PromptRoleCard" @click="triggerExpand">
     <div class="PromptroleCard-Header">
       <div class="PromptRoleCard-Header-Main">
         <p class="title">
@@ -149,14 +150,109 @@ nextTick(() => {
   <teleport to="#teleports">
     <div class="PromptRoleCard-DialogWrapper" :class="{ expand }" @click="triggerExpand">
       <div ref="dialog" class="PromptRoleCard-Dialog transition-cubic" @click.stop="">
-        <img :src="src" :alt="modelValue.title">
-        <!-- <p>{{ modelValue.title }}</p> -->
+        <h1 class="PROMPT">
+          --- PROMPT ---
+        </h1>
+        <div class="PromptRoleCard-DialogMain">
+          <img :src="src" :alt="modelValue.title">
+          <p class="title">
+            {{ modelValue.title }}
+          </p>
+
+          <p class="description">
+            {{ modelValue.description || '-' }}
+          </p>
+
+          <div class="keywords">
+            <span v-for="(i, ind) in keywordsTags" :key="ind">#{{ i }}</span>
+          </div>
+        </div>
       </div>
     </div>
   </teleport>
 </template>
 
 <style lang="scss" scoped>
+.PromptRoleCard-DialogMain {
+  .keywords {
+    margin: 2rem 0 0;
+
+    color: var(--el-text-color-placeholder);
+  }
+
+  img {
+    width: 72px;
+    height: 72px;
+
+    border-radius: 50%;
+    border: 1px solid var(--el-border-color);
+  }
+
+  p.title {
+    margin: 1rem 0;
+
+    font-size: 24px;
+    line-height: 24px;
+    font-weight: 600;
+  }
+
+  p.description {
+    font-size: 18px;
+    line-height: 20px;
+    color: var(--el-text-color-secondary);
+  }
+
+  display: flex;
+
+  flex-direction: column;
+  align-items: center;
+}
+
+.PromptRoleCard.animation {
+  > div p.title {
+    opacity: 0;
+    animation: flowJoin 0.25s calc(0.25s + var(--d, 0s)) ease-in-out forwards;
+  }
+
+  > div p.subtitle {
+    opacity: 0;
+    animation: flowJoin 0.25s calc(0.35s + var(--d, 0s)) ease-in-out forwards;
+  }
+
+  > div.PromptroleCard-Header img {
+    opacity: 0;
+    animation: flowJoin 0.25s calc(0.3s + var(--d, 0s)) ease-in-out forwards;
+  }
+
+  > div.PromptRoleCard-Main {
+    opacity: 0;
+    animation: flowJoin 0.25s calc(0.45s + var(--d, 0s)) ease-in-out forwards;
+  }
+
+  > div.PromptRoleCard-Footer {
+    opacity: 0;
+    animation: flowJoin 0.25s calc(0.55s + var(--d, 0s)) ease-in-out forwards;
+  }
+}
+
+@keyframes flowJoin {
+  0% {
+    opacity: 0;
+    visibility: visible;
+    transform: translateY(10px);
+  }
+
+  99% {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  100% {
+    opacity: unset;
+  }
+}
+
 .PromptRoleCard-DialogWrapper {
   &.expand {
     opacity: 1;
@@ -175,22 +271,37 @@ nextTick(() => {
 
   opacity: 0;
   pointer-events: none;
-  transition: 0.25s opacity;
+  transition: 0.25s 0.5s opacity;
   background-color: var(--el-mask-color-extra-light);
 }
 
 .PromptRoleCard-Dialog {
+  .PROMPT {
+    margin: 2rem 0 0;
+
+    font-weight: 600;
+    opacity: 0.25;
+  }
+
   .expand & {
-    border: none;
+    border: 1px solid transparent;
 
     box-shadow: var(--el-box-shadow);
   }
 
   position: absolute;
+  display: flex;
   padding: 1rem;
 
-  width: 320px;
-  height: 320px;
+  width: 520px;
+  max-width: 85%;
+  height: auto;
+  min-height: 50px;
+  max-height: 80%;
+
+  align-items: center;
+  flex-direction: column;
+  justify-content: space-between;
 
   opacity: 0;
   overflow: hidden;
@@ -279,10 +390,11 @@ nextTick(() => {
   }
 
   img {
-    width: 16px;
-    height: 16px;
+    width: 48px;
+    height: 48px;
 
     border-radius: 50%;
+    border: 1px solid var(--el-border-color);
   }
 
   position: relative;

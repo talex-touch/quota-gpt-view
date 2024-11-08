@@ -6,10 +6,11 @@ import { globalOptions } from '~/constants'
 // const done = ref(false)
 // const loader = ref<HTMLElement>()
 const items = reactive<any>({
+  loading: false,
   list: [],
   hotList: [],
   tagList: [],
-  tagSelected: -1,
+  tagSelected: 0,
   meta: {
     currentPage: -1,
     totalItems: 0,
@@ -19,20 +20,33 @@ const items = reactive<any>({
   },
 })
 
-const list = computed(() => items.list?.length ? items.list : items.hotList)
-
 const query = ref('')
+const list = computed(() => query.value ? items.list : items.hotList)
 
 async function _fetchData() {
-  const res = await $endApi.v1.aigc.searchPromptTemplate(query.value)
+  items.loading = true
+  items.list.length = 0
+
+  await sleep(500)
+
+  const select = items.tagList[items.tagSelected]
+  const selectQuery = `${select.tagId !== -1 ? select.name : ''}`.replaceAll(query.value, '')
+
+  const res = await $endApi.v1.aigc.searchPromptTemplate(`${selectQuery}${query.value}`)
 
   if (res.data.length > 0)
     items.list = [...res.data]
+
+  items.loading = false
 }
 
 const fetchData = useDebounceFn(_fetchData)
 
-watch(() => query.value, fetchData)
+watchEffect(() => {
+  const _ignored = [query.value, items.tagSelected]
+
+  fetchData()
+})
 
 onMounted(async () => {
   const tagRes = await $endApi.v1.aigc.recommendTags()
@@ -81,8 +95,8 @@ onMounted(async () => {
       </el-input>
       <div class="PromptRole-MainVice-Tags">
         <span
-          v-for="tag in items.tagList" :key="tag.id" :class="{ active: tag.id === items.tagSelected }"
-          class="tag-item" @click="items.tagSelected = tag.id"
+          v-for="(tag, i) in items.tagList" :key="tag.id" :class="{ active: i === items.tagSelected }"
+          class="tag-item" @click="items.tagSelected = i"
         >
           {{ tag.name }}
         </span>
@@ -90,18 +104,52 @@ onMounted(async () => {
     </div>
 
     <div class="PromptRole-Main">
-      <el-scrollbar>
-        <div class="PromptRole-MainInner">
-          <CardPromptRoleCard v-for="item in list" :key="item.id" :model-value="item" />
+      <el-scrollbar v-if="!items.loading">
+        <div v-if="list.length" class="PromptRole-MainInner">
+          <div
+            v-for="(item, ind) in list" :key="item.id" :style="`--d: ${ind * 0.025 + 0.125}s`" h-full w-full
+            class="PromptRole-CardContainer"
+          >
+            <CardPromptRoleCard animation :model-value="item" />
+          </div>
+        </div>
+        <div v-else>
+          <el-empty description="暂时没有搜索到任何内容." />
         </div>
 
         <br v-for="i in 4" :key="i">
       </el-scrollbar>
+      <div flex justify-center class="PromptRole-Loader">
+        <LoadersEagleRoundLoading />
+      </div>
     </div>
   </div>
 </template>
 
 <style lang="scss">
+.PromptRole-CardContainer {
+  opacity: 0;
+
+  animation: promptRoleCardEnter 0.25s var(--d) forwards;
+}
+
+@keyframes promptRoleCardEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  60% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .PromptRole-MainInner {
   padding: 1rem;
   display: grid;
