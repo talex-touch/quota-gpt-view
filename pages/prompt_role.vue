@@ -3,10 +3,10 @@ import { $endApi } from '~/composables/api/base'
 import type { IStandardPageModel } from '~/composables/api/base/index.type'
 import { globalOptions } from '~/constants'
 
-const done = ref(false)
+// const done = ref(false)
 // const loader = ref<HTMLElement>()
 const items = reactive<any>({
-  items: [],
+  list: [],
   hotList: [],
   tagList: [],
   tagSelected: -1,
@@ -19,31 +19,40 @@ const items = reactive<any>({
   },
 })
 
+const list = computed(() => items.list?.length ? items.list : items.hotList)
+
 const query = ref('')
 
-async function fetchData() {
-  items.meta.currentPage += 1
+async function _fetchData() {
+  const res = await $endApi.v1.aigc.searchPromptTemplate(query.value)
 
-  const res = await $endApi.v1.aigc.searchPromptTemplate(items.meta.currentPage)
-
-  if (res.data.items.length > 0) {
-    items.items.push(...res.data.items)
-
-    items.items = [...items.items]
-
-    const meta = res.data.meta
-    if (meta.itemCount < meta.itemsPerPage)
-      done.value = true
-  }
+  if (res.data.length > 0)
+    items.list = [...res.data]
 }
 
-onMounted(async () => {
-  items.hotList = await $endApi.v1.aigc.getHostList()
+const fetchData = useDebounceFn(_fetchData)
 
+watch(() => query.value, fetchData)
+
+onMounted(async () => {
   const tagRes = await $endApi.v1.aigc.recommendTags()
 
   if (tagRes.code === 200) {
     items.tagList = [{ name: '全部', id: -1 }, ...tagRes.data.items]
+  }
+  else {
+    ElMessage({
+      message: '无法搜索模板！',
+      grouping: true,
+      type: 'error',
+      plain: true,
+    })
+  }
+
+  const hotListRes = await $endApi.v1.aigc.getHostList()
+
+  if (hotListRes.code === 200) {
+    items.hotList = hotListRes.data
   }
   else {
     ElMessage({
@@ -65,7 +74,7 @@ onMounted(async () => {
     </div>
 
     <div class="PromptRole-MainVice">
-      <el-input v-model="query" placeholder="搜索角色名称或描述...">
+      <el-input v-model.lazy="query" placeholder="搜索角色名称或描述...">
         <template #prefix>
           <div i-carbon:search />
         </template>
@@ -78,9 +87,8 @@ onMounted(async () => {
     </div>
 
     <div class="PromptRole-Main">
-      <!-- {{ items.items }} -->
       <el-scrollbar>
-        <masonry-wall :items="items.items" :column-width="300" :gap="24">
+        <masonry-wall :items="list" :column-width="300" :gap="24">
           <template #default="{ item }">
             <div class="PromptRole-Item">
               <img :src="`${globalOptions.getEndsUrl()}${item.avatar}`" :alt="item.title">
