@@ -13,13 +13,6 @@ export default {
   deleteConversation(id: string) {
     return endHttp.del(`aigc/conversations/${id}`)
   },
-  getPrompt(page: number) {
-    return endHttp.get('aigc/prompts/search', {
-      page,
-      pageSize: 25,
-      keyword: '',
-    }) as Promise<IPageResponse<any>>
-  },
   getPromptDetail(id: number) {
     return endHttp.get(`aigc/prompts/detail/${id}`)
   },
@@ -43,5 +36,8 @@ export default {
   },
   getHostList() {
     return endHttp.get('aigc/prompts/hot')
+  },
+  recommendTags() {
+    return endHttp.get('aigc/prompts/tags/recommend')
   },
 }

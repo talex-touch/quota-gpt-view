@@ -4,9 +4,12 @@ import type { IStandardPageModel } from '~/composables/api/base/index.type'
 import { globalOptions } from '~/constants'
 
 const done = ref(false)
-const loader = ref<HTMLElement>()
-const items = reactive<IStandardPageModel<any>>({
+// const loader = ref<HTMLElement>()
+const items = reactive<any>({
   items: [],
+  hotList: [],
+  tagList: [],
+  tagSelected: -1,
   meta: {
     currentPage: -1,
     totalItems: 0,
@@ -16,10 +19,12 @@ const items = reactive<IStandardPageModel<any>>({
   },
 })
 
+const query = ref('')
+
 async function fetchData() {
   items.meta.currentPage += 1
 
-  const res = await $endApi.v1.aigc.getPrompt(items.meta.currentPage)
+  const res = await $endApi.v1.aigc.searchPromptTemplate(items.meta.currentPage)
 
   if (res.data.items.length > 0) {
     items.items.push(...res.data.items)
@@ -32,23 +37,22 @@ async function fetchData() {
   }
 }
 
-onMounted(() => {
-  const el = loader.value!
+onMounted(async () => {
+  items.hotList = await $endApi.v1.aigc.getHostList()
 
-  const observer = new IntersectionObserver((entries) => {
-    if (entries[0].isIntersecting)
-      fetchData()
-  }, {
-    threshold: 0,
-  })
+  const tagRes = await $endApi.v1.aigc.recommendTags()
 
-  if (el instanceof Element)
-    observer.observe(el)
-
-  watch(() => done.value, () => {
-    if (done.value)
-      observer.unobserve(el)
-  })
+  if (tagRes.code === 200) {
+    items.tagList = [{ name: '全部', id: -1 }, ...tagRes.data.items]
+  }
+  else {
+    ElMessage({
+      message: '无法搜索模板！',
+      grouping: true,
+      type: 'error',
+      plain: true,
+    })
+  }
 })
 </script>
 
@@ -60,6 +64,19 @@ onMounted(() => {
       </div>
     </div>
 
+    <div class="PromptRole-MainVice">
+      <el-input v-model="query" placeholder="搜索角色名称或描述...">
+        <template #prefix>
+          <div i-carbon:search />
+        </template>
+      </el-input>
+      <div class="PromptRole-MainVice-Tags">
+        <span v-for="tag in items.tagList" :key="tag.id" :class="{ active: tag.id === items.tagSelected }" class="tag-item" @click="items.tagSelected = tag.id">
+          {{ tag.name }}
+        </span>
+      </div>
+    </div>
+
     <div class="PromptRole-Main">
       <!-- {{ items.items }} -->
       <el-scrollbar>
@@ -67,16 +84,6 @@ onMounted(() => {
           <template #default="{ item }">
             <div class="PromptRole-Item">
               <img :src="`${globalOptions.getEndsUrl()}${item.avatar}`" :alt="item.title">
-
-              <!-- <el-img :src="`${globalOptions.getEndsUrl()}${item.avatar}`" :alt="item.title">
-                <template #placeholder>
-                  <el-skeleton :rows="2" animated />
-                </template>
-
-                <template #error>
-                  <OtherTextShaving text="无法加载图片" />
-                </template>
-              </el-img> -->
 
               <div my-2 class="PromptRole-Footer">
                 <p flex items-center justify-between gap-2>
@@ -95,13 +102,6 @@ onMounted(() => {
           </template>
         </masonry-wall>
 
-        <div ref="loader" class="PromptRole-Loader">
-          <LoadersEagleRoundLoading v-if="!done" />
-          <p v-else>
-            仿佛来到了没有知识的荒漠.
-          </p>
-        </div>
-
         <br v-for="i in 4" :key="i">
       </el-scrollbar>
     </div>
@@ -109,6 +109,57 @@ onMounted(() => {
 </template>
 
 <style lang="scss">
+.PromptRole-MainVice-Tags {
+  span {
+    &.active::before {
+      transform: scaleX(1);
+    }
+
+    &::before {
+      content: '';
+      position: absolute;
+
+      width: 100%;
+      height: 2px;
+
+      left: 0;
+      bottom: 0;
+
+      border-radius: 4px;
+      transform: scaleX(0);
+      background-color: var(--theme-color);
+      transition: 0.25s cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+    position: relative;
+    padding: 0.25rem 0.5rem;
+
+    cursor: pointer;
+    color: var(--el-text-color-regular);
+  }
+  display: flex;
+
+  gap: 0.25rem;
+
+  justify-content: center;
+}
+
+.PromptRole-MainVice {
+  .el-input {
+    width: 320px;
+  }
+
+  display: flex;
+  margin: 1rem auto;
+
+  width: 600px;
+  max-width: 85%;
+
+  gap: 0.5rem;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+}
+
 .PromptRole-Loader {
   position: relative;
 
@@ -125,6 +176,7 @@ onMounted(() => {
     font-weight: 600;
     font-size: 1.05rem;
   }
+
   padding: 0 1rem;
 
   display: flex;
@@ -140,6 +192,7 @@ onMounted(() => {
     border-radius: 12px;
     border: 1px solid var(--el-border-color);
   }
+
   padding: 0.5rem;
 
   // box-shadow: var(--el-box-shadow);
@@ -153,11 +206,13 @@ onMounted(() => {
 
       max-width: 1280px;
     }
+
     position: relative;
     padding: 1rem;
 
     height: calc(100% - 64px);
   }
+
   position: absolute;
 
   top: 0;
