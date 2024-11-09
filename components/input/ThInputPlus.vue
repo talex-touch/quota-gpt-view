@@ -104,11 +104,13 @@ const options: any = reactive([
 const buttonTrigger = ref()
 const popoverFloating = ref()
 
-const { floatingStyles } = useFloating(buttonTrigger, popoverFloating, {
+const { floatingStyles, update } = useFloating(buttonTrigger, popoverFloating, {
   placement: 'top',
   middleware: [offset(25), flip()],
   whileElementsMounted: autoUpdate,
 })
+
+watch(hoverMode, update)
 </script>
 
 <template>
