@@ -13,7 +13,7 @@ const emits = defineEmits<{
 }>()
 
 const hover = ref(false)
-const hoverMode = debouncedRef(hover, 50)
+const hoverMode = debouncedRef(hover, 200)
 
 const stareMode = ref(false)
 const property = useVModel(props, 'modelValue', emits)

@@ -15,7 +15,7 @@ const emits = defineEmits<{
 
 const expand = ref(!false)
 const hover = ref(false)
-const hoverMode = debouncedRef(hover, 50)
+const hoverMode = debouncedRef(hover, 200)
 const model = useVModel(props, 'modelValue', emits)
 
 const models = reactive([

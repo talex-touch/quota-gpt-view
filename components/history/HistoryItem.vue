@@ -32,7 +32,7 @@ const input = ref()
 const topic = ref()
 
 const hover = ref(false)
-const hoverMode = debouncedRef(hover, 50)
+const hoverMode = debouncedRef(hover, 200)
 const reactiveConversation = computed(() => $historyManager.options.list.get(props.modelValue.id) || null)
 
 const loading = ref(false)
