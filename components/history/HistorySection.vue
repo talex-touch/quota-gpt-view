@@ -14,20 +14,10 @@ const emits = defineEmits<{
 }>()
 
 const route = useRoute()
-const router = useRouter()
 
 const { select } = useVModels(props, emits)
 
-watchEffect(() => {
-  router.replace({
-    query: {
-      ...route.query,
-      id: select.value || undefined,
-    },
-  })
-})
-
-watch(() => route, () => {
+watch(route, () => {
   if (!route.query?.id)
     return
 
