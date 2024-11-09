@@ -5,6 +5,7 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 import { api as viewerApi } from 'v-viewer'
 import RoundLoading from '../loaders/RoundLoading.vue'
 import TextShaving from '../other/TextShaving.vue'
+import ThCheckBox from '../checkbox/ThCheckBox.vue'
 import ChatAttachment from './ChatAttachment.vue'
 import ItemModelSelector from './addon/ItemModelSelector.vue'
 import ErrorCard from './attachments/ErrorCard.vue'
@@ -143,7 +144,7 @@ function noneCard(block: IInnerItemMeta) {
 <template>
   <div :class="{ check, share, user: isUser }" class="ChatItem">
     <div class="ChatItem-Select">
-      <el-checkbox v-model="check" />
+      <ThCheckBox v-model="check" />
     </div>
 
     <div class="ChatItem-Avatar">
@@ -294,7 +295,7 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
   &.check {
     padding: 0.5rem;
 
-    background: var(--el-bg-color);
+    background: var(--el-fill-color-light);
     border-radius: 16px;
   }
 }
@@ -303,10 +304,12 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
   position: absolute;
 
   top: 0.5rem;
-  left: -1.5rem;
+  left: -3.5rem;
 
   opacity: 0;
   transition: 0.25s;
+
+  transform: scale(0.75);
 }
 
 .ChatItem-Generating {

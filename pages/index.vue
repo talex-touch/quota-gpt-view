@@ -44,7 +44,11 @@ const pageOptions = reactive<{
     enable: false,
     selected: new Array<number>(),
     getMessages() {
-      return [pageOptions.conversation.messages.filter((_, index) => pageOptions.share.selected.includes(index)), pageOptions.conversation.topic]
+      const msgList = ref(pageOptions.conversation.messages)
+
+      const res = calculateConversation(msgList)
+
+      return [res.filter((_, index) => pageOptions.share.selected.includes(index)), pageOptions.conversation.topic]
     },
   },
   view: null,
@@ -116,6 +120,7 @@ watch(
       }
 
       pageOptions.share.enable = false
+      pageOptions.share.selected = []
       chatRef.value?.handleBackToBottom(false)
 
       if (document.body.classList.contains('mobile'))
@@ -257,7 +262,7 @@ async function handleSend(query: IInnerItemMeta[], meta: IChatInnerItemMeta) {
   chatItem.content.push(innerItem)
   conversation.messages.push(chatItem)
 
-  console.log('hs', shiftItem, conversation, innerItem)
+  // console.log('hs', shiftItem, conversation, innerItem)
 
   const completion = await innerSend(conversation, chatItem, chatItem.page)
 

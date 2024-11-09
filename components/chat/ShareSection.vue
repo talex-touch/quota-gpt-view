@@ -21,14 +21,14 @@ watch(() => share.selected, (val) => {
 <template>
   <div :class="{ show, expand: share.selected.length > 0 }" class="ShareSection">
     <div class="Share-Select" flex cursor-pointer select-none items-center gap-2 @click="toggleAllSelect">
-      <el-checkbox v-model="check" :indeterminate="share.selected.length > 0 && share.selected.length < props.length" :checked="share.selected.length === props.length" @change="toggleAllSelect" />
+      <el-checkbox v-model="check" :indeterminate="share.selected.length > 0 && share.selected.length < props.length" :checked="(share.selected.length > 0 && share.selected.length === props.length)" @change="toggleAllSelect" />
       全选所有消息
     </div>
     <div class="Share-Funcs">
       <ShareToolbox :show="share.selected.length > 0" />
     </div>
-    <div class="Share-Mention">
-      已选择 {{ share.selected.length }} 条消息
+    <div flex items-center justify-end gap-1 class="Share-Mention">
+      已选择 <OtherNumberTransformer :value="share.selected.length" /> 条消息
     </div>
   </div>
 </template>
@@ -49,10 +49,6 @@ watch(() => share.selected, (val) => {
     width: 140px;
   }
 
-  .Share-Mention {
-    text-align: right;
-  }
-
   z-index: 3;
   position: absolute;
   padding: 0.5rem 2rem;
@@ -65,8 +61,12 @@ watch(() => share.selected, (val) => {
   left: 50%;
   bottom: 2.5%;
 
-  width: 40%;
+  width: 720px;
+  max-width: 90%;
   height: 50px;
+
+  font-size: 14px;
+  color: var(--el-text-color-secondary);
 
   border-radius: 16px;
   box-sizing: border-box;

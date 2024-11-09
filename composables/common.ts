@@ -255,3 +255,7 @@ export function formatEndsImage(url: string) {
 
   return globalOptions.getEndsUrl() + url
 }
+
+export function useTypedRef<T extends abstract new (...args: any) => any >(_comp: T) {
+  return ref<InstanceType<T>>()
+}

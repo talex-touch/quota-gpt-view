@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import html2canvas from 'html2canvas'
+import ChatLinkShare from '../head/ChatLinkShare.vue'
+import ErrorCard from '../attachments/ErrorCard.vue'
 import type { IChatItem } from '~/composables/api/base/v1/aigc/completion-types'
 
 const props = defineProps<{
@@ -7,13 +9,15 @@ const props = defineProps<{
 }>()
 
 const imageHolder = ref()
+const shareLink = useTypedRef(ChatLinkShare)
 const shareOptions = reactive({
   display: false,
   title: '',
   loading: false,
   messages: new Array<IChatItem>(),
 })
-const share: any = (inject('pageOptions')! as any).share
+const pageOptions = inject('pageOptions')! as any
+const share: any = pageOptions.share
 
 // watch(() => props.show, () => shareOptions.display = false)
 
@@ -23,7 +27,7 @@ const shareTools = [
     color: '#6175AA',
     label: '分享链接',
     trigger: () => {
-
+      shareLink.value?.openShareDialog()
     },
   },
   {
@@ -39,7 +43,7 @@ const shareTools = [
     color: '#6B699D',
     label: '复制文本',
     trigger: () => {
-
+      copyChatContents()
     },
   },
 ]
@@ -85,7 +89,7 @@ async function downloadImage() {
   }, 200)
 }
 
-async function duplicatingShearsClick() {
+async function duplicatingShareClick() {
   shareOptions.loading = true
 
   await sleep(300) // render
@@ -115,11 +119,44 @@ async function duplicatingShearsClick() {
   }, 200)
 }
 
-const filteredMsg = computed(() => shareOptions.messages.filter((msg, index) => {
-  const meta = share.meta[index]
+async function copyChatContents() {
+  shareOptions.loading = true;
 
-  return meta.show
-}))
+  [shareOptions.messages, shareOptions.title] = share.getMessages()
+
+  let content = `对话：${shareOptions.title}\n\nPowered by ThisAI.\n\n`
+
+  const msgs = shareOptions.messages
+
+  for (const msg of msgs) {
+    const role = msg.role === 'assistant' ? 'ThisAI' : '我'
+
+    const contents = msg.content[msg.page]?.value || []
+
+    let text = ''
+
+    for (const c of contents) {
+      if (c.type === 'markdown')
+        text += c.value
+      else if (c.type === 'error')
+        text += c.value.replace(/\n/g, ' ')
+    }
+
+    if (contents?.length)
+      content += `${role}: ${text}\n\n`
+  }
+
+  await navigator.clipboard.writeText(content)
+
+  shareOptions.loading = false
+
+  ElMessage({
+    message: '文本已成功复制到剪贴板！',
+    grouping: true,
+    type: 'success',
+    plain: true,
+  })
+}
 </script>
 
 <template>
@@ -136,7 +173,12 @@ const filteredMsg = computed(() => shareOptions.messages.filter((msg, index) => 
     </div>
   </div>
 
-  <div v-loading="shareOptions.loading" :class="{ gen: shareOptions.loading, display: props.show && shareOptions.display }" class="Share-Image">
+  <ChatHeadChatLinkShare ref="shareLink" :model-value="pageOptions.conversation" />
+
+  <div
+    v-loading="shareOptions.loading"
+    :class="{ gen: shareOptions.loading, display: props.show && shareOptions.display }" class="Share-Image"
+  >
     <el-scrollbar>
       <div ref="imageHolder" class="Share-Image-Inner">
         <div class="Share-Image-Head">
@@ -150,13 +192,14 @@ const filteredMsg = computed(() => shareOptions.messages.filter((msg, index) => 
           <span v-else>ThisAI!</span> -->
         </div>
         <div class="Share-Image-Main">
-          <div v-for="(msg, ind) in filteredMsg" :key="ind" class="ShareMessage">
+          <div v-for="(msg, ind) in shareOptions.messages" :key="ind" class="ShareMessage">
             <p class="title">
               {{ msg.role === 'assistant' ? 'ThisAI' : '我' }}
             </p>
             <template v-if="msg.content[msg.page]">
               <div v-for="(block, _ind) in msg.content[msg.page]?.value" :key="_ind">
-                <pre v-if="block.type === 'text'" v-text="block.value" />
+                <div v-if="block.data === 'suggest'" />
+                <pre v-else-if="block.type === 'text'" v-text="block.value" />
                 <div v-else-if="block.type === 'tool'" mt-2 w-max class="tool-card" :data="block.value">
                   <!-- <i i-carbon:3d-curve-auto-colon block /> -->
                   <span class="show">已思考</span>
@@ -166,6 +209,9 @@ const filteredMsg = computed(() => shareOptions.messages.filter((msg, index) => 
                   v-else-if="block.type === 'markdown'" :render="{ enable: true, media: false }" readonly
                   :data="block.value"
                 />
+                <div v-else-if="block.type === 'error'">
+                  <ErrorCard :block="block" />
+                </div>
               </div>
             </template>
             <template v-else>
@@ -189,7 +235,7 @@ const filteredMsg = computed(() => shareOptions.messages.filter((msg, index) => 
       </div>
     </el-scrollbar>
     <div class="Share-Image-Func">
-      <el-button round @click="duplicatingShearsClick">
+      <el-button round @click="duplicatingShareClick">
         复制图片
       </el-button>
       <el-button round @click="downloadImage">
