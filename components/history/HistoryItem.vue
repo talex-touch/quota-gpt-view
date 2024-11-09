@@ -120,7 +120,7 @@ const { floatingStyles } = useFloating(itemLine, itemFloating, {
 
 async function handleSelect(e?: Event) {
   if (props.modelValue.messages) {
-    if (Date.now() - props.modelValue.lastUpdate <= 60 * 1000 * 5) {
+    if (!props.modelValue.messages.length || Date.now() - props.modelValue.lastUpdate <= 60 * 1000 * 5) {
       emits('click', props.modelValue)
 
       return
