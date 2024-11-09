@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { autoUpdate, flip, offset, useFloating } from '@floating-ui/vue'
+import { Loading } from '@element-plus/icons-vue'
 import PopoverComp from '../template/PopoverComp.vue'
 import ChatLinkShare from '../chat/head/ChatLinkShare.vue'
 import { type IChatConversation, PersistStatus } from '~/composables/api/base/v1/aigc/completion-types'
@@ -10,10 +11,12 @@ import { createTapTip } from '~/composables/tip'
 
 const props = defineProps<{
   modelValue: IChatConversation
+  active: boolean
 }>()
 
 const emits = defineEmits<{
   (e: 'delete', index: string): void
+  (e: 'click', data: IChatConversation): void
 }>()
 
 const editMode = ref(false)
@@ -24,6 +27,7 @@ const hover = ref(false)
 const hoverMode = debouncedRef(hover, 50)
 const reactiveConversation = computed(() => $historyManager.options.list.get(props.modelValue.id) || null)
 
+const loading = ref(false)
 const shareLink = useTypedRef(ChatLinkShare)
 
 watch(
@@ -74,8 +78,15 @@ const menus = reactive([
     name: '分享记录',
     icon: 'i-carbon-share',
     trigger: async () => {
-      console.log('e', shareLink.value)
-      shareLink.value?.openShareDialog()
+      loading.value = true
+
+      const res = await shareLink.value!.openShareDialog()
+
+      whenever(() => res.value === false, () => {
+        setTimeout(() => {
+          loading.value = false
+        }, 500)
+      })
     },
   },
   {
@@ -98,19 +109,47 @@ const { floatingStyles } = useFloating(itemLine, itemFloating, {
   middleware: [offset(10), flip()],
   whileElementsMounted: autoUpdate,
 })
+
+async function handleSelect(e: Event) {
+  if (props.modelValue.messages) {
+    if (Date.now() - props.modelValue.lastUpdate <= 60 * 1000 * 5) {
+      emits('click', props.modelValue)
+
+      return
+    }
+  }
+
+  e.stopImmediatePropagation()
+
+  loading.value = true
+
+  const res = await $endApi.v1.aigc.getConversation(props.modelValue.id)
+
+  if (responseMessage(res, { success: '' }))
+    emits('click', decodeObject(res.data.value))
+
+  loading.value = false
+}
 </script>
 
 <template>
-  <div class="HistoryItem" :class="{ edit: editMode }">
-    <div class="content-wrapper">
-      <input v-if="editMode" ref="input" v-model="topic" @blur="editMode = false" @keydown.enter="editMode = false">
-      <span v-else class="content">{{ modelValue.topic }}</span>
-    </div>
-    <div
-      ref="itemLine" class="History-Content-Fixed" @mouseenter="hoverMode = hover = true"
-      @mouseleave="hover = false"
-    >
-      <div class="i-carbon:overflow-menu-horizontal" />
+  <div class="History-Content-Item" :class="{ loading, edit: editMode, active }" @click="handleSelect">
+    <div class="HistoryItem">
+      <div class="content-loader">
+        <el-icon>
+          <Loading />
+        </el-icon>
+      </div>
+      <div class="content-wrapper">
+        <input v-if="editMode" ref="input" v-model="topic" @blur="editMode = false" @keydown.enter="editMode = false">
+        <span v-else class="content">{{ modelValue.topic }}</span>
+      </div>
+      <div
+        ref="itemLine" class="History-Content-Fixed" @mouseenter="hoverMode = hover = true"
+        @mouseleave="hover = false"
+      >
+        <div class="i-carbon:overflow-menu-horizontal" />
+      </div>
     </div>
   </div>
 
@@ -125,7 +164,7 @@ const { floatingStyles } = useFloating(itemLine, itemFloating, {
         <div
           v-for="menu in menus" :key="menu.name" v-wave
           :class="{ divider: menu.type === 'divider', danger: menu.danger }" class="History-Content-Menu-Item"
-          @click.stop="menu.trigger(modelValue.id)"
+          @click.stop="menu.trigger?.(modelValue.id)"
         >
           <template v-if="menu.type === 'divider'">
             <el-divider />
@@ -141,60 +180,34 @@ const { floatingStyles } = useFloating(itemLine, itemFloating, {
 </template>
 
 <style lang="scss">
-.ShareButton {
-  .url {
-    max-width: 85%;
-
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-
-  span {
-    width: 80%;
-  }
-
-  &-Inner {
-    &:hover {
-      background-color: var(--el-fill-color-light);
+.HistoryItem {
+  .content-loader {
+    .loading & {
+      opacity: 1;
+      width: calc(37px - 1rem);
     }
-
-    position: absolute;
-    padding: 0.75rem;
     display: flex;
 
-    gap: 0.5rem;
     align-items: center;
     justify-content: center;
 
-    height: 48px;
-    right: 6px;
+    height: calc(37px - 1rem);
 
-    cursor: pointer;
-    border-radius: 12px;
-    background-color: var(--el-fill-color);
-
-    color: var(--el-text-color-primary);
+    width: 0;
+    opacity: 0;
+    transition: 0.25s;
+    animation: rotate infinite linear 1s;
   }
-
-  position: relative;
-  margin: 1rem 0;
   display: flex;
-  padding: 1rem;
 
-  width: 95%;
-  left: 2.5%;
-
-  height: 64px;
-
-  font-size: 18px;
+  gap: 0.1rem;
   align-items: center;
-  justify-content: space-between;
+}
 
-  overflow: hidden;
-  border-radius: 18px;
-  color: var(--el-text-color-secondary);
-  border: 1px solid var(--el-border-color);
+@keyframes rotate {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .History-Content {
@@ -253,7 +266,8 @@ const { floatingStyles } = useFloating(itemLine, itemFloating, {
       }
     }
 
-    &:hover {
+    &:hover,
+    &.loading {
       .History-Content-Fixed {
         opacity: 1;
       }
@@ -295,38 +309,5 @@ const { floatingStyles } = useFloating(itemLine, itemFloating, {
   height: 165px;
 
   user-select: none;
-}
-
-.History-Content-Menu {
-  .hover & {
-    opacity: 1;
-    pointer-events: all;
-    transform: scale(1) translateY(0);
-  }
-
-  opacity: 0;
-  transform: scale(0.9) translateY(10%);
-  transition: cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.35s;
-  transform-origin: center 10%;
-
-  --fake-opacity: 0.5;
-  pointer-events: none;
-  background-color: transparent;
-  backdrop-filter: blur(18px) saturate(180%);
-
-  overflow: hidden;
-}
-
-.History-Content-Menu-Item.divider {
-  padding: 0;
-  height: auto;
-
-  .el-divider--horizontal {
-    margin: 0;
-  }
-
-  &:hover {
-    background-color: none;
-  }
 }
 </style>

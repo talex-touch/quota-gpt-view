@@ -30,6 +30,8 @@ async function openShareDialog() {
   await sleep(200)
 
   shareOptions.loading = false
+
+  return computed(() => shareOptions.visible)
 }
 
 async function createShareLink() {

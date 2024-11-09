@@ -1,4 +1,4 @@
-import type { IPageResponse } from '../../index.type'
+import type { IPageResponse, IStandardResponse } from '../../index.type'
 import type { IHistoryUploadQuery } from './completion-types'
 import type { HistoryQuery } from './history/index.type'
 import { endHttp } from '~/composables/api/axios'
@@ -9,6 +9,12 @@ export default {
   },
   getConversations(query: Partial<HistoryQuery>): Promise<IPageResponse<any>> {
     return endHttp.get('aigc/conversations', query)
+  },
+  listConversation(query: Partial<HistoryQuery>): Promise<IPageResponse<any>> {
+    return endHttp.get('aigc/history', query)
+  },
+  getConversation(id: string): Promise<IStandardResponse> {
+    return endHttp.get(`aigc/conversation/${id}`)
   },
   deleteConversation(id: string) {
     return endHttp.del(`aigc/conversations/${id}`)

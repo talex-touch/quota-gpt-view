@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import HistoryItem from './HistoryItem.vue'
+import { $historyManager } from '~/composables/api/base/v1/aigc/history'
 import type { IChatConversation } from '~/composables/api/base/v1/aigc/completion-types'
 
 const props = defineProps<{
@@ -34,6 +35,12 @@ watch(route, () => {
 
   select.value = id as string
 }, { immediate: true })
+
+function handleSelect($event: IChatConversation, item: IChatConversation) {
+  $historyManager.options.list.set(item.id, $event)
+
+  select.value = item.id
+}
 </script>
 
 <template>
@@ -41,16 +48,10 @@ watch(route, () => {
     <p>{{ title }}</p>
 
     <div class="History-ContentHolder">
-      <div
-        v-for="item in history"
-        :key="item.id"
-        v-wave
-        :class="{ active: select === item.id }"
-        class="History-Content-Item"
-        @click="select = item.id"
-      >
-        <HistoryItem :model-value="item" @delete="emits('delete', $event)" />
-      </div>
+      <HistoryItem
+        v-for="item in history" :key="item.id" v-wave :active="select === item.id"
+        :model-value="item" @click="handleSelect($event, item)" @delete="emits('delete', $event)"
+      />
     </div>
   </div>
 </template>
@@ -96,15 +97,47 @@ watch(route, () => {
   gap: 0.5rem;
 }
 
+.History-Content-Menu-Item.divider {
+  padding: 0;
+  height: auto;
+
+  .el-divider--horizontal {
+    margin: 0;
+  }
+
+  &:hover {
+    background-color: none;
+  }
+}
+
 .History-Content-Menu {
+  .hover & {
+    opacity: 1;
+    pointer-events: all;
+    transform: scale(1) translateY(0);
+  }
+
+  opacity: 0;
+  transform: scale(0.9) translateY(10%);
+  transition: cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.35s;
+  transform-origin: center 10%;
+
+  --fake-opacity: 0.5;
+  pointer-events: none;
+  background-color: transparent;
+  backdrop-filter: blur(18px) saturate(180%);
+
+  overflow: hidden;
   &-Item {
     &:hover {
       opacity: 1;
       background: var(--el-bg-color-page);
     }
+
     &.danger {
       color: var(--el-color-danger);
     }
+
     display: flex;
     padding: 0.25rem 0.5rem;
 
@@ -117,6 +150,7 @@ watch(route, () => {
     cursor: pointer;
     user-select: none;
   }
+
   position: absolute;
   padding: 0.5rem;
   display: flex;

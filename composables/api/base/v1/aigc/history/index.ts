@@ -4,25 +4,7 @@ import { type IChatConversation, PersistStatus } from '~/composables/api/base/v1
 import { encodeObject } from '~/composables/common'
 import { $event } from '~/composables/events'
 
-// export enum HistoryManageMode {
-//   OFFLINE,
-//   ONLINE,
-// }
-
 export interface IHistoryManager {
-  // getCurrentMode: () => HistoryManageMode
-
-  /**
-   * @deprecated 已取消用户离线使用 必须登录使用
-   * 触发模式更新，用于抉择历史管理状态
-   * 1.离线模式使用 localStorage 管理
-   * 2.在线模式需要进行以下步骤：
-   *  a) 上传离线模式对话记录
-   *  b) 同步历史在线对话记录
-   *  c) 接受对话记录更新上传
-   */
-  // triggerUpdateMode: () => void
-
   uploadHistory: (history: IChatConversation, uploadHandler: IUploadHistoryHandler) => Promise<boolean>
 }
 
@@ -62,31 +44,6 @@ export class HistoryManager implements IHistoryManager {
     })
   }
 
-  // #updateScope?: EffectScope
-
-  // triggerUpdateMode() {
-  //   if (this.#updateScope)
-  //     this.#updateScope.stop()
-
-  //   this.#updateScope = effectScope()
-
-  //   this.#updateScope.run(() => {
-  //     const localHistoryList = useLocalStorage<ThHistory[]>('chat-history', [])
-
-  //     if (this.getCurrentMode()) {
-  //       this.#historyList = reactive([])
-
-  //       if (localHistoryList.value.length) {
-  //         // TODO: 上传离线对话记录
-  //         // TODO: 同步历史在线对话记录
-  //       }
-  //     }
-  //     else {
-  //       this.#historyList = reactive(localHistoryList.value)
-  //     }
-  //   })
-  // }
-
   async searchHistories(query: string) {
     return $endApi.v1.aigc.getConversations({
       pageSize: 25,
@@ -102,7 +59,7 @@ export class HistoryManager implements IHistoryManager {
     this.options.status = IHistoryStatus.LOADING
     this.options.page += 1
 
-    const res: any = await $endApi.v1.aigc.getConversations({
+    const res: any = await $endApi.v1.aigc.listConversation({
       pageSize: 25,
       page: this.options.page,
     })
@@ -124,9 +81,10 @@ export class HistoryManager implements IHistoryManager {
       this.options.page -= 1
     }
 
-    const result = (res.data.items).map((item: any) => decodeObject(item.value))
+    res.data.items.forEach((item: IChatConversation & { chat_id: string, updatedAt: string }) => {
+      item.id = item.chat_id
+      item.lastUpdate = new Date(item.updatedAt).getTime()
 
-    result.forEach((item: IChatConversation) => {
       this.options.list.set(item.id, item)
     })
   }
