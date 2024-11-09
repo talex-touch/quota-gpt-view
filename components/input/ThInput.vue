@@ -425,8 +425,7 @@ onStartTyping(focusInput)
     </div>
 
     <InputAddonThInputAt
-      v-if="templateEnable"
-      :target="th_input" :input="input.text"
+      v-if="templateEnable" :target="th_input" :input="input.text"
       :show="!template?.title && input.text.startsWith('@')" @select="handleTemplateSelect"
     />
 
@@ -447,9 +446,12 @@ onStartTyping(focusInput)
           <span flex class="template-tag">@{{ template.title }}</span>
         </template>
         <textarea
-          id="main-input" v-model="input.text" autofocus autocomplete="off" :placeholder="placeholder"
-          @focus="focus = true" @blur="focus = false" @keydown="handleInputKeydown"
+          id="main-input" v-model="input.text" autofocus autocomplete="off" @focus="focus = true"
+          @blur="focus = false" @keydown="handleInputKeydown"
         />
+        <div v-if="!input.text && !input.files?.length" class="ThInput-InputMain-Placeholder transition-cubic">
+          <p>{{ placeholder }}</p>
+        </div>
       </div>
     </div>
 
@@ -545,6 +547,7 @@ onStartTyping(focusInput)
     opacity: 1;
     pointer-events: unset;
   }
+
   z-index: 10000;
   position: absolute;
   // padding: 1rem calc(36px + 0.5rem);
@@ -845,7 +848,31 @@ onStartTyping(focusInput)
   }
 
   .ThInput-InputMain {
+    &-Placeholder {
+      z-index: 3;
+      position: absolute;
+      display: flex;
+
+      top: 50%;
+      left: 0%;
+
+      width: max-content;
+      height: 100%;
+
+      align-items: center;
+
+      pointer-events: none;
+      transform: translate(0%, -50%);
+    }
+
     width: 100%;
+  }
+
+  &:focus-within {
+    .ThInput-InputMain-Placeholder {
+      opacity: 0;
+      filter: blur(5px);
+    }
   }
 
   position: relative;
