@@ -75,6 +75,12 @@ const props = defineProps<{
     padding-bottom: 28px;
   }
 
+  .mobile & {
+    .Chat-StatusBar-Main {
+      justify-content: center;
+    }
+  }
+
   .Chat-StatusBar-Main {
     position: absolute;
 
