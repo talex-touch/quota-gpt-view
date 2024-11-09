@@ -8,13 +8,15 @@ const props = defineProps<{
 
 <template>
   <div class="Chat-StatusBar">
-    <div class="StatusBar-Start only-pc-display">
-      <slot name="start" />
-    </div>
-    <span>科塔智爱可能会犯错，生成的内容仅供参考。</span>
-    <div class="StatusBar-End">
-      <slot name="end" />
-      <ChoreVersionBar class="tag only-pc-display" />
+    <div class="Chat-StatusBar-Main">
+      <div class="StatusBar-Start only-pc-display">
+        <slot name="start" />
+      </div>
+      <span>科塔智爱可能会犯错，生成的内容仅供参考。</span>
+      <div class="StatusBar-End">
+        <slot name="end" />
+        <ChoreVersionBar class="tag only-pc-display" />
+      </div>
     </div>
   </div>
 </template>
@@ -57,26 +59,38 @@ const props = defineProps<{
 
     gap: 0.25rem;
     align-items: center;
-    line-height: 36px;
+    // line-height: 36px;
 
     mix-blend-mode: none;
     color: var(--el-text-color-primary);
   }
 
-  .mobile &,
-  .tablet & {
+  // .mobile &,
+  .apple.tablet & {
+    .Chat-StatusBar-Main {
+      justify-content: center;
+    }
+
     padding-top: 14px;
     padding-bottom: 28px;
-    justify-content: center;
+  }
+
+  .Chat-StatusBar-Main {
+    position: absolute;
+
+    top: 0;
+
+    width: 100%;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
   }
 
   z-index: 3;
   position: absolute;
   // padding: 0 1rem;
-  display: flex;
-
-  align-items: center;
-  justify-content: space-between;
 
   left: 0;
   bottom: 0;

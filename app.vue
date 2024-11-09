@@ -33,9 +33,13 @@ $event.on('USER_LOGOUT_SUCCESS', () => pageOptions.setting.privacy = false)
 onMounted(() => {
   document.body.classList.remove('mobile')
   document.body.classList.remove('tablet')
+  document.body.classList.remove('apple')
 
-  const { isMobile, isTablet } = useDevice()
+  const { isMobile, isTablet, isApple } = useDevice()
   document.body.classList.add(isMobile ? 'mobile' : isTablet ? 'tablet' : 'screen')
+
+  if (isApple)
+    document.body.classList.add('apple')
 })
 
 const globalOptionsStore = useLocalStorage('global-options', {
