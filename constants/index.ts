@@ -51,7 +51,7 @@ export class GlobalOptions {
    * import.meta.env 只能访问到 Vite 自动注入的环境变量，
    */
   constructor() {
-    this.setEndsUrl((import.meta.env.DEV) ? ENDS_URL.local.value : ENDS_URL.prod.value)
+    this.setEndsUrl((import.meta.env.DEV) ? ENDS_URL.dev.value : ENDS_URL.prod.value)
   }
 
   setEndsUrl(url: string) {
@@ -64,7 +64,7 @@ export class GlobalOptions {
 
   getEndsUrl() {
     if (!_ENDS_URL) {
-      return (import.meta.env.DEV) ? ENDS_URL.local.value : ENDS_URL.prod.value
+      return (import.meta.env.DEV) ? ENDS_URL.dev.value : ENDS_URL.prod.value
     }
 
     return _ENDS_URL

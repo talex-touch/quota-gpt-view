@@ -145,6 +145,8 @@ function handleCreate() {
 
   pageOptions.share.enable = false
 
+  navigator.vibrate(5)
+
   return true
 }
 
@@ -184,11 +186,19 @@ async function innerSend(conversation: IChatConversation, chatItem: IChatItem, i
       await $historyManager.syncHistory(conversation)
 
       setTimeout(() => chatRef.value?.generateScroll(), 800)
+
+      navigator.vibrate([5])
+
+      setTimeout(() => {
+        chatRef.value?.generateScroll()
+      }, 200)
     },
     onFrequentLimit() {
       // chatManager.cancelCurrentReq()
     },
   })
+
+  navigator.vibrate(2)
 
   return chatCompletion
 }
