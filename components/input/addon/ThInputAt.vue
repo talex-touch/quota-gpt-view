@@ -77,10 +77,10 @@ function handleSelect(ind: number) {
 
   index.value = ind
 
-  if (!roles.value[index.value])
+  if (!list.value[index.value])
     return
 
-  emits('select', roles.value[index.value])
+  emits('select', list.value[index.value])
 }
 
 let timer: any
@@ -116,7 +116,7 @@ function handleKeyDown(e: KeyboardEvent) {
       break
     case 'ArrowDown':
       e.preventDefault()
-      index.value = index.value < roles.value.length - 1 ? index.value + 1 : 0
+      index.value = index.value < list.value.length - 1 ? index.value + 1 : 0
       break
     case 'Enter': {
       e.preventDefault()
