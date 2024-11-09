@@ -106,7 +106,7 @@ export function genAxios(options: CreateAxiosDefaults) {
             const res: any = await $http({
               method: 'GET',
               url: 'auth/renew_token',
-              data: {
+              params: {
                 refresh_token: userStore.value.token?.refreshToken,
               },
             })
