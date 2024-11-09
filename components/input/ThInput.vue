@@ -429,7 +429,7 @@ onStartTyping(focusInput)
       :show="!template?.title && input.text.startsWith('@')" @select="handleTemplateSelect"
     />
 
-    <ThInputPlus v-if="!template?.title" v-model="inputProperty" @image="handleImagePlus" />
+    <ThInputPlus v-model="inputProperty" :hide="input.text.startsWith('@') || template?.title" @image="handleImagePlus" />
 
     <div flex class="ThInput-Input">
       <div v-if="template?.id || input.files?.length" class="ThInput-InputHeader">

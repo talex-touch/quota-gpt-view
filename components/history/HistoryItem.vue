@@ -160,7 +160,7 @@ watch(route, () => {
 </script>
 
 <template>
-  <div class="History-Content-Item" :class="{ loading, edit: editMode, active }" @click="handleSelect">
+  <div v-wave class="History-Content-Item" :class="{ loading, edit: editMode, active }" @click="handleSelect">
     <div class="HistoryItem">
       <div class="content-loader">
         <el-icon>

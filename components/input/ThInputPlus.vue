@@ -3,6 +3,7 @@ import { autoUpdate, flip, offset, useFloating } from '@floating-ui/vue'
 import type { IChatInnerItemMeta } from '~/composables/api/base/v1/aigc/completion-types'
 
 const props = defineProps<{
+  hide: boolean
   modelValue: IChatInnerItemMeta
 }>()
 
@@ -111,7 +112,7 @@ const { floatingStyles } = useFloating(buttonTrigger, popoverFloating, {
 </script>
 
 <template>
-  <div class="ThInput-Plus fake-background" @mouseenter="hoverMode = hover = true" @mouseleave="hover = false">
+  <div :class="{ hide }" class="ThInput-Plus fake-background" @mouseenter="hoverMode = hover = true" @mouseleave="hover = false">
     <div ref="buttonTrigger" class="button" i-carbon-add-large />
   </div>
 
@@ -333,6 +334,10 @@ const { floatingStyles } = useFloating(buttonTrigger, popoverFloating, {
     position: relative;
 
     margin-top: 0.25rem;
+  }
+
+  &.hide {
+    width: 0;
   }
 
   z-index: 20;

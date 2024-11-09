@@ -275,6 +275,23 @@ onBeforeUnmount(() => dispose.value = true)
           <span>创建新对话</span>
           <div i-carbon-add mr-2 />
         </ButtonWavingButton>
+        <div v-if="false" class="History-Title-HeadVice">
+          <ButtonWavingButton v-wave flex items-center justify-between gap-2>
+            <img src="/logo.png">
+            <span>使用 标准模型</span>
+            <div i-carbon-add mr-2 />
+          </ButtonWavingButton>
+          <ButtonWavingButton v-wave flex items-center justify-between gap-2>
+            <img src="/logo.png">
+            <span>使用 强化模型</span>
+            <div i-carbon-add mr-2 />
+          </ButtonWavingButton>
+          <ButtonWavingButton v-wave flex items-center justify-between gap-2>
+            <img src="/logo.png">
+            <span>使用 高级模型</span>
+            <div i-carbon-add mr-2 />
+          </ButtonWavingButton>
+        </div>
       </div>
 
       <InputSearchable @search="handleSearchHistory" />
@@ -451,6 +468,32 @@ div.History {
 }
 
 .History-Title-Head {
+  &Vice {
+    z-index: 1;
+    position: absolute;
+    display: flex;
+
+    top: calc(100% + 0.5rem);
+
+    width: 100%;
+    height: 100px;
+
+    opacity: 0;
+    transition: 0.25s;
+    pointer-events: none;
+    border-radius: 0 0 18px 18px;
+
+    gap: 0.5rem;
+    flex-direction: column;
+  }
+
+  &:hover {
+    .History-Title-HeadVice {
+      opacity: 1;
+      pointer-events: all;
+    }
+  }
+
   &::before {
     z-index: -1;
     content: '';

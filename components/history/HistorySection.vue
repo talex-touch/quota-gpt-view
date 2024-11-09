@@ -30,7 +30,7 @@ function handleSelect($event: IChatConversation, item: IChatConversation) {
     <div class="History-ContentHolder">
       <HistoryItem
         v-for="item in history" :key="item.id"
-        v-model:select="select" v-wave :history="history" :active="select === item.id"
+        v-model:select="select" :history="history" :active="select === item.id"
         :model-value="item" @click="handleSelect($event, item)" @delete="emits('delete', $event)"
       />
     </div>
