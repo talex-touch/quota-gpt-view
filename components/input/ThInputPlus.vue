@@ -14,13 +14,40 @@ const emits = defineEmits<{
 const hover = ref(false)
 const hoverMode = debouncedRef(hover, 50)
 
+const stareMode = ref(false)
 const property = useVModel(props, 'modelValue', emits)
+
+const { isSupported, isActive, request, release } = useWakeLock()
+const { charging, level } = useBattery()
+
+watchEffect(() => {
+  if (!charging.value && level.value <= 20) {
+    if (stareMode.value) {
+      release()
+      stareMode.value = false
+
+      ElNotification({
+        title: '已取消凝视模式',
+        message: '设备电量过低，已自动取消凝视模式。您可在设备充电或电量大于等于20%时重新打开。',
+        duration: 0,
+      })
+    }
+  }
+})
+
+watch(isActive, () => {
+  stareMode.value = isActive.value
+
+  if (!stareMode.value)
+    release()
+})
 
 const options: any = reactive([
   {
     icon: 'i-carbon-image',
     type: 'button',
     label: '分析图片',
+    info: '从本地图库中选择或者拍取一张照片',
     onclick: () => {
       emits('image')
     },
@@ -34,18 +61,44 @@ const options: any = reactive([
     icon: 'i-carbon-ibm-cloud-internet-services',
     type: 'checkbox',
     label: '联网能力',
+    info: '联网能力将允许模型访问互联网，以获取更准确的结果。',
     onclick: () => {
       property.value.internet = !property.value.internet
     },
     checked: () => property.value.internet,
   },
+  isSupported.value
+    ? {
+        icon: 'i-carbon:cube-view',
+        type: 'checkbox',
+        label: '凝视模式',
+        info: '凝视模式会将阻止屏幕息屏，在电脑过低时会自动取消。',
+        onclick: () => {
+          const curMode = stareMode.value
+
+          if (curMode) {
+            release()
+
+            stareMode.value = false
+          }
+          else {
+            request('screen')
+
+            if (isActive.value)
+              stareMode.value = true
+          }
+        },
+        checked: () => stareMode.value,
+      }
+    : undefined,
   {
     icon: 'i-carbon:temperature-celsius-alt',
     type: 'slider',
     label: '随机性',
+    info: '随机性越大，模型越容易产生不连贯的文本，但同时，它也会更难理解。',
     model: property.value.temperature,
   },
-])
+].filter(i => i))
 
 const buttonTrigger = ref()
 const popoverFloating = ref()
@@ -62,12 +115,12 @@ const { floatingStyles } = useFloating(buttonTrigger, popoverFloating, {
     <div ref="buttonTrigger" class="button" i-carbon-add-large />
   </div>
 
-  <teleport to="#teleports">
+  <teleport to="body">
     <div ref="popoverFloating" :class="{ hover: hoverMode }" :style="floatingStyles" class="ThInput-PlusWrapper">
       <div class="ThInput-Plus-Option fake-background">
         <div
-          v-for="option in options" :key="option.label" v-wave
-          :class="{ checked: option.checked?.() }" class="ThInput-Plus-Option-Item" @mouseenter="hoverMode = hover = true" @mouseleave="hover = false"
+          v-for="option in options" :key="option.label" v-wave :class="{ checked: option.checked?.() }"
+          class="ThInput-Plus-Option-Item" @mouseenter="hoverMode = hover = true" @mouseleave="hover = false"
           @click="option.onclick"
         >
           <template v-if="option.type === 'button'">
@@ -95,6 +148,10 @@ const { floatingStyles } = useFloating(buttonTrigger, popoverFloating, {
               </div>
             </div>
           </template>
+
+          <div class="ThInput-Plus-Option-ItemInfo">
+            <p>{{ option.info }}</p>
+          </div>
         </div>
       </div>
     </div>
@@ -109,13 +166,45 @@ const { floatingStyles } = useFloating(buttonTrigger, popoverFloating, {
   z-index: 2;
 
   width: 180px;
-  height: 152px;
+  height: 196px;
 
   pointer-events: none;
 }
 
 .ThInput-Plus-Option {
   &-Item {
+    &Info {
+      position: absolute;
+      padding: 1rem;
+      margin-left: 1rem;
+
+      top: 0;
+      left: 100%;
+
+      width: max-content;
+      max-width: 100%;
+
+      height: auto;
+      max-height: 120px;
+
+      font-size: 14px;
+      overflow-y: scroll;
+      border-radius: 18px;
+      box-shadow: var(--el-box-shadow);
+      background-color: var(--el-bg-color);
+
+      transform: scale(0) translateY(10%);
+      transition: 0.25s;
+      transform-origin: top left;
+    }
+
+    &:hover {
+      .ThInput-Plus-Option-ItemInfo {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+      }
+    }
+
     .slider-wrapper {
       .checkbox-status {
         top: 4px;
