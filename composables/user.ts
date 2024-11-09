@@ -122,8 +122,16 @@ export async function refreshUserSubscription() {
   userStore.value.subscription = undefined
 
   const { data } = await getUserSubscription()
-  if (!data)
+  if (!data) {
+    ElNotification({
+      title: '订阅已过期',
+      message: '您的订阅已过期，相关权益已自动取消。',
+      type: 'warning',
+      duration: 8000,
+    })
+
     return
+  }
 
   userStore.value.subscription = reactive(data)
 

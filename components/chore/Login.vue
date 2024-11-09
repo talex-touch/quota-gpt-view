@@ -438,17 +438,19 @@ const codeUrl = computed(() => `https://mp.weixin.qq.com/cgi-bin/showqrcode?tick
       </div>
 
       <div class="Login-Supper">
-        <ThCheckBox v-model="data.agreement" />&nbsp;登录即代表您已阅读同意<el-link
-          target="_blank"
-          href="https://jcn6saobodid.feishu.cn/wiki/MPcuwXOTAiJdiNklwTpcGTw8nhd?from=from_copylink"
-        >
-          《使用服务协议》
-        </el-link>和<el-link
-          target="_blank"
-          href="https://jcn6saobodid.feishu.cn/wiki/UXqQwvdn6iLLd6k5WKrcWrdcnab?from=from_copylink"
-        >
-          《用户隐私协议》
-        </el-link>
+        <ThCheckBox v-model="data.agreement" />&nbsp;<el-text>
+          登录即代表您已阅读同意<el-link
+            target="_blank"
+            href="https://jcn6saobodid.feishu.cn/wiki/MPcuwXOTAiJdiNklwTpcGTw8nhd?from=from_copylink"
+          >
+            《使用服务协议》
+          </el-link>和<el-link
+            target="_blank"
+            href="https://jcn6saobodid.feishu.cn/wiki/UXqQwvdn6iLLd6k5WKrcWrdcnab?from=from_copylink"
+          >
+            《用户隐私协议》
+          </el-link>
+        </el-text>
       </div>
     </div>
   </div>
