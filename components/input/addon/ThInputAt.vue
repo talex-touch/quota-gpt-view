@@ -272,9 +272,9 @@ const { floatingStyles } = useFloating(inputRef, floatingRef, {
 
     top: 0;
 
-    color: var(--el-text-color-secondary);
-    font-size: 0.75em;
     font-weight: 600;
+    font-size: 0.85em;
+    color: var(--el-text-color-regular);
   }
 
   .el-scrollbar__bar.is-vertical {
