@@ -330,13 +330,17 @@ nextTick(() => {
     }
   }
 
-  position: relative;
-  margin-top: 1rem;
+  position: absolute;
+
+  width: calc(100% - 1.5rem);
+  bottom: 0.5rem;
 
   color: var(--el-text-color-regular);
 }
 
 .PromptRoleCard-Main {
+  margin: 1rem 0 2rem;
+
   max-height: 2.5em;
 
   overflow: hidden;
