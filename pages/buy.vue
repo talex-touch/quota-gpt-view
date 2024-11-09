@@ -466,7 +466,7 @@ watch(() => payOptions.code, () => {
                 <OtherDefaultAlert icon="i-carbon:manage-protection" title="随时取消政策">
                   在科塔锐行，我们深知计划可能随时发生变化。为此，我们特别设计了一套取消政策，旨在为您带来最大的灵活性与安心保障。当您选择我们时，您将享有充分的自由度来调整或取消预订，无需担心任何取消费用。我们的政策允许您在购买后<span
                     font-bold
-                  >3 小时</span>内免费修改订单，确保您的计划能够灵活适应各种突发状况。<el-link type="primary">
+                  >3 小时</span>内免费修改订单，确保您的计划能够灵活适应各种突发状况。<el-link target="_blank" :href="getProtocolUrl('plan_change')" type="primary">
                     了解更多
                   </el-link>
                 </OtherDefaultAlert>
@@ -506,7 +506,13 @@ watch(() => payOptions.code, () => {
                 class="ProfileWrapper-Content-Info Confirm"
               >
                 <div flex items-center>
-                  <ThCheckBox v-model="payOptions.agreement" />&nbsp;使用即代表您已阅读同意《使用服务协议》和《订单退款协议》
+                  <ThCheckBox v-model="payOptions.agreement" pointer-none />&nbsp;<el-text>
+                    使用即代表您已阅读同意<el-link target="_blank" :href="getProtocolUrl('subscription_service')">
+                      《使用服务协议》
+                    </el-link> 和<el-link target="_blank" :href="getProtocolUrl('refund_relatives')">
+                      《订单退款协议》
+                    </el-link>
+                  </el-text>
                 </div>
                 <ShiningButton :class="{ shrink: !payOptions.agreement }">
                   售后咨询
@@ -517,7 +523,13 @@ watch(() => payOptions.code, () => {
                 class="ProfileWrapper-Content-Info Confirm"
               >
                 <div flex items-center>
-                  <ThCheckBox v-model="payOptions.agreement" />&nbsp;购买即代表您已阅读同意《使用服务协议》和《用户隐私协议》
+                  <ThCheckBox v-model="payOptions.agreement" />&nbsp;<el-text>
+                    购买即代表您已阅读同意<el-link target="_blank" :href="getProtocolUrl('subscription_service')">
+                      《使用服务协议》
+                    </el-link> 和<el-link target="_blank" :href="getProtocolUrl('thisai_privacy')">
+                      《用户隐私协议》
+                    </el-link>
+                  </el-text>
                 </div>
                 <ShiningButton :class="{ shrink: !payOptions.agreement }" @click="submit">
                   {{ orderDetail.id ? '继续支付' : '确认支付' }}
@@ -543,8 +555,7 @@ watch(() => payOptions.code, () => {
     </div>
 
     <BuyDialog
-      v-model="payOptions.dialog"
-      z-2 :coupon-code="payOptions.code" :countdown="countdownObj"
+      v-model="payOptions.dialog" z-2 :coupon-code="payOptions.code" :countdown="countdownObj"
       :type="payOptions.type" :time="payOptions.time" :price="payOptions.price" :method="payments.select"
       @order="handleOrderEstablished"
     />

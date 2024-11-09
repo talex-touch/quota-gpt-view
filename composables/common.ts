@@ -145,7 +145,7 @@ export function formatNumber(num: string) {
   return `${num}`.replace(/(\d)(?=(?:\d{3})+$)/g, '$1,')
 }
 
-function isCrossOriginUrl(url) {
+function isCrossOriginUrl(url: string) {
   const origin = location.host
 
   return url.indexOf('data:') !== 0 && !url.includes(origin)
@@ -258,4 +258,8 @@ export function formatEndsImage(url: string) {
 
 export function useTypedRef<T extends abstract new (...args: any) => any >(_comp: T) {
   return ref<InstanceType<T>>()
+}
+
+export function getProtocolUrl(key: string) {
+  return `${location.origin}/guide/protocol?key=${key}`
 }
