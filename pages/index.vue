@@ -115,7 +115,7 @@ watch(
       pageOptions.conversation = conversation
 
       // get last msg
-      if (conversation.messages.length) {
+      if (conversation?.messages.length) {
         const lastMsg = conversation.messages.at(-1)
 
         const content = lastMsg?.content[lastMsg.page]
@@ -361,7 +361,7 @@ function handleLogin() {
 </script>
 
 <template>
-  <div :class="{ expand, empty: !pageOptions.conversation.messages.length, view: viewMode }" class="PageContainer">
+  <div :class="{ expand, empty: !pageOptions.conversation?.messages.length, view: viewMode }" class="PageContainer">
     <History
       v-if="!viewMode" v-model:select="pageOptions.select" class="PageContainer-History" @create="handleCreate"
       @delete="handleDelete"
@@ -401,7 +401,7 @@ function handleLogin() {
         </template>
       </ThChat>
 
-      <EmptyGuide v-if="!viewMode" :show="!!pageOptions.conversation.messages?.length">
+      <EmptyGuide v-if="!viewMode" :show="!!pageOptions.conversation?.messages.length">
         <template #default="{ tip }">
           <ThInput
             :template-enable="!pageOptions.conversation.messages.length" :status="pageOptions.status"
@@ -425,7 +425,7 @@ function handleLogin() {
           </span> -->
 
           <span
-            v-if="!viewMode && !!pageOptions.conversation.messages.length"
+            v-if="!viewMode && !!pageOptions.conversation?.messages.length"
             :class="pageOptions.share.enable ? 'warning shining' : ''" cursor-pointer class="tag" @click="handleShare"
           >
             <i i-carbon:share />分享对话
@@ -435,14 +435,14 @@ function handleLogin() {
         </template>
         <template #end>
           <ChatHeadTrSyncStatus
-            v-if="!!pageOptions.conversation.messages.length"
+            v-if="!!pageOptions.conversation?.messages.length"
             :status="pageOptions.conversation.sync" @upload="handleSync"
           />
         </template>
       </AigcChatStatusBar>
 
       <ShareSection
-        v-if="pageOptions.conversation" :length="pageOptions.conversation.messages.length"
+        v-if="pageOptions.conversation" :length="pageOptions.conversation?.messages.length"
         :show="pageOptions.share.enable" :selected="pageOptions.share.selected"
       />
 

@@ -14,27 +14,7 @@ const emits = defineEmits<{
   (e: 'delete', index: string): void
 }>()
 
-const route = useRoute()
-
 const { select } = useVModels(props, emits)
-
-watch(route, () => {
-  if (!route.query?.id)
-    return
-
-  const { id } = route.query
-  if (!id)
-    return
-
-  const res = [...props.history].find(item => item.id === id)
-  if (!res) {
-    // select.value = ''
-
-    return
-  }
-
-  select.value = id as string
-}, { immediate: true })
 
 function handleSelect($event: IChatConversation, item: IChatConversation) {
   $historyManager.options.list.set(item.id, $event)
@@ -49,7 +29,8 @@ function handleSelect($event: IChatConversation, item: IChatConversation) {
 
     <div class="History-ContentHolder">
       <HistoryItem
-        v-for="item in history" :key="item.id" v-wave :active="select === item.id"
+        v-for="item in history" :key="item.id"
+        v-model:select="select" v-wave :history="history" :active="select === item.id"
         :model-value="item" @click="handleSelect($event, item)" @delete="emits('delete', $event)"
       />
     </div>

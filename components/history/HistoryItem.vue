@@ -12,12 +12,20 @@ import { createTapTip } from '~/composables/tip'
 const props = defineProps<{
   modelValue: IChatConversation
   active: boolean
+  select: string
+  history: IChatConversation[]
 }>()
 
 const emits = defineEmits<{
+
+  (e: 'update:select', index: string): void
   (e: 'delete', index: string): void
   (e: 'click', data: IChatConversation): void
 }>()
+
+const route = useRoute()
+
+const { select } = useVModels(props, emits)
 
 const editMode = ref(false)
 const input = ref()
@@ -110,7 +118,7 @@ const { floatingStyles } = useFloating(itemLine, itemFloating, {
   whileElementsMounted: autoUpdate,
 })
 
-async function handleSelect(e: Event) {
+async function handleSelect(e?: Event) {
   if (props.modelValue.messages) {
     if (Date.now() - props.modelValue.lastUpdate <= 60 * 1000 * 5) {
       emits('click', props.modelValue)
@@ -119,7 +127,7 @@ async function handleSelect(e: Event) {
     }
   }
 
-  e.stopImmediatePropagation()
+  e?.stopImmediatePropagation()
 
   loading.value = true
 
@@ -130,6 +138,25 @@ async function handleSelect(e: Event) {
 
   loading.value = false
 }
+
+watch(route, () => {
+  if (!route.query?.id)
+    return
+
+  const { id } = route.query
+  if (!id)
+    return
+
+  const res = [...props.history].find(item => item.id === id)
+  if (!res) {
+    // select.value = ''
+
+    return
+  }
+
+  if (id === props.modelValue.id)
+    handleSelect().then(() => select.value = props.modelValue.id)
+}, { immediate: true })
 </script>
 
 <template>
