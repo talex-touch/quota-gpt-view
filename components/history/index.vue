@@ -244,7 +244,12 @@ async function handleSearchHistory(query: string) {
 
   const res = await $historyManager.searchHistories(query)
 
-  searchedList.list = res.data.items
+  searchedList.list = res.data.items.map((item) => {
+    return {
+      ...item,
+      id: item.chat_id,
+    }
+  })
 
   searchedList.loading = false
 }
