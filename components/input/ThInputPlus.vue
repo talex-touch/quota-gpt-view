@@ -22,7 +22,7 @@ const { isSupported, isActive, request, release } = useWakeLock()
 const { charging, level } = useBattery()
 
 watchEffect(() => {
-  if (!charging.value && level.value <= 20) {
+  if (!charging.value && level.value <= 0.2) {
     if (stareMode.value) {
       release()
       stareMode.value = false
