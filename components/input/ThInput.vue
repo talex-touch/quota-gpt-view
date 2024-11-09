@@ -429,7 +429,10 @@ onStartTyping(focusInput)
       :show="!template?.title && input.text.startsWith('@')" @select="handleTemplateSelect"
     />
 
-    <ThInputPlus v-model="inputProperty" :hide="input.text.startsWith('@') || template?.title" @image="handleImagePlus" />
+    <ThInputPlus
+      v-model="inputProperty" :hide="input.text.startsWith('@') || template?.title"
+      @image="handleImagePlus"
+    />
 
     <div flex class="ThInput-Input">
       <div v-if="template?.id || input.files?.length" class="ThInput-InputHeader">
@@ -445,12 +448,17 @@ onStartTyping(focusInput)
         <template v-if="template?.title">
           <span flex class="template-tag">@{{ template.title }}</span>
         </template>
-        <textarea
-          id="main-input" v-model="input.text" autofocus autocomplete="off" @focus="focus = true"
-          @blur="focus = false" @keydown="handleInputKeydown"
-        />
-        <div v-if="!input.text && !input.files?.length" class="ThInput-InputMain-Placeholder transition-cubic">
-          <p>{{ placeholder }}</p>
+        <div class="ThInput-InputMain-Inner">
+          <textarea
+            id="main-input" v-model="input.text" autofocus autocomplete="off" @focus="focus = true"
+            @blur="focus = false" @keydown="handleInputKeydown"
+          />
+          <div
+            v-if="!input.text && !input.files?.length"
+            class="ThInput-InputMain-Placeholder transition-cubic"
+          >
+            <p>{{ placeholder }}</p>
+          </div>
         </div>
       </div>
     </div>
@@ -654,6 +662,13 @@ onStartTyping(focusInput)
   }
 }
 
+.ThInput-InputMain-Inner {
+  position: relative;
+  display: flex;
+
+  width: 100%;
+}
+
 .ThInput {
   &.collapse,
   &.generating {
@@ -723,7 +738,7 @@ onStartTyping(focusInput)
   padding: 0.5rem 0.75rem;
   display: flex;
 
-  gap: 0.5rem;
+  // gap: 0.5rem;
   align-items: flex-end;
 
   // left: 50%;
@@ -833,13 +848,13 @@ onStartTyping(focusInput)
       }
 
       position: relative;
-      padding-right: 0.5rem;
+      padding: 0.25rem;
 
       max-height: 100px;
     }
 
     position: relative;
-    padding: 0.5rem 0.5rem;
+    padding: 0.25rem 0;
 
     width: 100%;
 
@@ -849,6 +864,9 @@ onStartTyping(focusInput)
 
   .ThInput-InputMain {
     &-Placeholder {
+      &.template {
+        left: 0;
+      }
       z-index: 3;
       position: absolute;
       display: flex;
@@ -864,6 +882,7 @@ onStartTyping(focusInput)
       pointer-events: none;
       transform: translate(0%, -50%);
     }
+    position: relative;
 
     width: 100%;
   }

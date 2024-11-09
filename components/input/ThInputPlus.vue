@@ -330,18 +330,14 @@ const { floatingStyles } = useFloating(buttonTrigger, popoverFloating, {
     transition: 0.25s;
   }
 
-  .button {
-    position: relative;
-
-    margin-top: 0.25rem;
-  }
-
   &.hide {
+    margin-right: 0;
     width: 0;
   }
 
   z-index: 20;
   position: relative;
+  margin-right: 0.5rem;
   display: flex;
 
   align-items: center;

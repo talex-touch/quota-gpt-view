@@ -30,7 +30,7 @@ async function _fetchData() {
   await sleep(500)
 
   const select = items.tagList[items.tagSelected]
-  const selectQuery = `${select.tagId !== -1 ? select.name : ''}`.replaceAll(query.value, '')
+  const selectQuery = `${select.tagSelected !== -1 ? select.name : ''}`.replaceAll(query.value, '')
 
   const res = await $endApi.v1.aigc.searchPromptTemplate(`${selectQuery}${query.value}`)
 
