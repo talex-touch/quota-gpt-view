@@ -228,6 +228,9 @@ onMounted(async () => {
   if (document.body.classList.contains('mobile'))
     return
 
+  if (!codeData.value.active)
+    codeData.value.active = 'phone'
+
   await fetchCode()
 
   codeStatusTimer()

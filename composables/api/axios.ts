@@ -101,6 +101,8 @@ export function genAxios(options: CreateAxiosDefaults) {
           if (!refreshOptions.pending) {
             refreshOptions.pending = true
 
+            console.log('refresh new token', userStore.value.token, userStore.value.token?.refreshToken)
+
             const res: any = await $http({
               method: 'GET',
               url: 'auth/renew_token',
