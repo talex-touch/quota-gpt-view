@@ -167,14 +167,14 @@ function formateSize(num: number) {
     object-fit: cover;
 
     overflow: hidden;
-    border-radius: 4px;
+    border-radius: 8px;
   }
   position: relative;
 
   max-width: 300px;
   max-height: 200px;
 
-  border-radius: 4px;
+  border-radius: 8px;
   border: 1px solid var(--el-border-color);
 }
 

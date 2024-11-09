@@ -37,11 +37,11 @@ const input = ref<{
 })
 // const textInput = computed(() => input.value.filter((item: IInnerItemMeta) => item.type === 'text').map(item => item.value).join(''))
 const nonPlusMode = computed(() => props.templateEnable && !template.value?.title && (input.value.text.startsWith('/') || input.value.text.startsWith('@')))
-
+const fileUploaded = computed(() => input.value.files.filter(item => !item.extra?.sync).length === 0)
 const inputHistories = useLocalStorage<string[]>('inputHistories', [])
 const inputHistoryIndex = ref(inputHistories.value.length - 1)
 const showSend = computed(() => input.value.text?.length || input.value.files?.length)
-const canSend = computed(() => showSend.value && (props.status === IChatItemStatus.AVAILABLE || props.status === IChatItemStatus.CANCELLED))
+const canSend = computed(() => fileUploaded.value && showSend.value && (props.status === IChatItemStatus.AVAILABLE || props.status === IChatItemStatus.CANCELLED))
 
 function handleSend(event: Event) {
   if (!canSend.value)
