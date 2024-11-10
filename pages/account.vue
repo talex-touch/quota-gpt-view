@@ -165,6 +165,10 @@ import Account from '~/components/chore/personal/profile/Account.vue'
   &-Main {
     .template-normal {
       div.image {
+        .el-avatar {
+          width: 100% !important;
+          height: 100% !important;
+        }
         width: 64px;
         height: 64px;
 
