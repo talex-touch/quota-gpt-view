@@ -12,6 +12,7 @@ import { $endApi } from '~/composables/api/base'
 
 const historyList = ref()
 const invitationList = ref()
+const shareList = ref()
 
 async function fetchHistoryData() {
   const res: any = await getHistoryList()
@@ -31,9 +32,19 @@ async function fetchInvitationData() {
   invitationList.value = res.data
 }
 
+async function fetchShareListData() {
+  const res: any = await $endApi.v1.aigc.getShareList()
+
+  if (res.code !== 200)
+    return ElMessage.error(res.message)
+
+  shareList.value = res.data
+}
+
 onMounted(() => {
   fetchHistoryData()
   fetchInvitationData()
+  fetchShareListData()
 })
 
 // 计算注册了多少天
@@ -73,6 +84,10 @@ async function openConfigurePage() {
     component: AccountModulePersonal,
     data: null,
   })
+}
+
+function handleShareMenu() {
+  ElMessage.error('暂未开放.')
 }
 </script>
 
@@ -217,6 +232,44 @@ async function openConfigurePage() {
     <div style="--d: 0.4s" class="ProfileAccount-Box">
       <div class="ProfileAccount-Box-Header template-normal">
         <div class="image">
+          <div i-carbon-share />
+        </div>
+        <div flex class="title">
+          分享管理
+        </div>
+        <p class="subtitle">
+          查看。管理您的历史对话分享记录
+        </p>
+      </div>
+
+      <div style="max-height: 500px" class="ProfileAccount-Box-Main">
+        <div v-if="shareList?.items.length" class="Share">
+          <el-scrollbar>
+            <div v-for="share in shareList?.items" :key="share.id" class="Share-Item">
+              <p class="title">
+                {{ share.topic }}
+              </p>
+
+              <div class="fixed-right">
+                <div v-wave class="icon" @click="handleShareMenu">
+                  <div i-carbon-overflow-menu-horizontal />
+                </div>
+                <div v-wave class="icon" @click="handleShareMenu">
+                  <div i-carbon-close />
+                </div>
+              </div>
+            </div>
+          </el-scrollbar>
+        </div>
+        <template v-else>
+          <el-empty description="暂无任何分享记录" />
+        </template>
+      </div>
+    </div>
+
+    <div style="--d: 0.5s" class="ProfileAccount-Box">
+      <div class="ProfileAccount-Box-Header template-normal">
+        <div class="image">
           <div i-carbon-code />
         </div>
         <div flex class="title">
@@ -241,6 +294,57 @@ async function openConfigurePage() {
 </template>
 
 <style lang="scss">
+.Share-Item {
+  .fixed-right {
+    .icon {
+      &:hover {
+        background-color: #ffffff30;
+      }
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      width: 32px;
+      height: 32px;
+
+      font-size: 20px;
+      border-radius: 8px;
+      &:last-child {
+        color: var(--el-color-danger);
+      }
+    }
+
+    display: flex;
+
+    height: 100%;
+
+    gap: 0.5rem;
+    align-items: center;
+  }
+  &:hover {
+    background-color: var(--el-fill-color-light);
+  }
+  display: flex;
+  padding: 0.5rem 1rem;
+
+  width: 100%;
+
+  cursor: pointer;
+
+  align-items: center;
+  justify-content: space-between;
+
+  border-radius: 12px;
+  background-color: var(--el-fill-color-lighter);
+}
+
+.Share {
+  display: flex;
+
+  flex-direction: column;
+}
+
 .ProfileAccount {
   position: relative;
   padding: 1rem 0;

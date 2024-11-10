@@ -46,4 +46,7 @@ export default {
   recommendTags() {
     return endHttp.get('aigc/prompts/tags/recommend')
   },
+  getShareList() {
+    return endHttp.get('aigc/conversation/share_list') as Promise<IPageResponse<any>>
+  },
 }
