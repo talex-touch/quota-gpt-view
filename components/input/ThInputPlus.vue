@@ -28,9 +28,9 @@ watchEffect(() => {
       stareMode.value = false
 
       ElNotification({
-        title: '已取消凝视模式',
+        title: '已自动取消凝视模式',
         message: '设备电量过低，已自动取消凝视模式。您可在设备充电或电量大于等于20%时重新打开。',
-        duration: 0,
+        duration: 30000,
       })
     }
   }
@@ -39,8 +39,15 @@ watchEffect(() => {
 watch(isActive, () => {
   stareMode.value = isActive.value
 
-  if (!stareMode.value)
+  if (!stareMode.value) {
     release()
+
+    ElNotification({
+      title: '凝视模式已失效',
+      message: '退出页面会导致凝视模式失效，请重新打开。',
+      duration: 30000,
+    })
+  }
 })
 
 const options: any = reactive([
@@ -73,7 +80,7 @@ const options: any = reactive([
         icon: 'i-carbon:cube-view',
         type: 'checkbox',
         label: '凝视模式',
-        info: '凝视模式会将阻止屏幕息屏，在电脑过低时会自动取消。',
+        info: '凝视模式会阻止屏幕息屏，在电量过低时会自动取消。',
         onclick: () => {
           const curMode = stareMode.value
 
