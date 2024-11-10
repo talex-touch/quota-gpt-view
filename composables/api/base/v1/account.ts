@@ -18,4 +18,7 @@ export default {
   getTargetUserConfig(uid: number) {
     return endHttp.get(`user-config/user/${uid}`) as Promise<IDataResponse<any>>
   },
+  getInvitationRecords() {
+    return endHttp.get('invitation/records') as Promise<IDataResponse<any[]>>
+  },
 }

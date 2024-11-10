@@ -8,8 +8,10 @@ import AccountModulePersonal from './account/AccountModulePersonal.vue'
 import { getHistoryList } from '~/composables/api/account'
 import ImageUpload from '~/components/personal/ImageUpload.vue'
 import { $event } from '~/composables/events'
+import { $endApi } from '~/composables/api/base'
 
 const historyList = ref()
+const invitationList = ref()
 
 async function fetchHistoryData() {
   const res: any = await getHistoryList()
@@ -20,8 +22,18 @@ async function fetchHistoryData() {
   historyList.value = res.data
 }
 
+async function fetchInvitationData() {
+  const res: any = await $endApi.v1.account.getInvitationRecords()
+
+  if (res.code !== 200)
+    return ElMessage.error(res.message)
+
+  invitationList.value = res.data
+}
+
 onMounted(() => {
   fetchHistoryData()
+  fetchInvitationData()
 })
 
 // 计算注册了多少天
@@ -100,7 +112,7 @@ async function openConfigurePage() {
           <span v-if="userStore.isAdmin" class="tag danger fill">管理员
           </span>
           <span v-else class="tag fill">普通用户</span>
-          <span class="tag">邀请 0 人</span>
+          <span class="tag">已邀请 {{ invitationList?.length || 0 }} 人</span>
           <span class="tag">运势不错</span>
           <span class="tag">注册 {{ registeredCountDay }} 天</span>
         </div>
