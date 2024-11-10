@@ -49,6 +49,27 @@ import Account from '~/components/chore/personal/profile/Account.vue'
   }
 }
 
+.ProfileAccount-Tags {
+  span {
+    &.fill {
+      color: var(--el-bg-color);
+      background-color: var(--c, var(--el-overlay-color));
+    }
+    &.danger {
+      --c: var(--el-color-danger);
+    }
+    padding: 0.25rem 0.75rem;
+
+    font-size: 14px;
+    border-radius: 12px;
+    border: 1px solid var(--el-border-color);
+  }
+  margin: 1rem 0 0.5rem;
+  display: flex;
+
+  gap: 0.5rem;
+}
+
 .ProfileAccount-Box-Data {
   .box-data {
     &:hover {

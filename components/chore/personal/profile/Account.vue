@@ -100,6 +100,12 @@ function resetForm(formEl: FormInstance | undefined) {
 }
 
 const lastEditTime = computed(() => dayjs(userStore.value.updatedAt).format('DD MMMM YYYY'))
+// 计算注册了多少天
+const registeredCountDay = computed(() => {
+  const diff = Date.now() - new Date(userStore.value.createdAt!).getTime()
+
+  return Math.round(diff / 60 / 1000 / 60 / 24)
+})
 
 function handleLogout() {
   $event.emit('USER_LOGOUT_SUCCESS', LogoutType.USER_LOGOUT)
@@ -155,6 +161,15 @@ async function openHistoryPage() {
           <p class="subtitle">
             {{ ruleForm.remark || '酷酷的人没有签名' }}
           </p>
+        </div>
+
+        <div class="ProfileAccount-Tags">
+          <span v-if="userStore.isAdmin" class="tag danger fill">管理员
+          </span>
+          <span v-else class="tag fill">普通用户</span>
+          <span class="tag">邀请 0 人</span>
+          <span class="tag">运势不错</span>
+          <span class="tag">注册 {{ registeredCountDay }} 天</span>
         </div>
 
         <div class="ProfileAccount-Box-Data">
