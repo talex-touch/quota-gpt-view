@@ -162,7 +162,7 @@ import Account from '~/components/chore/personal/profile/Account.vue'
       }
     }
 
-    padding: 0.5rem;
+    padding: 0.5rem 1rem;
   }
 
   &-Footer {

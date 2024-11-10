@@ -48,13 +48,14 @@ const rawUserConfig = {
     },
     appearance: {
       theme: '',
+      color: 'auto',
       expand: false,
       immersive: true,
     },
   },
   loading: false,
 }
-export const userConfig = ref(JSON.parse(JSON.stringify(rawUserConfig)))
+export const userConfig = ref<typeof rawUserConfig>(JSON.parse(JSON.stringify(rawUserConfig)))
 
 watch(() => userStore.value.token?.accessToken, (token) => {
   userStore.value.isLogin = !!token

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { currentWallpaper, setWallpaper, theme, viewTransition, wallpapers } from '~/composables/theme/colors'
 
-const colorMode = useColorMode()
-
 function toggleTheme(event: MouseEvent, theme: 'auto' | 'light' | 'dark') {
+  userConfig.value.pri_info.appearance.color = theme
+
   viewTransition(event, theme)
 }
 
@@ -122,9 +122,9 @@ const options = reactive({
       </p>
 
       <div my-4 class="Appearance-Display-Theme">
-        <ThemeBlock :active="colorMode.value === 'auto'" theme="system" @click="toggleTheme($event, 'auto')" />
-        <ThemeBlock :active="colorMode.value === 'light'" theme="light" @click="toggleTheme($event, 'light')" />
-        <ThemeBlock :active="colorMode.value === 'dark'" theme="dark" @click="toggleTheme($event, 'dark')" />
+        <ThemeBlock :active="userConfig.pri_info.appearance.color === 'auto'" theme="system" @click="toggleTheme($event, 'auto')" />
+        <ThemeBlock :active="userConfig.pri_info.appearance.color === 'light'" theme="light" @click="toggleTheme($event, 'light')" />
+        <ThemeBlock :active="userConfig.pri_info.appearance.color === 'dark'" theme="dark" @click="toggleTheme($event, 'dark')" />
       </div>
     </div>
   </div>
@@ -273,11 +273,11 @@ const options = reactive({
   }
   flex-wrap: wrap;
 
-  width: 1020px;
-  max-width: 100%;
+  width: min(1020px, 85vw);
 
-  height: 720px;
-  max-height: 90%;
+  height: min(520px, 65vh);
+
+  overflow: hidden;
 }
 
 .Appearance-Display {

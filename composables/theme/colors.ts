@@ -260,8 +260,9 @@ export function useColorTheme() {
 }
 
 export function applySystemPreference() {
-  const color = useColorMode()
-  if (color.preference !== 'auto')
+  const color = userConfig.value.pri_info.appearance.color
+
+  if (color !== 'auto')
     return
 
   const prefersColorScheme = window.matchMedia('(prefers-color-scheme: dark)')
