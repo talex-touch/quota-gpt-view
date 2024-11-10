@@ -199,6 +199,9 @@ async function openHistoryPage() {
               <span v-if="userStore.subscription" mx-1 text-3 op-75>
                 至{{ dayjs(userStore.subscription.expiredAt).format('YYYY/MM/DD') }}
               </span>
+              <span v-else mx-1 text-3 op-75>
+                <el-link href="/plan" target="_blank">立即订阅</el-link>
+              </span>
             </p>
           </div>
           <div v-wave class="box-data" @click="openHistoryPage">
