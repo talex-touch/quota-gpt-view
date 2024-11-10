@@ -150,18 +150,47 @@ nextTick(() => {
   <teleport to="#teleports">
     <div class="PromptRoleCard-DialogWrapper" :class="{ expand }" @click="triggerExpand">
       <div ref="dialog" class="PromptRoleCard-Dialog transition-cubic" @click.stop="">
-        <h1 class="PROMPT">
-          --- PROMPT ---
-        </h1>
         <div class="PromptRoleCard-DialogMain">
           <img :src="src" :alt="modelValue.title">
           <p class="title">
             {{ modelValue.title }}
           </p>
 
+          <p class="author">
+            @科塔智爱官方出品
+          </p>
+
           <p class="description">
             {{ modelValue.description || '-' }}
           </p>
+
+          <div class="PromptRoleCard-Line">
+            <div class="PromptRoleCard-Line-Item">
+              <div>
+                <div i-carbon:star />5.0
+              </div>
+              <p>评分(0+)</p>
+            </div>
+            <div class="PromptRoleCard-Line-Item">
+              <div>
+                {{ keywordsTags.slice(0, 1)?.[0] || 'Unknown' }}
+              </div>
+              <p>类别</p>
+            </div>
+            <div class="PromptRoleCard-Line-Item">
+              <div>
+                0
+              </div>
+              <p>使用</p>
+            </div>
+          </div>
+
+          <div class="PromptRoleCard-Rate">
+            <p class="title">
+              评级
+            </p>
+            <el-empty description="还没有任何评级." />
+          </div>
 
           <div class="keywords">
             <span v-for="(i, ind) in keywordsTags.slice(0, 5)" :key="ind">#{{ i }}</span>
@@ -173,6 +202,54 @@ nextTick(() => {
 </template>
 
 <style lang="scss" scoped>
+.PromptRoleCard-Rate {
+  .title {
+    text-align: center;
+  }
+  margin: 1rem 0 -1rem;
+
+  width: 80%;
+}
+
+.PromptRoleCard-Line {
+  &-Item {
+    padding: 0 2rem;
+
+    display: flex;
+    flex-direction: column;
+
+    div {
+      display: flex;
+
+      gap: 0.5rem;
+      align-items: center;
+      justify-content: center;
+
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    p {
+      margin: 0.5rem 0;
+
+      text-align: center;
+
+      color: var(--el-text-color-secondary);
+    }
+
+    border-right: 1px solid var(--el-border-color);
+
+    &:last-child {
+      border-right: none;
+    }
+  }
+  margin: 1.5rem 0;
+
+  display: flex;
+
+  justify-content: center;
+}
+
 .PromptRoleCard-DialogMain {
   .keywords {
     display: flex;
@@ -199,7 +276,19 @@ nextTick(() => {
     font-weight: 600;
   }
 
+  p.author {
+    opacity: 0.5;
+
+    font-size: 18px;
+    line-height: 20px;
+    color: var(--el-text-color-secondary);
+  }
+
   p.description {
+    margin: 1rem 0;
+
+    max-width: 65%;
+
     font-size: 18px;
     line-height: 20px;
     color: var(--el-text-color-secondary);
@@ -279,13 +368,6 @@ nextTick(() => {
 }
 
 .PromptRoleCard-Dialog {
-  .PROMPT {
-    margin-bottom: 2rem;
-
-    font-weight: 600;
-    opacity: 0.25;
-  }
-
   .expand & {
     border: 1px solid transparent;
 
@@ -300,7 +382,7 @@ nextTick(() => {
   max-width: 85%;
   height: auto;
   min-height: 50px;
-  max-height: 80%;
+  max-height: 60vh;
 
   align-items: center;
   flex-direction: column;
