@@ -253,12 +253,18 @@ $event.on('USER_LOGOUT_SUCCESS', () => {
   theme.value = ''
 })
 
-const color = useColorMode()
-const prefersColorScheme = window.matchMedia('(prefers-color-scheme: dark)')
+export function useColorTheme() {
+  const prefersColorScheme = window.matchMedia('(prefers-color-scheme: dark)')
+
+  prefersColorScheme.addEventListener('change', applySystemPreference)
+}
 
 export function applySystemPreference() {
+  const color = useColorMode()
   if (color.preference !== 'auto')
     return
+
+  const prefersColorScheme = window.matchMedia('(prefers-color-scheme: dark)')
 
   viewTransition({
     clientX: innerWidth / 2,
@@ -266,9 +272,9 @@ export function applySystemPreference() {
   }, prefersColorScheme.matches ? 'dark' : 'light')
 }
 
-prefersColorScheme.addEventListener('change', applySystemPreference)
-
 export function viewTransition(e: { clientX: number, clientY: number }, theme?: 'auto' | 'light' | 'dark') {
+  const color = useColorMode()
+
   // 用于颜色模式的获取和设置
   const compColorMode = computed({
     get() {

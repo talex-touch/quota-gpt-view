@@ -38,9 +38,11 @@ async function handleClickOutside() {
           <slot name="Title" />
         </div>
 
-        <div class="TouchDialog-Content">
-          <slot />
-        </div>
+        <el-scrollbar>
+          <div class="TouchDialog-Content">
+            <slot />
+          </div>
+        </el-scrollbar>
 
         <div v-if="footer" class="TouchDialog-Footer">
           <slot name="Footer" />
@@ -152,6 +154,8 @@ async function handleClickOutside() {
 
       max-width: 100%;
       max-height: 80%;
+
+      // overflow: hidden;
     }
 
     .TouchDialog-Footer {
@@ -168,6 +172,8 @@ async function handleClickOutside() {
     display: flex;
 
     flex-direction: column;
+
+    max-height: 80%;
 
     opacity: 1;
     transition: 0.35s 0.25s;
