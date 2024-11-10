@@ -36,6 +36,9 @@ watchEffect(() => {
   }
 })
 
+const now = useTimestamp()
+let startTime = -1
+
 watch(isActive, () => {
   stareMode.value = isActive.value
 
@@ -45,6 +48,21 @@ watch(isActive, () => {
     ElNotification({
       title: '凝视模式已失效',
       message: '退出页面会导致凝视模式失效，请重新打开。',
+      duration: 30000,
+    })
+  }
+  else {
+    startTime = Date.now()
+  }
+})
+
+watch(() => now.value - startTime, (val) => {
+  if (startTime !== -1 && val >= 45 * 60 * 1000) {
+    startTime = -1
+
+    ElNotification({
+      title: '凝视模式已取消',
+      message: '凝视模式单次最长可用 45分钟，若需更多时间，请重新打开。',
       duration: 30000,
     })
   }
