@@ -631,4 +631,42 @@ font.immersive-translate-target-wrapper {
   border-radius: inherit;
   background-color: var(--fake-color, var(--el-bg-color-page));
 }
+
+.template-normal {
+  .image {
+    margin: auto 0;
+    margin-right: 0.5rem;
+    display: flex;
+
+    width: 1.2em;
+    height: 100%;
+
+    grid-area: image;
+
+    align-items: center;
+    justify-content: center;
+  }
+
+  .title {
+    grid-area: title;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .subtitle {
+    grid-area: subtitle;
+    font-size: 12px;
+
+    color: var(--el-text-color-secondary);
+  }
+
+  display: grid;
+
+  gap: 0.125rem;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: 1fr 1fr;
+  grid-template-areas: 'image title' 'image subtitle';
+
+  align-items: center;
+}
 </style>

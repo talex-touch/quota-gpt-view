@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import dayjs from 'dayjs'
 import { getUserBindingPlatforms } from '~/composables/api/account'
 
 const links = ref()
@@ -19,27 +18,16 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="ProfileWrapper">
-    <div class="ProfileWrapper-Header">
-      <p>第三方绑定</p>
-    </div>
-
-    <div class="ProfileWrapper-Main">
-      <el-descriptions
-        v-for="link in links"
-        :key="link.id"
-        my-2
-        :column="3"
-        size="small"
-        border
-      >
+  <div class="Link">
+    <template v-if="links">
+      <el-descriptions v-for="link in links" :key="link.id" my-2 :column="3" size="small" border>
         <template #title>
           <div v-if="link.provider === 'wechat'" flex items-center gap-2>
             <div i-carbon:logo-wechat />
             微信
           </div>
           <div v-else-if="link.provider === 'feishu'" flex items-center gap-2>
-            <div i-carbon:link />
+            <div i-carbon:ibm-z-cloud-mod-stack />
             飞书
           </div>
         </template>
@@ -89,8 +77,13 @@ onMounted(async () => {
           <!-- {{ parseMeta(link.meta) }} -->
         </el-descriptions-item>
       </el-descriptions>
-    </div>
+    </template>
+    <template v-else>
+      <el-skeleton animated />
+    </template>
   </div>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+</style>

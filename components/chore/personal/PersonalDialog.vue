@@ -1,98 +1,83 @@
 <script setup lang="ts">
-import { $event } from "~/composables/events";
-import AccountAvatar from "../components/personal/AccountAvatar.vue";
-import CmsMenuItem from "~/components/cms/CmsMenuItem.vue";
+import AccountAvatar from '../components/personal/AccountAvatar.vue'
+import { $event } from '~/composables/events'
+import CmsMenuItem from '~/components/cms/CmsMenuItem.vue'
 
-import Account from "~/components/chore/personal/profile/Account.vue";
-import Plan from "~/components/chore/personal/profile/Plan.vue";
-import empty from "~/components/chore/personal/profile/empty.vue";
-import History from "~/components/chore/personal/profile/History.vue";
-import Appearance from "~/components/chore/personal/profile/Appearance.vue";
-import Developer from "~/components/chore/personal/profile/Developer.vue";
-import Link from "~/components/chore/personal/profile/Link.vue";
+import Account from '~/components/chore/personal/profile/Account.vue'
+import Plan from '~/components/chore/personal/profile/Plan.vue'
+import empty from '~/components/chore/personal/profile/empty.vue'
+import Appearance from '~/components/chore/personal/profile/Appearance.vue'
+import Developer from '~/components/chore/personal/profile/account/AccountModuleDeveloper.vue'
 
 const props = defineProps<{
-  modelValue: string;
-}>();
+  modelValue: string
+}>()
 
 const emits = defineEmits<{
-  (e: "update:modelValue", value: string): void;
-}>();
+  (e: 'update:modelValue', value: string): void
+}>()
 
-const data = useVModel(props, "modelValue", emits);
-const show = ref(false);
+const data = useVModel(props, 'modelValue', emits)
+const show = ref(false)
 
-const route = useRoute();
+const route = useRoute()
 // const router = useRouter()
 
 const privacyPhone = computed(() => {
-  const phone = userStore.value?.phone;
-  if (!phone) return "";
+  const phone = userStore.value?.phone
+  if (!phone)
+    return ''
 
-  return `${phone.substring(0, 3)}******${phone.substring(9)}`;
-});
+  return `${phone.substring(0, 3)}******${phone.substring(9)}`
+})
 
-const comp = ref();
-const expand = ref(false);
+const comp = ref()
+const expand = ref(false)
 const queryComponentMapper: Record<string, any> = {
   account: {
-    name: "账号资料",
+    name: '账号资料',
     comp: Account,
   },
   plan: {
-    name: "订阅计划",
+    name: '订阅计划',
     comp: Plan,
   },
-  link: {
-    name: "三方绑定",
-    comp: Link,
-  },
   appearance: {
-    name: "外观设置",
+    name: '外观设置',
     comp: Appearance,
   },
-  history: {
-    name: "登录历史",
-    comp: History,
-  },
-  developer: {
-    name: "开发者设置",
-    comp: Developer,
-  },
   // notification: empty,
-};
+}
 
 watch(
   () => data.value,
   (_data) => {
     if (_data) {
-      show.value = true;
+      show.value = true
 
-      if (!document.body.classList.contains("mobile") && _data === "index")
-        data.value = "account";
+      if (!document.body.classList.contains('mobile') && _data === 'index')
+        data.value = 'account'
 
-      expand.value = _data === "plan";
-    } else {
-      show.value = false;
-      return;
+      expand.value = _data === 'plan'
+    }
+    else {
+      show.value = false
+      return
     }
 
-    comp.value = queryComponentMapper[_data as string];
-  }
-);
+    comp.value = queryComponentMapper[_data as string]
+  },
+)
 
 function handleClose() {
-  data.value = "";
+  data.value = ''
   // router.push({ query: { ...route.query, c: null, data: null } })
 }
 
 function handleBack() {
-  if (data.value === "index") handleClose();
-  else data.value = "index";
-}
-
-function handleLogout() {
-  $event.emit("USER_LOGOUT_SUCCESS", LogoutType.USER_LOGOUT);
+  if (data.value === 'index')
+    handleClose()
+  else data.value = 'index'
 }
 </script>
 
@@ -119,7 +104,9 @@ function handleLogout() {
           <AccountAvatar />
           <div class="head-text">
             <p>{{ userStore.nickname }}</p>
-            <p op-75>+86 {{ privacyPhone }}</p>
+            <p op-75>
+              +86 {{ privacyPhone }}
+            </p>
           </div>
         </div>
 
@@ -143,33 +130,9 @@ function handleLogout() {
             <div i-carbon-moon />
             外观设置
           </CmsMenuItem>
-          <CmsMenuItem :active="data === 'link'" @click="data = 'link'">
-            <div i-carbon-attachment />
-            三方绑定
-          </CmsMenuItem>
-          <!-- <CmsMenuItem danger path="/profile/password">
-            <div i-carbon-password />修改密码
-          </CmsMenuItem> -->
-          <CmsMenuItem :active="data === 'history'" @click="data = 'history'">
-            <div i-carbon-data-table />
-            登录历史
-          </CmsMenuItem>
           <!-- <CmsMenuItem path="/profile/mf2a">
             <div i-carbon-tablet />MF2A
           </CmsMenuItem> -->
-          <CmsMenuItem
-            v-permission="'system:admin'"
-            :active="data === 'developer'"
-            danger
-            @click="data = 'developer'"
-          >
-            <div i-carbon-code />
-            开发者设置
-          </CmsMenuItem>
-          <CmsMenuItem danger @click="handleLogout">
-            <div i-carbon-close />
-            退出登录
-          </CmsMenuItem>
         </div>
 
         <div class="PersonalWrapper-AsideFooter only-pe-display">
@@ -210,7 +173,7 @@ function handleLogout() {
   width: 100%;
   height: 30%;
 
-  background-image: url("/svg/back-wave.svg");
+  background-image: url('/svg/back-wave.svg');
   background-repeat: no-repeat;
 }
 
