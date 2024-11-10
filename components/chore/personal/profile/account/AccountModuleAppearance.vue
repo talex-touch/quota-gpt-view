@@ -74,18 +74,18 @@ const options = reactive({
 </script>
 
 <template>
-  <div class="ProfileWrapper-MainWrapper">
+  <div class="Appearance-MainWrapper">
     <p v-if="false">
       选择你喜欢的主题颜色
     </p>
-    <!-- <div v-if="false" class="ProfileWrapper-Theme">
+    <!-- <div v-if="false" class="Appearance-Theme">
             <div
               v-for="(color, index) in themeColors" :key="color" :class="{ active: themeOptions.color === index }"
               class="theme-color" :style="`--c: ${color}`" @click="themeOptions.color = index"
             />
           </div> -->
 
-    <div class="ProfileWrapper-Base">
+    <div class="Appearance-Base">
       <TemplateLineForm title="沉浸模式" desc="当启用对话时自动打开沉浸模式，更专注">
         <el-switch v-model="figurations.immersive.value" @click="figurations.immersive.click" />
       </TemplateLineForm>
@@ -115,13 +115,13 @@ const options = reactive({
       </TemplateLineForm>
     </div>
 
-    <div class="ProfileWrapper-Display">
+    <div class="Appearance-Display">
       <p>选择UI主题界面</p>
       <p class="subtitle" op-50>
         设置你的自定义主题
       </p>
 
-      <div my-4 class="ProfileWrapper-Display-Theme">
+      <div my-4 class="Appearance-Display-Theme">
         <ThemeBlock :active="colorMode.value === 'auto'" theme="system" @click="toggleTheme($event, 'auto')" />
         <ThemeBlock :active="colorMode.value === 'light'" theme="light" @click="toggleTheme($event, 'light')" />
         <ThemeBlock :active="colorMode.value === 'dark'" theme="dark" @click="toggleTheme($event, 'dark')" />
@@ -131,7 +131,7 @@ const options = reactive({
 
   <DialogTouchDialog v-model="options.visible" header :loading="options.loading">
     <template #Title>
-      <div w-full flex justify-between class="ProfileWrapper-WallpaperHeader">
+      <div w-full flex justify-between class="Appearance-WallpaperHeader">
         <div flex items-center gap-2>
           <div i-carbon:image />界面墙纸
         </div>
@@ -144,25 +144,27 @@ const options = reactive({
         </div>
       </div>
     </template>
-    <div my-12 class="ProfileWrapper-Wallpaper">
-      <div my-4 class="ProfileWrapper-Display-Theme">
-        <div
-          v-for="wallpaper in wallpapers" :key="wallpaper.label" v-loader="loading === wallpaper.id"
-          :style="`--t: ${wallpaper.color}`" :class="{ lock: !wallpaper?.free, active: wallpaper.id === theme }"
-          class="Wallpaper-Item" @click="trySetWallpaper(wallpaper, $event)"
-        >
-          <el-image :key="wallpaper.label" :src="wallpaper.wallpaper" lazy class="Wallpaper-Item-Img" />
-          <!-- <img :alt="wallpaper.label" :src="wallpaper.wallpaper" class="Wallpaper-Item-Img"> -->
-          <span>{{ wallpaper.label }}
-          </span>
+    <div class="Appearance-Wallpaper">
+      <el-scrollbar>
+        <div class="Appearance-Wallpaper-Inner">
+          <div
+            v-for="wallpaper in wallpapers" :key="wallpaper.label" v-loader="loading === wallpaper.id"
+            :style="`--t: ${wallpaper.color}`" :class="{ lock: !wallpaper?.free, active: wallpaper.id === theme }"
+            class="Wallpaper-Item" @click="trySetWallpaper(wallpaper, $event)"
+          >
+            <el-image :key="wallpaper.label" :src="wallpaper.wallpaper" lazy class="Wallpaper-Item-Img" />
+            <!-- <img :alt="wallpaper.label" :src="wallpaper.wallpaper" class="Wallpaper-Item-Img"> -->
+            <span>{{ wallpaper.label }}
+            </span>
+          </div>
         </div>
-      </div>
+      </el-scrollbar>
     </div>
   </DialogTouchDialog>
 </template>
 
 <style lang="scss" scoped>
-.ProfileWrapper-WallpaperHeader {
+.Appearance-WallpaperHeader {
   .wallpaper-end {
     // flex-direction: column;
 
@@ -256,14 +258,29 @@ const options = reactive({
   cursor: pointer;
 }
 
-.ProfileWrapper-Display-Theme {
+.Appearance-Wallpaper {
+  &-Inner {
+    padding: 0 1rem;
+    display: flex;
+
+    flex-wrap: wrap;
+
+    justify-content: space-between;
+  }
+
   .mobile & :deep(.ThemeBlock) {
     width: 45%;
   }
   flex-wrap: wrap;
+
+  width: 1020px;
+  max-width: 100%;
+
+  height: 720px;
+  max-height: 90%;
 }
 
-.ProfileWrapper-Display {
+.Appearance-Display {
   &-Theme {
     display: flex;
 
@@ -273,7 +290,7 @@ const options = reactive({
   margin: 1rem 0;
 }
 
-.ProfileWrapper-Theme {
+.Appearance-Theme {
   div.theme-color {
     &.active {
       &::before {
