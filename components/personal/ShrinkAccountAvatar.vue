@@ -1,22 +1,13 @@
 <script setup lang="ts">
-import { $event } from "~/composables/events";
-import { globalOptions } from "~/constants";
+import { $event } from '~/composables/events'
+import { globalOptions } from '~/constants'
 
-const router = useRouter();
-const pageOptions = inject<any>("appOptions")!;
+const router = useRouter()
 
-const appOptions: any = inject("appOptions")!;
-const avatarUrl = computed(() => {
-  const avatar = `${userStore.value.avatar}`;
-  if (!avatar) return "";
-
-  if (avatar.startsWith("http")) return avatar;
-
-  return globalOptions.getEndsUrl() + avatar;
-});
+const appOptions: any = inject('appOptions')!
 
 function openSetting() {
-  pageOptions.model.personal = "index";
+  router.push('/account')
 }
 </script>
 
@@ -33,7 +24,7 @@ function openSetting() {
     </div>
 
     <div v-else class="ShrinkAccountAvatar-Wrapper" @click="openSetting">
-      <el-avatar :src="avatarUrl" />
+      <el-avatar :src="formatEndsImage(userStore.avatar!)" />
 
       <span class="privilege">
         <span v-if="!userStore.subscription?.type">免费订阅</span>

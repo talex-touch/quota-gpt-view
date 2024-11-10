@@ -3,7 +3,6 @@ import { $event } from '~/composables/events'
 import { globalOptions } from '~/constants'
 
 const router = useRouter()
-const pageOptions = inject<any>('appOptions')!
 
 const menus = reactive([
   {
@@ -11,11 +10,7 @@ const menus = reactive([
     label: '个人资料',
     show: true,
     click: () => {
-      // if (document.body.classList.contains('mobile'))
-      //   router.push('/setting')
-      // else
-
-      pageOptions.model.personal = 'index'
+      router.push('/account')
     },
   },
   {

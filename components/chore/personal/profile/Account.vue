@@ -103,11 +103,21 @@ const lastEditTime = computed(() => dayjs(userStore.value.updatedAt).format('DD 
 function handleLogout() {
   $event.emit('USER_LOGOUT_SUCCESS', LogoutType.USER_LOGOUT)
 }
+
+const dialogOptions = reactive<{
+  visible: boolean
+  component: any
+  data: any
+}>({
+  visible: false,
+  component: null,
+  data: null,
+})
 </script>
 
 <template>
   <div class="ProfileAccount">
-    <div class="ProfileAccount-Box">
+    <div style="--d: 0.1s" class="ProfileAccount-Box">
       <div class="ProfileAccount-Box-Header template-normal">
         <div class="image">
           <div i-carbon:user />
@@ -188,7 +198,7 @@ function handleLogout() {
       </div>
     </div>
 
-    <div class="ProfileAccount-Box">
+    <div style="--d: 0.2s" class="ProfileAccount-Box">
       <div class="ProfileAccount-Box-Header template-normal">
         <div class="image">
           <div i-carbon:link />
@@ -212,7 +222,7 @@ function handleLogout() {
       </div>
     </div>
 
-    <div class="ProfileAccount-Box">
+    <div style="--d: 0.3s" class="ProfileAccount-Box">
       <div class="ProfileAccount-Box-Header template-normal">
         <div class="image">
           <div i-carbon-code />
@@ -279,131 +289,14 @@ function handleLogout() {
         更新个人信息可能会有延迟
       </div>
     </div>
+
+    <DialogTouchDialog v-model="dialogOptions.visible">
+      <component :is="dialogOptions.component" v-if="dialogOptions.component" />
+    </DialogTouchDialog>
   </div>
 </template>
 
 <style lang="scss">
-.ProfileAccount-Box-Data {
-  .box-data {
-    &:hover {
-      background-color: var(--el-fill-color-lighter);
-    }
-    .title {
-      display: flex;
-
-      align-items: center;
-      justify-content: space-between;
-      color: var(--el-text-color-secondary);
-    }
-
-    > p {
-      font-size: 14px;
-      margin-top: 1rem;
-    }
-    padding: 1rem;
-    display: flex;
-
-    flex: 1;
-
-    cursor: pointer;
-    border-radius: 16px;
-    flex-direction: column;
-    border: 1px solid var(--el-border-color);
-  }
-  display: flex;
-  margin: 1rem 0;
-
-  gap: 0.5rem;
-  justify-content: space-between;
-}
-
-.ProfileAccount-Box {
-  position: relative;
-  margin: 1rem auto;
-
-  width: 720px;
-  max-width: 85%;
-
-  overflow: hidden;
-  border-radius: 18px;
-  border: 1px solid var(--el-border-color);
-
-  &-Header {
-    div.image {
-      width: 32px;
-      height: 32px;
-
-      border-radius: 18px;
-      background-color: var(--el-border-color);
-    }
-
-    padding: 0.5rem;
-
-    border-bottom: 1px solid var(--el-border-color);
-  }
-
-  &-Main {
-    .template-normal {
-      div.image {
-        width: 64px;
-        height: 64px;
-
-        border-radius: 50%;
-        background-color: var(--el-border-color);
-      }
-
-      div.title {
-        font-size: 20px;
-      }
-
-      p.subtitle {
-        font-size: 14px;
-      }
-    }
-
-    padding: 0.5rem;
-  }
-
-  &-Footer {
-    display: flex;
-    padding: 0.5rem;
-
-    justify-content: flex-end;
-  }
-}
-
-.ProfileWrapper-Start {
-  position: relative;
-
-  left: 2rem;
-
-  align-items: center;
-  font-size: 14px;
-  color: var(--el-text-color-secondary);
-  margin-right: 20px;
-}
-
-.avatar-uploader .el-upload {
-  border: 1px dashed var(--el-border-color);
-  border-radius: 6px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition: var(--el-transition-duration-fast);
-}
-
-.avatar-uploader .el-upload:hover {
-  border-color: var(--el-color-primary);
-}
-
-.el-icon.avatar-uploader-icon {
-  font-size: 28px;
-  color: #8c939d;
-  width: 178px;
-  height: 178px;
-  text-align: center;
-}
-
 .ProfileAccount {
   position: relative;
   padding: 1rem 0;
