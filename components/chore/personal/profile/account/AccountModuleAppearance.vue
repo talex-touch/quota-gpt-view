@@ -110,14 +110,14 @@ const figurations = reactive({
 
           <div my-4 class="ProfileWrapper-Display-Theme">
             <ThemeBlock
-              :active="colorMode.preference === 'system'" theme="system"
+              :active="colorMode.value === 'auto'" theme="system"
               @click="toggleTheme($event, 'auto')"
             />
             <ThemeBlock
-              :active="colorMode.preference === 'light'" theme="light"
+              :active="colorMode.value === 'light'" theme="light"
               @click="toggleTheme($event, 'light')"
             />
-            <ThemeBlock :active="colorMode.preference === 'dark'" theme="dark" @click="toggleTheme($event, 'dark')" />
+            <ThemeBlock :active="colorMode.value === 'dark'" theme="dark" @click="toggleTheme($event, 'dark')" />
           </div>
         </div>
 

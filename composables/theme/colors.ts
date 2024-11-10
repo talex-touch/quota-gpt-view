@@ -253,18 +253,39 @@ $event.on('USER_LOGOUT_SUCCESS', () => {
   theme.value = ''
 })
 
-export function viewTransition(e: { clientX: number, clientY: number }, theme?: 'auto' | 'light' | 'dark') {
-  const color = useColorMode()
+const color = useColorMode()
+const prefersColorScheme = window.matchMedia('(prefers-color-scheme: dark)')
 
+export function applySystemPreference() {
+  if (color.preference !== 'auto')
+    return
+
+  viewTransition({
+    clientX: innerWidth / 2,
+    clientY: innerHeight / 2,
+  }, prefersColorScheme.matches ? 'dark' : 'light')
+}
+
+prefersColorScheme.addEventListener('change', applySystemPreference)
+
+export function viewTransition(e: { clientX: number, clientY: number }, theme?: 'auto' | 'light' | 'dark') {
   // 用于颜色模式的获取和设置
   const compColorMode = computed({
     get() {
-      return color.preference // 用户选择的颜色
+      return color.value // 用户选择的颜色
     },
     set(val: string) {
-      color.preference = val
+      color.value = val
     },
   })
+
+  if (theme === 'auto') {
+    color.value = 'auto'
+
+    applySystemPreference()
+
+    return
+  }
 
   if (!document.startViewTransition) {
     compColorMode.value = theme || (compColorMode.value === 'dark' ? 'light' : 'dark')

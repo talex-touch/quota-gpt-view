@@ -52,6 +52,10 @@ defineProps<{
 }
 
 .ThemeBlock-Differ {
+  .ThemeBlock-Check {
+    left: 0.5rem;
+    bottom: 0.75rem;
+  }
   position: absolute;
 
   top: 2px;
