@@ -20,15 +20,22 @@ import Account from '~/components/chore/personal/profile/Account.vue'
 .AccountPage {
   &-Main {
     > div.page-title {
+      z-index: 2;
       position: sticky;
+      padding: 0.5rem 0;
       margin: 0 auto;
 
-      top: 1rem;
+      top: 0;
+      width: 100%;
 
       font-size: 22px;
       font-weight: 600;
 
+      text-align: center;
+
       animation: fadeJoin 0.25s;
+
+      backdrop-filter: blur(18px) saturate(180%);
     }
     padding: 1rem;
   }
@@ -42,10 +49,16 @@ import Account from '~/components/chore/personal/profile/Account.vue'
   }
 }
 
+@media (max-width: 768px) {
+  div.AccountPage-Main {
+    padding: 0 !important;
+  }
+}
+
 .DefaultTemplate-Container.account {
   > .el-main {
-    padding: 0;
-    --el-main-padding: 0;
+    padding: 0 !important;
+    --el-main-padding: 0 !important;
   }
 }
 
@@ -60,6 +73,9 @@ import Account from '~/components/chore/personal/profile/Account.vue'
     }
     padding: 0.25rem 0.75rem;
 
+    flex-shrink: 0;
+    width: max-content;
+
     font-size: 14px;
     border-radius: 12px;
     border: 1px solid var(--el-border-color);
@@ -68,6 +84,9 @@ import Account from '~/components/chore/personal/profile/Account.vue'
   display: flex;
 
   gap: 0.5rem;
+  width: 100%;
+
+  flex-wrap: wrap;
 }
 
 .ProfileAccount-Box-Data {

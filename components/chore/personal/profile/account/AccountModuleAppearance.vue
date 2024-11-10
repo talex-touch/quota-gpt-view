@@ -285,6 +285,11 @@ const options = reactive({
     display: flex;
 
     gap: 0.5rem;
+
+    flex-wrap: wrap;
+    max-width: 100%;
+
+    justify-content: center;
   }
 
   margin: 1rem 0;
