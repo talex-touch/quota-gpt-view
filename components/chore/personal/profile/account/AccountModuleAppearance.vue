@@ -1,35 +1,10 @@
 <script setup lang="ts">
 import { currentWallpaper, setWallpaper, theme, viewTransition, wallpapers } from '~/composables/theme/colors'
-import ShiningButton from '~/components/button/ShiningButton.vue'
-import TextShaving from '~/components/other/TextShaving.vue'
 
-const router = useRouter()
 const colorMode = useColorMode()
 
 function toggleTheme(event: MouseEvent, theme: 'auto' | 'light' | 'dark') {
   viewTransition(event, theme)
-}
-
-const textList = reactive({
-  ind: 0,
-  list: [
-    '主题界面永久免费',
-    '立即订阅计划来解锁更多自定义',
-    '自定义墙纸可以让界面更加纯粹',
-    '不同墙纸可以搭配不同主题界面',
-  ],
-})
-const textShaving = ref('')
-
-function timer() {
-  if (textList.ind >= textList.list.length - 1)
-    textList.ind = 0
-  else
-    textList.ind++
-
-  textShaving.value = textList.list[textList.ind]
-
-  setTimeout(timer, 5000)
 }
 
 const loading = ref('')
@@ -61,8 +36,6 @@ async function trySetWallpaper(paper: any, event: Event) {
   loading.value = ''
 }
 
-timer()
-
 const figurations = reactive({
   animation: {
     value: false,
@@ -93,129 +66,95 @@ const figurations = reactive({
     },
   },
 })
-
-const pageOptions: any = inject('appOptions')!
-function toSubscription() {
-  pageOptions.model.personal = ''
-
-  router.push('/plan')
-}
 </script>
 
 <template>
-  <div class="ProfileWrapper">
-    <div class="ProfileWrapper-Header">
-      <p class="title-theme">
-        外观设置
-      </p>
-    </div>
-
-    <div class="ProfileWrapper-Main">
-      <el-scrollbar>
-        <div class="ProfileWrapper-MainWrapper">
-          <p v-if="false">
-            选择你喜欢的主题颜色
-          </p>
-          <!-- <div v-if="false" class="ProfileWrapper-Theme">
+  <div class="ProfileWrapper-Main">
+    <el-scrollbar>
+      <div class="ProfileWrapper-MainWrapper">
+        <p v-if="false">
+          选择你喜欢的主题颜色
+        </p>
+        <!-- <div v-if="false" class="ProfileWrapper-Theme">
             <div
               v-for="(color, index) in themeColors" :key="color" :class="{ active: themeOptions.color === index }"
               class="theme-color" :style="`--c: ${color}`" @click="themeOptions.color = index"
             />
           </div> -->
 
-          <div class="ProfileWrapper-Base">
-            <p>
-              基本设置
-            </p>
-            <p class="subtitle" op-50>
-              配置基本的外观样式
-            </p>
-
-            <br>
-
-            <TemplateLineForm title="沉浸模式" desc="当启用对话时自动打开沉浸模式，更专注">
-              <el-switch v-model="figurations.immersive.value" @click="figurations.immersive.click" />
-            </TemplateLineForm>
-            <TemplateLineForm title="光晕动画" desc="光晕动画让界面更流畅，但是会增加耗电量">
-              <el-switch v-model="figurations.animation.value" @click="figurations.animation.click" />
-            </TemplateLineForm>
-            <TemplateLineForm title="混色渲染" desc="混色渲染使用复杂的叠加技术，让界面更美观">
-              <el-switch v-model="figurations.animation.value" @click="figurations.animation.click" />
-            </TemplateLineForm>
-            <TemplateLineForm title="高斯模糊" desc="让部分界面叠加模糊拟态效果">
-              <el-switch v-model="figurations.animation.value" @click="figurations.animation.click" />
-            </TemplateLineForm>
-            <TemplateLineForm title="主要着色" desc="在某些组件上增加强调色效果">
-              <el-switch v-model="figurations.animation.value" @click="figurations.animation.click" />
-            </TemplateLineForm>
-          </div>
-
-          <br>
-
-          <div class="ProfileWrapper-Display">
-            <p>选择UI主题界面</p>
-            <p class="subtitle" op-50>
-              设置你的自定义主题
-            </p>
-
-            <div my-4 class="ProfileWrapper-Display-Theme">
-              <!-- <ThemeBlock
-                :active="colorMode.preference === 'system'" theme="system"
-                @click="toggleTheme($event, 'auto')"
-              /> -->
-              <ThemeBlock
-                :active="colorMode.preference === 'light'" theme="light"
-                @click="toggleTheme($event, 'light')"
-              />
-              <ThemeBlock :active="colorMode.preference === 'dark'" theme="dark" @click="toggleTheme($event, 'dark')" />
-            </div>
-          </div>
-
-          <div my-12 class="ProfileWrapper-Wallpaper">
-            <div flex justify-between class="ProfileWrapper-WallpaperHeader">
-              <div class="wallpaper-start">
-                <p>自定义你的界面墙纸</p>
-                <p class="subtitle" op-50>
-                  设置你的自定义墙纸
-                </p>
-              </div>
-
-              <div v-if="theme" flex class="wallpaper-end">
-                当前选择：{{ currentWallpaper?.label }}
-                <el-button type="danger" @click="setWallpaper(null, $event)">
-                  重置
-                </el-button>
-              </div>
-            </div>
-
-            <div my-4 class="ProfileWrapper-Display-Theme">
-              <div
-                v-for="wallpaper in wallpapers" :key="wallpaper.label" v-loader="loading === wallpaper.id"
-                :style="`--t: ${wallpaper.color}`"
-                :class="{ lock: !wallpaper?.free, active: wallpaper.id === theme }" class="Wallpaper-Item"
-                @click="trySetWallpaper(wallpaper, $event)"
-              >
-                <el-image :key="wallpaper.label" :src="wallpaper.wallpaper" lazy class="Wallpaper-Item-Img" />
-                <!-- <img :alt="wallpaper.label" :src="wallpaper.wallpaper" class="Wallpaper-Item-Img"> -->
-                <span>{{ wallpaper.label }}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <br>
+        <div class="ProfileWrapper-Base">
+          <TemplateLineForm title="沉浸模式" desc="当启用对话时自动打开沉浸模式，更专注">
+            <el-switch v-model="figurations.immersive.value" @click="figurations.immersive.click" />
+          </TemplateLineForm>
+          <TemplateLineForm title="光晕动画" desc="光晕动画让界面更流畅，但是会增加耗电量">
+            <el-switch v-model="figurations.animation.value" @click="figurations.animation.click" />
+          </TemplateLineForm>
+          <TemplateLineForm title="混色渲染" desc="混色渲染使用复杂的叠加技术，让界面更美观">
+            <el-switch v-model="figurations.animation.value" @click="figurations.animation.click" />
+          </TemplateLineForm>
+          <TemplateLineForm title="高斯模糊" desc="让部分界面叠加模糊拟态效果">
+            <el-switch v-model="figurations.animation.value" @click="figurations.animation.click" />
+          </TemplateLineForm>
+          <TemplateLineForm title="主要着色" desc="在某些组件上增加强调色效果">
+            <el-switch v-model="figurations.animation.value" @click="figurations.animation.click" />
+          </TemplateLineForm>
         </div>
-      </el-scrollbar>
-    </div>
 
-    <div class="ProfileWrapper-Footer">
-      <!-- <TextShaving text="外观自定义需要高级订阅来启用" /> -->
-      <TextShaving :text="textShaving" />
+        <br>
 
-      <ShiningButton @click="toSubscription">
-        立即订阅 PRO
-      </ShiningButton>
-    </div>
+        <div class="ProfileWrapper-Display">
+          <p>选择UI主题界面</p>
+          <p class="subtitle" op-50>
+            设置你的自定义主题
+          </p>
+
+          <div my-4 class="ProfileWrapper-Display-Theme">
+            <ThemeBlock
+              :active="colorMode.preference === 'system'" theme="system"
+              @click="toggleTheme($event, 'auto')"
+            />
+            <ThemeBlock
+              :active="colorMode.preference === 'light'" theme="light"
+              @click="toggleTheme($event, 'light')"
+            />
+            <ThemeBlock :active="colorMode.preference === 'dark'" theme="dark" @click="toggleTheme($event, 'dark')" />
+          </div>
+        </div>
+
+        <div v-if="false" my-12 class="ProfileWrapper-Wallpaper">
+          <div flex justify-between class="ProfileWrapper-WallpaperHeader">
+            <div class="wallpaper-start">
+              <p>自定义你的界面墙纸</p>
+              <p class="subtitle" op-50>
+                设置你的自定义墙纸
+              </p>
+            </div>
+
+            <div v-if="theme" flex class="wallpaper-end">
+              当前选择：{{ currentWallpaper?.label }}
+              <el-button type="danger" @click="setWallpaper(null, $event)">
+                重置
+              </el-button>
+            </div>
+          </div>
+
+          <div my-4 class="ProfileWrapper-Display-Theme">
+            <div
+              v-for="wallpaper in wallpapers" :key="wallpaper.label" v-loader="loading === wallpaper.id"
+              :style="`--t: ${wallpaper.color}`" :class="{ lock: !wallpaper?.free, active: wallpaper.id === theme }"
+              class="Wallpaper-Item" @click="trySetWallpaper(wallpaper, $event)"
+            >
+              <el-image :key="wallpaper.label" :src="wallpaper.wallpaper" lazy class="Wallpaper-Item-Img" />
+              <!-- <img :alt="wallpaper.label" :src="wallpaper.wallpaper" class="Wallpaper-Item-Img"> -->
+              <span>{{ wallpaper.label }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <br>
+      </div>
+    </el-scrollbar>
   </div>
 </template>
 

@@ -4,33 +4,48 @@ import Account from '~/components/chore/personal/profile/Account.vue'
 
 <template>
   <div class="AccountPage">
-    <div class="page-title">
-      账号设置
-    </div>
+    <el-scrollbar>
+      <div class="AccountPage-Main">
+        <div class="page-title">
+          账号设置
+        </div>
 
-    <Account />
+        <Account />
+      </div>
+    </el-scrollbar>
   </div>
 </template>
 
 <style lang="scss">
 .AccountPage {
+  &-Main {
+    > div.page-title {
+      position: sticky;
+      margin: 0 auto;
+
+      top: 1rem;
+
+      font-size: 22px;
+      font-weight: 600;
+
+      animation: fadeJoin 0.25s;
+    }
+    padding: 1rem;
+  }
   position: relative;
-  padding: 0.5rem;
 
   width: 100%;
   height: 100%;
 
-  > div.page-title {
-    margin: 0 auto;
-
-    font-size: 22px;
-    font-weight: 600;
-
-    animation: fadeJoin 0.25s;
-  }
-
   .el-button {
     border-radius: 12px;
+  }
+}
+
+.DefaultTemplate-Container.account {
+  > .el-main {
+    padding: 0;
+    --el-main-padding: 0;
   }
 }
 
@@ -64,11 +79,19 @@ import Account from '~/components/chore/personal/profile/Account.vue'
     border: 1px solid var(--el-border-color);
   }
 
-  display: flex;
+  @media (min-width: 768px) {
+    & {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  display: grid;
   margin: 1rem 0;
 
-  gap: 0.5rem;
-  justify-content: space-between;
+  width: 100%;
+
+  gap: 1rem;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
 }
 
 .ProfileAccount-Box {

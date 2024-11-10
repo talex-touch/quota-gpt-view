@@ -3,6 +3,7 @@ import type { ComponentSize, FormInstance, FormRules, UploadProps } from 'elemen
 import dayjs from 'dayjs'
 import AccountModuleLink from './account/AccountModuleLink.vue'
 import AccountModuleDeveloper from './account/AccountModuleDeveloper.vue'
+import AccountModuleHistory from './account/AccountModuleHistory.vue'
 
 import { getAccountDetail, getHistoryList } from '~/composables/api/account'
 import ImageUpload from '~/components/personal/ImageUpload.vue'
@@ -106,13 +107,23 @@ function handleLogout() {
 
 const dialogOptions = reactive<{
   visible: boolean
+  loading: boolean
   component: any
   data: any
 }>({
   visible: false,
+  loading: false,
   component: null,
   data: null,
 })
+
+async function openHistoryPage() {
+  Object.assign(dialogOptions, {
+    visible: true,
+    component: AccountModuleHistory,
+    data: historyList.value,
+  })
+}
 </script>
 
 <template>
@@ -175,7 +186,7 @@ const dialogOptions = reactive<{
               </span>
             </p>
           </div>
-          <div v-wave class="box-data">
+          <div v-wave class="box-data" @click="openHistoryPage">
             <div class="title">
               <p>登录历史</p>
               <div i-carbon-data-table />
@@ -201,6 +212,24 @@ const dialogOptions = reactive<{
     <div style="--d: 0.2s" class="ProfileAccount-Box">
       <div class="ProfileAccount-Box-Header template-normal">
         <div class="image">
+          <div i-carbon-moon />
+        </div>
+        <div flex class="title">
+          外观配置
+        </div>
+        <p class="subtitle">
+          您的个性化配置，在不同设备间同步。
+        </p>
+      </div>
+
+      <div class="ProfileAccount-Box-Main">
+        <ChorePersonalProfileAccountModuleAppearance />
+      </div>
+    </div>
+
+    <div style="--d: 0.3s" class="ProfileAccount-Box">
+      <div class="ProfileAccount-Box-Header template-normal">
+        <div class="image">
           <div i-carbon:link />
         </div>
         <div flex class="title">
@@ -222,7 +251,7 @@ const dialogOptions = reactive<{
       </div>
     </div>
 
-    <div style="--d: 0.3s" class="ProfileAccount-Box">
+    <div style="--d: 0.4s" class="ProfileAccount-Box">
       <div class="ProfileAccount-Box-Header template-normal">
         <div class="image">
           <div i-carbon-code />
@@ -290,8 +319,8 @@ const dialogOptions = reactive<{
       </div>
     </div>
 
-    <DialogTouchDialog v-model="dialogOptions.visible">
-      <component :is="dialogOptions.component" v-if="dialogOptions.component" />
+    <DialogTouchDialog v-model="dialogOptions.visible" :loading="dialogOptions.loading">
+      <component :is="dialogOptions.component" v-if="dialogOptions.component" :data="dialogOptions.data" />
     </DialogTouchDialog>
   </div>
 </template>

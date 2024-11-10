@@ -174,7 +174,7 @@ async function handleEditDone() {
     </template>
   </div>
 
-  <DialogTouchDialog v-model="options.visible" footer :loading="options.loading">
+  <DialogTouchDialog v-model="options.visible" header footer :loading="options.loading">
     <template #Title>
       <div i-carbon:web-services-task-definition-version />
       <span>裁剪图片</span>

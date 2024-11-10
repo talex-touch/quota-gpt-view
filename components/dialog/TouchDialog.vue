@@ -2,6 +2,7 @@
 const props = defineProps<{
   modelValue: boolean
   loading: boolean
+  header?: boolean
   footer?: boolean
 }>()
 
@@ -33,7 +34,7 @@ async function handleClickOutside() {
           <div i-carbon:close />
         </div>
 
-        <div class="TouchDialog-Title">
+        <div v-if="header" class="TouchDialog-Title">
           <slot name="Title" />
         </div>
 

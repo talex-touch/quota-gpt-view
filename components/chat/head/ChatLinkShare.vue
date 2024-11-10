@@ -77,7 +77,7 @@ defineExpose({
 </script>
 
 <template>
-  <DialogTouchDialog v-model="shareOptions.visible" :footer="false" :loading="shareOptions.loading">
+  <DialogTouchDialog v-model="shareOptions.visible" header :footer="false" :loading="shareOptions.loading">
     <template #Title>
       <div i-carbon:share />
       <span>分享对话</span>

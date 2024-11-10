@@ -2,16 +2,10 @@
 import dayjs from 'dayjs'
 import { getHistoryList } from '~/composables/api/account'
 
-const historyList = ref()
-
-onMounted(async () => {
-  const res: any = await getHistoryList()
-
-  if (res.code !== 200)
-    return ElMessage.error(res.message)
-
-  historyList.value = res.data
-})
+const props = defineProps<{
+  data: any
+}>()
+const historyList = computed(() => props.data)
 
 // 计算历史记录
 // 统计 设备 这一栏 groupBy

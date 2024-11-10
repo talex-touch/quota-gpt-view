@@ -6,7 +6,6 @@ import CmsMenuItem from '~/components/cms/CmsMenuItem.vue'
 import Account from '~/components/chore/personal/profile/Account.vue'
 import Plan from '~/components/chore/personal/profile/Plan.vue'
 import empty from '~/components/chore/personal/profile/empty.vue'
-import Appearance from '~/components/chore/personal/profile/Appearance.vue'
 import Developer from '~/components/chore/personal/profile/account/AccountModuleDeveloper.vue'
 
 const props = defineProps<{
@@ -41,10 +40,6 @@ const queryComponentMapper: Record<string, any> = {
   plan: {
     name: '订阅计划',
     comp: Plan,
-  },
-  appearance: {
-    name: '外观设置',
-    comp: Appearance,
   },
   // notification: empty,
 }
@@ -126,10 +121,6 @@ function handleBack() {
             <div i-carbon-notification />
             通知设置
           </CmsMenuItem> -->
-          <CmsMenuItem :active="data === 'appearance'" @click="data = 'appearance'">
-            <div i-carbon-moon />
-            外观设置
-          </CmsMenuItem>
           <!-- <CmsMenuItem path="/profile/mf2a">
             <div i-carbon-tablet />MF2A
           </CmsMenuItem> -->
