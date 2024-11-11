@@ -21,7 +21,7 @@ const items = reactive<any>({
 })
 
 const query = ref('')
-const list = computed(() => query.value ? items.list : items.hotList)
+const list = computed(() => (query.value || items.tagSelected !== 0) ? items.list : items.hotList)
 
 async function _fetchData() {
   items.loading = true
@@ -30,7 +30,7 @@ async function _fetchData() {
   await sleep(500)
 
   const select = items.tagList[items.tagSelected]
-  const selectQuery = `${select.tagSelected !== -1 ? select.name : ''}`.replaceAll(query.value, '')
+  const selectQuery = `${items.tagSelected !== 0 ? select.name : ''}`.replaceAll(query.value, '')
 
   const res = await $endApi.v1.aigc.searchPromptTemplate(`${selectQuery}${query.value}`)
 
@@ -52,7 +52,7 @@ onMounted(async () => {
   const tagRes = await $endApi.v1.aigc.recommendTags()
 
   if (tagRes.code === 200) {
-    items.tagList = [{ name: '全部', id: -1 }, ...tagRes.data.items]
+    items.tagList = [{ name: '全部', id: 0 }, ...tagRes.data.items]
   }
   else {
     ElMessage({

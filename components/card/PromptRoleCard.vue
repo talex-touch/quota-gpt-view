@@ -167,7 +167,7 @@ nextTick(() => {
           <div class="PromptRoleCard-Line">
             <div class="PromptRoleCard-Line-Item">
               <div>
-                <div i-carbon:star />5.0
+                <div i-carbon:star-filled />5.0
               </div>
               <p>评分(0+)</p>
             </div>
@@ -213,7 +213,7 @@ nextTick(() => {
 
 .PromptRoleCard-Line {
   &-Item {
-    padding: 0 2rem;
+    padding: 0 3rem;
 
     display: flex;
     flex-direction: column;
@@ -225,7 +225,7 @@ nextTick(() => {
       align-items: center;
       justify-content: center;
 
-      font-size: 20px;
+      font-size: 24px;
       font-weight: 600;
     }
 
@@ -287,7 +287,7 @@ nextTick(() => {
   p.description {
     margin: 1rem 0;
 
-    max-width: 65%;
+    max-width: 75%;
 
     font-size: 18px;
     line-height: 20px;
