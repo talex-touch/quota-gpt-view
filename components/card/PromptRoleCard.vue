@@ -71,11 +71,11 @@ async function shrinkDialog() {
     'transform': 'translate(0, 0) scale(1)',
   })
 
-  await sleep(200)
+  await sleep(300)
 
   dom.style.opacity = '0'
 
-  await sleep(200)
+  await sleep(100)
 
   resetDialog()
 }
@@ -96,7 +96,7 @@ async function expandDialog() {
 
   dom.style.opacity = '1'
 
-  await sleep(200)
+  await sleep(300)
 
   Object.assign(dom.style, {
     'top': `50%`,
