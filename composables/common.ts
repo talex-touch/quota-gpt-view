@@ -263,3 +263,11 @@ export function useTypedRef<T extends abstract new (...args: any) => any >(_comp
 export function getProtocolUrl(key: string) {
   return `${location.origin}/guide/protocol?key=${key}`
 }
+
+// 从a-b区间映射到c-d分区间
+export function mapperRange(rangeA: [number, number], rangeB: [number, number], value: number) {
+  const [minA, maxA] = rangeA
+  const [minB, maxB] = rangeB
+
+  return minB + (value - minA) * (maxB - minB) / (maxA - minA)
+}

@@ -63,7 +63,7 @@ import Account from '~/components/chore/personal/profile/Account.vue'
 }
 
 .ProfileAccount-Tags {
-  span {
+  span.tag {
     &.fill {
       filter: invert(1);
       color: var(--el-text-color-primary);

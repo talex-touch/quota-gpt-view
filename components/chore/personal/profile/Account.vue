@@ -5,6 +5,7 @@ import AccountModuleDeveloper from './account/AccountModuleDeveloper.vue'
 import AccountModuleHistory from './account/AccountModuleHistory.vue'
 
 import AccountModulePersonal from './account/AccountModulePersonal.vue'
+import AccountModuleFortune from './account/AccountModuleFortune.vue'
 import { getHistoryList } from '~/composables/api/account'
 import ImageUpload from '~/components/personal/ImageUpload.vue'
 import { $event } from '~/composables/events'
@@ -13,6 +14,7 @@ import { $endApi } from '~/composables/api/base'
 const historyList = ref()
 const invitationList = ref()
 const shareList = ref()
+const fortuneList = ref()
 
 async function fetchHistoryData() {
   const res: any = await getHistoryList()
@@ -41,10 +43,23 @@ async function fetchShareListData() {
   shareList.value = res.data
 }
 
+async function fetchFortuneListData() {
+  const res: any = await $endApi.v1.account.dailyFortune()
+
+  if (res.code !== 200)
+    return ElMessage.error(res.message)
+
+  fortuneList.value = res.data
+
+  if (fortuneList.value.content)
+    fortuneList.value.content = JSON.parse(decodeText(fortuneList.value.content) || '[]')
+}
+
 onMounted(() => {
   fetchHistoryData()
   fetchInvitationData()
   fetchShareListData()
+  fetchFortuneListData()
 })
 
 // 计算注册了多少天
@@ -83,6 +98,14 @@ async function openConfigurePage() {
     visible: true,
     component: AccountModulePersonal,
     data: null,
+  })
+}
+
+async function openFortunePage() {
+  Object.assign(dialogOptions, {
+    visible: true,
+    component: AccountModuleFortune,
+    data: fortuneList.value,
   })
 }
 
@@ -128,7 +151,14 @@ function handleShareMenu() {
           </span>
           <span v-else class="tag fill">普通用户</span>
           <span class="tag">已邀请 {{ invitationList?.length || 0 }} 人</span>
-          <span class="tag">运势不错</span>
+          <span v-if="fortuneList" v-wave cursor-pointer class="tag" @click="openFortunePage">
+            <span v-if="fortuneList.main === '大吉'">运势极佳 · 五福临门</span>
+            <span v-if="fortuneList.main === '中吉'">运势上好</span>
+            <span v-if="fortuneList.main === '小吉'">运势不错</span>
+            <span v-if="fortuneList.main === '凶'">小心行事</span>
+            <span v-if="fortuneList.main === '大凶'">多多行善</span>
+            <span v-if="fortuneList.main === '极恶'">天打雷劈</span>
+          </span>
           <span class="tag">注册 {{ registeredCountDay }} 天</span>
         </div>
 
