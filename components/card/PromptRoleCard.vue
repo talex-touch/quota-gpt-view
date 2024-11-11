@@ -225,8 +225,12 @@ nextTick(() => {
       align-items: center;
       justify-content: center;
 
-      font-size: 24px;
+      font-size: 20px;
       font-weight: 600;
+
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
     }
 
     p {
