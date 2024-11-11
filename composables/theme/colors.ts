@@ -163,6 +163,15 @@ export const theme = computed({
   },
 })
 
+export const color = computed({
+  get() {
+    return userConfig.value.pri_info.appearance.color // 用户选择的颜色
+  },
+  set(val: string) {
+    userConfig.value.pri_info.appearance.color = val
+  },
+})
+
 export const currentWallpaper = computed(() => theme.value ? wallpapers.find(w => w.id === theme.value) : null)
 
 export async function _setWallpaper(paper: any) {
@@ -262,46 +271,38 @@ export function useColorTheme() {
 export function applySystemPreference() {
   const color = userConfig.value.pri_info.appearance.color
 
-  if (color !== 'auto')
-    return
-
-  const prefersColorScheme = window.matchMedia('(prefers-color-scheme: dark)')
-
   viewTransition({
     clientX: innerWidth / 2,
     clientY: innerHeight / 2,
-  }, prefersColorScheme.matches ? 'dark' : 'light')
+  }, color as any/* prefersColorScheme.matches ? 'dark' : 'light' */)
 }
 
 export function viewTransition(e: { clientX: number, clientY: number }, theme?: 'auto' | 'light' | 'dark') {
-  const color = useColorMode()
+  color.value = theme || 'auto'
 
-  // 用于颜色模式的获取和设置
-  const compColorMode = computed({
-    get() {
-      return color.value // 用户选择的颜色
-    },
-    set(val: string) {
-      color.value = val
-    },
-  })
+  let isDark = theme === 'dark'
 
   if (theme === 'auto') {
-    color.value = 'auto'
+    const prefersColorScheme = window.matchMedia('(prefers-color-scheme: dark)')
 
-    applySystemPreference()
-
-    return
+    if (prefersColorScheme.matches)
+      isDark = true
   }
 
   if (!document.startViewTransition) {
-    compColorMode.value = theme || (compColorMode.value === 'dark' ? 'light' : 'dark')
+    document.documentElement.classList.remove('dark')
+
+    if (isDark)
+      document.documentElement.classList.add('dark')
 
     return
   }
 
   const transition = document.startViewTransition(() => {
-    compColorMode.value = theme || (compColorMode.value === 'dark' ? 'light' : 'dark')
+    document.documentElement.classList.remove('dark')
+
+    if (isDark)
+      document.documentElement.classList.add('dark')
   })
 
   // 在视图转换完成后执行动画
@@ -318,8 +319,6 @@ export function viewTransition(e: { clientX: number, clientY: number }, theme?: 
       `circle(0% at ${clientX}px ${clientY}px)`,
       `circle(${radius}px at ${clientX}px ${clientY}px)`,
     ]
-    // 获取当前页面是否为暗色模式
-    const isDark = document.documentElement.classList.contains('dark')
 
     // 动画文档元素的剪裁路径，动画时长为500毫秒
     document.documentElement.animate(

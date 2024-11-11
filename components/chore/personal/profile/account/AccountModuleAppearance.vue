@@ -2,8 +2,6 @@
 import { currentWallpaper, setWallpaper, theme, viewTransition, wallpapers } from '~/composables/theme/colors'
 
 function toggleTheme(event: MouseEvent, theme: 'auto' | 'light' | 'dark') {
-  userConfig.value.pri_info.appearance.color = theme
-
   viewTransition(event, theme)
 }
 

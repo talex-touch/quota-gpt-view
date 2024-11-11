@@ -65,10 +65,13 @@ import Account from '~/components/chore/personal/profile/Account.vue'
 .ProfileAccount-Tags {
   span {
     &.fill {
-      color: var(--el-bg-color);
-      background-color: var(--c, var(--el-overlay-color));
+      filter: invert(1);
+      color: var(--el-text-color-primary);
+      background-color: var(--c, var(--el-bg-color));
     }
     &.danger {
+      filter: invert(0);
+      color: var(--el-bg-color);
       --c: var(--el-color-danger);
     }
     padding: 0.25rem 0.75rem;

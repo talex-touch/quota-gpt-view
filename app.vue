@@ -4,7 +4,7 @@ import { $event } from './composables/events'
 import Login from '~/components/chore/Login.vue'
 import { appName, globalOptions } from '~/constants'
 import 'element-plus/theme-chalk/dark/css-vars.css'
-import { _setWallpaper, detectWallpaper, useColorTheme } from '~/composables/theme/colors'
+import { _setWallpaper, applySystemPreference, detectWallpaper, useColorTheme } from '~/composables/theme/colors'
 import feishuInit from '~/composables/feishu/init'
 
 useHead({
@@ -72,6 +72,7 @@ onMounted(async () => {
 })
 
 router.afterEach(() => {
+  // applySystemPreference()
   detectWallpaper()
 
   return true

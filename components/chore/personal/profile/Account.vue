@@ -124,7 +124,7 @@ function handleShareMenu() {
         </div>
 
         <div class="ProfileAccount-Tags">
-          <span v-if="userStore.isAdmin" class="tag danger fill">管理员
+          <span v-if="!userStore.isAdmin" class="tag danger fill">管理员
           </span>
           <span v-else class="tag fill">普通用户</span>
           <span class="tag">已邀请 {{ invitationList?.length || 0 }} 人</span>
@@ -342,6 +342,7 @@ function handleShareMenu() {
 .Share {
   display: flex;
 
+  gap: 0.5rem;
   flex-direction: column;
 }
 
