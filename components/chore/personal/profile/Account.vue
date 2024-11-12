@@ -6,6 +6,7 @@ import AccountModuleHistory from './account/AccountModuleHistory.vue'
 
 import AccountModulePersonal from './account/AccountModulePersonal.vue'
 import AccountModuleFortune from './account/AccountModuleFortune.vue'
+import AccountModuleInvitation from './account/AccountModuleInvitation.vue'
 import { getHistoryList } from '~/composables/api/account'
 import ImageUpload from '~/components/personal/ImageUpload.vue'
 import { $event } from '~/composables/events'
@@ -109,6 +110,14 @@ async function openFortunePage() {
   })
 }
 
+async function openInvitationPage() {
+  Object.assign(dialogOptions, {
+    visible: true,
+    component: AccountModuleInvitation,
+    data: invitationList.value,
+  })
+}
+
 function handleShareMenu() {
   ElMessage.error('暂未开放.')
 }
@@ -150,7 +159,7 @@ function handleShareMenu() {
           <span v-if="!userStore.isAdmin" class="tag danger fill">管理员
           </span>
           <span v-else class="tag fill">普通用户</span>
-          <span class="tag">已邀请 {{ invitationList?.length || 0 }} 人</span>
+          <span v-wave cursor-pointer class="tag" @click="openInvitationPage">已邀请 {{ invitationList?.length || 0 }} 人</span>
           <span v-if="fortuneList" v-wave cursor-pointer class="tag" @click="openFortunePage">
             <span v-if="fortuneList.main === '大吉'">运势极佳 · 五福临门</span>
             <span v-if="fortuneList.main === '中吉'">运势上好</span>

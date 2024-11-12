@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import dayjs from 'dayjs'
-import { getHistoryList } from '~/composables/api/account'
-
 const props = defineProps<{
   data: any
 }>()
@@ -129,4 +126,4 @@ const fortuneScore = computed(() => getFortuneScore(props.data?.content.score ||
   // box-shadow: var(--el-box-shadow);
   // background-color: var(--el-bg-color);
 }
-</>
+</style>
