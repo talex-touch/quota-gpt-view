@@ -43,8 +43,8 @@ const fortuneScore = computed(() => getFortuneScore(props.data?.content.score ||
             </p>
             <p flex class="desc">
               {{ item.desc }}
-              <el-tooltip :content="item.tip">
-                <i i-carbon:information block />
+              <el-tooltip :teleported="false" :content="`${item.tip}`">
+                <i i-carbon:information block cursor-pointer />
               </el-tooltip>
             </p>
           </div>
@@ -129,4 +129,4 @@ const fortuneScore = computed(() => getFortuneScore(props.data?.content.score ||
   // box-shadow: var(--el-box-shadow);
   // background-color: var(--el-bg-color);
 }
-</style>
+</>

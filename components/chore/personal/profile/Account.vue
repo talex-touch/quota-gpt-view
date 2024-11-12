@@ -356,6 +356,7 @@ function handleShareMenu() {
     background-color: var(--el-fill-color-light);
   }
   display: flex;
+  margin: 0.5rem 0;
   padding: 0.5rem 1rem;
 
   width: 100%;
@@ -367,13 +368,6 @@ function handleShareMenu() {
 
   border-radius: 12px;
   background-color: var(--el-fill-color-lighter);
-}
-
-.Share {
-  display: flex;
-
-  gap: 0.5rem;
-  flex-direction: column;
 }
 
 .ProfileAccount {

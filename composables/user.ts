@@ -65,10 +65,11 @@ watch(() => userStore.value.isLogin, () => {
   if (!userStore.value.isLogin)
     return false
 
-  if (userStore.value.roles?.find((item: any) => item.id === 1))
-    return userStore.value.isAdmin = true
+  const isAdmin = userStore.value.roles?.find((item: any) => item.id === 1) || !!userStore.value.permissions?.find((item: any) => item === 'system:manage')
 
-  userStore.value.isAdmin = !!userStore.value.permissions?.find((item: any) => item === 'system:manage')
+  Object.assign(userStore.value, {
+    isAdmin,
+  })
 }, { immediate: true })
 
 // manually trigger
