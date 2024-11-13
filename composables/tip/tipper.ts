@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import { createApp, h, ref, render } from 'vue'
+import { useZIndex } from 'element-plus'
 import { TipType } from '../enum'
 import type { MentionTip } from '.'
 import { mentionManager } from '.'
@@ -45,19 +46,11 @@ export function createTapTip(message: string = '', options: {
 
   const root: HTMLDivElement = document.createElement('div')
 
-  let index: number = 0
-
-  while (document.getElementById(`tap-tip-${index}`))
-
-    index++
-
-  root.id = `tap-tip-${index}`
-
   root.classList.add('transition-cubic')
 
   root.style.zIndex = '1000'
   root.style.position = 'absolute'
-  root.style.bottom = `calc(max(5%, 1rem) + ${index * 64}px)`
+  root.style.bottom = `calc(max(5%, 1rem))`
   root.style.left = '50%'
   root.style.transform = 'translate(-50%, 500%)'
 
@@ -164,7 +157,7 @@ export function sendTip(message: string, options = {
   left: false,
 } as {
   stay: number
-  type: TipType | 'loading' | null | Object
+  type: TipType | 'loading' | null
   loading?: Function | null
   left?: boolean
 }) {
@@ -193,7 +186,7 @@ export function sendTip(message: string, options = {
 
   if (options.loading) {
     options.stay = -1
-    options.type = _type
+    options.type = _type as any
   }
 
   const close = async () => {

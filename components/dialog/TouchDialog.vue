@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useZIndex } from 'element-plus'
+
 const props = defineProps<{
   modelValue: boolean
   loading: boolean
@@ -8,6 +10,7 @@ const props = defineProps<{
 
 const emits = defineEmits(['update:modelValue'])
 
+const zIndex = useZIndex().nextZIndex()
 const visible = useVModel(props, 'modelValue', emits)
 
 const dialogOptions = reactive({
@@ -26,6 +29,7 @@ async function handleClickOutside() {
 <template>
   <teleport to="#teleports">
     <div
+      :style="`z-index: ${zIndex}`"
       :class="{ visible, forbidden: dialogOptions.forbidden, loading }" class="TouchDialog"
       @click="handleClickOutside"
     >
@@ -219,8 +223,6 @@ async function handleClickOutside() {
   &.forbidden {
     transform: scale(1.025);
   }
-
-  z-index: 10000;
   position: absolute;
 
   width: 100%;
