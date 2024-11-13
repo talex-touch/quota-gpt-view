@@ -25,6 +25,10 @@ export async function sleep(time: number) {
   return new Promise(resolve => setTimeout(resolve, time))
 }
 
+export async function useRequestAnimationFrame() {
+  return new Promise(resolve => requestAnimationFrame(resolve))
+}
+
 export function getLastTextNode(node: HTMLElement): HTMLElement | null {
   if (node.nodeType === Node.TEXT_NODE)
     return node

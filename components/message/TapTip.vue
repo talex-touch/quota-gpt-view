@@ -2,6 +2,7 @@
 import Mention from '../icon/Mention.vue'
 import { TipType } from '#imports'
 import type { ITip } from '~/composables/tip/tipper'
+import { useRequestAnimationFrame } from '~/composables/common'
 
 const props = defineProps < {
 
@@ -9,19 +10,36 @@ const props = defineProps < {
 
   tip: ITip
 } >()
-const shade = ref(false)
 const msg = ref('')
+const dom = ref<HTMLElement>()
+
+async function _parseContent() {
+  const el = dom.value
+  if (!el)
+    return
+
+  const lastWidth = el.style.width || '0px'
+
+  el.style.width = ''
+  msg.value = props.tip.message
+
+  await useRequestAnimationFrame()
+
+  const w = el.scrollWidth
+
+  el.style.width = lastWidth
+
+  await useRequestAnimationFrame()
+
+  el.style.width = `calc(${w}px + 0.5rem)`
+}
+
+const parseContent = useDebounceFn(() => nextTick(_parseContent))
 
 watchEffect(async () => {
-  const content = props.tip.message
+  const _content = props.tip.message
 
-  shade.value = true
-
-  await sleep(100)
-  msg.value = content
-  await sleep(300)
-
-  shade.value = false
+  parseContent()
 })
 
 let timer: any
@@ -51,142 +69,61 @@ const type = computed(() => props.tip.type)
 
 <template>
   <div
-    :message="msg" class="TapTip" :class="{
+    ref="dom" :message="msg" class="TapTip fake-background transition-cubic" :class="{
       'info-tip': type === TipType.INFO,
       'warn-tip': type === TipType.WARNING,
       'error-tip': type === TipType.ERROR,
       'success-tip': type === TipType.SUCCESS,
       'loading-tip': tip.loading,
-      'text-shade': shade,
     }"
   >
-    {{ msg }}
-    <div class="TapTip-Icon-Wrapper">
-      <Mention :mode="tip.loading ? 'loading' : type" />
-    </div>
+    <IconLoadingIcon />
+    <p>{{ msg }}</p>
   </div>
 </template>
 
 <style lang="scss">
-@keyframes whole-shade {
-  0% {
-    filter: blur(0px);
-    transform: scale(1);
-  }
-
-  50% {
-    filter: blur(10px);
-    transform: scale(0.75);
-  }
-
-  100% {
-    filter: blur(0px);
-    transform: scale(1);
-  }
-}
-
-@keyframes text-shade {
-  0% {
-    opacity: 1;
-    transform: translate(0, -50%) translateX(0);
-  }
-
-  25% {
-    opacity: 0;
-    transform: translate(0, -50%) translateX(5px);
-  }
-
-  75% {
-    opacity: 0;
-    transform: translate(0, -50%) translateX(-5px);
-  }
-
-  100% {
-    opacity: 1;
-    transform: translate(0, -50%) translateX(0);
-  }
-}
-
 .TapTip {
-  .TapTip-Icon-Wrapper {
-    position: relative;
+  .LoadingIcon-Container {
+    margin-right: -32px;
+    opacity: 0;
 
-    top: -5px;
-    left: -24px;
-
-    width: 16px;
-    height: 16px;
-
-    transform: scale(0.5);
-    --bg-color: var(--theme-color);
-  }
-
-  &:before {
-    z-index: 0;
-    content: '';
-    position: absolute;
-
-    width: 100%;
-    height: 100%;
-
-    top: 0;
-    left: 0;
-
-    border-radius: 8px;
-    //background-color: var(--el-bg-color);
-    filter: invert(5%);
-    box-shadow: var(--el-box-shadow-light);
-    backdrop-filter: contrast(200%) saturate(180%) blur(10px);
-    transition: 0.5s;
-  }
-
-  &:after {
-    z-index: 10;
-    content: attr(message);
-    position: absolute;
-
-    width: 100%;
-    //height: 100%;
-
-    top: 50%;
-    left: 0;
-
-    text-align: center;
-    transform: translate(0, -50%);
     transition: 0.25s;
   }
 
-  position: relative;
-  display: flex;
-  padding: 0.75rem 0.5rem 0.75rem calc(0.5rem + 32px);
-
-  max-width: 100%;
-  width: max-content;
-  height: 30px;
-  font-size: 18px;
-  // line-height: 30px;
-  text-indent: 16px;
-
-  align-items: center;
-  justify-content: center;
-  flex-direction: row-reverse;
-
-  color: var(--theme-color, var(--el-text-color-primary));
-  border-radius: 8px;
-  user-select: none;
-  transition:
-    box-shadow 0.5s,
-    0.25s;
-
-  --bg-color: --theme-color;
-}
-
-.TapTip.text-shade {
-  &:after {
-    animation: text-shade 0.5s;
+  &.loading-tip .LoadingIcon-Container {
+    margin-right: 0;
+    opacity: 1;
   }
 
-  animation: whole-shade 0.1s 0.05s;
+  p {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  position: relative;
+  display: flex;
+  padding: 1rem 0;
+
+  max-width: 100%;
+  height: 40px;
+  font-size: 18px;
+  // line-height: 30px;
+
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
+
+  opacity: 1;
+  border-radius: 18px;
+  user-select: none;
+  overflow: hidden;
+  color: var(--theme-color, var(--el-text-color-primary));
+  backdrop-filter: blur(18px) saturate(180%);
+
+  --fake-opacity: 0.75;
+  --bg-color: currentColor;
 }
 
 .success-tip {
