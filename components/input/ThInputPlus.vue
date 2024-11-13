@@ -334,6 +334,7 @@ watch(hoverMode, update)
   box-shadow: var(--el-box-shadow);
 
   opacity: 0;
+  --fake-opacity: 0.5;
   transform: translateX(50%) translateX(-24px) scale(0.9) translateY(10%);
   transition: cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.35s;
 
