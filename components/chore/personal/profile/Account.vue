@@ -12,6 +12,7 @@ import { getHistoryList } from '~/composables/api/account'
 import ImageUpload from '~/components/personal/ImageUpload.vue'
 import { $event } from '~/composables/events'
 import { $endApi } from '~/composables/api/base'
+import ChatLinkShare from '~/components/chat/head/ChatLinkShare.vue'
 
 const historyList = ref()
 const invitationList = ref()
@@ -127,8 +128,26 @@ async function openPlanPage() {
   })
 }
 
-function handleShareMenu() {
-  ElMessage.error('暂未开放.')
+const shareRef = useTypedRef(ChatLinkShare)
+async function handleShareMenu(share: any) {
+  dialogOptions.loading = true
+
+  await sleep(100)
+
+  dialogOptions.visible = true
+
+  const { value } = share
+  const content = decodeObject(value)
+
+  const res = await $endApi.v1.aigc.getConversation(content.id)
+
+  if (responseMessage(res, { success: '' })) {
+    dialogOptions.data = { ...res.data, id: res.data.chat_id }
+
+    sleep(200).then(() => shareRef.value?.openShareDialog())
+  }
+
+  dialogOptions.visible = false
 }
 </script>
 
@@ -300,10 +319,10 @@ function handleShareMenu() {
               </p>
 
               <div class="fixed-right">
-                <div v-wave class="icon" @click="handleShareMenu">
+                <div v-wave class="icon" @click="handleShareMenu(share)">
                   <div i-carbon-overflow-menu-horizontal />
                 </div>
-                <div v-wave class="icon" @click="handleShareMenu">
+                <div v-if="false" v-wave class="icon" @click="handleShareMenu">
                   <div i-carbon-close />
                 </div>
               </div>
@@ -313,6 +332,8 @@ function handleShareMenu() {
         <template v-else>
           <el-empty description="暂无任何分享记录" />
         </template>
+
+        <ChatHeadChatLinkShare ref="shareRef" v-model="dialogOptions.data" />
       </div>
     </div>
 
@@ -361,9 +382,9 @@ function handleShareMenu() {
 
       font-size: 20px;
       border-radius: 8px;
-      &:last-child {
-        color: var(--el-color-danger);
-      }
+      // &:last-child {
+      //   color: var(--el-color-danger);
+      // }
     }
 
     display: flex;
