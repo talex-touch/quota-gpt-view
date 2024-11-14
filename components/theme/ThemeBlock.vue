@@ -59,13 +59,13 @@ defineProps<{
   position: absolute;
 
   top: 2px;
-  left: 1px;
+  left: 2px;
 
   width: 50%;
   height: calc(100% - 4px);
 
   overflow: hidden;
-  border-radius: 16px 0 0 16px;
+  border-radius: 12px 0 0 12px;
   background-color: #1f1f1f;
   // mix-blend-mode: difference;
 }
