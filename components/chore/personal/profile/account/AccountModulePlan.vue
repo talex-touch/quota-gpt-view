@@ -59,14 +59,23 @@ const planProgress = computed(() => {
 </script>
 
 <template>
-  <div class="ModulePlan">
+  <div class="TouchDialog-Title">
+    <div i-carbon:document-multiple-01 />订阅计划
+  </div>
+  <div class="ModulePlan TouchDialog-Content">
     <div class="ModulePlan-Cards">
-      <ElCarousel ref="carousel" :autoplay="false" arrow="never" indicator-position="outside" trigger="click" height="350px">
-        <el-carousel-item v-for="item in planCards" :key="item.name" :name="item.type">
+      <ElCarousel
+        ref="carousel" :autoplay="false" arrow="never" indicator-position="outside" trigger="click"
+        height="350px"
+      >
+        <el-carousel-item v-for="(item, index) in planCards" :key="item.name" :name="item.type">
           <div class="ModulePlan-Card-Item transition-cubic">
             <div class="card-bg">
               <img class="card-img bg" :src="item.img" :alt="item.name">
               <img class="card-img" :src="item.img" :alt="item.name">
+
+              <ChoreLogo class="logo" />
+              <div class="shining" />
             </div>
             <div class="card-content">
               <h1>{{ item.name }}</h1>
@@ -79,10 +88,13 @@ const planProgress = computed(() => {
                 </template>
               </p>
 
-              <div v-if="item.select()" class="card-footer">
-                <div class="card-progress">
+              <div class="card-footer">
+                <div v-if="item.select()" class="card-progress">
                   <div class="card-progress-inner" :style="`--p: ${planProgress?.progress}%`" />
                   <span class="card-progress-text">订阅时间至 {{ planProgress?.text }}</span>
+                </div>
+                <div v-else-if="index">
+                  <el-link>立即订阅该计划</el-link>
                 </div>
               </div>
             </div>
@@ -90,10 +102,66 @@ const planProgress = computed(() => {
         </el-carousel-item>
       </ElCarousel>
     </div>
+    <div class="ModulePlan-Desc">
+      <p><span v-if="!userStore.subscription">还在犹豫不绝？</span>联系我们的专家来帮助你。</p>
+      <ButtonShiningButton>
+        立即咨询
+      </ButtonShiningButton>
+    </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
+.ModulePlan-Desc {
+  display: flex;
+  margin: 0 auto;
+
+  gap: 0.5rem;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.ModulePlan .card-bg .shining {
+  &::before {
+    content: '';
+    z-index: 1;
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 10%;
+    height: 100%;
+
+    opacity: 0.5;
+    filter: blur(10px) brightness(120%);
+    background-color: #e4dede;
+    animation: shiningBar 5s ease-out infinite;
+  }
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+@keyframes shiningBar {
+  0%,
+  85% {
+    transform: skewX(-35deg) translateX(-1000%);
+  }
+
+  100% {
+    transform: skewX(-35deg) translateX(1200%);
+  }
+}
+
 .ModulePlan {
   :deep(.ModulePlan-Card-Item) {
     .card-progress {
@@ -129,11 +197,6 @@ const planProgress = computed(() => {
       background-color: #eeeeee50;
     }
 
-    &:active {
-      perspective: 600px;
-      transform: scale(0.85);
-      animation: activeShining 2s 0.25s linear infinite;
-    }
     position: relative;
     margin: 0 auto;
     padding: 2rem;
@@ -146,8 +209,15 @@ const planProgress = computed(() => {
     user-select: none;
 
     transform-style: preserve-3d;
+    animation: activeShining 2.5s 0.25s linear infinite;
 
     .card-bg {
+      .logo {
+        position: absolute;
+
+        right: 1rem;
+        top: 1rem;
+      }
       position: absolute;
 
       top: 50%;
@@ -160,6 +230,11 @@ const planProgress = computed(() => {
     }
 
     .card-footer {
+      .el-link {
+        color: #ccc;
+        font-size: 18px;
+        font-weight: 600;
+      }
       position: absolute;
 
       bottom: 2rem;
@@ -216,7 +291,7 @@ const planProgress = computed(() => {
   }
 
   width: 520px;
-  height: 400px;
+  height: 520px;
 }
 
 @keyframes activeShining {
@@ -231,12 +306,22 @@ const planProgress = computed(() => {
       translate(1px, -2px);
   }
 
+  40% {
+    transform: scale(0.87) perspective(1000px) rotate3d(0.1, 1, 0.1, -3deg)
+      translate(3px, 1px);
+  }
+
   50% {
     transform: scale(0.87) perspective(1000px) rotate3d(0.1, 1, 0.1, 3deg)
       translate(2px, -2px);
   }
 
   70% {
+    transform: scale(0.87) perspective(1000px) rotate3d(0.1, 1, 0.1, -2deg)
+      translate(-2px, -2px);
+  }
+
+  80% {
     transform: scale(0.84) perspective(1000px) rotate3d(1, 0.1, 1, -2deg)
       translate(-2px, 2px);
   }

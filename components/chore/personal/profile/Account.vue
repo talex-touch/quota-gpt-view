@@ -168,7 +168,8 @@ function handleShareMenu() {
           <span v-if="!userStore.isAdmin" class="tag danger fill">管理员
           </span>
           <span v-else class="tag fill">普通用户</span>
-          <span v-wave cursor-pointer class="tag" @click="openInvitationPage">已邀请 {{ invitationList?.length || 0 }} 人</span>
+          <span v-wave cursor-pointer class="tag" @click="openInvitationPage">已邀请 {{ invitationList?.length || 0 }}
+            人</span>
           <span v-if="fortuneList" v-wave cursor-pointer class="tag" @click="openFortunePage">
             <span v-if="fortuneList.main === '大吉'">运势极佳 · 五福临门</span>
             <span v-if="fortuneList.main === '中吉'">运势上好</span>
@@ -336,7 +337,9 @@ function handleShareMenu() {
     <br>
 
     <DialogTouchDialog v-model="dialogOptions.visible" :loading="dialogOptions.loading">
-      <component :is="dialogOptions.component" v-if="dialogOptions.component" :data="dialogOptions.data" />
+      <template #Main>
+        <component :is="dialogOptions.component" v-if="dialogOptions.component" :data="dialogOptions.data" />
+      </template>
     </DialogTouchDialog>
   </div>
 </template>

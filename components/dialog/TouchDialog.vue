@@ -38,19 +38,21 @@ async function handleClickOutside() {
           <div i-carbon:close />
         </div>
 
-        <div v-if="header" class="TouchDialog-Title">
-          <slot name="Title" />
-        </div>
-
-        <el-scrollbar>
-          <div class="TouchDialog-Content">
-            <slot />
+        <slot name="Main">
+          <div v-if="header" class="TouchDialog-Title">
+            <slot name="Title" />
           </div>
-        </el-scrollbar>
 
-        <div v-if="footer" class="TouchDialog-Footer">
-          <slot name="Footer" />
-        </div>
+          <el-scrollbar>
+            <div class="TouchDialog-Content">
+              <slot />
+            </div>
+          </el-scrollbar>
+
+          <div v-if="footer" class="TouchDialog-Footer">
+            <slot name="Footer" />
+          </div>
+        </slot>
       </div>
 
       <div class="TouchDialog-Main Loading" @click.stop="">
