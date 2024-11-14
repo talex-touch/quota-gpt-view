@@ -7,6 +7,7 @@ import AccountModuleHistory from './account/AccountModuleHistory.vue'
 import AccountModulePersonal from './account/AccountModulePersonal.vue'
 import AccountModuleFortune from './account/AccountModuleFortune.vue'
 import AccountModuleInvitation from './account/AccountModuleInvitation.vue'
+import AccountModulePlan from './account/AccountModulePlan.vue'
 import { getHistoryList } from '~/composables/api/account'
 import ImageUpload from '~/components/personal/ImageUpload.vue'
 import { $event } from '~/composables/events'
@@ -118,6 +119,14 @@ async function openInvitationPage() {
   })
 }
 
+async function openPlanPage() {
+  Object.assign(dialogOptions, {
+    visible: true,
+    component: AccountModulePlan,
+    data: null,
+  })
+}
+
 function handleShareMenu() {
   ElMessage.error('暂未开放.')
 }
@@ -180,7 +189,7 @@ function handleShareMenu() {
 
             <p>0.00</p>
           </div>
-          <div v-wave class="box-data">
+          <div v-wave class="box-data" @click="openPlanPage">
             <div class="title">
               <p>订阅计划</p>
               <div i-carbon:document-multiple-01 />

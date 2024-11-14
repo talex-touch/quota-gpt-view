@@ -135,7 +135,11 @@ export async function refreshUserSubscription() {
     return
   }
 
-  userStore.value.subscription = reactive(data)
+  // userStore.value.subscription = reactive(data)
+  Object.assign(userStore.value, {
+    ...userStore.value,
+    subscription: reactive(data),
+  })
 
   const plan = userStore.value.subscription
 
