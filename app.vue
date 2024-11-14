@@ -70,21 +70,6 @@ onMounted(async () => {
     await refreshCurrentUserRPM()
     await refreshUserSubscription()
   }
-
-  await sleep(1000)
-
-  const tapTip = createTapTip()
-
-  tapTip.setMessage('欢迎使用 Talex 社区，请先绑定你的 GitHub 账号，以获得更好的体验。')
-    .setStay(4000).setType(TipType.INFO).setLoading(true).show()
-
-  await sleep(2000)
-
-  tapTip.setMessage('请先绑定你的 GitHub 账号，以获得更好的体验。')
-
-  await sleep(2000)
-
-  tapTip.setLoading(false)
 })
 
 router.afterEach(() => {

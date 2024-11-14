@@ -210,7 +210,7 @@ function handleShareMenu() {
             </div>
 
             <p>
-              <span font-bold>{{ historyList?.items.length || 0 }}</span> 条记录
+              <span font-bold underline>{{ historyList?.items.length || 0 }}</span> 条记录
             </p>
           </div>
         </div>

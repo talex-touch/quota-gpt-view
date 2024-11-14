@@ -33,12 +33,26 @@ const deviceGroup = computed(() => {
     : []
 })
 
+// const deviceGroup = computed(() => _deviceGroup.value.reduce((acc, cur) => {
+//   if (acc[cur.os])
+//     acc[cur.os].push(cur)
+
+//   else
+//     acc[cur.os] = [cur]
+
+//   return acc
+// }, {}))
+
+console.log('deviceGroup', deviceGroup)
+
 // 判断是否是本设备
 function isThisDevice(item: any) {
   const device = useDevice()
   const ua = navigator.userAgent
 
   const browserBrand = item.browser.split(' ')?.[0] || item.browser
+
+  console.log('browserBrand', browserBrand)
 
   if (item.os.includes('Android'))
     return device.isAndroid && ua.includes(browserBrand)
@@ -66,6 +80,12 @@ function isThisDevice(item: any) {
 
     <div class="ProfileWrapper-Main">
       <div v-for="device in deviceGroup" :key="device.os" class="Device-Item">
+        <!-- <div class="Device-Item-Header">
+          <div class="Device-Item-Header-Icon">
+            <div i-carbon-devices-apps />
+          </div>
+        </div> -->
+
         <div class="Device-Item-Main">
           <p class="device-name">
             {{ device.os }}
@@ -157,53 +177,13 @@ function isThisDevice(item: any) {
   padding: 0.5rem 1rem;
   margin: 1rem 0;
 
+  width: 400px;
+
   align-items: center;
   justify-content: space-between;
 
   border-radius: 16px;
   background-color: var(--el-mask-color-extra-light);
   box-shadow: var(--el-box-shadow);
-}
-
-:deep(.el-table) {
-  --el-table-bg-color: var(--el-bg-color-page);
-  --el-table-tr-bg-color: var(--el-bg-color-page);
-  --el-table-header-bg-color: var(--el-bg-color-page);
-}
-
-.ProfileWrapper-Main {
-  height: calc(100% - 80px);
-}
-
-.ProfileWrapper-Start {
-  position: absolute;
-
-  left: 2rem;
-
-  align-items: center;
-  font-size: 14px;
-  color: var(--el-text-color-secondary);
-  margin-right: 20px;
-}
-
-.avatar-uploader .el-upload {
-  border: 1px dashed var(--el-border-color);
-  border-radius: 6px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition: var(--el-transition-duration-fast);
-}
-
-.avatar-uploader .el-upload:hover {
-  border-color: var(--el-color-primary);
-}
-
-.el-icon.avatar-uploader-icon {
-  font-size: 28px;
-  color: #8c939d;
-  width: 178px;
-  height: 178px;
-  text-align: center;
 }
 </style>
