@@ -393,7 +393,6 @@ function handleShareMenu() {
 
 .ProfileAccount {
   position: relative;
-  padding: 1rem 0;
 
   width: 100%;
   height: 100%;
