@@ -86,7 +86,7 @@ function redirectToCheckout() {
         </div>
       </div>
       <br>
-      <el-input-number v-model="amo" :disabled="active !== 7" style="width: 100%" :min="1" :max="10000">
+      <el-input-number v-model="amo" :disabled="active !== 7" style="width: 100%" :min="1" :max="1000000">
         <template #prefix>
           <div i-carbon:cloud />
         </template>
