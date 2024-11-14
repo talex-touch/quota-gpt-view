@@ -40,7 +40,7 @@ function handleViewOrder(id: string) {
   window.open(`${window.origin}/buy?orderId=${id}`, '_blank')
 }
 
-const cards = [10, 50, 100, 200, 500, 1000, 5000, 0]
+const cards = [100, 500, 1000, 2000, 5000, 10000, 50000, 0]
 const active = ref(0)
 const amo = ref(0)
 
@@ -81,12 +81,12 @@ function redirectToCheckout() {
             </template>
           </div>
           <p v-if="i !== 0" class="dummy-card-price">
-            <span class="tag">￥</span>{{ (i / 10).toFixed(2) }}
+            <span class="tag">￥</span>{{ (i / 100).toFixed(2) }}
           </p>
         </div>
       </div>
       <br>
-      <el-input-number v-model="amo" :disabled="active === 3" style="width: 100%" :min="1" :max="10000">
+      <el-input-number v-model="amo" :disabled="active !== 7" style="width: 100%" :min="1" :max="10000">
         <template #prefix>
           <div i-carbon:cloud />
         </template>
@@ -94,7 +94,7 @@ function redirectToCheckout() {
 
       <div my-2 class="Price">
         预计价格：
-        <span class="display-price"><span class="tag">￥</span>{{ (+amo / 10).toFixed(2) }}</span>
+        <span class="display-price"><span class="tag">￥</span>{{ (+amo / 100).toFixed(2) }}</span>
       </div>
 
       <el-button my-2 w-full type="primary" style="background-color: var(--theme-color)" @click="redirectToCheckout">
