@@ -8,12 +8,14 @@ const props = defineProps<{
 </script>
 
 <template>
-  <div class="ModuleInvitation">
-    <p>邀请记录</p>
-
+  <div class="TouchDialog-Title">
+    <div i-carbon:user-multiple />邀请记录
+  </div>
+  <div class="ModuleInvitation TouchDialog-Content">
     <div v-if="data" class="ModuleInvitation-Main">
       <div v-for="invitation in data" :key="invitation.id" class="ModuleInvitation-Main-Item">
-        邀请<PersonalNormalUser :data="invitation.user" />
+        邀请
+        <PersonalNormalUser :data="invitation.user" />
 
         <p class="time">
           {{ formatDate(invitation.createdAt) }}
@@ -75,12 +77,6 @@ const props = defineProps<{
     flex-direction: column;
   }
 
-  > p {
-    margin: 0 0 1rem;
-
-    font-size: 24px;
-    font-weight: 600;
-  }
   position: relative;
   margin: 0.5rem 0;
   display: flex;

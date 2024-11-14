@@ -215,7 +215,7 @@ watch(() => online.value, detectEndStatus)
     transition: 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
   }
 
-  z-index: 1000;
+  z-index: 100000;
   position: absolute;
 
   top: 0;

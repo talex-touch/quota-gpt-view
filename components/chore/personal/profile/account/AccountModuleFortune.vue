@@ -12,12 +12,16 @@ const fortuneScore = computed(() => getFortuneScore(props.data?.content.score ||
 </script>
 
 <template>
-  <div class="ModuleFortune Fortune">
-    <p>每日运势</p>
-
+  <div flex-col style="align-items: flex-start" class="TouchDialog-Title">
+    <div flex items-center gap-2>
+      <div i-carbon:transform-instructions />每日运势
+    </div>
+    <p style="font-size: 16px" op-50>
+      每日运势仅供参考，没有实际含义。
+    </p>
+  </div>
+  <div class="ModuleFortune Fortune TouchDialog-Content">
     <div v-if="data" class="Fortune-Main">
-      <p>每日运势仅供参考，没有实际含义。</p>
-
       <div class="Fortune-Display">
         <p class="title">
           § {{ data.main }} §
@@ -105,17 +109,8 @@ const fortuneScore = computed(() => getFortuneScore(props.data?.content.score ||
     justify-content: space-between;
   }
 
-  & > p {
-    position: relative;
-
-    font-size: 18px;
-    font-weight: 600;
-  }
-
   position: relative;
-  margin: 0.5rem 0;
   display: flex;
-  padding: 1rem;
 
   flex-direction: column;
 
