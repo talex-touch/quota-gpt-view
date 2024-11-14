@@ -11,12 +11,15 @@ import BuyDialog from '~/components/chore/buy/BuyDialog.vue'
 import Logo from '~/components/chore/Logo.vue'
 import JSConfetti from 'js-confetti'
 import { SUBSCRIPTION_PLAN_LIST } from '~/composables/subscription'
-import { getOrderPlanPrice, getOrderStatus } from '~/composables/api/account'
+import { getOrderPlanPrice, getOrderStatus, orderPlanPrice } from '~/composables/api/account'
+import { $endApi } from '~/composables/api/base'
+import { createTapTip } from '~/composables/tip'
 
 const route = useRoute()
 const router = useRouter()
 
 const subscriptionMode = computed(() => route.query?.type === 'SUBSCRIPTION')
+const dummyMode = computed(() => route.query?.type === 'DUMMY')
 
 function buyEffect() {
   const confetti = new JSConfetti()
@@ -27,34 +30,15 @@ function buyEffect() {
   })
 }
 
-// onMounted(() => buyEffect())
-
 definePageMeta({
   layout: 'default',
 })
 
-const orderInfo = reactive<any>([
-  {
-    label: '概述信息',
-    children: [],
-  },
-  {
-    label: '支付信息',
-    price: true,
-    children: [],
-  },
-  {
-    label: '账单总计',
-    value: '0.00 ￥',
-  },
-])
-
+const dialog = useTypedRef(BuyDialog)
 const orderDetail = reactive<any>({
   id: '',
   loading: false,
-  info: [
-
-  ],
+  info: null,
 })
 
 const payments = reactive<any>({
@@ -74,9 +58,12 @@ const payments = reactive<any>({
       svg: Balance,
       value: 'balance',
       name: '余额支付',
+      available: () => !dummyMode.value,
     },
   ],
 })
+
+const paymentMethods = computed(() => payments.children.filter((item: any) => item.available?.() ?? true))
 
 const plans = reactive([...SUBSCRIPTION_PLAN_LIST])
 
@@ -87,6 +74,7 @@ const payOptions = reactive({
   dialog: false,
   agreement: true,
   price: 0,
+  dummyValue: 0,
   code: '',
   unavailable: false,
   countdown: {
@@ -97,55 +85,8 @@ const payOptions = reactive({
 })
 
 function parseDataInfo(data: any) {
-  orderDetail.info = [...data.info]
-  orderInfo[0].children = [{
-    name: '订单信息',
-    value: data.name,
-  }, {
-    name: '有效期限',
-    value: `${data.meta.range} 天`,
-  }, {
-    name: '购买时间',
-    value: '-',
-  }, {
-    name: '取消截至',
-    value: '-',
-  }]
-
-  const { fee, average, originPrice, tax, feeTax } = data.meta
-
-  orderInfo[1].children = [
-    {
-      name: '标准费率',
-      value: (originPrice / 100).toFixed(2),
-    },
-    {
-      name: '优惠价格',
-      value: `-${((originPrice - fee) / 100).toFixed(2)}`,
-    },
-    {
-      name: '平均费率',
-      value: `${(average / 100).toFixed(2)}/天`,
-    },
-    {
-      name: '标准税费',
-      value: `+${(tax / 100).toFixed(2)}`,
-    },
-
-  ]
-
-  orderInfo[2].value = `${(feeTax / 100).toFixed(2)
-    } ￥`
-
-  payOptions.price = feeTax
-
-  router.push({
-    query: {
-      ...route.query,
-      plan: payOptions.type,
-      time: payOptions.time,
-    },
-  })
+  orderDetail.info = data
+  payOptions.price = data.meta.feeTax
 }
 
 function selectPlan(_plan?: any) {
@@ -187,6 +128,46 @@ function selectPlan(_plan?: any) {
     const { data } = res
 
     parseDataInfo(data)
+
+    router.push({
+      query: {
+        ...route.query,
+        plan: payOptions.type,
+        time: payOptions.time,
+      },
+    })
+  })
+}
+
+function selectDummy(value: number) {
+  payOptions.dummyValue = value
+
+  setTimeout(async () => {
+    orderDetail.loading = true
+
+    // fetch data
+    const res = await $endApi.v1.account.getOrderDummyPrice(value, payOptions.code)
+
+    orderDetail.loading = false
+
+    if (!res.data) {
+      payOptions.unavailable = true
+
+      ElMessage({
+        message: res.message || '出现未知错误！',
+        grouping: true,
+        type: 'error',
+        plain: true,
+      })
+
+      return
+    }
+
+    payOptions.unavailable = false
+
+    const { data } = res
+
+    parseDataInfo(data)
   })
 }
 
@@ -198,17 +179,20 @@ function timer() {
 
   payOptions.now = Date.now()
 
-  // update overview
-  if (!payOptions.unavailable && orderInfo[0]?.children.length === 4) {
-    const nowTime = formatDate(payOptions.now, 'YYYY/MM/DD HH:mm:ss')
-
-    orderInfo[0].children[2].value = nowTime
-    orderInfo[0].children[3].value = formatDate(payOptions.now + 4 * 60 * 60 * 1000, 'YYYY/MM/DD HH:mm:ss')
-  }
-
   func?.()
 
   setTimeout(timer, 100)
+}
+
+function parseGood() {
+  if (subscriptionMode.value && route.query?.plan && route.query?.time) {
+    const plan = plans.find(plan => plan.type === route.query?.plan && plan.time === route.query?.time)
+    if (plan)
+      selectPlan(plan)
+  }
+  else if (dummyMode.value && route.query.value) {
+    selectDummy(+route.query.value || 0)
+  }
 }
 
 onMounted(() => {
@@ -242,42 +226,52 @@ onMounted(() => {
 
       orderDetail.id = data.id
 
-      parseDataInfo(info.meta.subscription)
+      parseDataInfo(info.meta.subscription || info.meta.dummy)
 
       if (data.status !== 1)
         return
 
       payOptions.success = true
 
-      const nowTime = formatDate(data.createdAt, 'YYYY/MM/DD HH:mm:ss')
-
-      orderInfo[0].children[2].value = nowTime
-      orderInfo[0].children[3].value = formatDate(payOptions.now + 4 * 60 * 60 * 1000, 'YYYY/MM/DD HH:mm:ss')
-
       buyEffect()
-
-      orderInfo[2].value = `${(info.meta.subscription.meta.fee / 100).toFixed(2)
-        } ￥`
-
-      // 删除 orderInfo[1].children 最后一个成员
-      orderInfo[1].children.pop()
     })
   }
 
-  else if (route.query?.plan && route.query?.time) {
-    const plan = plans.find(plan => plan.type === route.query?.plan && plan.time === route.query?.time)
-    if (plan)
-      selectPlan(plan)
+  else {
+    parseGood()
   }
 
   timer()
 })
 
-function submit() {
+async function submit() {
   if (payOptions.unavailable)
     return
 
-  payOptions.dialog = true
+  if (
+    orderDetail.loading)
+    return
+
+  orderDetail.loading = true
+
+  const tipTap = createTapTip()
+
+  tipTap.setMessage('正在准备创建订单').setLoading(true).show()
+
+  if (subscriptionMode.value) {
+    const res = await orderPlanPrice(payOptions.type as any, payOptions.time, payOptions.code)
+
+    dialog.value?.openBuyDialog(res)
+  }
+  else if (dummyMode.value) {
+    const res = await $endApi.v1.account.dummyOrder(payOptions.dummyValue, payOptions.code)
+
+    dialog.value?.openBuyDialog(res)
+  }
+
+  tipTap.setMessage('订单创建成功').setLoading(false)
+
+  orderDetail.loading = false
 }
 
 const countdownObj = computed(() => {
@@ -309,10 +303,7 @@ async function paySuccess(data: any) {
       plain: true,
     })
 
-    setTimeout(async () => await router.push({
-      path: '/',
-      query: { data: 'plan' },
-    }), 2000)
+    location.reload()
     return
   }
 
@@ -342,8 +333,7 @@ function handleOrderEstablished(data: any) {
   }
 
   // 更新总价
-  orderInfo[2].value = `${(data.order.totalAmount / 100).toFixed(2)
-    } ￥`
+  payOptions.price = data.order.totalAmount
 
   router.push({
     path: '/buy',
@@ -370,9 +360,11 @@ function handleOrderEstablished(data: any) {
   }
 }
 
-watch(() => payOptions.code, () => {
-  selectPlan()
-})
+watch(() => payOptions.code, parseGood)
+
+function calcExpired(date: number) {
+  return date + 4 * 60 * 60 * 1000
+}
 </script>
 
 <template>
@@ -383,7 +375,8 @@ watch(() => payOptions.code, () => {
           <span class="text-large mr-3 font-600">
             <span v-if="orderDetail.id">订单详情</span>
             <span v-else-if="subscriptionMode">选择订阅</span>
-            <span v-else>充值余额</span>
+            <span v-else-if="dummyMode">充值余额</span>
+            <span v-else>支付</span>
           </span>
         </template>
       </el-page-header>
@@ -428,9 +421,6 @@ watch(() => payOptions.code, () => {
                   </li>
                 </ul>
               </div>
-              <div v-else-if="!orderDetail.id" class="ProfileWrapper-Content-Info">
-                <p>充值余额</p>
-              </div>
               <div v-if="!payOptions.unavailable" class="ProfileWrapper-Content-Info">
                 <div class="title">
                   订单详情<span v-if="orderDetail.id">#{{ orderDetail.id }}</span>
@@ -439,8 +429,8 @@ watch(() => payOptions.code, () => {
                     <TextShaving text="已支付" />
                   </div>
                 </div>
-                <ul v-loading="orderDetail.loading">
-                  <li v-for="line in orderDetail.info" :key="line.name" :class="{ free: line.free }">
+                <ul v-if="orderDetail.info" v-loading="orderDetail.loading">
+                  <li v-for="line in orderDetail.info.info" :key="line.name" :class="{ free: line.free }">
                     <span>{{ line.name }}</span>
                     <span v-if="!line.free">{{ (line.price / 100).toFixed(2) }}￥</span>
                     <span v-else>附赠</span>
@@ -454,7 +444,7 @@ watch(() => payOptions.code, () => {
                 <p>支付方式</p>
                 <ul>
                   <li
-                    v-for="payment in payments.children" :key="payment.value"
+                    v-for="payment in paymentMethods" :key="payment.value"
                     :class="{ active: payments.select === payment.value, disabled: countdownObj?.expired || payOptions.success }"
                     @click="payments.select = payment.value"
                   >
@@ -466,7 +456,10 @@ watch(() => payOptions.code, () => {
                 <OtherDefaultAlert icon="i-carbon:manage-protection" title="随时取消政策">
                   在科塔锐行，我们深知计划可能随时发生变化。为此，我们特别设计了一套取消政策，旨在为您带来最大的灵活性与安心保障。当您选择我们时，您将享有充分的自由度来调整或取消预订，无需担心任何取消费用。我们的政策允许您在购买后<span
                     font-bold
-                  >3 小时</span>内免费修改订单，确保您的计划能够灵活适应各种突发状况。<el-link target="_blank" :href="getProtocolUrl('plan_change')" type="primary">
+                  >3 小时</span>内免费修改订单，确保您的计划能够灵活适应各种突发状况。<el-link
+                    target="_blank"
+                    :href="getProtocolUrl('plan_change')" type="primary"
+                  >
                     了解更多
                   </el-link>
                 </OtherDefaultAlert>
@@ -482,22 +475,50 @@ watch(() => payOptions.code, () => {
                 <ChoreCouponSelector v-model="payOptions.code" placeholder="可选" />
               </div>
               <div v-if="!payOptions.unavailable" v-loading="orderDetail.loading" class="ProfileWrapper-Content-Info">
-                <ul v-for="item in orderInfo" :key="item.label" :class="{ line: item.value }">
-                  <p>{{ item.label }}</p>
-                  <template v-if="item.children">
-                    <li v-for="line in item.children" :key="line.name" :class="{ discount: +line.value < 0 }">
-                      <span op-75>
-                        {{ line.name }}
-                      </span>
-                      <span>
-                        {{ line.value }}
-                        <span v-if="item.price" class="price">￥</span>
-                      </span>
-                    </li>
-                  </template>
-                  <span v-else-if="item.value">
-                    {{ item.value }}
-                  </span>
+                <ul v-if="orderDetail.info?.meta">
+                  <p>概述信息</p>
+                  <li>
+                    <span op-75>订单信息</span>
+                    <span>{{ orderDetail.info.name }}</span>
+                  </li>
+                  <li v-if="orderDetail.info.meta?.range">
+                    <span op-75>有效期限</span>
+                    <span>{{ orderDetail.info.meta.range }}</span>
+                  </li>
+                  <li v-if="!payOptions.unavailable">
+                    <span op-75>购买时间</span>
+                    <span>{{ formatDate(payOptions.now) }}</span>
+                  </li>
+                  <li v-if="!payOptions.unavailable">
+                    <span op-75>取消截至</span>
+                    <span>{{ formatDate(calcExpired(payOptions.now)) }}</span>
+                  </li>
+                </ul>
+                <ul v-if="orderDetail.info?.meta">
+                  <p>支付信息</p>
+                  <li>
+                    <span op-75>标准费率</span>
+                    <span>{{ (orderDetail.info.meta.originPrice / 100).toFixed(2) }}￥</span>
+                  </li>
+                  <li
+                    :class="{ discount: orderDetail.info.meta.originPrice > orderDetail.info.meta.fee }"
+                  >
+                    <span op-75>优惠价格</span>
+                    <span>-{{ ((orderDetail.info.meta.originPrice - orderDetail.info.meta.fee) / 100).toFixed(2)
+                    }}￥</span>
+                  </li>
+                  <li v-if="orderDetail.info.meta.average">
+                    <span op-75>平均费率</span>
+                    <span>{{ (orderDetail.info.meta.average / 100).toFixed(2) }}/天 ￥</span>
+                  </li>
+                  <li>
+                    <span op-75>标准税费</span>
+                    <span>+{{ ((orderDetail.info.meta.tax / 100).toFixed(2)) }} ￥</span>
+                  </li>
+                </ul>
+                <ul class="line">
+                  <p>账单总计</p>
+                  <span>{{ ((orderDetail.info?.meta?.feeTax ?? 0) / 100).toFixed(2) }}￥</span>
                 </ul>
               </div>
 
@@ -555,8 +576,9 @@ watch(() => payOptions.code, () => {
     </div>
 
     <BuyDialog
-      v-model="payOptions.dialog" z-2 :coupon-code="payOptions.code" :countdown="countdownObj"
-      :type="payOptions.type" :time="payOptions.time" :price="payOptions.price" :method="payments.select"
+      ref="dialog"
+      v-model="payOptions.dialog" z-2 :countdown="countdownObj"
+      :price="payOptions.price" :method="payments.select"
       @order="handleOrderEstablished"
     />
   </div>

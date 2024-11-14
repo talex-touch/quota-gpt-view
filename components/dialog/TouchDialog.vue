@@ -241,7 +241,7 @@ async function handleClickOutside() {
     color: var(--el-color-danger);
   }
 
-  z-index: 1;
+  z-index: 10000;
   position: absolute;
   display: flex;
 

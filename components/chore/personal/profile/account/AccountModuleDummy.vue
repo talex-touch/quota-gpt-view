@@ -14,21 +14,6 @@ const plans = computed(() => price.map((item, index) => ({
   got: !index,
 })))
 
-function toCheckout(plan: any) {
-  // router.push({
-  //   path: '/buy',
-  //   query: {
-  //     type: 'SUBSCRIPTION',
-  //     plan: plan.value,
-  //     time: 'MONTH',
-  //   },
-  // })
-
-  // window.open(`${window.origin}/buy?type=SUBSCRIPTION&plan=${plan.value}&time=MONTH`, '_blank')
-  window.open(`${window.origin}/plan`, '_blank')
-  // router.push(`/buy?type=SUBSCRIPTION&plan=${plan.value}&time=MONTH`)
-}
-
 const orderList = ref<any[]>([])
 
 async function fetchData() {
@@ -60,6 +45,10 @@ const active = ref(0)
 const amo = ref(0)
 
 watch(active, () => amo.value = cards[active.value])
+
+function redirectToCheckout() {
+  location.replace(`${window.origin}/buy?type=DUMMY&value=${amo.value}`)
+}
 </script>
 
 <template>
@@ -92,7 +81,7 @@ watch(active, () => amo.value = cards[active.value])
             </template>
           </div>
           <p v-if="i !== 0" class="dummy-card-price">
-            <span class="tag">￥</span>{{ i.toFixed(2) }}
+            <span class="tag">￥</span>{{ (i / 10).toFixed(2) }}
           </p>
         </div>
       </div>
@@ -108,7 +97,7 @@ watch(active, () => amo.value = cards[active.value])
         <span class="display-price"><span class="tag">￥</span>{{ (+amo / 10).toFixed(2) }}</span>
       </div>
 
-      <el-button my-2 w-full type="primary" style="background-color: var(--theme-color)">
+      <el-button my-2 w-full type="primary" style="background-color: var(--theme-color)" @click="redirectToCheckout">
         开始结账
       </el-button>
     </div>

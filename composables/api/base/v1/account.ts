@@ -24,4 +24,18 @@ export default {
   getUserDummy() {
     return endHttp.get('dummy/points') as Promise<IDataResponse<any>>
   },
+  getOrderDummyPrice(value: number, code: string) {
+    return endHttp.get(`order/price/dummy?_time=${Date.now()}`, {
+      value,
+      couponCode: code || '',
+      payMethod: 2,
+    })
+  },
+  dummyOrder(value: number, code: string) {
+    return endHttp.post('order/balance', {
+      value,
+      couponCode: code || '',
+      payMethod: 2,
+    })
+  },
 }

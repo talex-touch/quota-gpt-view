@@ -10,10 +10,6 @@ const props = defineProps<{
   modelValue: boolean
   method: string
 
-  type: string
-  time: string
-  couponCode: string
-
   countdown: any
 }>()
 
@@ -51,7 +47,7 @@ onMounted(() => {
   })
 })
 
-async function fetchData() {
+async function openBuyDialog(res: any) {
   if (props.method !== 'wechat')
     return
 
@@ -61,11 +57,13 @@ async function fetchData() {
 
   loading.value = true
 
-  const res = await orderPlanPrice(props.type as any, props.time, props.couponCode)
-
   syncLocalData(res)
 
   loading.value = false
+
+  await sleep(200)
+
+  show.value = true
 }
 
 async function syncLocalData(res: any) {
@@ -93,11 +91,6 @@ async function syncLocalData(res: any) {
   codeUrl.value = url
 }
 
-watch(() => show.value, () => {
-  if (show.value)
-    fetchData()
-}, { immediate: true })
-
 watch(() => props.countdown?.expired, () => {
   if (!props.countdown?.expired)
     return
@@ -110,6 +103,10 @@ const countdownText = computed(() => {
     return
 
   return formatDuration(props.countdown.left, 'mm:ss:SSS')
+})
+
+defineExpose({
+  openBuyDialog,
 })
 </script>
 
