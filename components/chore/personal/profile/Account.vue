@@ -132,8 +132,6 @@ const shareRef = useTypedRef(ChatLinkShare)
 async function handleShareMenu(share: any) {
   dialogOptions.loading = true
 
-  await sleep(100)
-
   dialogOptions.visible = true
 
   const { value } = share
@@ -147,6 +145,7 @@ async function handleShareMenu(share: any) {
     sleep(200).then(() => shareRef.value?.openShareDialog())
   }
 
+  dialogOptions.loading = false
   dialogOptions.visible = false
 }
 </script>
@@ -162,7 +161,7 @@ async function handleShareMenu(share: any) {
           我的账号
         </div>
         <p class="subtitle">
-          您的账号信息、第三方账号绑定信息等
+          您的账号信息、订阅计划信息等
         </p>
       </div>
 
