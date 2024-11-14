@@ -79,7 +79,15 @@ function isThisDevice(item: any) {
       <div v-for="device in deviceGroup" :key="device.os" class="Device-Item">
         <div class="Device-Item-Main">
           <p flex items-center gap-2 class="device-name">
-            <i i-carbon-devices-apps block />{{ device.os }}
+            <template v-if="device.os.includes('iOS')">
+              <i i-carbon-apple block />{{ device.os }}
+            </template>
+            <template v-else-if="device.os.includes('iPadOS')">
+              <i i-carbon-apple block />{{ device.os }}
+            </template>
+            <template v-else>
+              <i i-carbon-devices-apps block />{{ device.os }}
+            </template>
             <span v-if="isThisDevice(device)" class="tag">
               本机
             </span>
