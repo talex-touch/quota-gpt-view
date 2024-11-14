@@ -66,25 +66,20 @@ function isThisDevice(item: any) {
 </script>
 
 <template>
-  <div class="ProfileWrapper">
-    <div class="ProfileWrapper-Header">
-      <p>登录历史</p>
-      <p v-if="historyList?.meta" style="font-size: 14px" op-50>
-        累计记录 {{ historyList.meta.totalItems }} 条
-      </p>
+  <div justify-between class="TouchDialog-Title">
+    <div flex items-center gap-2>
+      <div i-carbon-data-table />登录历史
     </div>
-
+    <p v-if="historyList?.meta" style="font-size: 14px" op-50>
+      累计记录 {{ historyList.meta.totalItems }} 条
+    </p>
+  </div>
+  <div class="ProfileWrapper TouchDialog-Content">
     <div class="ProfileWrapper-Main">
       <div v-for="device in deviceGroup" :key="device.os" class="Device-Item">
-        <!-- <div class="Device-Item-Header">
-          <div class="Device-Item-Header-Icon">
-            <div i-carbon-devices-apps />
-          </div>
-        </div> -->
-
         <div class="Device-Item-Main">
-          <p class="device-name">
-            {{ device.os }}
+          <p flex items-center gap-2 class="device-name">
+            <i i-carbon-devices-apps block />{{ device.os }}
             <span v-if="isThisDevice(device)" class="tag">
               本机
             </span>
@@ -169,6 +164,11 @@ function isThisDevice(item: any) {
     font-size: 14px;
     color: var(--el-text-color-secondary);
   }
+
+  &:hover {
+    cursor: pointer;
+    background-color: var(--el-fill-color-light);
+  }
   display: flex;
   padding: 0.5rem 1rem;
   margin: 1rem 0;
@@ -180,6 +180,7 @@ function isThisDevice(item: any) {
 
   border-radius: 16px;
   background-color: var(--el-mask-color-extra-light);
-  box-shadow: var(--el-box-shadow);
+  box-shadow: var(--el-box-shadow-light);
+  border: 1px solid var(--el-border-color);
 }
 </style>

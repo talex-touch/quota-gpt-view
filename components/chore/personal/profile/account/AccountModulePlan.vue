@@ -94,7 +94,9 @@ const planProgress = computed(() => {
                   <span class="card-progress-text">订阅时间至 {{ planProgress?.text }}</span>
                 </div>
                 <div v-else-if="index">
-                  <el-link>立即订阅该计划</el-link>
+                  <el-link href="/plan">
+                    立即订阅该计划
+                  </el-link>
                 </div>
               </div>
             </div>
@@ -209,7 +211,7 @@ const planProgress = computed(() => {
     user-select: none;
 
     transform-style: preserve-3d;
-    animation: activeShining 2.5s 0.25s linear infinite;
+    animation: activeShining 2.5s linear infinite;
 
     .card-bg {
       .logo {
