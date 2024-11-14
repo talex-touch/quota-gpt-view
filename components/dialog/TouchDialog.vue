@@ -30,7 +30,7 @@ async function handleClickOutside() {
   <teleport to="#teleports">
     <div
       :style="`z-index: ${zIndex}`"
-      :class="{ visible, forbidden: dialogOptions.forbidden, loading }" class="TouchDialog"
+      :class="{ visible, forbidden: dialogOptions.forbidden, loading }" class="TouchDialog transition-cubic"
       @click="handleClickOutside"
     >
       <div class="TouchDialog-Main Main" @click.stop="">
@@ -229,7 +229,6 @@ async function handleClickOutside() {
   height: 100%;
 
   opacity: 0;
-  transition: 0.25s;
   pointer-events: none;
   transform: scale(1.05);
   background-color: var(--el-overlay-color-lighter);

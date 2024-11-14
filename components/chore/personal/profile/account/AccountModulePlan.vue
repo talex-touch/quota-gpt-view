@@ -132,7 +132,7 @@ const planProgress = computed(() => {
     &:active {
       perspective: 600px;
       transform: scale(0.85);
-      animation: activeShining 1s 0.25s linear infinite;
+      animation: activeShining 2s 0.25s linear infinite;
     }
     position: relative;
     margin: 0 auto;
