@@ -206,7 +206,17 @@ async function handleShareMenu(share: any) {
               <div i-carbon:cloud />
             </div>
 
-            <p>0.00</p>
+            <p>
+              <template v-if="userStore.dummy">
+                {{ userStore.dummy.availablePoints || 0 }}
+                <span v-if="userStore.dummy.freezedPoints" text-xs op-50>
+                  ({{ userStore.dummy.freezedPoints }}点 已过期)
+                </span>
+              </template>
+              <template v-else>
+                -
+              </template>
+            </p>
           </div>
           <div v-wave class="box-data" @click="openPlanPage">
             <div class="title">

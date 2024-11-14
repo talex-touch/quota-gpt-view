@@ -25,6 +25,7 @@ export interface AccountDetail {
   roles: string[]
   permissions: string[]
   subscription: any
+  dummy: any
 
   isAdmin: boolean
   isLogin: boolean
@@ -116,8 +117,29 @@ export async function $handleUserLogin(token: { accessToken: string, refreshToke
 
   await refreshCurrentUserRPM()
   await refreshUserSubscription()
+  await refreshUserDummy()
 
   $event.emit('USER_LOGIN_SUCCESS')
+}
+
+export async function refreshUserDummy() {
+  const res = await $endApi.v1.account.getUserDummy()
+
+  if (!res.data) {
+    ElNotification({
+      title: '用户信息获取失败',
+      message: '您的信息获取失败，请联系管理员处理。',
+      type: 'error',
+      duration: 8000,
+    })
+
+    return
+  }
+
+  Object.assign(userStore.value, {
+    ...userStore.value,
+    dummy: reactive(res.data),
+  })
 }
 
 export async function refreshUserSubscription() {

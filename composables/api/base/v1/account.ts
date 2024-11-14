@@ -21,4 +21,7 @@ export default {
   getInvitationRecords() {
     return endHttp.get('invitation/records') as Promise<IDataResponse<any[]>>
   },
+  getUserDummy() {
+    return endHttp.get('dummy/points') as Promise<IDataResponse<any>>
+  },
 }

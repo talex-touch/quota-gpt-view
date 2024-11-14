@@ -69,6 +69,7 @@ onMounted(async () => {
   if (userStore.value.isLogin) {
     await refreshCurrentUserRPM()
     await refreshUserSubscription()
+    await refreshUserDummy()
   }
 })
 
