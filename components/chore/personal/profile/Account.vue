@@ -8,6 +8,7 @@ import AccountModulePersonal from './account/AccountModulePersonal.vue'
 import AccountModuleFortune from './account/AccountModuleFortune.vue'
 import AccountModuleInvitation from './account/AccountModuleInvitation.vue'
 import AccountModulePlan from './account/AccountModulePlan.vue'
+import AccountModuleDummy from './account/AccountModuleDummy.vue'
 import { getHistoryList } from '~/composables/api/account'
 import ImageUpload from '~/components/personal/ImageUpload.vue'
 import { $event } from '~/composables/events'
@@ -128,6 +129,14 @@ async function openPlanPage() {
   })
 }
 
+async function openDummyPage() {
+  Object.assign(dialogOptions, {
+    visible: true,
+    component: AccountModuleDummy,
+    data: null,
+  })
+}
+
 const shareRef = useTypedRef(ChatLinkShare)
 async function handleShareMenu(share: any) {
   dialogOptions.loading = true
@@ -200,7 +209,7 @@ async function handleShareMenu(share: any) {
         </div>
 
         <div class="ProfileAccount-Box-Data">
-          <div v-wave class="box-data">
+          <div v-wave class="box-data" @click="openDummyPage">
             <div class="title">
               <p>钱包余额</p>
               <div i-carbon:cloud />

@@ -4,9 +4,8 @@ import { $event } from './composables/events'
 import Login from '~/components/chore/Login.vue'
 import { appName, globalOptions } from '~/constants'
 import 'element-plus/theme-chalk/dark/css-vars.css'
-import { _setWallpaper, applySystemPreference, detectWallpaper, useColorTheme } from '~/composables/theme/colors'
+import { _setWallpaper, detectWallpaper, useColorTheme } from '~/composables/theme/colors'
 import feishuInit from '~/composables/feishu/init'
-import { createTapTip } from './composables/tip'
 
 useHead({
   title: appName,
@@ -14,7 +13,6 @@ useHead({
 
 const pageOptions = reactive({
   model: {
-    personal: '',
     login: false,
   },
   setting: {
@@ -95,7 +93,6 @@ provide('appOptions', pageOptions)
     <ChoreTutorial />
   </ClientOnly>
   <Login v-if="!userStore.isLogin" v-model:show="pageOptions.model.login" />
-  <ChorePersonalDialog v-if="userStore.isLogin" v-model="pageOptions.model.personal" />
   <!-- </div> -->
 
   <GlobeStatus />
@@ -672,5 +669,18 @@ font.immersive-translate-target-wrapper {
   grid-template-areas: 'image title' 'image subtitle';
 
   align-items: center;
+}
+
+.display-price {
+  span.tag {
+    position: relative;
+
+    font-size: 0.8em;
+    top: -0.15em;
+  }
+
+  font-size: 1em;
+  font-weight: 600;
+  color: var(--el-text-color-secondary);
 }
 </style>

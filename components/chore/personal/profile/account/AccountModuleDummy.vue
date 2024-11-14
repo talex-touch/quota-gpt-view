@@ -54,44 +54,73 @@ function tableRowClassName({ row, rowIndex }: any) {
 function handleViewOrder(id: string) {
   window.open(`${window.origin}/buy?orderId=${id}`, '_blank')
 }
+
+const cards = [10, 50, 100, 200, 500, 1000, 5000, 0]
+const active = ref(0)
+const amo = ref(0)
+
+watch(active, () => amo.value = cards[active.value])
 </script>
 
 <template>
-  <div class="ProfileWrapper">
-    <div class="ProfileWrapper-Header">
+  <div class="TouchDialog-Title">
+    <div i-carbon:cloud />钱包余额
+  </div>
+  <div class="ModuleDummy TouchDialog-Content">
+    <div flex justify-between class="ProfileWrapper-Header">
       <p class="title-theme">
-        订阅计划
+        充值余额
       </p>
       <el-link type="primary" @click="drawerVisible = true">
-        我的优惠券
+        订单管理
       </el-link>
     </div>
 
     <div class="ProfileWrapper-Main">
-      <div v-if="!userStore.subscription?.type" class="PlanWrapper-MainWrapper">
-        <!-- <el-alert title="现在下单，新人用户享受限时 2.99/月 福利。" type="success" close-text="更多福利" /> -->
-        <el-alert title="价格以结算页面最终价格为准。" type="warning" close-text="了解" />
-
-        <br>
-
-        <h1>简单，透明，高性价比计划</h1>
-        <p>立即开始提升你的办公效率、生活体验</p>
-
-        <div class="PlanWrapper-MainWrapper-Plan">
-          <PlanCard
-            v-for="plan in plans" :key="plan.name" :got="plan.got" :type="plan.type" :desc="plan.desc"
-            :name="plan.name" :price="plan.price" @click="toCheckout(plan)"
-          >
-            <li v-for="feature in plan.features" :key="feature">
-              {{ feature }}
-            </li>
-          </PlanCard>
+      <div class="Dummy-Cards">
+        <div
+          v-for="(i, index) in cards" :key="i" v-wave :class="{ active: active === index }"
+          class="dummy-card transition-cubic" @click="active = index"
+        >
+          <div flex items-center gap-2 class="dummy-card-title">
+            <template v-if="i === 0">
+              自定义
+            </template>
+            <template v-else>
+              {{ i }}
+              <div i-carbon:cloud />
+            </template>
+          </div>
+          <p v-if="i !== 0" class="dummy-card-price">
+            <span class="tag">￥</span>{{ i.toFixed(2) }}
+          </p>
         </div>
-        <br>
       </div>
-      <div v-else class="PlanWrapper-List">
+      <br>
+      <el-input-number v-model="amo" :disabled="active === 3" style="width: 100%" :min="1" :max="10000">
+        <template #prefix>
+          <div i-carbon:cloud />
+        </template>
+      </el-input-number>
+
+      <div my-2 class="Price">
+        预计价格：
+        <span class="display-price"><span class="tag">￥</span>{{ (+amo / 10).toFixed(2) }}</span>
+      </div>
+
+      <el-button my-2 w-full type="primary" style="background-color: var(--theme-color)">
+        开始结账
+      </el-button>
+    </div>
+
+    <el-drawer v-model="drawerVisible" size="90%">
+      <template #title>
+        订单列表
+      </template>
+
+      <div class="PlanWrapper-List">
         <!-- el-table -->
-        <el-table :row-class-name="tableRowClassName" size="small" :data="orderList">
+        <el-table height="400" :row-class-name="tableRowClassName" size="small" :data="orderList">
           <!-- <el-table-column label="订单号" prop="id" /> -->
           <el-table-column label="订单名" prop="description" />
           <!-- <el-table-column label="订单内容">
@@ -136,18 +165,60 @@ function handleViewOrder(id: string) {
           </el-table-column>
         </el-table>
       </div>
-    </div>
-
-    <el-drawer v-model="drawerVisible">
-      <template #title>
-        优惠券列表
-      </template>
-      <LazyChorePersonalAddonCoupons />
     </el-drawer>
   </div>
 </template>
 
 <style lang="scss" scoped>
+.Price {
+  .display-price {
+    color: var(--el-text-color-regular);
+  }
+
+  font-size: 24px;
+}
+
+.Dummy-Cards {
+  .dummy-card {
+    &.active {
+      border: 1px solid var(--theme-color);
+    }
+
+    display: flex;
+    padding: 1rem;
+
+    flex: 1 0 150px;
+    border-radius: 12px;
+    border: 1px solid var(--el-border-color);
+
+    cursor: pointer;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+
+    .dummy-card-price {
+      span.tag {
+        position: relative;
+
+        font-size: 12px;
+        top: -2px;
+      }
+
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--el-text-color-secondary);
+    }
+  }
+
+  position: relative;
+  display: flex;
+  width: 720px;
+  max-width: 100%;
+
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
 .PlanWrapper-List {
   display: flex;
 
@@ -156,53 +227,8 @@ function handleViewOrder(id: string) {
   gap: 1rem;
 }
 
-div.ProfileWrapper-Header {
-  display: flex;
-
-  flex-direction: row;
-
-  justify-content: space-between;
-  align-items: center;
-}
-
-.PlanWrapper-MainWrapper-Plan {
-  margin: 1rem 0;
-  display: flex;
-
-  gap: 1.25rem;
-  // padding: 5rem 0;
-}
-
-.PlanWrapper-MainWrapper {
-  h1 {
-    font-size: 24px;
-    font-weight: 600;
-  }
-
-  p {
-    margin: 0.5rem 0;
-
-    opacity: 0.75;
-    font-weight: 400;
-  }
-
-  // height: 800px;
-
-  text-align: center;
-}
-
-.title-theme {
-  &::before {
-    z-index: -1;
-    content: 'SUBSCRIPTION';
-    position: absolute;
-
-    opacity: 0.5;
-
-    letter-spacing: 1rem;
-    font-size: 1.5rem;
-
-    transform: translate(6.5rem, 0.125rem);
-  }
+div.ModuleDummy {
+  height: min(60vh, 380px);
+  // max-height: 300px;
 }
 </style>
