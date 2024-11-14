@@ -43,16 +43,12 @@ const deviceGroup = computed(() => {
 //   return acc
 // }, {}))
 
-console.log('deviceGroup', deviceGroup)
-
 // 判断是否是本设备
 function isThisDevice(item: any) {
   const device = useDevice()
   const ua = navigator.userAgent
 
   const browserBrand = item.browser.split(' ')?.[0] || item.browser
-
-  console.log('browserBrand', browserBrand)
 
   if (item.os.includes('Android'))
     return device.isAndroid && ua.includes(browserBrand)
@@ -61,7 +57,7 @@ function isThisDevice(item: any) {
     return device.isIos && ua.includes(browserBrand)
 
   if (item.os.includes('Windows'))
-    return device.isWindows || ua.includes(browserBrand)
+    return device.isWindows && ua.includes(browserBrand)
 
   console.log('a', item, navigator.userAgent, useDevice(), browserBrand)
 
