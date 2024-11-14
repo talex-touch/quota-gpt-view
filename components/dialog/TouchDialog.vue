@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useZIndex } from 'element-plus'
+import { ZINDEX_INJECTION_KEY, useZIndex } from 'element-plus'
 
 const props = defineProps<{
   modelValue: boolean
@@ -10,8 +10,18 @@ const props = defineProps<{
 
 const emits = defineEmits(['update:modelValue'])
 
-const zIndex = useZIndex().nextZIndex()
+const indexManager = useZIndex()
+
+const zIndex = ref(indexManager.nextZIndex())
 const visible = useVModel(props, 'modelValue', emits)
+
+watch(visible, (val) => {
+  if (val) {
+    nextTick(() => {
+      zIndex.value = indexManager.nextZIndex()
+    })
+  }
+})
 
 const dialogOptions = reactive({
   forbidden: false,
