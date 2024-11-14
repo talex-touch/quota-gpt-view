@@ -89,14 +89,16 @@ const lastEditTime = computed(() => dayjs(userStore.value.updatedAt).format('DD 
 </script>
 
 <template>
-  <div class="ModulePersonal">
-    <div class="ProfileWrapper-Header">
-      <p>您的个人信息</p>
-      <p style="font-size: 14px" op-50>
-        最后编辑：{{ lastEditTime }}
-      </p>
+  <div flex-col style="align-items: flex-start" class="TouchDialog-Title">
+    <div flex items-center gap-2>
+      <div i-carbon:user />个人信息
     </div>
+    <p style="font-size: 16px" op-50>
+      最后编辑：{{ lastEditTime }}
+    </p>
+  </div>
 
+  <div class="ModulePersonal TouchDialog-Content">
     <div class="ModulePersonal-Main">
       <el-form
         ref="ruleFormRef" style="max-width: 400px" :model="ruleForm" :rules="rules" label-width="auto"

@@ -217,7 +217,7 @@ const planProgress = computed(() => {
       .logo {
         position: absolute;
 
-        right: 1rem;
+        right: 0.5rem;
         top: 1rem;
       }
       position: absolute;
