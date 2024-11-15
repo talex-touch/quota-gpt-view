@@ -418,7 +418,7 @@ const paymentMethods = computed(() => payments.children.filter((item: any) => it
     <div class="CheckoutPage-MainContainer">
       <el-scrollbar>
         <div class="CheckoutPage-Main">
-          <p class="only-pc-display">
+          <p class="CheckoutPage-HeadTitle">
             结账
             <span v-if="payOptions?.success" style="font-size: 18px;font-weight: normal;opacity: 0.65">您已成功完成支付，
               订单到账可能会有一定延迟。
@@ -480,6 +480,7 @@ const paymentMethods = computed(() => payments.children.filter((item: any) => it
                 v-model="payments.select" :methods="paymentMethods"
                 :disabled="payOptions.unavailable" :loading="orderDetail.loading" class="CheckoutPage-Content-Info"
               />
+              <ChoreBuyQuestionares class="only-pe-display" />
               <div class="CheckoutPage-Content-Info only-pc-display">
                 <OtherDefaultAlert icon="i-carbon:manage-protection" title="随时取消政策">
                   在科塔锐行，我们深知计划可能随时发生变化。为此，我们特别设计了一套取消政策，旨在为您带来最大的灵活性与安心保障。当您选择我们时，您将享有充分的自由度来调整或取消预订，无需担心任何取消费用。我们的政策允许您在购买后<span
@@ -594,19 +595,35 @@ const paymentMethods = computed(() => payments.children.filter((item: any) => it
             </div>
           </div>
 
-          <div class="CheckoutPage-MobileNav only-pe-display">
-            <div flex items-center>
-              <ThCheckBox v-model="payOptions.agreement" disabled />&nbsp;<el-text>
-                购买即代表您已阅读同意<el-link target="_blank" :href="getProtocolUrl('subscription_service')">
-                  《使用服务协议》
-                </el-link> 和<el-link target="_blank" :href="getProtocolUrl('refund_relatives')">
-                  《订单退款协议》
-                </el-link>
-              </el-text>
-            </div>
-            <ShiningButton style="width: 100%;" flex-shrink-0 @click="mobileNavVisible = true">
-              确认协议并立即支付{{ ((orderDetail.info?.meta?.feeTax ?? 0) / 100).toFixed(2) }}元
-            </ShiningButton>
+          <div v-loading="orderDetail.loading" class="CheckoutPage-MobileNav only-pe-display">
+            <template v-if="payOptions?.success">
+              <div flex items-center>
+                <ThCheckBox v-model="payOptions.agreement" disabled />&nbsp;<el-text>
+                  购买即代表您已阅读同意<el-link target="_blank" :href="getProtocolUrl('subscription_service')">
+                    《使用服务协议》
+                  </el-link> 和<el-link target="_blank" :href="getProtocolUrl('refund_relatives')">
+                    《订单退款协议》
+                  </el-link>
+                </el-text>
+              </div>
+              <ShiningButton style="width: 100%;" :class="{ shrink: !payOptions.agreement }">
+                售后咨询
+              </ShiningButton>
+            </template>
+            <template v-else>
+              <div flex items-center>
+                <ThCheckBox v-model="payOptions.agreement" disabled />&nbsp;<el-text>
+                  购买即代表您已阅读同意<el-link target="_blank" :href="getProtocolUrl('subscription_service')">
+                    《使用服务协议》
+                  </el-link> 和<el-link target="_blank" :href="getProtocolUrl('refund_relatives')">
+                    《订单退款协议》
+                  </el-link>
+                </el-text>
+              </div>
+              <ShiningButton style="width: 100%;" flex-shrink-0 @click="mobileNavVisible = true">
+                确认协议并立即支付{{ ((orderDetail.info?.meta?.feeTax ?? 0) / 100).toFixed(2) }}元
+              </ShiningButton>
+            </template>
           </div>
         </div>
       </el-scrollbar>
@@ -619,79 +636,67 @@ const paymentMethods = computed(() => payments.children.filter((item: any) => it
       <div class="CheckoutPage-Aside transition-cubic" @click="mobileNavVisible = true">
         <div class="slider" @click="mobileNavVisible = false" />
 
-        <!-- && !payOptions.unavailable -->
-        <div
-          v-if="!payOptions?.success && !countdownObj?.expired" v-loading="orderDetail.loading"
-          class="CheckoutPage-Content-Info"
-        >
-          <p>优惠券码</p>
-          <ChoreCouponSelector v-model="payOptions.code" modal-class="CheckOut-Drawer" placeholder="可选" />
-        </div>
-        <div v-if="!payOptions.unavailable" v-loading="orderDetail.loading" class="CheckoutPage-Content-Info">
-          <ul v-if="orderDetail.info?.meta">
-            <p>概述信息</p>
-            <li>
-              <span op-75>订单信息</span>
-              <span>{{ orderDetail.info.name }}</span>
-            </li>
-            <li v-if="orderDetail.info.meta?.range">
-              <span op-75>有效期限</span>
-              <span>{{ orderDetail.info.meta.range }}</span>
-            </li>
-            <li v-if="!payOptions.unavailable">
-              <span op-75>购买时间</span>
-              <span>{{ formatDate(payOptions.countdown.created || payOptions.now) }}</span>
-            </li>
-            <li v-if="!payOptions.unavailable">
-              <span op-75>取消截至</span>
-              <span>{{ formatDate(calcExpired(payOptions.countdown.created || payOptions.now)) }}</span>
-            </li>
-          </ul>
-          <ul v-if="orderDetail.info?.meta">
-            <p>支付信息</p>
-            <li>
-              <span op-75>标准费率</span>
-              <span>{{ (orderDetail.info.meta.originPrice / 100).toFixed(2) }}￥</span>
-            </li>
-            <li :class="{ discount: orderDetail.info.meta.originPrice > orderDetail.info.meta.fee }">
-              <span op-75>优惠价格</span>
-              <span>-{{ ((orderDetail.info.meta.originPrice - orderDetail.info.meta.fee) / 100).toFixed(2)
-              }}￥</span>
-            </li>
-            <li v-if="orderDetail.info.meta.average">
-              <span op-75>平均费率</span>
-              <span>{{ (orderDetail.info.meta.average / 100).toFixed(2) }}/天 ￥</span>
-            </li>
-            <li>
-              <span op-75>标准税费</span>
-              <span>+{{ ((orderDetail.info.meta.tax / 100).toFixed(2)) }} ￥</span>
-            </li>
-          </ul>
-          <ul class="line">
-            <p>账单总计</p>
-            <span>{{ ((orderDetail.info?.meta?.feeTax ?? 0) / 100).toFixed(2) }}￥</span>
-          </ul>
+        <div class="MobileAside-InnerMain" @click.stop="mobileNavVisible = true">
+          <el-scrollbar>
+            <div class="MobileAside-Inner">
+              <div
+                v-if="!payOptions?.success && !countdownObj?.expired" v-loading="orderDetail.loading"
+                class="CheckoutPage-Content-Info"
+              >
+                <p>优惠券码</p>
+                <ChoreCouponSelector v-model="payOptions.code" modal-class="CheckOut-Drawer" placeholder="可选" />
+              </div>
+              <div v-if="!payOptions.unavailable" v-loading="orderDetail.loading" class="CheckoutPage-Content-Info">
+                <ul v-if="orderDetail.info?.meta">
+                  <p>概述信息</p>
+                  <li>
+                    <span op-75>订单信息</span>
+                    <span>{{ orderDetail.info.name }}</span>
+                  </li>
+                  <li v-if="orderDetail.info.meta?.range">
+                    <span op-75>有效期限</span>
+                    <span>{{ orderDetail.info.meta.range }}</span>
+                  </li>
+                  <li v-if="!payOptions.unavailable">
+                    <span op-75>购买时间</span>
+                    <span>{{ formatDate(payOptions.countdown.created || payOptions.now) }}</span>
+                  </li>
+                  <li v-if="!payOptions.unavailable">
+                    <span op-75>取消截至</span>
+                    <span>{{ formatDate(calcExpired(payOptions.countdown.created || payOptions.now)) }}</span>
+                  </li>
+                </ul>
+                <ul v-if="orderDetail.info?.meta">
+                  <p>支付信息</p>
+                  <li>
+                    <span op-75>标准费率</span>
+                    <span>{{ (orderDetail.info.meta.originPrice / 100).toFixed(2) }}￥</span>
+                  </li>
+                  <li :class="{ discount: orderDetail.info.meta.originPrice > orderDetail.info.meta.fee }">
+                    <span op-75>优惠价格</span>
+                    <span>-{{ ((orderDetail.info.meta.originPrice - orderDetail.info.meta.fee) / 100).toFixed(2)
+                    }}￥</span>
+                  </li>
+                  <li v-if="orderDetail.info.meta.average">
+                    <span op-75>平均费率</span>
+                    <span>{{ (orderDetail.info.meta.average / 100).toFixed(2) }}/天 ￥</span>
+                  </li>
+                  <li>
+                    <span op-75>标准税费</span>
+                    <span>+{{ ((orderDetail.info.meta.tax / 100).toFixed(2)) }} ￥</span>
+                  </li>
+                </ul>
+                <ul class="line">
+                  <p>账单总计</p>
+                  <span>{{ ((orderDetail.info?.meta?.feeTax ?? 0) / 100).toFixed(2) }}￥</span>
+                </ul>
+              </div>
+            </div>
+          </el-scrollbar>
         </div>
 
         <div
-          v-if="payOptions?.success" v-loading="orderDetail.loading" flex items-center
-          class="CheckoutPage-Content-Info Confirm"
-        >
-          <div flex items-center>
-            <ThCheckBox v-model="payOptions.agreement" disabled />&nbsp;<el-text>
-              购买即代表您已阅读同意<el-link target="_blank" :href="getProtocolUrl('subscription_service')">
-                《使用服务协议》
-              </el-link> 和<el-link target="_blank" :href="getProtocolUrl('refund_relatives')">
-                《订单退款协议》
-              </el-link>
-            </el-text>
-          </div>
-          <ShiningButton :class="{ shrink: !payOptions.agreement }">
-            售后咨询
-          </ShiningButton>
-        </div>
-        <div
-          v-else-if="!countdownObj?.expired && !payOptions.unavailable" v-loading="orderDetail.loading"
+          v-if="!countdownObj?.expired && !payOptions.unavailable" v-loading="orderDetail.loading"
           class="CheckoutPage-Content-Info Confirm"
         >
           <div flex items-center>
@@ -704,7 +709,8 @@ const paymentMethods = computed(() => payments.children.filter((item: any) => it
             </el-text>
           </div>
           <ShiningButton :class="{ shrink: !payOptions.agreement }" @click="submit">
-            {{ orderDetail.id ? '继续支付' : '确认支付' }}
+            {{ orderDetail.id ? '继续支付' : '确认支付' }}<span mx-2 font-bold class="price">{{ ((orderDetail.info?.meta?.feeTax
+              ?? 0) / 100).toFixed(2) }}</span>元
           </ShiningButton>
         </div>
         <div
@@ -775,6 +781,22 @@ const paymentMethods = computed(() => payments.children.filter((item: any) => it
 }
 
 div.MobileAside {
+  .MobileAside-InnerMain {
+    position: relative;
+
+    height: 100%;
+  }
+
+  .MobileAside-Inner {
+    position: relative;
+    padding: 1rem 0;
+    display: flex;
+
+    gap: 0.5rem;
+    max-height: 55vh;
+    flex-direction: column;
+  }
+
   :deep(.CheckoutPage-Content-Info) {
     margin: 0 1rem;
 
@@ -1163,6 +1185,24 @@ div.Confirm {
     box-shadow: var(--el-box-shadow-light);
     background-color: var(--el-bg-color);
     border: none;
+  }
+
+  .CheckoutPage-HeadTitle {
+    margin: 1rem 0.5rem;
+
+    display: flex;
+
+    flex-direction: column;
+  }
+
+  .Options ul {
+    li {
+      padding: 0.25rem 0.5rem;
+
+      font-size: 12px;
+    }
+
+    gap: 0.25rem;
   }
 }
 </style>
