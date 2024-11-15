@@ -44,10 +44,12 @@ watch(
     left: 0;
 
     opacity: 0.125;
+    font-size: inherit;
   }
   position: relative;
   overflow: hidden;
 
+  font-size: inherit;
   transition: 0.25s;
 }
 
@@ -64,6 +66,7 @@ watch(
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 
+  font-size: inherit;
   filter: invert(1);
   animation: TextShaving 8s linear infinite;
 }

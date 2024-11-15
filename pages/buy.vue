@@ -42,30 +42,6 @@ const orderDetail = reactive<any>({
   res: null,
 })
 
-const payments = reactive<any>({
-  select: 'wechat',
-  children: [
-    {
-      svg: WechatPay,
-      value: 'wechat',
-      name: '微信支付',
-    },
-    {
-      svg: AliPay,
-      value: 'alipay',
-      name: '支付宝支付',
-    },
-    {
-      svg: Balance,
-      value: 'balance',
-      name: '余额支付',
-      available: () => !dummyMode.value,
-    },
-  ],
-})
-
-const paymentMethods = computed(() => payments.children.filter((item: any) => item.available?.() ?? true))
-
 const plans = reactive([...SUBSCRIPTION_PLAN_LIST])
 
 const payOptions = reactive({
@@ -394,11 +370,39 @@ watch(() => payOptions.code, parseGood)
 function calcExpired(date: number) {
   return date + 4 * 60 * 60 * 1000
 }
+
+const payments = reactive<any>({
+  select: 'wechat',
+  children: [
+    {
+      svg: WechatPay,
+      value: 'wechat',
+      name: '微信支付',
+      disabled: () => countdownObj.value?.expired || payOptions.success,
+    },
+    {
+      svg: AliPay,
+      value: 'alipay',
+      name: '支付宝支付',
+      disabled: () => countdownObj.value?.expired || payOptions.success,
+    },
+    {
+      svg: Balance,
+      value: 'balance',
+      name: '余额支付',
+      available: () => !dummyMode.value,
+      disabled: () => countdownObj.value?.expired || payOptions.success,
+    },
+  ],
+})
+
+const mobileNavVisible = ref(false)
+const paymentMethods = computed(() => payments.children.filter((item: any) => item.available?.() ?? true))
 </script>
 
 <template>
   <div class="CheckoutPage">
-    <div class="CheckoutPage-Header only-pc-display">
+    <div class="CheckoutPage-Header">
       <el-page-header title="返回" @back="router.push('/?data=plan')">
         <template #content>
           <span class="text-large mr-3 font-600">
@@ -414,7 +418,7 @@ function calcExpired(date: number) {
     <div class="CheckoutPage-MainContainer">
       <el-scrollbar>
         <div class="CheckoutPage-Main">
-          <p>
+          <p class="only-pc-display">
             结账
             <span v-if="payOptions?.success" style="font-size: 18px;font-weight: normal;opacity: 0.65">您已成功完成支付，
               订单到账可能会有一定延迟。
@@ -431,10 +435,16 @@ function calcExpired(date: number) {
 
           <div class="CheckoutPage-Content">
             <div class="CheckoutPage-ContentInner">
-              <OtherWarnAlert v-if="!payOptions.success && countdownObj?.expired" icon="i-carbon:information" title="订单超时">
+              <OtherWarnAlert
+                v-if="!payOptions.success && countdownObj?.expired" icon="i-carbon:information"
+                title="订单超时"
+              >
                 订单已关闭
               </OtherWarnAlert>
-              <OtherWarnAlert v-else-if="!payOptions.success && orderDetail.id && countdownObj" icon="i-carbon:information" title="您的订单将被保留">
+              <OtherWarnAlert
+                v-else-if="!payOptions.success && orderDetail.id && countdownObj"
+                icon="i-carbon:information" title="您的订单将被保留"
+              >
                 我们将您的订单保留至 {{ countdownObj.uptoText }}。你可以随时继续支付这个订单。
               </OtherWarnAlert>
 
@@ -452,7 +462,7 @@ function calcExpired(date: number) {
               </div>
               <div v-if="!payOptions.unavailable" class="CheckoutPage-Content-Info">
                 <div class="title">
-                  订单详情<span v-if="orderDetail.id">#{{ orderDetail.id }}</span>
+                  订单详情<span v-if="orderDetail.id" class="only-pc-display">#{{ orderDetail.id }}</span>
 
                   <div v-if="payOptions.success" class="pay-stamp">
                     <TextShaving text="已支付" />
@@ -466,22 +476,11 @@ function calcExpired(date: number) {
                   </li>
                 </ul>
               </div>
-              <div
-                v-if="!payOptions.unavailable" v-loading="orderDetail.loading"
-                class="CheckoutPage-Content-Info Payments"
-              >
-                <p>支付方式</p>
-                <ul>
-                  <li
-                    v-for="payment in paymentMethods" :key="payment.value"
-                    :class="{ active: payments.select === payment.value, disabled: countdownObj?.expired || payOptions.success }"
-                    @click="payments.select = payment.value"
-                  >
-                    <img :src="payment.svg">{{ payment.name }}
-                  </li>
-                </ul>
-              </div>
-              <div class="CheckoutPage-Content-Info">
+              <ChoreBuyPaymentsCard
+                v-model="payments.select" :methods="paymentMethods"
+                :disabled="payOptions.unavailable" :loading="orderDetail.loading" class="CheckoutPage-Content-Info"
+              />
+              <div class="CheckoutPage-Content-Info only-pc-display">
                 <OtherDefaultAlert icon="i-carbon:manage-protection" title="随时取消政策">
                   在科塔锐行，我们深知计划可能随时发生变化。为此，我们特别设计了一套取消政策，旨在为您带来最大的灵活性与安心保障。当您选择我们时，您将享有充分的自由度来调整或取消预订，无需担心任何取消费用。我们的政策允许您在购买后<span
                     font-bold
@@ -494,7 +493,7 @@ function calcExpired(date: number) {
                 </OtherDefaultAlert>
               </div>
             </div>
-            <div class="CheckoutPage-Aside">
+            <div class="CheckoutPage-Aside only-pc-display">
               <!-- && !payOptions.unavailable -->
               <div
                 v-if="!payOptions?.success && !countdownObj?.expired" v-loading="orderDetail.loading"
@@ -594,8 +593,130 @@ function calcExpired(date: number) {
               </div>
             </div>
           </div>
+
+          <div class="CheckoutPage-MobileNav only-pe-display">
+            <div flex items-center>
+              <ThCheckBox v-model="payOptions.agreement" disabled />&nbsp;<el-text>
+                购买即代表您已阅读同意<el-link target="_blank" :href="getProtocolUrl('subscription_service')">
+                  《使用服务协议》
+                </el-link> 和<el-link target="_blank" :href="getProtocolUrl('refund_relatives')">
+                  《订单退款协议》
+                </el-link>
+              </el-text>
+            </div>
+            <ShiningButton style="width: 100%;" flex-shrink-0 @click="mobileNavVisible = true">
+              确认协议并立即支付{{ ((orderDetail.info?.meta?.feeTax ?? 0) / 100).toFixed(2) }}元
+            </ShiningButton>
+          </div>
         </div>
       </el-scrollbar>
+    </div>
+
+    <div
+      :class="{ visible: mobileNavVisible }" class="transition-cubic MobileAside only-pe-display"
+      @click="mobileNavVisible = false"
+    >
+      <div class="CheckoutPage-Aside transition-cubic" @click="mobileNavVisible = true">
+        <div class="slider" @click="mobileNavVisible = false" />
+
+        <!-- && !payOptions.unavailable -->
+        <div
+          v-if="!payOptions?.success && !countdownObj?.expired" v-loading="orderDetail.loading"
+          class="CheckoutPage-Content-Info"
+        >
+          <p>优惠券码</p>
+          <ChoreCouponSelector v-model="payOptions.code" modal-class="CheckOut-Drawer" placeholder="可选" />
+        </div>
+        <div v-if="!payOptions.unavailable" v-loading="orderDetail.loading" class="CheckoutPage-Content-Info">
+          <ul v-if="orderDetail.info?.meta">
+            <p>概述信息</p>
+            <li>
+              <span op-75>订单信息</span>
+              <span>{{ orderDetail.info.name }}</span>
+            </li>
+            <li v-if="orderDetail.info.meta?.range">
+              <span op-75>有效期限</span>
+              <span>{{ orderDetail.info.meta.range }}</span>
+            </li>
+            <li v-if="!payOptions.unavailable">
+              <span op-75>购买时间</span>
+              <span>{{ formatDate(payOptions.countdown.created || payOptions.now) }}</span>
+            </li>
+            <li v-if="!payOptions.unavailable">
+              <span op-75>取消截至</span>
+              <span>{{ formatDate(calcExpired(payOptions.countdown.created || payOptions.now)) }}</span>
+            </li>
+          </ul>
+          <ul v-if="orderDetail.info?.meta">
+            <p>支付信息</p>
+            <li>
+              <span op-75>标准费率</span>
+              <span>{{ (orderDetail.info.meta.originPrice / 100).toFixed(2) }}￥</span>
+            </li>
+            <li :class="{ discount: orderDetail.info.meta.originPrice > orderDetail.info.meta.fee }">
+              <span op-75>优惠价格</span>
+              <span>-{{ ((orderDetail.info.meta.originPrice - orderDetail.info.meta.fee) / 100).toFixed(2)
+              }}￥</span>
+            </li>
+            <li v-if="orderDetail.info.meta.average">
+              <span op-75>平均费率</span>
+              <span>{{ (orderDetail.info.meta.average / 100).toFixed(2) }}/天 ￥</span>
+            </li>
+            <li>
+              <span op-75>标准税费</span>
+              <span>+{{ ((orderDetail.info.meta.tax / 100).toFixed(2)) }} ￥</span>
+            </li>
+          </ul>
+          <ul class="line">
+            <p>账单总计</p>
+            <span>{{ ((orderDetail.info?.meta?.feeTax ?? 0) / 100).toFixed(2) }}￥</span>
+          </ul>
+        </div>
+
+        <div
+          v-if="payOptions?.success" v-loading="orderDetail.loading" flex items-center
+          class="CheckoutPage-Content-Info Confirm"
+        >
+          <div flex items-center>
+            <ThCheckBox v-model="payOptions.agreement" disabled />&nbsp;<el-text>
+              购买即代表您已阅读同意<el-link target="_blank" :href="getProtocolUrl('subscription_service')">
+                《使用服务协议》
+              </el-link> 和<el-link target="_blank" :href="getProtocolUrl('refund_relatives')">
+                《订单退款协议》
+              </el-link>
+            </el-text>
+          </div>
+          <ShiningButton :class="{ shrink: !payOptions.agreement }">
+            售后咨询
+          </ShiningButton>
+        </div>
+        <div
+          v-else-if="!countdownObj?.expired && !payOptions.unavailable" v-loading="orderDetail.loading"
+          class="CheckoutPage-Content-Info Confirm"
+        >
+          <div flex items-center>
+            <ThCheckBox v-model="payOptions.agreement" />&nbsp;<el-text>
+              购买即代表您已阅读同意<el-link target="_blank" :href="getProtocolUrl('subscription_service')">
+                《使用服务协议》
+              </el-link> 和<el-link target="_blank" :href="getProtocolUrl('thisai_privacy')">
+                《用户隐私协议》
+              </el-link>
+            </el-text>
+          </div>
+          <ShiningButton :class="{ shrink: !payOptions.agreement }" @click="submit">
+            {{ orderDetail.id ? '继续支付' : '确认支付' }}
+          </ShiningButton>
+        </div>
+        <div
+          v-else-if="countdownObj?.expired" v-loading="orderDetail.loading" flex items-center
+          class="CheckoutPage-Content-Info Confirm"
+        >
+          <TextShaving style="width: max-content" text="订单已失效" />
+        </div>
+        <div v-else v-loading="orderDetail.loading" flex items-center class="CheckoutPage-Content-Info Confirm">
+          <TextShaving style="width: max-content" text="当前计划不可用" />
+        </div>
+      </div>
     </div>
 
     <div class="CheckoutPage-Footer">
@@ -616,9 +737,93 @@ function calcExpired(date: number) {
   top: 0;
   right: 0;
 }
+
+.CheckOut-Drawer > div {
+  width: 85% !important;
+}
 </style>
 
 <style lang="scss" scoped>
+.slider {
+  position: absolute;
+
+  width: 100px;
+  height: 8px;
+
+  top: 1rem;
+  left: 50%;
+
+  border-radius: 12px;
+  transform: translateX(-50%);
+  background-color: var(--el-border-color-darker);
+}
+
+.CheckoutPage-MobileNav {
+  z-index: 1;
+  position: sticky;
+  padding: 1rem;
+  display: flex;
+
+  left: 0;
+  bottom: 0;
+
+  gap: 1rem;
+  flex-direction: column;
+  justify-content: center;
+  background-color: var(--el-bg-color);
+  border-top: 1px solid var(--el-border-color);
+}
+
+div.MobileAside {
+  :deep(.CheckoutPage-Content-Info) {
+    margin: 0 1rem;
+
+    border-radius: 12px;
+  }
+
+  :deep(.Confirm) {
+    padding: 1rem;
+    margin: 0;
+
+    border-radius: 0;
+  }
+
+  &.visible {
+    .CheckoutPage-Aside {
+      transform: translateY(0%);
+    }
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .CheckoutPage-Aside {
+    position: absolute;
+    padding: 3rem 0 0 0;
+
+    width: 100%;
+    bottom: 0;
+    max-height: 90vh;
+
+    border-radius: 18px 18px 0 0;
+    box-shadow: var(--el-box-shadow);
+    background-color: var(--el-bg-color);
+    transform: translateY(100%);
+  }
+  z-index: 2;
+  position: absolute;
+
+  width: 100%;
+  left: 0;
+  bottom: 0;
+  height: 100%;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.25s;
+
+  background-color: var(--el-overlay-color-lighter);
+}
+
 .CheckoutPage-MainContainer {
   z-index: 1;
   position: absolute;
@@ -652,7 +857,7 @@ function calcExpired(date: number) {
   display: flex;
 
   width: 60%;
-  min-width: 1080px;
+  min-width: 720px;
   height: 100%;
 
   top: 60px;
@@ -711,10 +916,12 @@ div.CheckoutPage-Footer {
   display: flex;
 
   bottom: 0;
+  width: max-content;
 
+  flex: 1;
   align-items: center;
 
-  transform: scale(0.75) translateX(-50%);
+  transform: translateX(-50%) scale(0.75);
 }
 
 div.Confirm {
@@ -785,48 +992,7 @@ div.Confirm {
   }
 }
 
-.Payments {
-  ul {
-    li {
-      &.active {
-        border: 2px solid var(--theme-color);
-      }
-
-      &.disabled {
-        opacity: 0.75;
-        pointer-events: none;
-      }
-
-      padding: 0.5rem 1rem;
-
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-
-      img {
-        width: 1.5rem;
-        height: 1.5rem;
-
-        .dark & {
-          filter: invert(1);
-        }
-      }
-
-      cursor: pointer;
-      border-radius: 16px;
-      background-color: var(--el-bg-color-page);
-
-      transition: 0.25s;
-      border: 2px solid #0000;
-    }
-
-    display: flex;
-
-    gap: 1rem;
-  }
-}
-
-.CheckoutPage-Content-Info {
+:deep(.CheckoutPage-Content-Info) {
   & > p,
   & div.title {
     span {
@@ -872,10 +1038,14 @@ div.Confirm {
 }
 
 .CheckoutPage-Content {
+  position: relative;
   display: flex;
 
   gap: 1rem;
 
+  width: 100%;
+
+  flex-wrap: wrap;
   justify-content: space-between;
 }
 
@@ -947,5 +1117,52 @@ div.Confirm {
   // box-shadow: var(--el-box-shadow);
   // background-color: var(--el-bg-color);
   // border: 1px solid var(--el-border-color);
+}
+
+@media (max-width: 768px) {
+  .CheckoutPage-Main {
+    padding: 0;
+
+    max-width: 100%;
+    min-width: 100%;
+  }
+
+  div.pay-stamp {
+    // font-size: 10px !important;
+    padding: 0.125rem 0.25rem;
+
+    transform: scale(0.75) translateY(-50%);
+  }
+
+  :deep(div.CheckoutPage-Content-Info) {
+    & > p,
+    & div.title {
+      span {
+        margin: 0 4px;
+        font-size: 18px;
+      }
+
+      padding: 0.25rem 0;
+
+      font-size: 16px;
+
+      border: none;
+    }
+
+    ul {
+      li {
+        margin: 0.125rem;
+      }
+
+      margin: 0.5rem 0.5rem;
+    }
+
+    padding: 0.5rem 0.75rem;
+
+    border-radius: 0;
+    box-shadow: var(--el-box-shadow-light);
+    background-color: var(--el-bg-color);
+    border: none;
+  }
 }
 </style>

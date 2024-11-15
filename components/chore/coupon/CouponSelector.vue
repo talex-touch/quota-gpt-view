@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const props = defineProps<{
   modelValue: string
+  modalClass?: string
 }>()
 
 const emits = defineEmits<{
@@ -24,7 +25,7 @@ function handleSelectable(_code: string) {
     </div>
 
     <teleport to="body">
-      <el-drawer v-model="visible" @open="code = ''">
+      <el-drawer v-model="visible" :modal-class="modalClass || ''" @open="code = ''">
         <template #title>
           优惠券列表
         </template>
