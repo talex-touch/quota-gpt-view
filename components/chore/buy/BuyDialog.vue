@@ -293,4 +293,21 @@ defineExpose({
   backdrop-filter: blur(18px) saturate(180%);
   background-color: var(--el-overlay-color-lighter);
 }
+
+.mobile div.BuyDialog-Main,
+.tablet div.BuyDialog-Main {
+  .BuyDialog-Close {
+    display: none;
+  }
+  position: absolute;
+
+  width: 100%;
+  height: 80%;
+
+  left: 0;
+  bottom: 0;
+
+  box-shadow: var(--el-box-shadow);
+  border-radius: 18px;
+}
 </style>
