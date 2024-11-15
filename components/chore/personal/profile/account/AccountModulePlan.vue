@@ -181,6 +181,7 @@ const planProgress = computed(() => {
         top: 50%;
         left: 50%;
 
+        text-wrap: nowrap;
         font-size: 14px;
         font-weight: 600;
         transform: translate(-50%, -50%);
@@ -205,6 +206,11 @@ const planProgress = computed(() => {
 
       backdrop-filter: blur(18px) saturate(180%);
       background-color: #eeeeee50;
+    }
+
+    .mobile & {
+      width: 85vw;
+      height: 60vw;
     }
 
     position: relative;
@@ -237,6 +243,9 @@ const planProgress = computed(() => {
       height: 300px;
 
       transform: translate(-50%, -50%);
+      .mobile & {
+        height: 60vw;
+      }
     }
 
     .card-footer {
@@ -252,6 +261,10 @@ const planProgress = computed(() => {
 
       overflow: hidden;
       border-radius: 8px;
+
+      .mobile & {
+        bottom: 15vw;
+      }
     }
 
     .card-content {
@@ -275,6 +288,10 @@ const planProgress = computed(() => {
       height: 300px;
 
       transform: translate(-50%, -50%);
+
+      .mobile & {
+        height: 60vw;
+      }
     }
 
     .card-img {
@@ -302,6 +319,12 @@ const planProgress = computed(() => {
 
   width: 520px;
   height: 520px;
+
+  .mobile & {
+    width: 85vw;
+    height: auto;
+    min-height: 20vw;
+  }
 }
 
 @keyframes activeShining {
