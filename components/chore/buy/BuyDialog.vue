@@ -96,7 +96,11 @@ defineExpose({
         <div i-carbon:close />
       </div>
 
-      <template v-if="!loading">
+      <div class="BuyDialog-Background">
+        <div class="BuyDialog-Background-Mask" />
+      </div>
+
+      <div v-if="!loading" class="BuyDialog-Content">
         <template v-if="method === 'wechat'">
           <p class="title">
             <img :src="WechatPay">微信支付
@@ -115,7 +119,9 @@ defineExpose({
           </p>
 
           <div class="mention">
-            <div i-carbon:scan-alt />
+            <div class="icon">
+              <div i-carbon:scan-alt />
+            </div>
             请使用微信扫一扫完成支付
           </div>
         </template>
@@ -125,7 +131,7 @@ defineExpose({
         <template v-else-if="method === 'balance'">
           你没有足够的余额
         </template>
-      </template>
+      </div>
       <template v-else>
         <LoadersEagleRoundLoading />
       </template>
@@ -134,31 +140,38 @@ defineExpose({
 </template>
 
 <style lang="scss">
-.BuyDialog-Main {
+.BuyDialog-Content {
+  z-index: 2;
+  position: relative;
+
   & > p.title {
-    .dark & img {
+    /* .dark & */
+    img {
       filter: invert(1);
     }
+    margin: 5% auto 2%;
     display: flex;
 
     gap: 1rem;
-    font-size: 20px;
+    font-size: 28px;
     font-weight: 600;
     align-items: center;
+
+    color: #fff;
   }
 
   & > p.price {
     span {
       position: relative;
 
-      top: -2px;
+      top: -3px;
 
-      font-size: 22px;
+      font-size: 26px;
     }
 
     margin: 1rem 0;
 
-    font-size: 24px;
+    font-size: 30px;
     font-weight: 600;
   }
 
@@ -177,25 +190,42 @@ defineExpose({
   }
 
   .mention {
+    .icon {
+      padding: 0.5rem;
+
+      border-radius: 8px;
+      background-color: var(--c);
+
+      filter: brightness(120%);
+    }
     margin: 0.5rem 0;
+    padding: 1rem;
     display: flex;
 
     gap: 0.5rem;
     font-size: 14px;
     align-items: center;
+
+    border-radius: 16px;
+    background-color: var(--c);
   }
 
   .PayCode {
     img {
       width: 100%;
       height: 100%;
+
+      border-radius: 16px;
     }
+    margin: 3rem 0;
 
     padding: 5px;
 
     width: 256px;
     height: 256px;
 
+    border-radius: 16px;
+    background-color: var(--c);
     border: 1px solid var(--el-border-color);
   }
 
@@ -207,11 +237,39 @@ defineExpose({
   justify-content: center;
 }
 
+.BuyDialog-Background {
+  z-index: 0;
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  border-radius: 8px;
+  overflow: hidden;
+
+  .BuyDialog-Background-Mask {
+    position: absolute;
+
+    width: 100%;
+    height: 50%;
+
+    border-radius: 45%;
+    transform: translate(0%, -50%);
+    background-color: var(--c, var(--theme-color));
+  }
+}
+
+.BuyDialog-Main {
+}
+
 .BuyDialog-Close {
   &:hover {
     color: var(--el-color-danger);
   }
-
+  z-index: 10000;
   position: absolute;
   display: flex;
 
@@ -228,7 +286,7 @@ defineExpose({
 
   border-radius: 50%;
   transform: translate(50%, -50%);
-  background-color: var(--el-bg-color-page);
+  background-color: var(--c);
 }
 
 .BuyDialog {
@@ -254,8 +312,11 @@ defineExpose({
 
   & > div {
     &.wechat {
-      width: 720px;
-      height: 500px;
+      width: 580px;
+      height: 720px;
+
+      --c: #07c160;
+      background-color: #23d96e;
     }
 
     &.alipay {

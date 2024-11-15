@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { currentWallpaper, setWallpaper, theme, viewTransition, wallpapers } from '~/composables/theme/colors'
 
-function toggleTheme(event: MouseEvent, theme: 'auto' | 'light' | 'dark') {
+async function toggleTheme(event: MouseEvent, theme: 'auto' | 'light' | 'dark') {
   viewTransition(event, theme)
 }
 
