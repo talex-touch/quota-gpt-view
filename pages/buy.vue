@@ -350,7 +350,7 @@ function handleOrderEstablished(data: any) {
   let ts = -1
   func = async () => {
     const diff = Date.now() - ts
-    if (diff <= 1200)
+    if (diff <= 2500)
       return
 
     ts = Date.now()
