@@ -786,8 +786,9 @@ div.History {
 
   .expand & {
     margin-left: 0;
+    margin-right: 0;
 
-    width: 260px;
+    // width: 260px;
 
     opacity: 1;
     transform: translateX(0);
@@ -795,6 +796,7 @@ div.History {
     pointer-events: all;
     transition:
       0.5s width cubic-bezier(0.785, 0.135, 0.15, 0.86),
+      0.5s margin-right cubic-bezier(0.785, 0.135, 0.15, 0.86),
       0.75s opacity cubic-bezier(0.785, 0.135, 0.15, 0.86),
       0.75s transform cubic-bezier(0.785, 0.135, 0.15, 0.86);
   }
@@ -802,8 +804,9 @@ div.History {
   z-index: 10;
   position: relative;
   margin-left: -1px;
+  margin-right: -260px;
 
-  width: 0;
+  width: 260px;
 
   height: 100%;
 
@@ -815,6 +818,7 @@ div.History {
   // overflow: hidden;
   transition:
     0.75s width cubic-bezier(0.785, 0.135, 0.15, 0.86),
+    0.75s margin-right cubic-bezier(0.785, 0.135, 0.15, 0.86),
     0.5s opacity cubic-bezier(0.785, 0.135, 0.15, 0.86),
     0.25s transform cubic-bezier(0.785, 0.135, 0.15, 0.86);
 }
