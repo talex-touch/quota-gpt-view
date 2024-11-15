@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const props = defineProps<{
   modelValue: boolean
+  disabled?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -8,16 +9,31 @@ const emit = defineEmits<{
 }>()
 
 const model = useVModel(props, 'modelValue', emit)
+
+function toggle() {
+  if (props.disabled)
+    return
+
+  model.value = !model.value
+}
 </script>
 
 <template>
-  <label class="ThCheckBox">
-    <input v-model="model" type="checkbox" @click="model = !model">
+  <label :class="{ disabled }" class="ThCheckBox">
+    <input v-model="model" type="checkbox" @click="toggle">
     <div class="checkmark" />
   </label>
 </template>
 
 <style lang="scss">
+.ThCheckBox.disabled {
+  * {
+    pointer-events: none !important;
+  }
+
+  pointer-events: none !important;
+}
+
 /* Hide the default checkbox */
 .ThCheckBox input {
   position: absolute;

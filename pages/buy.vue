@@ -88,8 +88,6 @@ const payOptions = reactive({
 function parseDataInfo(data: any) {
   orderDetail.info = data
 
-  console.log('data', data)
-
   payOptions.price = data.meta.feeTax
 }
 
@@ -185,7 +183,8 @@ function timer() {
 
   func?.()
 
-  setTimeout(timer, 100)
+  // setTimeout(timer, 100)
+  requestAnimationFrame(timer)
 }
 
 function parseGood() {
@@ -242,6 +241,13 @@ onMounted(async () => {
       }
 
       orderDetail.id = data.id
+
+      const startTime = new Date(data.createdAt).getTime()
+
+      payOptions.countdown = {
+        created: startTime,
+        upto: startTime + 60 * 1000 * 5,
+      }
 
       parseDataInfo(info.meta.subscription || info.meta.dummy)
 
@@ -365,13 +371,13 @@ function handleOrderEstablished(data: any) {
     },
   })
 
-  let ctn = 0
+  let ts = -1
   func = async () => {
-    ctn += 1
-    if (ctn < 20)
+    const diff = Date.now() - ts
+    if (diff <= 1200)
       return
 
-    ctn = 0
+    ts = Date.now()
 
     const status = await getOrderStatus(data.order.id)
 
@@ -425,10 +431,10 @@ function calcExpired(date: number) {
 
           <div class="ProfileWrapper-Content">
             <div class="ProfileWrapper-ContentInner">
-              <OtherWarnAlert v-if="countdownObj?.expired" icon="i-carbon:information" title="订单超时">
+              <OtherWarnAlert v-if="!payOptions.success && countdownObj?.expired" icon="i-carbon:information" title="订单超时">
                 订单已关闭
               </OtherWarnAlert>
-              <OtherWarnAlert v-else-if="orderDetail.id && countdownObj" icon="i-carbon:information" title="您的订单将被保留">
+              <OtherWarnAlert v-else-if="!payOptions.success && orderDetail.id && countdownObj" icon="i-carbon:information" title="您的订单将被保留">
                 我们将您的订单保留至 {{ countdownObj.uptoText }}。你可以随时继续支付这个订单。
               </OtherWarnAlert>
 
@@ -510,11 +516,11 @@ function calcExpired(date: number) {
                   </li>
                   <li v-if="!payOptions.unavailable">
                     <span op-75>购买时间</span>
-                    <span>{{ formatDate(payOptions.now) }}</span>
+                    <span>{{ formatDate(payOptions.countdown.created || payOptions.now) }}</span>
                   </li>
                   <li v-if="!payOptions.unavailable">
                     <span op-75>取消截至</span>
-                    <span>{{ formatDate(calcExpired(payOptions.now)) }}</span>
+                    <span>{{ formatDate(calcExpired(payOptions.countdown.created || payOptions.now)) }}</span>
                   </li>
                 </ul>
                 <ul v-if="orderDetail.info?.meta">
@@ -548,8 +554,8 @@ function calcExpired(date: number) {
                 class="ProfileWrapper-Content-Info Confirm"
               >
                 <div flex items-center>
-                  <ThCheckBox v-model="payOptions.agreement" pointer-none />&nbsp;<el-text>
-                    使用即代表您已阅读同意<el-link target="_blank" :href="getProtocolUrl('subscription_service')">
+                  <ThCheckBox v-model="payOptions.agreement" disabled />&nbsp;<el-text>
+                    购买即代表您已阅读同意<el-link target="_blank" :href="getProtocolUrl('subscription_service')">
                       《使用服务协议》
                     </el-link> 和<el-link target="_blank" :href="getProtocolUrl('refund_relatives')">
                       《订单退款协议》
