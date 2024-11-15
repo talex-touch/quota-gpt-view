@@ -98,7 +98,7 @@ const lastEditTime = computed(() => dayjs(userStore.value.updatedAt).format('DD 
     </p>
   </div>
 
-  <div class="ModulePersonal TouchDialog-Content">
+  <div style="padding: 1rem" class="ModulePersonal TouchDialog-Content">
     <div class="ModulePersonal-Main">
       <el-form
         ref="ruleFormRef" style="max-width: 400px" :model="ruleForm" :rules="rules" label-width="auto"

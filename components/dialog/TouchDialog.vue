@@ -345,6 +345,7 @@ onMounted(() => {
     transform: translate(0, 0) scale(1.05);
   }
   padding-top: 2rem;
+  padding-bottom: 1rem;
 
   top: unset;
   left: 0;
