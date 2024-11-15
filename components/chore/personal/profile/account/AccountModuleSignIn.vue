@@ -11,8 +11,6 @@ const month = ref(new Date())
 
 // :range="[new Date(2019, 2, 4), new Date(2019, 2, 24)]"
 const signList = computed(() => (props.data?.data || '').split(''))
-
-console.log(signList)
 </script>
 
 <template>
@@ -26,7 +24,7 @@ console.log(signList)
   </div>
   <div class="ModuleSignin TouchDialog-Content">
     <ElConfigProvider :locale="zhCn">
-      <el-calendar :value="month">
+      <el-calendar class="only-pc-display" :value="month">
         <template #header="{ date }">
           <span>本月签到日历</span>
           <span>{{ date }}</span>
@@ -40,6 +38,9 @@ console.log(signList)
           </p>
         </template>
       </el-calendar>
+      <p class="only-pe-display" my-4>
+        请在电脑版查阅。
+      </p>
     </ElConfigProvider>
   </div>
 </template>

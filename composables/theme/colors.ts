@@ -265,6 +265,7 @@ $event.on('USER_LOGOUT_SUCCESS', () => {
 export function useColorTheme() {
   const prefersColorScheme = window.matchMedia('(prefers-color-scheme: dark)')
 
+  applySystemPreference()
   prefersColorScheme.addEventListener('change', applySystemPreference)
 }
 

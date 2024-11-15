@@ -34,19 +34,133 @@ async function handleClickOutside() {
 
   dialogOptions.forbidden = false
 }
+
+const dom = ref<HTMLElement>()
+
+// 允许触控下拉Floater关闭页面
+interface Options {
+  thresholdDistance: number // 触发关闭的阈值距离
+  elasticity: number // 弹性系数
+  elasticityClose: number // 触发关闭的阈值力度
+}
+
+function listen(el: HTMLElement, options: Options) {
+  const parentEl = el.parentElement! as HTMLElement
+  const { thresholdDistance, elasticity, elasticityClose } = options
+
+  const _options = {
+    touch: false,
+    lastY: -1,
+    startY: -1,
+  }
+
+  el.addEventListener('touchstart', (e) => {
+    // 如果触控点不止一个不触发
+    if (e.touches.length !== 1)
+      return
+
+    e.stopPropagation()
+
+    el.classList.add('active')
+
+    _options.startY = _options.lastY = e.touches[0].clientY
+
+    _options.touch = true
+
+    parentEl.style.transition = 'none'
+  })
+
+  parentEl.addEventListener('touchend', (e) => {
+    if (!_options.touch)
+      return
+
+    e.stopPropagation()
+
+    _options.touch = false
+
+    parentEl.style.transition = ''
+
+    el.classList.remove('active')
+
+    if (visible.value) {
+      // 根据弹性系数计算回弹距离
+      const diff = _options.lastY - _options.startY
+      const elasticDistance = diff * elasticity
+
+      // console.log("end", elasticDistance)
+
+      if (elasticDistance > elasticityClose) {
+        parentEl.style.transform = ''
+
+        visible.value = false
+        return
+      }
+
+      parentEl.style.transform = `translateY(0) scaleY(1) translateY(-${elasticDistance}px)`
+
+      setTimeout(() => {
+        parentEl.style.transform = `translateY(0) scaleY(1) translateY(0px)`
+      }, 10)
+    }
+  })
+
+  const scaleRange = [1, 0.85]
+
+  parentEl.addEventListener('touchmove', (e) => {
+    if (!_options.touch)
+      return
+
+    e.stopPropagation()
+
+    const touch = e.touches[0]
+
+    const { clientY } = touch
+    // const diff = clientY - _options.lastY
+    _options.lastY = clientY
+
+    const totalDiff = clientY - _options.startY
+    if (totalDiff < 0)
+      return
+    if (totalDiff >= thresholdDistance) {
+      parentEl.style.transform = ''
+
+      visible.value = false
+
+      return
+    }
+
+    // 将 0 - totalDiff 映射到 scaleRange
+    const scale = (totalDiff / thresholdDistance) * (scaleRange[1] - scaleRange[0]) + scaleRange[0]
+
+    visible.value = true
+    parentEl.style.transform = `translateY(0) scaleY(${scale}) translateY(${totalDiff * (0.9 + elasticity)}px)`
+
+    // console.log("totalDiff", totalDiff, scale)
+  })
+}
+
+const _options: Options = {
+  thresholdDistance: window.innerHeight * 0.9, // 设置阈值距离为100px
+  elasticity: 0.15, // 设置弹性系数为0.5
+  elasticityClose: 30, // 设置弹性系数为0.5
+}
+
+onMounted(() => {
+  listen(dom.value!, _options)
+})
 </script>
 
 <template>
   <teleport to="#teleports">
     <div
-      :style="`z-index: ${zIndex}`"
-      :class="{ visible, forbidden: dialogOptions.forbidden, loading }" class="TouchDialog transition-cubic"
-      @click="handleClickOutside"
+      :style="`z-index: ${zIndex}`" :class="{ visible, forbidden: dialogOptions.forbidden, loading }"
+      class="TouchDialog transition-cubic" @click="handleClickOutside"
     >
-      <div class="TouchDialog-Main Main" @click.stop="">
+      <div class="TouchDialog-Main Main transition-cubic" @click.stop="">
         <div class="TouchDialog-Close" @click="visible = false">
           <div i-carbon:close />
         </div>
+        <div ref="dom" class="slider" />
 
         <slot name="Main">
           <div v-if="header" class="TouchDialog-Title">
@@ -162,6 +276,9 @@ async function handleClickOutside() {
     }
 
     .TouchDialog-Content {
+      .mobile & {
+        padding: 0.125rem;
+      }
       padding: 1rem;
       display: flex;
 
@@ -202,8 +319,6 @@ async function handleClickOutside() {
   max-width: calc(100% - 48px);
   height: auto;
 
-  margin: 24px;
-
   display: flex;
   justify-content: center;
   align-items: center;
@@ -225,6 +340,49 @@ async function handleClickOutside() {
   background-color: var(--el-bg-color);
 }
 
+.mobile .TouchDialog-Main.Main {
+  .loading & {
+    transform: translate(0, 0) scale(1.05);
+  }
+  padding-top: 2rem;
+
+  top: unset;
+  left: 0;
+  bottom: 0;
+
+  width: 100%;
+  max-width: 100%;
+
+  height: auto;
+  max-height: 90%;
+
+  border-radius: 36px 36px 0 0;
+  transform: translateY(100%);
+}
+
+.mobile .visible .TouchDialog-Main.Main {
+  transform: translateY(0);
+}
+
+.TouchDialog .slider {
+  &:hover {
+    opacity: 1;
+    transform: scale(1.1, 1.05);
+  }
+  position: absolute;
+  margin: 0 auto;
+
+  top: 1rem;
+
+  width: 100px;
+  height: 8px;
+
+  opacity: 0.5;
+  border-radius: 12px;
+  background-color: var(--el-border-color);
+  transition: cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.35s;
+}
+
 .TouchDialog {
   &.visible {
     opacity: 1;
@@ -235,6 +393,7 @@ async function handleClickOutside() {
   &.forbidden {
     transform: scale(1.025);
   }
+
   position: absolute;
 
   width: 100%;
@@ -247,6 +406,10 @@ async function handleClickOutside() {
 }
 
 .TouchDialog-Close {
+  .mobile & {
+    display: none;
+  }
+
   &:hover {
     color: var(--el-color-danger);
   }

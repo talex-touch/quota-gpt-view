@@ -1,27 +1,12 @@
-<template>
-  <div class="TalexDialog-Container">
-    <div v-if="hasDisplay" @click="visible = true">
-      <slot name="display">
-        <el-button class="rounder-button" text :icon="Plus"></el-button>
-      </slot>
-    </div>
-    <teleport to="body">
-      <div ref="wrapperRef" @click="_activator" class="TalexDialog-Wrapper transition-cubic" :class="{ visible }">
-        <div class="TalexDialog-Main transition-cubic">
-          <slot />
-        </div>
-      </div>
-    </teleport>
-  </div>
-</template>
-
 <script setup>
 import { defineProps, ref } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
 import { sleep, useModelWrapper } from '~/plugins/Common.ts'
 
 const props = defineProps({
-  modelValue: Boolean, hasDisplay: Boolean, activator: Boolean
+  modelValue: Boolean,
+  hasDisplay: Boolean,
+  activator: Boolean,
 })
 const emits = defineEmits(['update:modelValue'])
 
@@ -32,10 +17,10 @@ const wrapperRef = ref(null)
 async function _activator(e) {
   const el = wrapperRef.value
 
-  if( e?.path[0] !== el ) return
-  if( !props.activator ) {
+  if (e?.path[0] !== el)
+    return
+  if (!props.activator)
     return visible.value = false
-  }
 
   const { style } = el.firstChild
 
@@ -55,8 +40,24 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<template>
+  <div class="TalexDialog-Container">
+    <div v-if="hasDisplay" @click="visible = true">
+      <slot name="display">
+        <el-button class="rounder-button" text :icon="Plus" />
+      </slot>
+    </div>
+    <teleport to="body">
+      <div ref="wrapperRef" class="TalexDialog-Wrapper transition-cubic" :class="{ visible }" @click="_activator">
+        <div class="TalexDialog-Main transition-cubic">
+          <slot />
+        </div>
+      </div>
+    </teleport>
+  </div>
+</template>
 
+<style lang="scss" scoped>
 .TalexDialog-Wrapper {
   z-index: 100;
   position: absolute;
@@ -84,7 +85,7 @@ export default {
 .TalexDialog-Main {
   &:before {
     z-index: -1;
-    content: "";
+    content: '';
     position: absolute;
 
     left: 0;
@@ -95,9 +96,10 @@ export default {
 
     border-radius: 8px;
     background-color: var(--el-fill-color);
-    opacity: .85;
-    transition: .3s cubic-bezier(.25,.8,.25,1);
+    opacity: 0.85;
+    transition: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   }
+
   position: absolute;
   display: inline-block;
   padding: 8px;
@@ -122,6 +124,7 @@ export default {
     transform: translate(-50%, -50%) scale(1);
     opacity: 1;
   }
+
   //transform: scale(1);
   opacity: 1;
   pointer-events: unset;
