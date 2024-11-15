@@ -397,8 +397,8 @@ function calcExpired(date: number) {
 </script>
 
 <template>
-  <div class="ProfileWrapper">
-    <div class="ProfileWrapper-Header">
+  <div class="CheckoutPage">
+    <div class="CheckoutPage-Header only-pc-display">
       <el-page-header title="返回" @back="router.push('/?data=plan')">
         <template #content>
           <span class="text-large mr-3 font-600">
@@ -411,9 +411,9 @@ function calcExpired(date: number) {
       </el-page-header>
     </div>
 
-    <div class="ProfileWrapper-MainContainer">
+    <div class="CheckoutPage-MainContainer">
       <el-scrollbar>
-        <div class="ProfileWrapper-Main">
+        <div class="CheckoutPage-Main">
           <p>
             结账
             <span v-if="payOptions?.success" style="font-size: 18px;font-weight: normal;opacity: 0.65">您已成功完成支付，
@@ -429,8 +429,8 @@ function calcExpired(date: number) {
             >平台倡导量入为出，请理性消费。未成年人下单前必须由监护人同意。</span>
           </p>
 
-          <div class="ProfileWrapper-Content">
-            <div class="ProfileWrapper-ContentInner">
+          <div class="CheckoutPage-Content">
+            <div class="CheckoutPage-ContentInner">
               <OtherWarnAlert v-if="!payOptions.success && countdownObj?.expired" icon="i-carbon:information" title="订单超时">
                 订单已关闭
               </OtherWarnAlert>
@@ -438,7 +438,7 @@ function calcExpired(date: number) {
                 我们将您的订单保留至 {{ countdownObj.uptoText }}。你可以随时继续支付这个订单。
               </OtherWarnAlert>
 
-              <div v-if="subscriptionMode && !orderDetail.id" class="ProfileWrapper-Content-Info Options">
+              <div v-if="subscriptionMode && !orderDetail.id" class="CheckoutPage-Content-Info Options">
                 <p>选择订阅</p>
                 <ul>
                   <li
@@ -450,7 +450,7 @@ function calcExpired(date: number) {
                   </li>
                 </ul>
               </div>
-              <div v-if="!payOptions.unavailable" class="ProfileWrapper-Content-Info">
+              <div v-if="!payOptions.unavailable" class="CheckoutPage-Content-Info">
                 <div class="title">
                   订单详情<span v-if="orderDetail.id">#{{ orderDetail.id }}</span>
 
@@ -468,7 +468,7 @@ function calcExpired(date: number) {
               </div>
               <div
                 v-if="!payOptions.unavailable" v-loading="orderDetail.loading"
-                class="ProfileWrapper-Content-Info Payments"
+                class="CheckoutPage-Content-Info Payments"
               >
                 <p>支付方式</p>
                 <ul>
@@ -481,7 +481,7 @@ function calcExpired(date: number) {
                   </li>
                 </ul>
               </div>
-              <div class="ProfileWrapper-Content-Info">
+              <div class="CheckoutPage-Content-Info">
                 <OtherDefaultAlert icon="i-carbon:manage-protection" title="随时取消政策">
                   在科塔锐行，我们深知计划可能随时发生变化。为此，我们特别设计了一套取消政策，旨在为您带来最大的灵活性与安心保障。当您选择我们时，您将享有充分的自由度来调整或取消预订，无需担心任何取消费用。我们的政策允许您在购买后<span
                     font-bold
@@ -494,16 +494,16 @@ function calcExpired(date: number) {
                 </OtherDefaultAlert>
               </div>
             </div>
-            <div class="ProfileWrapper-Aside">
+            <div class="CheckoutPage-Aside">
               <!-- && !payOptions.unavailable -->
               <div
                 v-if="!payOptions?.success && !countdownObj?.expired" v-loading="orderDetail.loading"
-                class="ProfileWrapper-Content-Info"
+                class="CheckoutPage-Content-Info"
               >
                 <p>优惠券码</p>
                 <ChoreCouponSelector v-model="payOptions.code" placeholder="可选" />
               </div>
-              <div v-if="!payOptions.unavailable" v-loading="orderDetail.loading" class="ProfileWrapper-Content-Info">
+              <div v-if="!payOptions.unavailable" v-loading="orderDetail.loading" class="CheckoutPage-Content-Info">
                 <ul v-if="orderDetail.info?.meta">
                   <p>概述信息</p>
                   <li>
@@ -551,7 +551,7 @@ function calcExpired(date: number) {
 
               <div
                 v-if="payOptions?.success" v-loading="orderDetail.loading" flex items-center
-                class="ProfileWrapper-Content-Info Confirm"
+                class="CheckoutPage-Content-Info Confirm"
               >
                 <div flex items-center>
                   <ThCheckBox v-model="payOptions.agreement" disabled />&nbsp;<el-text>
@@ -568,7 +568,7 @@ function calcExpired(date: number) {
               </div>
               <div
                 v-else-if="!countdownObj?.expired && !payOptions.unavailable" v-loading="orderDetail.loading"
-                class="ProfileWrapper-Content-Info Confirm"
+                class="CheckoutPage-Content-Info Confirm"
               >
                 <div flex items-center>
                   <ThCheckBox v-model="payOptions.agreement" />&nbsp;<el-text>
@@ -585,11 +585,11 @@ function calcExpired(date: number) {
               </div>
               <div
                 v-else-if="countdownObj?.expired" v-loading="orderDetail.loading" flex items-center
-                class="ProfileWrapper-Content-Info Confirm"
+                class="CheckoutPage-Content-Info Confirm"
               >
                 <TextShaving style="width: max-content" text="订单已失效" />
               </div>
-              <div v-else v-loading="orderDetail.loading" flex items-center class="ProfileWrapper-Content-Info Confirm">
+              <div v-else v-loading="orderDetail.loading" flex items-center class="CheckoutPage-Content-Info Confirm">
                 <TextShaving style="width: max-content" text="当前计划不可用" />
               </div>
             </div>
@@ -598,7 +598,7 @@ function calcExpired(date: number) {
       </el-scrollbar>
     </div>
 
-    <div class="ProfileWrapper-Footer">
+    <div class="CheckoutPage-Footer">
       <Logo />Powered by QuotaWish.
     </div>
 
@@ -610,7 +610,7 @@ function calcExpired(date: number) {
 </template>
 
 <style lang="scss">
-.ProfileWrapper-Header .AccountAvatar {
+.CheckoutPage-Header .AccountAvatar {
   position: relative;
 
   top: 0;
@@ -619,7 +619,7 @@ function calcExpired(date: number) {
 </style>
 
 <style lang="scss" scoped>
-.ProfileWrapper-MainContainer {
+.CheckoutPage-MainContainer {
   z-index: 1;
   position: absolute;
   // padding: 1rem 0;
@@ -639,7 +639,7 @@ function calcExpired(date: number) {
   transform: translate(-50%, -50%);
 }
 
-.ProfileWrapper-Main {
+.CheckoutPage-Main {
   & > p {
     text-indent: 0.5rem;
 
@@ -683,7 +683,7 @@ function calcExpired(date: number) {
   border: 1px solid var(--el-color-success);
 }
 
-.ProfileWrapper-Header {
+.CheckoutPage-Header {
   z-index: 2;
   position: absolute;
   padding: 1rem 2rem;
@@ -704,7 +704,7 @@ function calcExpired(date: number) {
   border-bottom: 1px solid var(--el-border-color);
 }
 
-div.ProfileWrapper-Footer {
+div.CheckoutPage-Footer {
   z-index: 0;
   position: absolute;
   padding: 0.5rem 0;
@@ -826,7 +826,7 @@ div.Confirm {
   }
 }
 
-.ProfileWrapper-Content-Info {
+.CheckoutPage-Content-Info {
   & > p,
   & div.title {
     span {
@@ -871,7 +871,7 @@ div.Confirm {
   border: 1px solid var(--el-border-color);
 }
 
-.ProfileWrapper-Content {
+.CheckoutPage-Content {
   display: flex;
 
   gap: 1rem;
@@ -879,14 +879,14 @@ div.Confirm {
   justify-content: space-between;
 }
 
-.ProfileWrapper-ContentInner {
+.CheckoutPage-ContentInner {
   display: flex;
   flex-direction: column;
   gap: 1rem;
   flex: 1;
 }
 
-.ProfileWrapper-Aside {
+.CheckoutPage-Aside {
   // padding: 1.25rem;
   display: flex;
   flex-direction: column;
@@ -947,20 +947,5 @@ div.Confirm {
   // box-shadow: var(--el-box-shadow);
   // background-color: var(--el-bg-color);
   // border: 1px solid var(--el-border-color);
-}
-
-.title-theme {
-  &::before {
-    z-index: -1;
-    content: 'PAYMENT ORDER';
-    position: absolute;
-
-    opacity: 0.5;
-
-    letter-spacing: 1rem;
-    font-size: 1.5rem;
-
-    transform: translate(8rem, 0.125rem);
-  }
 }
 </style>
