@@ -38,4 +38,10 @@ export default {
       payMethod: 2,
     })
   },
+  dailySignin() {
+    return endHttp.get('dummy/signin')
+  },
+  signinCalendar(year: number, month: number) {
+    return endHttp.get(`dummy/signin/calendar?year=${year}&month=${month}`)
+  },
 }

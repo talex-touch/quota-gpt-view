@@ -879,7 +879,7 @@ div.MobileAside {
   display: flex;
 
   width: 60%;
-  min-width: 720px;
+  min-width: 1080px;
   height: 100%;
 
   top: 60px;
@@ -905,7 +905,7 @@ div.MobileAside {
   color: #000;
   border-radius: 12px;
   background-color: #23d96e50;
-  transform: translateY(-50%);
+  transform: translateY(-50%) scale(0.8);
   box-shadow: 0 0 12px 4px #23d96e50;
   border: 1px solid var(--el-color-success);
 }

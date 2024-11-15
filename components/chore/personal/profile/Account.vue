@@ -9,6 +9,7 @@ import AccountModuleFortune from './account/AccountModuleFortune.vue'
 import AccountModuleInvitation from './account/AccountModuleInvitation.vue'
 import AccountModulePlan from './account/AccountModulePlan.vue'
 import AccountModuleDummy from './account/AccountModuleDummy.vue'
+import AccountModuleSignIn from './account/AccountModuleSignIn.vue'
 import { getHistoryList } from '~/composables/api/account'
 import ImageUpload from '~/components/personal/ImageUpload.vue'
 import { $event } from '~/composables/events'
@@ -19,6 +20,26 @@ const historyList = ref()
 const invitationList = ref()
 const shareList = ref()
 const fortuneList = ref()
+const signinData = ref<{
+  data: any
+  daily: any
+}>({
+  data: null,
+  daily: null,
+})
+
+async function fetchSigninData() {
+  const date = new Date()
+  const year = date.getFullYear()
+  const month = date.getMonth() + 1
+
+  const res: any = await $endApi.v1.account.signinCalendar(year, month)
+
+  if (res.code !== 200)
+    return ElMessage.error(res.message)
+
+  signinData.value.data = res.data
+}
 
 async function fetchHistoryData() {
   const res: any = await getHistoryList()
@@ -60,6 +81,7 @@ async function fetchFortuneListData() {
 }
 
 onMounted(() => {
+  fetchSigninData()
   fetchHistoryData()
   fetchInvitationData()
   fetchShareListData()
@@ -157,6 +179,44 @@ async function handleShareMenu(share: any) {
   dialogOptions.loading = false
   dialogOptions.visible = false
 }
+
+const isSignedToday = computed(() => {
+  if (!signinData.value.data)
+    return false
+
+  const { data } = signinData.value.data
+
+  const list = data.split('')
+
+  return list?.[dayjs().date() - 1]
+})
+
+async function handleDailySignin() {
+  const res = await $endApi.v1.account.dailySignin()
+
+  if (responseMessage(res, { success: '签到成功！' })) {
+    fetchSigninData()
+
+    signinData.value.daily = res.data
+
+    const { amount } = res.data
+
+    const dummy = (amount + 1) * 10
+    const award = (amount + 1) % 7 === 0 ? 2000 : ((amount + 1) % 3 === 0 ? 1000 : 0)
+
+    ElMessageBox.alert(`奖励 ${dummy} 云点 ${award !== 0 ? (`${(award / 100).toFixed(2)}元优惠券x1 (有效期3天)`) : ''}`, '签到成功', {
+      confirmButtonText: '了解',
+    })
+  }
+}
+
+function openSignPage() {
+  Object.assign(dialogOptions, {
+    visible: true,
+    component: AccountModuleSignIn,
+    data: signinData.value.data,
+  })
+}
 </script>
 
 <template>
@@ -189,6 +249,15 @@ async function handleShareMenu(share: any) {
           <p class="subtitle">
             {{ userStore.remark || '酷酷的人没有签名' }}
           </p>
+
+          <div class="daily-signin">
+            <el-button v-if="isSignedToday" type="success" @click="openSignPage">
+              已连续签到{{ signinData.data?.amount }}天
+            </el-button>
+            <el-button v-else type="primary" @click="handleDailySignin">
+              今天还未签到
+            </el-button>
+          </div>
         </div>
 
         <div class="ProfileAccount-Tags">
@@ -431,6 +500,11 @@ async function handleShareMenu(share: any) {
 }
 
 .ProfileAccount {
+  .daily-signin {
+    position: absolute;
+
+    right: 1rem;
+  }
   position: relative;
 
   width: 100%;
