@@ -11,7 +11,7 @@ import BuyDialog from '~/components/chore/buy/BuyDialog.vue'
 import Logo from '~/components/chore/Logo.vue'
 import JSConfetti from 'js-confetti'
 import { SUBSCRIPTION_PLAN_LIST } from '~/composables/subscription'
-import { getOrderPlanPrice, getOrderStatus, orderPlanPrice } from '~/composables/api/account'
+import { getOrderPlanPrice, getOrderStatus, getUserNearestUnPayOrder, orderPlanPrice } from '~/composables/api/account'
 import { $endApi } from '~/composables/api/base'
 import { createTapTip } from '~/composables/tip'
 
@@ -39,6 +39,7 @@ const orderDetail = reactive<any>({
   id: '',
   loading: false,
   info: null,
+  res: null,
 })
 
 const payments = reactive<any>({
@@ -86,6 +87,9 @@ const payOptions = reactive({
 
 function parseDataInfo(data: any) {
   orderDetail.info = data
+
+  console.log('data', data)
+
   payOptions.price = data.meta.feeTax
 }
 
@@ -195,8 +199,21 @@ function parseGood() {
   }
 }
 
-onMounted(() => {
-  if (route.query?.orderId) {
+onMounted(async () => {
+  const unpayRes = await getUserNearestUnPayOrder()
+
+  if (unpayRes.data) {
+    const { id, additionalInfo } = unpayRes.data.order
+    const info = decodeObject(additionalInfo)
+
+    orderDetail.id = id
+
+    parseDataInfo(info.meta.subscription || info.meta.dummy)
+
+    orderDetail.res = unpayRes
+    dialog.value?.openBuyDialog(unpayRes)
+  }
+  else if (route.query?.orderId) {
     setTimeout(async () => {
       const res = await getOrderStatus(route.query?.orderId as string)
       if (!res.data) {
@@ -252,6 +269,12 @@ async function submit() {
     orderDetail.loading)
     return
 
+  if (orderDetail.res) {
+    dialog.value?.openBuyDialog(orderDetail.res)
+
+    return
+  }
+
   orderDetail.loading = true
 
   const tipTap = createTapTip()
@@ -261,11 +284,13 @@ async function submit() {
   if (subscriptionMode.value) {
     const res = await orderPlanPrice(payOptions.type as any, payOptions.time, payOptions.code)
 
+    orderDetail.res = res
     dialog.value?.openBuyDialog(res)
   }
   else if (dummyMode.value) {
     const res = await $endApi.v1.account.dummyOrder(payOptions.dummyValue, payOptions.code)
 
+    orderDetail.res = res
     dialog.value?.openBuyDialog(res)
   }
 
@@ -323,8 +348,6 @@ async function paySuccess(data: any) {
 }
 
 function handleOrderEstablished(data: any) {
-  console.log('e', data)
-
   orderDetail.id = data.order.id
   const createdAt = new Date(data.order.createdAt)
   payOptions.countdown = {
@@ -500,9 +523,7 @@ function calcExpired(date: number) {
                     <span op-75>标准费率</span>
                     <span>{{ (orderDetail.info.meta.originPrice / 100).toFixed(2) }}￥</span>
                   </li>
-                  <li
-                    :class="{ discount: orderDetail.info.meta.originPrice > orderDetail.info.meta.fee }"
-                  >
+                  <li :class="{ discount: orderDetail.info.meta.originPrice > orderDetail.info.meta.fee }">
                     <span op-75>优惠价格</span>
                     <span>-{{ ((orderDetail.info.meta.originPrice - orderDetail.info.meta.fee) / 100).toFixed(2)
                     }}￥</span>
@@ -576,10 +597,8 @@ function calcExpired(date: number) {
     </div>
 
     <BuyDialog
-      ref="dialog"
-      v-model="payOptions.dialog" z-2 :countdown="countdownObj"
-      :price="payOptions.price" :method="payments.select"
-      @order="handleOrderEstablished"
+      ref="dialog" v-model="payOptions.dialog" z-2 :countdown="countdownObj" :price="payOptions.price"
+      :method="payments.select" @order="handleOrderEstablished"
     />
   </div>
 </template>
@@ -621,6 +640,7 @@ function calcExpired(date: number) {
     font-size: 28px;
     font-weight: 600;
   }
+
   position: relative;
   padding: 3rem 0;
   display: flex;
@@ -765,6 +785,7 @@ div.Confirm {
       &.active {
         border: 2px solid var(--theme-color);
       }
+
       &.disabled {
         opacity: 0.75;
         pointer-events: none;
@@ -807,6 +828,7 @@ div.Confirm {
       font-size: 20px;
       opacity: 0.5;
     }
+
     position: relative;
 
     padding: 1rem 0;

@@ -25,34 +25,13 @@ function close() {
 }
 
 const payOptions = reactive<any>({
-  last: false,
   price: 0,
 })
 const codeUrl = ref('')
 const show = useVModel(props, 'modelValue', emits)
 
-onMounted(() => {
-  setTimeout(async () => {
-    loading.value = true
-
-    const res = await getUserNearestUnPayOrder()
-
-    if (res.data) {
-      payOptions.last = true
-      show.value = true
-      syncLocalData(res)
-    }
-
-    loading.value = false
-  })
-})
-
 async function openBuyDialog(res: any) {
   if (props.method !== 'wechat')
-    return
-
-  // 如果已经获取到数据那么就不用管了（继续上次订单）
-  if (payOptions.last)
     return
 
   loading.value = true
