@@ -160,7 +160,7 @@ onMounted(() => {
         <div class="TouchDialog-Close" @click="visible = false">
           <div i-carbon:close />
         </div>
-        <div ref="dom" class="slider" />
+        <div ref="dom" class="slider only-pe-display" />
 
         <slot name="Main">
           <div v-if="header" class="TouchDialog-Title">

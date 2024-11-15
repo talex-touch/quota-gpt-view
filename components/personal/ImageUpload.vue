@@ -215,8 +215,11 @@ async function handleEditDone() {
 
       <div class="ImageUpload-Aside">
         <p>裁切预览</p>
-        <div ref="previewBox" class="previewBox" />
-        <div ref="previewBoxRound" class="previewBoxRound" />
+
+        <div class="ImageUpload-AsideInner">
+          <div ref="previewBox" class="previewBox" />
+          <div ref="previewBoxRound" class="previewBoxRound" />
+        </div>
       </div>
     </div>
 
@@ -232,8 +235,16 @@ async function handleEditDone() {
       height: 420px;
 
       overflow: hidden;
+
+      .mobile & {
+        margin: 0 auto;
+
+        width: 85vw;
+        height: 85vw;
+      }
     }
     position: relative;
+    margin: 0 auto;
     padding: 1rem;
     flex: 1;
 
@@ -276,6 +287,22 @@ async function handleEditDone() {
     }
   }
   .ImageUpload-Aside {
+    .ImageUpload-AsideInner {
+      position: relative;
+
+      width: 100%;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+
+      .mobile & {
+        flex-direction: row;
+        justify-content: center;
+      }
+    }
+
     .previewBox,
     .previewBoxRound {
       box-shadow: 0 0 5px #adadad;
@@ -290,21 +317,31 @@ async function handleEditDone() {
       border-radius: 50%;
       /*设置为圆形*/
     }
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-
+    position: relative;
     padding: 1rem;
     width: 30%;
 
     border-left: 1px solid var(--el-border-color);
+    .mobile & {
+      margin: 0 auto;
+
+      width: 100%;
+
+      border-left: none;
+    }
   }
   display: flex;
 
   gap: 1rem;
   width: 600px;
   height: 480px;
+
+  .mobile & {
+    width: 100%;
+    max-height: 85vh;
+
+    flex-wrap: wrap;
+  }
 }
 
 .ImageUpload {
