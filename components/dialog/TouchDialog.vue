@@ -248,6 +248,10 @@ onMounted(() => {
 }
 
 .TouchDialog-Main {
+  .el-scrollbar {
+    width: 100%;
+  }
+
   &.Main {
     .visible & {
       pointer-events: auto;
@@ -341,9 +345,6 @@ onMounted(() => {
 }
 
 .mobile .TouchDialog-Main.Main {
-  .loading & {
-    transform: translate(0, 0) scale(1.05);
-  }
   padding-top: 2rem;
   padding-bottom: 1rem;
 
@@ -363,6 +364,10 @@ onMounted(() => {
 
 .mobile .visible .TouchDialog-Main.Main {
   transform: translateY(0);
+}
+
+.mobile .loading .TouchDialog-Main.Main {
+  transform: translateY(100%);
 }
 
 .TouchDialog .slider {

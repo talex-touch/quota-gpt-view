@@ -83,8 +83,8 @@ defineExpose({
       <span>分享对话</span>
     </template>
 
-    <p px-4>
-      您的个人信息、自定义指令以及您在共享后添加的任何消息都将予以保密处理。<el-link>了解更多</el-link>
+    <p px-2>
+      <el-text>您的个人信息、自定义指令以及您在共享后添加的任何消息都将予以保密处理。<el-link>了解更多</el-link></el-text>
     </p>
 
     <template v-if="update">

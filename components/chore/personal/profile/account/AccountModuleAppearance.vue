@@ -269,6 +269,8 @@ const options = reactive({
   .mobile & :deep(.ThemeBlock) {
     width: 45%;
   }
+  margin: 0.5rem auto;
+
   flex-wrap: wrap;
 
   width: min(1020px, 85vw);

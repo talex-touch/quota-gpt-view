@@ -55,69 +55,70 @@ function redirectToCheckout() {
   <div class="TouchDialog-Title">
     <div i-carbon:cloud />钱包余额
   </div>
-  <div class="ModuleDummy TouchDialog-Content">
-    <div flex justify-between class="ProfileWrapper-Header">
-      <p class="title-theme">
-        充值余额
-      </p>
-      <el-link type="primary" @click="drawerVisible = true">
-        订单管理
-      </el-link>
-    </div>
+  <el-scrollbar>
+    <div class="ModuleDummy TouchDialog-Content">
+      <div flex justify-between class="ProfileWrapper-Header">
+        <p class="title-theme">
+          充值余额
+        </p>
+        <el-link type="primary" @click="drawerVisible = true">
+          订单管理
+        </el-link>
+      </div>
 
-    <div class="ProfileWrapper-Main">
-      <div class="Dummy-Cards">
-        <div
-          v-for="(i, index) in cards" :key="i" v-wave :class="{ active: active === index }"
-          class="dummy-card transition-cubic" @click="active = index"
-        >
-          <div flex items-center gap-2 class="dummy-card-title">
-            <template v-if="i === 0">
-              自定义
-            </template>
-            <template v-else>
-              {{ i }}
-              <div i-carbon:cloud />
-            </template>
+      <div class="ProfileWrapper-Main">
+        <div class="Dummy-Cards">
+          <div
+            v-for="(i, index) in cards" :key="i" v-wave :class="{ active: active === index }"
+            class="dummy-card transition-cubic" @click="active = index"
+          >
+            <div flex items-center gap-2 class="dummy-card-title">
+              <template v-if="i === 0">
+                自定义
+              </template>
+              <template v-else>
+                {{ i }}
+                <div i-carbon:cloud />
+              </template>
+            </div>
+            <p v-if="i !== 0" class="dummy-card-price">
+              <span class="tag">￥</span>{{ (i / 100).toFixed(2) }}
+            </p>
           </div>
-          <p v-if="i !== 0" class="dummy-card-price">
-            <span class="tag">￥</span>{{ (i / 100).toFixed(2) }}
-          </p>
         </div>
+        <br>
+        <el-input-number v-model="amo" :disabled="active !== 7" style="width: 100%" :min="1" :max="1000000">
+          <template #prefix>
+            <div i-carbon:cloud />
+          </template>
+        </el-input-number>
+
+        <div my-2 class="Price">
+          预计价格：
+          <span class="display-price"><span class="tag">￥</span>{{ (+amo / 100).toFixed(2) }}</span>
+        </div>
+
+        <el-button my-2 w-full type="primary" style="background-color: var(--theme-color)" @click="redirectToCheckout">
+          开始结账
+        </el-button>
       </div>
-      <br>
-      <el-input-number v-model="amo" :disabled="active !== 7" style="width: 100%" :min="1" :max="1000000">
-        <template #prefix>
-          <div i-carbon:cloud />
+
+      <el-drawer v-model="drawerVisible" size="90%">
+        <template #title>
+          订单列表
         </template>
-      </el-input-number>
 
-      <div my-2 class="Price">
-        预计价格：
-        <span class="display-price"><span class="tag">￥</span>{{ (+amo / 100).toFixed(2) }}</span>
-      </div>
-
-      <el-button my-2 w-full type="primary" style="background-color: var(--theme-color)" @click="redirectToCheckout">
-        开始结账
-      </el-button>
-    </div>
-
-    <el-drawer v-model="drawerVisible" size="90%">
-      <template #title>
-        订单列表
-      </template>
-
-      <div class="PlanWrapper-List">
-        <!-- el-table -->
-        <el-table height="400" :row-class-name="tableRowClassName" size="small" :data="orderList">
-          <!-- <el-table-column label="订单号" prop="id" /> -->
-          <el-table-column label="订单名" prop="description" />
-          <!-- <el-table-column label="订单内容">
+        <div class="PlanWrapper-List">
+          <!-- el-table -->
+          <el-table height="400" :row-class-name="tableRowClassName" size="small" :data="orderList">
+            <!-- <el-table-column label="订单号" prop="id" /> -->
+            <el-table-column label="订单名" prop="description" />
+            <!-- <el-table-column label="订单内容">
             <template #default="{ row }">
               {{ row.items.length }}项
             </template>
           </el-table-column> -->
-          <!-- <el-table-column label="状态">
+            <!-- <el-table-column label="状态">
             <template #default="{ row }">
               <span v-if="row.status === 0">待支付</span>
               <span v-if="row.status === 1">已完成</span>
@@ -128,34 +129,35 @@ function redirectToCheckout() {
               <span v-if="row.status === 6">审核中</span>
             </template>
           </el-table-column> -->
-          <el-table-column label="价格">
-            <template #default="{ row }">
-              ￥{{ row.totalAmount / 100 }}
-            </template>
-          </el-table-column>
-          <!-- <el-table-column label="支付方式">
+            <el-table-column label="价格">
+              <template #default="{ row }">
+                ￥{{ row.totalAmount / 100 }}
+              </template>
+            </el-table-column>
+            <!-- <el-table-column label="支付方式">
             <template #default="{ row }">
               <span v-if="row.paymentMethod === 1">-</span>
               <span v-if="row.paymentMethod === 2">微信支付</span>
               <span v-if="row.paymentMethod === 3">*</span>
             </template>
           </el-table-column> -->
-          <el-table-column label="创建时间">
-            <template #default="{ row }">
-              {{ formatDate(row.createdAt) }}
-            </template>
-          </el-table-column>
-          <el-table-column fixed="right" label="查看详情">
-            <template #default="{ row }">
-              <el-button type="text" size="small" @click="handleViewOrder(row.id)">
-                查看
-              </el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-      </div>
-    </el-drawer>
-  </div>
+            <el-table-column label="创建时间">
+              <template #default="{ row }">
+                {{ formatDate(row.createdAt) }}
+              </template>
+            </el-table-column>
+            <el-table-column fixed="right" label="查看详情">
+              <template #default="{ row }">
+                <el-button type="text" size="small" @click="handleViewOrder(row.id)">
+                  查看
+                </el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+      </el-drawer>
+    </div>
+  </el-scrollbar>
 </template>
 
 <style lang="scss" scoped>
@@ -217,7 +219,9 @@ function redirectToCheckout() {
 }
 
 div.ModuleDummy {
-  height: min(60vh, 380px);
+  padding: 1rem !important;
+
+  height: min(60vh, 720px);
   // max-height: 300px;
 }
 </style>
