@@ -11,7 +11,6 @@ const options = reactive<TutorialOption>({
   component: null,
   data: {},
 })
-const pageOptions: any = inject('appOptions')!
 
 async function handleNext(next: TutorialOption) {
   const el = main.value
@@ -53,13 +52,12 @@ onMounted(() => {
     const tutorial = userConfig.value.pri_info.info.tutorial
 
     setTimeout(() => {
-      console.log('tutorial', userConfig.value.pri_info)
-
       show.value = !tutorial
       if (!show.value)
         return
 
-      pageOptions.model.personal = ''
+      if (document.body.classList.contains('mobile'))
+        return
 
       handleNext({
         component: Welcome,
