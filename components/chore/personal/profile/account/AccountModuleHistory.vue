@@ -33,16 +33,6 @@ const deviceGroup = computed(() => {
     : []
 })
 
-// const deviceGroup = computed(() => _deviceGroup.value.reduce((acc, cur) => {
-//   if (acc[cur.os])
-//     acc[cur.os].push(cur)
-
-//   else
-//     acc[cur.os] = [cur]
-
-//   return acc
-// }, {}))
-
 // 判断是否是本设备
 function isThisDevice(item: any) {
   const device = useDevice()
@@ -74,87 +64,96 @@ function isThisDevice(item: any) {
       累计记录 {{ historyList.meta.totalItems }} 条
     </p>
   </div>
-  <div class="ProfileWrapper TouchDialog-Content">
-    <div class="ProfileWrapper-Main">
-      <div v-for="device in deviceGroup" :key="device.os" class="Device-Item">
-        <div class="Device-Item-Main">
-          <p flex items-center gap-2 class="device-name">
-            <template v-if="device.os.includes('iOS')">
-              <i i-carbon-apple block />{{ device.os }}
-            </template>
-            <template v-else-if="device.os.includes('iPadOS')">
-              <i i-carbon-apple block />{{ device.os }}
-            </template>
-            <template v-else>
-              <i i-carbon-devices-apps block />{{ device.os }}
-            </template>
-            <span v-if="isThisDevice(device)" class="tag">
-              本机
-            </span>
-          </p>
-          <p class="method">
-            <span v-if="device.provider === 'WEB_WECHAT'">
-              微信扫码登录·网页版
-            </span>
-            <span v-else-if="device.provider === 'WECHAT_MINI_PROGRAM'">
-              微信登录·小程序
-            </span>
-            <span v-else-if="device.provider === 'WEB_PHONE'">
-              手机号登录·网页版
-            </span>
-            <span v-else>
-              {{ device.provider }}
-            </span>
-          </p>
-          <p class="time">
-            {{ formatDate(device.time) }}
-          </p>
+  <el-scrollbar>
+    <div class="ModuleHistory TouchDialog-Content">
+      <div class="ProfileWrapper-Main">
+        <div v-for="device in deviceGroup" :key="device.os" class="Device-Item">
+          <div class="Device-Item-Main">
+            <p flex items-center gap-2 class="device-name">
+              <template v-if="device.os.includes('iOS')">
+                <i i-carbon-apple block />{{ device.os }}
+              </template>
+              <template v-else-if="device.os.includes('iPadOS')">
+                <i i-carbon-apple block />{{ device.os }}
+              </template>
+              <template v-else-if="device.os.includes('Windows')">
+                <IconSvgOsWindowsSymbol />{{ device.os }}
+              </template>
+              <template v-else>
+                <i i-carbon-devices-apps block />{{ device.os }}
+              </template>
+              <span v-if="isThisDevice(device)" class="tag">
+                本机
+              </span>
+            </p>
+            <p class="method">
+              <span v-if="device.provider === 'WEB_WECHAT'">
+                微信扫码登录·网页版
+              </span>
+              <span v-else-if="device.provider === 'WECHAT_MINI_PROGRAM'">
+                微信登录·小程序
+              </span>
+              <span v-else-if="device.provider === 'WEB_PHONE'">
+                手机号登录·网页版
+              </span>
+              <span v-else>
+                {{ device.provider }}
+              </span>
+            </p>
+            <p class="time">
+              {{ formatDate(device.time) }}
+            </p>
+          </div>
+          <div text-sm op-75 class="Device-Item-Extra">
+            <span>{{ device.items.length }}条记录</span>
+          </div>
         </div>
-        <div text-sm op-75 class="Device-Item-Extra">
-          <span>{{ device.items.length }}条记录</span>
-        </div>
+        <el-table
+          v-if="false && historyList?.items" height="100%" strip border size="large" table-layout="auto"
+          :data="historyList.items"
+        >
+          <el-table-column label="IP">
+            <template #default="{ row }">
+              {{ row.ip }}
+            </template>
+          </el-table-column>
+          <el-table-column label="地址">
+            <template #default="{ row }">
+              {{ row.address }}
+            </template>
+          </el-table-column>
+          <el-table-column label="设备">
+            <template #default="{ row }">
+              {{ row.os }}
+            </template>
+          </el-table-column>
+          <el-table-column label="版本">
+            <template #default="{ row }">
+              {{ row.browser }}
+            </template>
+          </el-table-column>
+          <el-table-column label="方式">
+            <template #default="{ row }">
+              {{ row.provider }}
+            </template>
+          </el-table-column>
+          <el-table-column label="时间">
+            <template #default="{ row }">
+              {{ formatDate(row.time) }}
+            </template>
+          </el-table-column>
+        </el-table>
       </div>
-      <el-table
-        v-if="false && historyList?.items" height="100%" strip border size="large" table-layout="auto"
-        :data="historyList.items"
-      >
-        <el-table-column label="IP">
-          <template #default="{ row }">
-            {{ row.ip }}
-          </template>
-        </el-table-column>
-        <el-table-column label="地址">
-          <template #default="{ row }">
-            {{ row.address }}
-          </template>
-        </el-table-column>
-        <el-table-column label="设备">
-          <template #default="{ row }">
-            {{ row.os }}
-          </template>
-        </el-table-column>
-        <el-table-column label="版本">
-          <template #default="{ row }">
-            {{ row.browser }}
-          </template>
-        </el-table-column>
-        <el-table-column label="方式">
-          <template #default="{ row }">
-            {{ row.provider }}
-          </template>
-        </el-table-column>
-        <el-table-column label="时间">
-          <template #default="{ row }">
-            {{ formatDate(row.time) }}
-          </template>
-        </el-table-column>
-      </el-table>
     </div>
-  </div>
+  </el-scrollbar>
 </template>
 
 <style lang="scss" scoped>
 .Device-Item {
+  &:last-child {
+    border-bottom: none;
+  }
+
   p.device-name {
     .tag {
       padding: 0.25rem;
@@ -178,17 +177,19 @@ function isThisDevice(item: any) {
     background-color: var(--el-fill-color-light);
   }
   display: flex;
-  padding: 0.5rem 1rem;
-  margin: 1rem 0;
+  padding: 0.25rem 0.5rem;
 
-  width: 400px;
+  width: 100%;
+  min-width: 20vw;
 
   align-items: center;
   justify-content: space-between;
 
-  border-radius: 16px;
   background-color: var(--el-mask-color-extra-light);
-  box-shadow: var(--el-box-shadow-light);
-  border: 1px solid var(--el-border-color);
+  border-bottom: 1px solid var(--el-border-color);
+}
+
+.ModuleHistory {
+  max-height: 60vh !important;
 }
 </style>

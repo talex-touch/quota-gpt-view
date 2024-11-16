@@ -14,31 +14,49 @@
  * limitations under the License.
  */
 
-import { createApp } from 'vue'
-import _ from 'lodash'
-import ImageViewer from '~/components/common/viewer/ImageViewer.vue'
+// import { createApp } from 'vue'
+// import _ from 'lodash'
+// import ImageViewer from '~/components/common/viewer/ImageViewer.vue'
 
-export function useImageClickAgent(container: HTMLBaseElement) {
-  container.querySelectorAll('img').forEach((img) => {
-    const { src } = img.attributes as any
-    if (src) {
-      const root: HTMLDivElement = document.createElement('div')
-      const wrapperEl = img/* .parentElement */ as HTMLElement
+// export function useImageClickAgent(container: HTMLBaseElement) {
+//   container.querySelectorAll('img').forEach((img) => {
+//     const { src } = img.attributes as any
+//     if (src) {
+//       const root: HTMLDivElement = document.createElement('div')
+//       const wrapperEl = img/* .parentElement */ as HTMLElement
 
-      wrapperEl.onclick = () => {
-        const app = createApp(ImageViewer, {
-          wrapper: wrapperEl,
-          img,
-          close: () => {
-            app.unmount()
+//       wrapperEl.onclick = () => {
+//         const app = createApp(ImageViewer, {
+//           wrapper: wrapperEl,
+//           img,
+//           close: () => {
+//             app.unmount()
 
-            document.body.removeChild(root)
-          },
-        })
+//             document.body.removeChild(root)
+//           },
+//         })
 
-        document.body.appendChild(root)
-        app.mount(root)
-      }
-    }
+//         document.body.appendChild(root)
+//         app.mount(root)
+//       }
+//     }
+//   })
+// }
+
+export function useWindowView() {
+  const { width, height } = useWindowSize()
+
+  function initWindowView([width, height]: number[]) {
+    if (document.body.classList.contains('screen'))
+      return
+
+    Object.assign(document.documentElement.style, {
+      width: `${width}px`,
+      height: `${height}px`,
+    })
+  }
+
+  watchEffect(() => {
+    initWindowView([width.value, height.value])
   })
 }

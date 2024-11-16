@@ -57,6 +57,8 @@ globalOptions.setEndsUrl(globalOptionsStore.value.url)
 const router = useRouter()
 
 onMounted(async () => {
+  useWindowView()
+
   if (window.h5sdk)
     feishuInit(router)
 

@@ -17,7 +17,7 @@ watch(() => guide.value, () => {
     <el-empty v-if="!userStore.subscription?.type" description="你暂未获得开发者设置授权！" />
     <template v-else>
       <TemplateLineForm title="系统信息构建" desc="当前版本构建推送时间">
-        {{ formatDate(getBuildTime()) }}
+        <el-text>{{ formatDate(getBuildTime()) }}</el-text>
       </TemplateLineForm>
       <TemplateLineForm title="隐私模式" desc="启用全面隐私模式，将隐藏所有展示个人隐私信息（单次有效）。">
         <el-switch v-model="pageOptions.setting.privacy" />
