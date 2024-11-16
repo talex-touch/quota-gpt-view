@@ -150,52 +150,54 @@ nextTick(() => {
   <teleport to="#teleports">
     <div class="PromptRoleCard-DialogWrapper" :class="{ expand }" @click="triggerExpand">
       <div ref="dialog" class="PromptRoleCard-Dialog transition-cubic" @click.stop="">
-        <div class="PromptRoleCard-DialogMain">
-          <img :src="src" :alt="modelValue.title">
-          <p class="title">
-            {{ modelValue.title }}
-          </p>
-
-          <p class="author">
-            @科塔智爱官方出品
-          </p>
-
-          <p class="description">
-            {{ modelValue.description || '-' }}
-          </p>
-
-          <div class="PromptRoleCard-Line">
-            <div class="PromptRoleCard-Line-Item">
-              <div>
-                <div i-carbon:star-filled />5.0
-              </div>
-              <p>评分(0+)</p>
-            </div>
-            <div class="PromptRoleCard-Line-Item">
-              <div>
-                {{ keywordsTags.slice(0, 1)?.[0] || 'Unknown' }}
-              </div>
-              <p>类别</p>
-            </div>
-            <div class="PromptRoleCard-Line-Item">
-              <div>
-                0
-              </div>
-              <p>使用</p>
-            </div>
-          </div>
-
-          <div class="PromptRoleCard-Rate">
+        <el-scrollbar>
+          <div class="PromptRoleCard-DialogMain">
+            <img :src="src" :alt="modelValue.title">
             <p class="title">
-              评级
+              {{ modelValue.title }}
             </p>
-            <el-empty description="还没有任何评级." />
-          </div>
 
-          <div class="keywords">
-            <span v-for="(i, ind) in keywordsTags.slice(0, 5)" :key="ind">#{{ i }}</span>
+            <p class="author">
+              @科塔智爱官方出品
+            </p>
+
+            <p class="description">
+              {{ modelValue.description || '-' }}
+            </p>
+
+            <div class="PromptRoleCard-Line">
+              <div class="PromptRoleCard-Line-Item">
+                <div>
+                  <div i-carbon:star-filled />5.0
+                </div>
+                <p>评分(0+)</p>
+              </div>
+              <div class="PromptRoleCard-Line-Item">
+                <div>
+                  {{ keywordsTags.slice(0, 1)?.[0] || 'Unknown' }}
+                </div>
+                <p>类别</p>
+              </div>
+              <div class="PromptRoleCard-Line-Item">
+                <div>
+                  0
+                </div>
+                <p>使用</p>
+              </div>
+            </div>
+
+            <div class="PromptRoleCard-Rate">
+              <p class="title">
+                评级
+              </p>
+              <el-empty description="还没有任何评级." />
+            </div>
+
+            <div class="keywords">
+              <span v-for="(i, ind) in keywordsTags.slice(0, 5)" :key="ind">#{{ i }}</span>
+            </div>
           </div>
-        </div>
+        </el-scrollbar>
       </div>
     </div>
   </teleport>
@@ -297,8 +299,10 @@ nextTick(() => {
     line-height: 20px;
     color: var(--el-text-color-secondary);
   }
-
+  position: relative;
   display: flex;
+
+  height: 20%;
 
   flex-direction: column;
   align-items: center;
@@ -378,15 +382,16 @@ nextTick(() => {
     box-shadow: var(--el-box-shadow);
   }
 
+  .el-scrollbar {
+    width: 100%;
+  }
+
   position: absolute;
   display: flex;
-  padding: 1rem;
 
   width: 520px;
   max-width: 85%;
-  height: auto;
-  min-height: 50px;
-  max-height: 60vh;
+  height: 60vh;
 
   align-items: center;
   flex-direction: column;
