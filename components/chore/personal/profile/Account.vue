@@ -171,7 +171,7 @@ async function handleShareMenu(share: any) {
   const res = await $endApi.v1.aigc.getConversation(content.id)
 
   if (responseMessage(res, { success: '' })) {
-    dialogOptions.data = { ...res.data, id: res.data.chat_id }
+    dialogOptions.data = { ...res.data, id: res.data.chat_id, lastUpdate: new Date(res.data.updatedAt).getTime() }
 
     sleep(200).then(() => shareRef.value?.openShareDialog())
   }
@@ -377,11 +377,11 @@ function openSignPage() {
         <AccountModuleLink />
       </div>
 
-      <div class="ProfileAccount-Box-Footer">
+      <!-- <div class="ProfileAccount-Box-Footer">
         <el-button v-wave type="primary">
           <div i-carbon-document-attachment />&nbsp;&nbsp;管理
         </el-button>
-      </div>
+      </div> -->
     </div>
 
     <div style="--d: 0.4s" class="ProfileAccount-Box">

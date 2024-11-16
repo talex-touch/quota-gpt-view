@@ -19,6 +19,7 @@ const props = defineProps<{
 }>()
 const emits = defineEmits<{
   (event: 'selectTemplate', data: any): void
+  (event: 'selectModel', model: string): void
   (event: 'send', data: IInnerItemMeta[], meta: IChatInnerItemMeta): void
 }>()
 
@@ -91,8 +92,11 @@ function handleSend(event: Event) {
   template.value = {}
 }
 
-function handleInputKeydown(event: KeyboardEvent) {
+async function handleInputKeydown(event: KeyboardEvent) {
   if (!template.value?.title && input.value.text.startsWith('@'))
+    return
+
+  if (input.value.text.startsWith('/'))
     return
 
   if (event.key === 'Backspace') {
@@ -211,6 +215,12 @@ function handleTemplateSelect(data: any) {
 
   input.value.text = ''
   input.value.files = []
+}
+
+function handleModelSelect(model: string) {
+  emits('selectModel', model)
+
+  input.value.text = ''
 }
 
 const tokenLimit = computed(() => userStore.value.isLogin ? 8192 : 256)
@@ -405,6 +415,7 @@ onStartTyping(focusInput)
 
 <template>
   <!-- error: status === Status.ERROR, -->
+  <!-- @keydown.enter="handleSend" -->
   <div
     ref="th_input" :class="{
       center,
@@ -414,7 +425,7 @@ onStartTyping(focusInput)
       showSend,
       generating: status === 1,
 
-    }" class="ThInput" @paste="handlePaste" @keydown.enter="handleSend"
+    }" class="ThInput" @paste="handlePaste"
   >
     <div :class="{ show: tokenLimit - len <= tokenLimit * 0.25 }" class="ThInput-Float">
       <div class="ThInput-Float-End">
@@ -427,6 +438,11 @@ onStartTyping(focusInput)
     <InputAddonThInputAt
       v-if="templateEnable" :target="th_input" :input="input.text"
       :show="!template?.title && input.text.startsWith('@')" @select="handleTemplateSelect"
+    />
+
+    <InputAddonThInputModel
+      :target="th_input" :input="input.text"
+      :show="input.text.startsWith('/')" @select="handleModelSelect"
     />
 
     <ThInputPlus
@@ -453,10 +469,7 @@ onStartTyping(focusInput)
             id="main-input" v-model="input.text" autofocus autocomplete="off" @focus="focus = true"
             @blur="focus = false" @keydown="handleInputKeydown"
           />
-          <div
-            v-if="!input.text && !input.files?.length"
-            class="ThInput-InputMain-Placeholder transition-cubic"
-          >
+          <div v-if="!input.text && !input.files?.length" class="ThInput-InputMain-Placeholder transition-cubic">
             <p>{{ placeholder }}</p>
           </div>
         </div>

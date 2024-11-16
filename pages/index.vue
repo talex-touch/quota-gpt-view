@@ -32,7 +32,7 @@ const pageOptions = reactive<{
   share: any
   status: IChatItemStatus
   feedback: any
-  model: QuotaModel
+  model: QuotaModel | string
   view: any
 }>({
   model: QuotaModel.QUOTA_THIS_NORMAL,
@@ -88,6 +88,10 @@ async function handleDelete(id: string) {
 function handleSelectTemplate(data: any) {
   if (!pageOptions.conversation.template)
     pageOptions.conversation.template = data
+}
+
+function handleSelectModel(model: string) {
+  pageOptions.model = model
 }
 
 watch(
@@ -406,7 +410,7 @@ function handleLogin() {
           <ThInput
             :template-enable="!pageOptions.conversation.messages.length" :status="pageOptions.status"
             :hide="pageOptions.share.enable" :center="pageOptions.conversation.messages?.length < 1" :tip="tip"
-            @send="handleSend" @select-template="handleSelectTemplate"
+            @send="handleSend" @select-template="handleSelectTemplate" @select-model="handleSelectModel"
           />
         </template>
       </EmptyGuide>

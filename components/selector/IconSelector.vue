@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import FontCarbon from '~/constants/carbon.json'
+import FontMaterialSymbols from '~/constants/material-symbols.json'
 // import FontRemix from '~/constants/ri.json'
 // import FontLineMd from '~/constants/line-md.json'
 
@@ -16,12 +17,17 @@ const icons = [
   {
     label: 'All',
     type: 'all',
-    value: [...FontCarbon],
+    value: [...FontCarbon, ...FontMaterialSymbols],
   },
   {
     label: 'Carbon',
     type: 'carbon',
     value: FontCarbon,
+  },
+  {
+    label: 'MaterialSymbols',
+    type: 'material-symbols',
+    value: FontMaterialSymbols,
   },
   // {
   //   label: 'Remix',

@@ -93,7 +93,7 @@ export interface IInnerItemMeta {
 
 export interface IChatInnerItem {
   page: number
-  model: QuotaModel
+  model: QuotaModel | string
   status: IChatItemStatus
   timestamp: number
 

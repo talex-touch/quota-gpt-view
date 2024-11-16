@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { models } from './model'
-// import { inputProperty } from '~/components/input/input'
 
 const props = defineProps<{
   modelValue: string
-  expand: boolean
 }>()
 
 const emits = defineEmits<{
@@ -14,117 +12,60 @@ const emits = defineEmits<{
 const modelRef = ref()
 const model = useVModel(props, 'modelValue', emits)
 
-watch(
-  () => props.expand,
-  () => {
-    handleLayout()
-  },
-  { immediate: true },
-)
-
-const expandSelect = ref()
-async function handleLayout() {
-  const el = modelRef.value
-  if (!el) {
-    nextTick(handleLayout)
-    return
-  }
-
-  props.expand && (expandSelect.value = model.value)
-
-  await sleep(100)
-
-  const items = el.querySelectorAll('.ModelSelector-Item');
-  [...items].forEach(async (item, index) => {
-    if (props.expand) {
-      Object.assign(item.style, {
-        top: '0',
-        left: `calc(${index * 200}px + ${0.5 * (index + 1)}rem)`,
-        width: '200px',
-      })
-
-      item.style.top = '0px'
-    }
-    else {
-      Object.assign(item.style, {
-        top: `calc(${index * 36}px + ${1 * index}rem)`,
-        left: '5%',
-        width: '90%',
-      })
-    }
-  })
-}
-
 function handleClick(item: any) {
-  // if (props.expand) {
-  //   expandSelect.value = item.value
-
-  //   return
-  // }
-
-  if (item.valuable)
+  if (item?.valuable)
     return
 
-  expandSelect.value = model.value = item.value
+  model.value = item.key
 }
 
-const mappedModel = computed(() => {
-  const subscriptionType = userStore.value?.subscription?.type
+// const mappedModel = computed(() => {
+//   const subscriptionType = userStore.value?.subscription?.type
 
-  const _models = JSON.parse(JSON.stringify(models))
-  if (!subscriptionType)
-    return _models
+//   const _models = JSON.parse(JSON.stringify(models))
+//   if (!subscriptionType)
+//     return _models
 
-  switch (subscriptionType) {
-    case 'ULTIMATE':
-      _models[2].valuable = false
-      // fallthrough
-    case 'STANDARD':
-      _models[1].valuable = false
-      break
-  }
+//   switch (subscriptionType) {
+//     case 'ULTIMATE':
+//       _models[2].valuable = false
+//       // fallthrough
+//     case 'STANDARD':
+//       _models[1].valuable = false
+//       break
+//   }
 
-  return _models
-})
+//   return _models
+// })
 </script>
 
 <template>
   <div ref="modelRef" class="ModelSelector-Models">
-    <div
-      v-for="item in mappedModel"
-      :key="item.name"
-      v-wave
-      :class="{
-        active: model === item.value,
-        valuable: item.valuable,
-      }"
-      class="ModelSelector-Item"
-      @click="handleClick(item)"
-    >
-      <div v-if="item.valuable" i-carbon-locked />
-      <div v-else i-carbon-unlocked />
-      {{ item.name }}
-    </div>
+    <el-scrollbar>
+      <div
+        v-for="item in models" :key="item.name" v-wave :class="{
+          active: model === item.key,
+
+        }" class="ModelSelector-Item fake-background" @click="handleClick(item)"
+      >
+        <!-- valuable: item.valuable, -->
+        <!-- <div v-if="item.valuable" i-carbon-locked />
+      <div v-else i-carbon-unlocked /> -->
+        <img :src="item.img">
+        {{ item.name }}
+      </div>
+    </el-scrollbar>
   </div>
 </template>
 
 <style lang="scss">
 .ModelSelector-Models {
-  .ModelSelector.expand & {
-    top: 100px;
-
-    left: 3.5%;
-    width: 93%;
-
-    height: calc(36px + 1rem);
-  }
-  position: absolute;
-
+  position: relative;
   left: 0;
   top: 0;
 
   width: 100%;
-  height: 100px;
+  height: calc(100% - 2.5rem);
 
   border-radius: 16px;
   transition: 0.25s cubic-bezier(0.785, 0.135, 0.15, 0.86);
@@ -135,25 +76,36 @@ const mappedModel = computed(() => {
     font-size: 14px;
   }
 
-  position: absolute;
-  padding: 0.5rem 1rem;
-  margin: 0.5rem 0;
+  img {
+    width: 32px;
+    height: 32px;
+  }
+
+  position: relative;
+  padding: 0.5rem;
+  margin: 1rem;
   display: flex;
 
   align-items: center;
 
   gap: 0.5rem;
-  height: 36px;
+  height: 52px;
 
   cursor: pointer;
+  font-size: 14px;
   border-radius: 12px;
   transition: 0.5s;
 
+  border: 2px solid #0000;
+
   &:hover {
-    background-color: var(--el-bg-color-page);
+    --fake-opacity: 0.25;
+    border: 2px solid var(--theme-color);
   }
   &.active {
-    background-color: var(--el-color-primary);
+    border: 2px solid var(--theme-color);
+    --fake-color: var(--theme-color);
+    --fake-opacity: 0.5;
   }
   &.valuable {
     &:hover {

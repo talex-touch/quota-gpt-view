@@ -10,6 +10,7 @@ import {
 } from 'unocss'
 
 import FontCarbon from './constants/carbon.json'
+import FontMaterialSymbol from './constants/material-symbols.json'
 // import FontRemix from './constants/ri.json'
 // import FontLineMd from './constants/line-md.json'
 
@@ -39,5 +40,5 @@ export default defineConfig({
     transformerDirectives(),
     transformerVariantGroup(),
   ],
-  safelist: FontCarbon,
+  safelist: [...FontCarbon, ...FontMaterialSymbol],
 })

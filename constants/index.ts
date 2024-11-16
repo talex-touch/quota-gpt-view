@@ -40,6 +40,16 @@ let _ENDS_URL = ''
 
 // (import.meta.env.DEV) ? ENDS_URL.dev : ENDS_URL.prod
 
+function getDefaultUrl() {
+  if (import.meta.env.DEV) {
+    if (location?.origin.includes("localhost"))
+      return ENDS_URL.local.value
+    return ENDS_URL.dev.value
+  }
+
+  return ENDS_URL.prod.value
+}
+
 /**
  * 定义全局选项类，主要用于管理和更新URL endpoints
  */
@@ -51,7 +61,7 @@ export class GlobalOptions {
    * import.meta.env 只能访问到 Vite 自动注入的环境变量，
    */
   constructor() {
-    this.setEndsUrl((import.meta.env.DEV) ? ENDS_URL.local.value : ENDS_URL.prod.value)
+    this.setEndsUrl(getDefaultUrl())
   }
 
   setEndsUrl(url: string) {
@@ -64,7 +74,7 @@ export class GlobalOptions {
 
   getEndsUrl() {
     if (!_ENDS_URL) {
-      return (import.meta.env.DEV) ? ENDS_URL.local.value : ENDS_URL.prod.value
+      return getDefaultUrl()
     }
 
     return _ENDS_URL
