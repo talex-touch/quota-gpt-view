@@ -62,6 +62,8 @@ watchEffect(() => {
 
   if (props.done) {
     setTimeout(async () => {
+      if (!curModel.value?.name)
+        return
       expand.value = true
 
       await sleep(1200)
