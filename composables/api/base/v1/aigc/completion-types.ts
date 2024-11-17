@@ -149,7 +149,7 @@ export interface IChatConversation extends IChatPersist {
 export interface IChatBody {
   chat_id: string
   index: number
-  model: QuotaModel
+  model: QuotaModel | string
   messages: IChatItem[]
   temperature: number
   templateId: number

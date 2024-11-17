@@ -1,6 +1,6 @@
-import { calculateConversation, mapStrStatus } from './entity'
+import { type IInnerItemType, calculateConversation, mapStrStatus } from './entity'
 import { endHttp } from '~/composables/api/axios'
-import { type IChatBody, type IChatConversation, type IChatInnerItem, type IChatItem, IChatItemStatus, IChatRole, type ICompletionHandler, type IInnerItemMeta, type IInnerItemType, PersistStatus, QuotaModel } from '~/composables/api/base/v1/aigc/completion-types'
+import { type IChatBody, type IChatConversation, type IChatInnerItem, type IChatItem, IChatItemStatus, IChatRole, type ICompletionHandler, type IInnerItemMeta, PersistStatus, QuotaModel } from '~/composables/api/base/v1/aigc/completion-types'
 
 let lastReceive = ''
 async function handleExecutorItem(item: string, callback: (data: any) => void) {
@@ -60,29 +60,32 @@ async function handleExecutorResult(reader: ReadableStreamDefaultReader<string>,
     if (!value.length)
       continue
 
+    if (value.includes('code') && value.includes('1101')) {
+      callback({
+        done: false,
+        error: true,
+        e: value,
+      })
+
+      return
+    }
+
     const _value = value
 
-    // const regex = /id:\s*(\d+)\ndata:\s*(\{.*?\})(?:\n|$)/gs
-    // const matches = _value.matchAll(regex)
-    // if (!match) {
-    //   console.error('Invalid format', _value)
-    //   continue
-    // }
-
-    // for (const match of matches) {
-    //   const [, id, dataValue] = match
-
-    //   console.log('---', match, dataValue)
-    // }
-
     const arr = _value.split('\n')
-
-    // console.log('a', arr, _value)
 
     for (let i = 0; i < arr.length; i++) {
       const item = arr[i]
 
       if (item.startsWith('data: ')) { handleExecutorItem(item.slice(6), callback) }
+      else if (item.startsWith('event: error')) {
+        callback({
+          done: false,
+          error: true,
+          e: arr?.[i + 2] || _value,
+        })
+        break
+      }
       else {
         if (arr.length === 1) {
           handleExecutorItem(item, callback)
@@ -153,8 +156,6 @@ async function useCompletionExecutor(body: IChatBody, callback: (data: any) => v
   const messages = ref(body.messages)
 
   messages.value = calculateConversation(messages)
-
-  console.log('a', messages)
 
   const msgList = messages.value
   const convertedMsgList: any = []
@@ -240,6 +241,7 @@ async function useCompletionExecutor(body: IChatBody, callback: (data: any) => v
       })
 
       const reader = res.pipeThrough(new TextDecoderStream()).getReader()
+
       await handleExecutorResult(reader, wrappedCallback)
     }
     catch (e) {
@@ -457,7 +459,7 @@ export const $completion = {
         //   innerMsg.status = IChatItemStatus.CANCELLED
         // })
 
-        console.log('template', conversation, conversation.template, conversation.template?.id ?? -1)
+        // console.log('template', conversation, conversation.template, conversation.template?.id ?? -1)
 
         useCompletionExecutor(
           {
@@ -477,7 +479,7 @@ export const $completion = {
             }
 
             if (res.error) {
-              console.log('res', res)
+              console.error('@completion error response', res)
 
               innerMsg.status = IChatItemStatus.ERROR
 
@@ -607,7 +609,7 @@ export const $completion = {
 
               const mappedStatus = mapStrStatus(res.status)
               if (mappedStatus === IChatItemStatus.ERROR) {
-                console.log('a12312', res)
+                console.error('@completion mapped error response', res)
 
                 const message: string = res.message
 

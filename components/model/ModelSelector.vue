@@ -24,10 +24,9 @@ const isMobile = document.body.classList.contains('mobile')
 
 const { floatingStyles } = useFloating(modelSelector, modelFloating, {
   placement: isMobile ? 'bottom' : 'top-start',
-  middleware: [/* offset(({ rects }) => ({
+  middleware: [offset(10, /* ({ rects }) => ({
     crossAxis: -rects.floating.width / 2,
-  })), */ flip(),
-  ],
+  }) */), flip()],
   whileElementsMounted: autoUpdate,
 })
 </script>
@@ -50,7 +49,7 @@ const { floatingStyles } = useFloating(modelSelector, modelFloating, {
     >
       <div class="ModelSelector-Selections fake-background">
         <p mb-0 class="title">
-          模型差异
+          模型列表
         </p>
 
         <ModelInner v-model="model" />
@@ -137,8 +136,15 @@ const { floatingStyles } = useFloating(modelSelector, modelFloating, {
       width: 100%;
       height: 100%;
 
+      opacity: 0.05;
       filter: blur(5px);
       background-color: #00000050;
+    }
+
+    .wallpaper & {
+      &::before {
+        opacity: 1;
+      }
     }
 
     img {

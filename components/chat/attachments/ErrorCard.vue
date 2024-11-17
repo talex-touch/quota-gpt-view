@@ -10,7 +10,10 @@ const _text = computed(() => {
   const text = props.block.value
 
   if (text.includes('aborted'))
-    return [`主体请求已被取消 (手动)`, '1101']
+    return [`主体请求已被取消 (手动)`, '1100']
+
+  if (text.includes('code') && text.includes('1101'))
+    return [`登录状态异常`, '1101']
 
   if (!text.includes(' ('))
     return [`${text}`, '500']
@@ -61,8 +64,10 @@ const description = computed(() => {
     return [3, '您尚未登录，请先登录以继续使用科塔智爱系统的全部功能。为确保正常体验，请前往登录页面完成登录操作。如有任何疑问，欢迎联系客服获取帮助。感谢您的理解与支持。']
   else if (+_text.value[1]! === 500)
     return [0, '发生未知错误，请联系管理员以获取进一步支持。我们将尽快为您解决问题，感谢您的理解和配合。']
-  else if (+_text.value[1]! === 1101)
+  else if (+_text.value[1]! === 1100)
     return [4, '由于手动取消了请求，当前请求已被终止。请尝试重新发起请求以发起新对话。']
+  else if (+_text.value[1]! === 1101)
+    return [3, '检测到您的登录状态出现异常，建议您尝试重新发送消息以恢复正常使用。']
 
   else return [-1, props.block.value]
 })
@@ -142,7 +147,7 @@ function handleClick() {
     width: 100%;
     height: 100%;
 
-    border-radius: 10px;
+    border-radius: 12px;
     &.primary {
       background-color: var(--el-color-primary);
     }
@@ -156,7 +161,7 @@ function handleClick() {
   position: relative;
   display: flex;
   margin: 0.5rem 0;
-  padding: 0.5rem 0.5rem;
+  padding: 0.5rem 0.75rem;
 
   gap: 0.5rem;
   align-items: center;
@@ -167,7 +172,7 @@ function handleClick() {
   opacity: 0.75;
   font-size: 14px;
   cursor: pointer;
-  border-radius: 10px;
+  border-radius: 12px;
   background-color: var(--el-bg-color-page);
 }
 
@@ -197,7 +202,7 @@ function handleClick() {
   width: max-content;
   max-width: 70%;
 
-  border-radius: 10px;
+  border-radius: 18px;
   background-color: var(--el-bg-color-page);
 }
 </style>
