@@ -252,7 +252,7 @@ function openSignPage() {
 
           <div class="daily-signin">
             <el-button v-if="isSignedToday" type="success" @click="openSignPage">
-              已连续签到{{ signinData.data?.amount }}天
+              已签到{{ signinData.data?.amount }}天
             </el-button>
             <el-button v-else type="primary" @click="handleDailySignin">
               今天还未签到

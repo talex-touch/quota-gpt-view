@@ -65,7 +65,7 @@ function handleClick(item: any) {
   top: 0;
 
   width: 100%;
-  height: calc(100% - 2.5rem);
+  height: calc(100% - 2rem);
 
   border-radius: 16px;
   transition: 0.25s cubic-bezier(0.785, 0.135, 0.15, 0.86);

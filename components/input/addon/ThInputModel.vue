@@ -30,7 +30,7 @@ watch(() => index.value, (ind) => {
   const id = `slash-model-${ind}`
   const el = document.getElementById(id)
 
-  if (el)
+  if (props.show && el)
     el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' })
 })
 

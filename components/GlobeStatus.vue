@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import * as Sentry from '@sentry/vue'
 import { $endApi } from '~/composables/api/base'
+import { globalOptions } from '~/constants'
 
 const online = useOnline()
 const status = ref(true)

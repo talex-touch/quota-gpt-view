@@ -84,8 +84,8 @@ async function handleRetry(model?: any) {
 
 <template>
   <span
-    ref="modelSelector" :class="{ expand: expand || hoverMode }" class="ItemModelSelector" @mouseenter="hoverMode = hover = true"
-    @mouseleave="hover = false"
+    ref="modelSelector" :class="{ expand: expand || hoverMode }" class="ItemModelSelector"
+    @mouseenter="hoverMode = hover = true" @mouseleave="hover = false"
   >
     <i i-carbon:renew op-50 />
     <span v-if="curModel" class="model-name">

@@ -19,7 +19,7 @@ const signList = computed(() => (props.data?.data || '').split(''))
       <div i-carbon:calendar />签到日历
     </div>
     <p style="font-size: 16px" op-50>
-      您已连续签到 {{ data.amount }}天
+      您已连续签到 {{ data.amount }} 天
     </p>
   </div>
   <div class="ModuleSignin TouchDialog-Content">
