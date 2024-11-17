@@ -197,7 +197,7 @@ function handleClick() {
     align-items: center;
   }
 
-  padding: 0.5rem 0.5rem;
+  padding: 0.75rem 0.75rem;
 
   width: max-content;
   max-width: 70%;
