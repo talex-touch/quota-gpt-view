@@ -70,7 +70,7 @@ function listen(el: HTMLElement, options: Options) {
     parentEl.style.transition = 'none'
   })
 
-  parentEl.addEventListener('touchend', (e) => {
+  parentEl.addEventListener('touchend', async (e) => {
     if (!_options.touch)
       return
 
@@ -90,23 +90,34 @@ function listen(el: HTMLElement, options: Options) {
       // console.log("end", elasticDistance)
 
       if (elasticDistance > elasticityClose) {
-        parentEl.style.transform = ''
+        parentEl.style.transition = '0.25s'
+        parentEl.style.transform = 'translateY(0) scaleY(1) translateY(1000px)'
+
+        await sleep(200)
 
         visible.value = false
+
+        parentEl.style.transform = ''
+        parentEl.style.transition = ''
         return
       }
 
+      parentEl.style.transition = '0.25s'
       parentEl.style.transform = `translateY(0) scaleY(1) translateY(-${elasticDistance}px)`
 
-      setTimeout(() => {
+      setTimeout(async () => {
         parentEl.style.transform = `translateY(0) scaleY(1) translateY(0px)`
-      }, 10)
+
+        await sleep(200)
+
+        parentEl.style.transition = ''
+      }, 200)
     }
   })
 
   const scaleRange = [1, 0.85]
 
-  parentEl.addEventListener('touchmove', (e) => {
+  parentEl.addEventListener('touchmove', async (e) => {
     if (!_options.touch)
       return
 
@@ -121,10 +132,17 @@ function listen(el: HTMLElement, options: Options) {
     const totalDiff = clientY - _options.startY
     if (totalDiff < 0)
       return
+
     if (totalDiff >= thresholdDistance) {
-      parentEl.style.transform = ''
+      parentEl.style.transition = '0.25s'
+      parentEl.style.transform = 'translateY(0) scaleY(1) translateY(1000px)'
+
+      await sleep(200)
 
       visible.value = false
+
+      parentEl.style.transform = ''
+      parentEl.style.transition = ''
 
       return
     }
@@ -141,8 +159,8 @@ function listen(el: HTMLElement, options: Options) {
 
 const _options: Options = {
   thresholdDistance: window.innerHeight * 0.9, // 设置阈值距离为100px
-  elasticity: 0.15, // 设置弹性系数为0.5
-  elasticityClose: 30, // 设置弹性系数为0.5
+  elasticity: 0.15,
+  elasticityClose: 30,
 }
 
 onMounted(() => {
@@ -156,7 +174,7 @@ onMounted(() => {
       :style="`z-index: ${zIndex}`" :class="{ visible, forbidden: dialogOptions.forbidden, loading }"
       class="TouchDialog transition-cubic" @click="handleClickOutside"
     >
-      <div class="TouchDialog-Main Main transition-cubic" @click.stop="">
+      <div class="TouchDialog-Main Main" @click.stop="">
         <div class="TouchDialog-Close" @click="visible = false">
           <div i-carbon:close />
         </div>
@@ -283,6 +301,7 @@ onMounted(() => {
       .mobile & {
         padding: 0.125rem;
       }
+
       padding: 1rem;
       display: flex;
 
@@ -306,6 +325,7 @@ onMounted(() => {
       border-top: 1px solid var(--el-border-color);
     }
 
+    padding: 0 0.25rem;
     display: flex;
 
     flex-direction: column;
@@ -371,10 +391,12 @@ onMounted(() => {
 }
 
 .TouchDialog .slider {
-  &:hover {
+  &:hover,
+  &.active {
     opacity: 1;
     transform: scale(1.1, 1.05);
   }
+
   position: absolute;
   margin: 0 auto;
 
@@ -404,6 +426,7 @@ onMounted(() => {
 
       transition: cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.05s;
     }
+
     transform: scale(1.025);
   }
 
