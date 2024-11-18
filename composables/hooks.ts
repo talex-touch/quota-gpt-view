@@ -44,6 +44,10 @@
 // }
 
 export function useWindowView() {
+  const { isApple } = useDevice()
+  if (isApple)
+    return
+
   const { width, height } = useWindowSize()
 
   function initWindowView([width, height]: number[]) {
