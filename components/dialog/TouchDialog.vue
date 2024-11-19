@@ -54,10 +54,20 @@ function listen(el: HTMLElement, options: Options) {
     startY: -1,
   }
 
-  el.addEventListener('touchstart', (e) => {
+  function onTouchStart(e: TouchEvent) {
     // 如果触控点不止一个不触发
     if (e.touches.length !== 1)
       return
+
+    const targetElement = e.composedPath()[0] as HTMLElement
+
+    if (targetElement !== el) {
+      const scrollbar = parentEl.querySelector('.el-scrollbar .el-scrollbar__wrap')
+      const top = scrollbar?.scrollTop || 0
+
+      if (top !== 0)
+        return
+    }
 
     e.stopPropagation()
 
@@ -68,7 +78,10 @@ function listen(el: HTMLElement, options: Options) {
     _options.touch = true
 
     parentEl.style.transition = 'none'
-  })
+  }
+
+  el.addEventListener('touchstart', onTouchStart)
+  parentEl.addEventListener('touchstart', onTouchStart)
 
   parentEl.addEventListener('touchend', async (e) => {
     if (!_options.touch)

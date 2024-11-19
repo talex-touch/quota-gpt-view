@@ -42,7 +42,7 @@ let _ENDS_URL = ''
 
 function getDefaultUrl() {
   if (import.meta.env.DEV) {
-    if (location?.origin.includes("localhost"))
+    if (location?.origin.includes("localhost") || location?.origin.includes("127.0.0.1"))
       return ENDS_URL.local.value
     return ENDS_URL.dev.value
   }
