@@ -171,9 +171,9 @@ function listen(el: HTMLElement, options: Options) {
 }
 
 const _options: Options = {
-  thresholdDistance: window.innerHeight * 0.9, // 设置阈值距离为100px
+  thresholdDistance: window.innerHeight * 0.8, // 设置阈值距离为100px
   elasticity: 0.15,
-  elasticityClose: 30,
+  elasticityClose: 20,
 }
 
 onMounted(() => {

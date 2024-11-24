@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import LoadingIcon from '../icon/LoadingIcon.vue'
 import LoginCore from './login/LoginCore.vue'
 import { Platform, getQrCodeStatus, postQrCodeReq, qrCodeLogin, sendSMSCode, useSMSLogin } from '~/composables/api/auth'
 import ThCheckBox from '~/components/checkbox/ThCheckBox.vue'
@@ -70,6 +71,7 @@ const show = useVModel(props, 'show', emits)
 const codeData = useLocalStorage('code-data', {
   active: 'phone',
   expired: true,
+  loading: false,
   lastFetch: -1,
   data: {},
 })
@@ -237,6 +239,8 @@ onMounted(async () => {
 })
 
 async function fetchCode() {
+  codeData.value.loading = true
+
   let { lastFetch, data: _data, expired } = codeData.value
 
   if (Date.now() - lastFetch >= 280000 || expired) {
@@ -249,6 +253,8 @@ async function fetchCode() {
       codeData.value.expired = false
     }
   }
+
+  codeData.value.loading = false
 }
 
 async function codeStatusTimer() {
@@ -411,11 +417,17 @@ const codeUrl = computed(() => `https://mp.weixin.qq.com/cgi-bin/showqrcode?tick
               <p>协议</p>
               <span>你需要同意协议</span>
             </div>
+            <div v-else-if="codeData.loading" class="scanned">
+              <LoadingIcon />
+              <p>正在加载</p>
+              <span>正在获取验证码</span>
+            </div>
             <div v-else-if="codeData.expired" cursor-pointer class="scanned" @click="fetchCode">
               <div i-carbon:ibm-cloud-direct-link-1-dedicated />
               <p>已过期</p>
               <span>点击刷新验证码</span>
             </div>
+
             <div v-else-if="codeStatus === 4" class="scanned">
               <div i-carbon:notification />
               <p>需要绑定</p>

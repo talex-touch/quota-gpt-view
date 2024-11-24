@@ -157,7 +157,7 @@ function handleCreate() {
 
   pageOptions.share.enable = false
 
-  navigator.vibrate(5)
+  useVibrate('medium')
 
   return true
 }
@@ -199,7 +199,7 @@ async function innerSend(conversation: IChatConversation, chatItem: IChatItem, i
 
       setTimeout(() => chatRef.value?.generateScroll(), 800)
 
-      navigator.vibrate([5])
+      useVibrate('medium')
 
       setTimeout(() => {
         chatRef.value?.generateScroll()
@@ -210,7 +210,7 @@ async function innerSend(conversation: IChatConversation, chatItem: IChatItem, i
     },
   })
 
-  navigator.vibrate(2)
+  useVibrate('light')
 
   return chatCompletion
 }

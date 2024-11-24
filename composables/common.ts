@@ -260,7 +260,7 @@ export function formatEndsImage(url: string) {
   return globalOptions.getEndsUrl() + url
 }
 
-export function useTypedRef<T extends abstract new (...args: any) => any >(_comp: T) {
+export function useTypedRef<T extends abstract new (...args: any) => any>(_comp: T) {
   return ref<InstanceType<T>>()
 }
 
@@ -274,4 +274,26 @@ export function mapperRange(rangeA: [number, number], rangeB: [number, number], 
   const [minB, maxB] = rangeB
 
   return minB + (value - minA) * (maxB - minB) / (maxA - minA)
+}
+
+export function useVibrate(type: 'light' | 'heavy' | 'medium' | 'bit') {
+  switch (type) {
+    case 'light':
+      useAutoVibrate([5])
+      break
+    case 'heavy':
+      useAutoVibrate([5, 30])
+      break
+    case 'medium':
+      useAutoVibrate([10, 15])
+      break
+    case 'bit':
+      useAutoVibrate([2, 1])
+      break
+  }
+}
+
+export function useAutoVibrate(duration: number[]) {
+  if (typeof window !== 'undefined' && window.navigator.vibrate)
+    window.navigator.vibrate(duration)
 }
