@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { autoUpdate, flip, offset, useFloating } from '@floating-ui/vue'
+import { models } from '~/components/model/model'
 import { QuotaModel } from '~/composables/api/base/v1/aigc/completion-types'
 
 const props = defineProps<{
@@ -18,7 +19,7 @@ const hover = ref(false)
 const hoverMode = debouncedRef(hover, 200)
 const model = useVModel(props, 'modelValue', emits)
 
-const models = reactive([
+const modelInfo = reactive([
   {
     icon: 'i-carbon:flash-filled',
     name: '4',
@@ -47,7 +48,7 @@ const models = reactive([
   },
 ])
 
-const curModel = computed(() => models.find(_model => _model.value === model.value))
+const curModel = computed(() => models.find(_model => _model.key === model.value))
 
 const modelSelector = ref()
 const modelFloating = ref()
@@ -107,7 +108,7 @@ async function handleRetry(model?: any) {
         </p>
         <div class="model-selector-content">
           <div
-            v-for="_model in models" :key="_model.value" v-wave :class="{ lock: !(_model.lock?.() ?? true) }"
+            v-for="_model in modelInfo" :key="_model.value" v-wave :class="{ lock: !(_model.lock?.() ?? true) }"
             class="model-popover-item" @click="handleRetry(_model)"
           >
             <div class="icon fake-background">
@@ -327,6 +328,10 @@ async function handleRetry(model?: any) {
     max-width: 0;
 
     opacity: 0;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   position: relative;
   display: flex;
