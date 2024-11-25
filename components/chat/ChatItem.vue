@@ -6,6 +6,7 @@ import { api as viewerApi } from 'v-viewer'
 import RoundLoading from '../loaders/RoundLoading.vue'
 import TextShaving from '../other/TextShaving.vue'
 import ThCheckBox from '../checkbox/ThCheckBox.vue'
+import { models } from '../model/model'
 import ChatAttachment from './ChatAttachment.vue'
 import ItemModelSelector from './addon/ItemModelSelector.vue'
 import ErrorCard from './attachments/ErrorCard.vue'
@@ -139,6 +140,10 @@ function handleViewImage(src: string) {
 function noneCard(block: IInnerItemMeta) {
   console.log('none card result', block)
 }
+
+const targetModel = computed(() =>
+  models.find(model => model.key === innerItem.value?.model),
+)
 </script>
 
 <template>
@@ -149,7 +154,7 @@ function noneCard(block: IInnerItemMeta) {
 
     <div class="ChatItem-Avatar">
       <PersonalUserAvatar v-if="template?.avatar" :avatar="template.avatar" />
-      <img v-else src="/logo.png">
+      <img v-else :src="targetModel?.img || '/logo.png'">
     </div>
     <!-- error: innerItem.status === IChatItemStatus.ERROR, -->
     <div v-if="innerItem" class="ChatItem-Wrapper">
@@ -628,7 +633,21 @@ div.ChatItem-Wrapper.error div.ChatItem-Content-Inner {
   }
 
   .ChatItem-Avatar {
+    img {
+      width: 32px;
+      height: 32px;
+    }
+    position: relative;
+    display: flex;
+
     width: 48px;
+    height: 48px;
+
+    justify-content: center;
+    align-items: center;
+
+    overflow: hidden;
+    border-radius: 50%;
   }
 
   &-Content {
