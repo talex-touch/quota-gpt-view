@@ -19,7 +19,6 @@ const props = defineProps<{
 }>()
 const emits = defineEmits<{
   (event: 'selectTemplate', data: any): void
-  (event: 'selectModel', model: string): void
   (event: 'send', data: IInnerItemMeta[], meta: IChatInnerItemMeta): void
 }>()
 
@@ -218,7 +217,7 @@ function handleTemplateSelect(data: any) {
 }
 
 function handleModelSelect(model: string) {
-  emits('selectModel', model)
+  globalConfigModel.value = model
 
   input.value.text = ''
 }

@@ -393,7 +393,7 @@ function openSignPage() {
           分享管理
         </div>
         <p class="subtitle">
-          查看。管理您的历史对话分享记录
+          查看，管理您的历史对话分享记录
         </p>
       </div>
 

@@ -4,7 +4,6 @@ import ThInput from '~/components/input/ThInput.vue'
 import History from '~/components/history/index.vue'
 import ShareSection from '~/components/chat/ShareSection.vue'
 import ModelSelector from '~/components/model/ModelSelector.vue'
-import type { InputPlusProperty } from '~/components/input/input'
 import { getTargetPrompt } from '~/composables/api/chat'
 import { $completion } from '~/composables/api/base/v1/aigc/completion'
 import { type IChatConversation, type IChatInnerItem, type IChatInnerItemMeta, type IChatItem, IChatItemStatus, type IInnerItemMeta, PersistStatus, QuotaModel } from '~/composables/api/base/v1/aigc/completion-types'
@@ -15,6 +14,7 @@ import EmptyGuide from '~/components/chat/EmptyGuide.vue'
 import { useHotKeysHook } from '~/composables/aigc'
 import { calculateConversation } from '~/composables/api/base/v1/aigc/completion/entity'
 import '~/composables/index.d.ts'
+import { globalConfigModel } from '~/composables/user'
 
 definePageMeta({
   layout: 'default',
@@ -32,10 +32,8 @@ const pageOptions = reactive<{
   share: any
   status: IChatItemStatus
   feedback: any
-  model: QuotaModel | string
   view: any
 }>({
-  model: QuotaModel.QUOTA_THIS_NORMAL,
   feedback: {
     visible: false,
   },
@@ -90,10 +88,6 @@ function handleSelectTemplate(data: any) {
     pageOptions.conversation.template = data
 }
 
-function handleSelectModel(model: string) {
-  pageOptions.model = model
-}
-
 watch(
   () => pageOptions.select,
   (select) => {
@@ -124,7 +118,7 @@ watch(
 
         const content = lastMsg?.content[lastMsg.page]
 
-        pageOptions.model = content?.model || QuotaModel.QUOTA_THIS_NORMAL
+        globalConfigModel.value = content?.model || QuotaModel.QUOTA_THIS_NORMAL
         pageOptions.status = content?.status || IChatItemStatus.AVAILABLE
       }
       else {
@@ -241,7 +235,7 @@ async function handleRetry(index: number, page: number, innerItem: IChatInnerIte
 
   curController = completion.send()
 
-  pageOptions.model = innerItem.model
+  globalConfigModel.value = innerItem.model
 
   chatRef.value?.handleBackToBottom()
 }
@@ -263,11 +257,11 @@ async function handleSend(query: IInnerItemMeta[], meta: IChatInnerItemMeta) {
 
   function getModel() {
     if (!shiftItem)
-      return pageOptions.model
+      return globalConfigModel.value
 
     const inner = shiftItem.content[shiftItem.page]
 
-    return inner?.model || pageOptions.model
+    return inner?.model || globalConfigModel.value
   }
 
   const chatItem = $completion.emptyChatItem()
@@ -288,7 +282,7 @@ async function handleSend(query: IInnerItemMeta[], meta: IChatInnerItemMeta) {
 
   const completion = await innerSend(conversation, chatItem, chatItem.page)
 
-  completion.innerMsg.model = pageOptions.model
+  completion.innerMsg.model = globalConfigModel.value
 
   curController = completion.send()
 
@@ -390,13 +384,13 @@ function handleLogin() {
         @cancel="handleCancelReq" @retry="handleRetry" @suggest="handleSuggest"
       >
         <template v-if="!viewMode" #model>
-          <ModelSelector v-if="mount" v-model="pageOptions.model" />
+          <ModelSelector v-if="mount" v-model="globalConfigModel" />
         </template>
         <template v-if="!viewMode" #header>
           <CheckboxSwanCheckBox v-model="expand" />
           <!-- <div i-carbon:text-short-paragraph @click="userConfig.pri_info.appearance.expand = true" /> -->
 
-          <ModelSelector v-if="mount" v-model="pageOptions.model" />
+          <ModelSelector v-if="mount" v-model="globalConfigModel" />
 
           <div v-if="userStore.isLogin" style="font-size: 16px" i-carbon:edit @click="handleCreate" />
           <div v-else class="login-tag" @click="handleLogin">
@@ -410,7 +404,7 @@ function handleLogin() {
           <ThInput
             :template-enable="!pageOptions.conversation.messages.length" :status="pageOptions.status"
             :hide="pageOptions.share.enable" :center="pageOptions.conversation.messages?.length < 1" :tip="tip"
-            @send="handleSend" @select-template="handleSelectTemplate" @select-model="handleSelectModel"
+            @send="handleSend" @select-template="handleSelectTemplate"
           />
         </template>
       </EmptyGuide>

@@ -3,6 +3,7 @@ import { getAccountDetail, getPermissionList, getUserSubscription } from './api/
 import { endHttp } from './api/axios'
 import { $endApi } from './api/base'
 import { $event } from './events'
+import type { QuotaModel } from './api/base/v1/aigc/completion-types'
 
 export interface AccountDetail {
   id: number
@@ -42,7 +43,9 @@ const rawUserConfig = {
     },
     home: {
       index: {},
-      chat: {},
+      chat: {
+        model: 'this-normal',
+      },
     },
     info: {
       tutorial: true,
@@ -57,6 +60,15 @@ const rawUserConfig = {
   loading: false,
 }
 export const userConfig = ref<typeof rawUserConfig>(JSON.parse(JSON.stringify(rawUserConfig)))
+
+export const globalConfigModel = computed({
+  set(val: string | QuotaModel) {
+    userConfig.value.pri_info.home.chat.model = val as unknown as string
+  },
+  get() {
+    return userConfig.value.pri_info.home.chat.model
+  },
+})
 
 watch(() => userStore.value.token?.accessToken, (token) => {
   userStore.value.isLogin = !!token

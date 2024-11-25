@@ -48,7 +48,6 @@ function handleKeyDown(e: KeyboardEvent) {
       index.value = index.value < list.value.length - 1 ? index.value + 1 : 0
       break
     case 'Enter': {
-      console.log('here')
       e.preventDefault()
       e.stopImmediatePropagation()
       handleSelect(index.value)
@@ -77,10 +76,8 @@ const { floatingStyles } = useFloating(inputRef, floatingRef, {
   whileElementsMounted: autoUpdate,
 })
 
-const pageOptions: any = inject('pageOptions')!
-
-watch(() => pageOptions.model, () => {
-  index.value = models.findIndex(item => item.key === pageOptions.model) || 0
+watch(() => globalConfigModel.value, () => {
+  index.value = models.findIndex(item => item.key === globalConfigModel.value) || 0
 })
 </script>
 
