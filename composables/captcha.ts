@@ -19,18 +19,18 @@ declare global {
 }
 
 export function newCaptcha(scene: CaptchaSceneId, elementQuery: string, triggerQuery: string, callback: CaptchaCallback) {
-  if (!window.initAliyunCaptcha) {
-    console.log('waiting')
+  // if (!window.initAliyunCaptcha) {
+  //   console.log('waiting')
 
-    setTimeout(() => newCaptcha(scene, elementQuery, triggerQuery, callback), 200)
-    return
-  }
+  //   setTimeout(() => newCaptcha(scene, elementQuery, triggerQuery, callback), 200)
+  //   return
+  // }
 
-  let captcha: any
+  // let captcha: any
 
-  function getInstance(instance: any) {
-    captcha = instance
-  }
+  // function getInstance(instance: any) {
+  //   captcha = instance
+  // }
 
   //   async function captchaVerifyCallback(captchaVerifyParam: any) {
   //     // 1.向后端发起业务请求，获取验证码验证结果和业务结果
@@ -48,21 +48,21 @@ export function newCaptcha(scene: CaptchaSceneId, elementQuery: string, triggerQ
   //   }
   // }
 
-  window.initAliyunCaptcha({
-    SceneId: scene,
-    element: elementQuery,
-    button: triggerQuery,
-    captchaVerifyCallback: callback.captchaVerifyCallback, // 业务请求(带验证码校验)回调函数，无需修改
-    onBizResultCallback: callback.onBizResultCallback, // 业务请求结果回调函数，无需修改
-    getInstance,
-    slideStyle: {
-      width: 360,
-      height: 40,
-    },
-    language: 'cn',
-    region: 'cn',
-    ...CaptchaConstantConfig,
-  })
+  // window.initAliyunCaptcha({
+  //   SceneId: scene,
+  //   element: elementQuery,
+  //   button: triggerQuery,
+  //   captchaVerifyCallback: callback.captchaVerifyCallback, // 业务请求(带验证码校验)回调函数，无需修改
+  //   onBizResultCallback: callback.onBizResultCallback, // 业务请求结果回调函数，无需修改
+  //   getInstance,
+  //   slideStyle: {
+  //     width: 360,
+  //     height: 40,
+  //   },
+  //   language: 'cn',
+  //   region: 'cn',
+  //   ...CaptchaConstantConfig,
+  // })
 }
 
 //   /**

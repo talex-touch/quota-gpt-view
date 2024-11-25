@@ -87,7 +87,7 @@ export default defineNuxtConfig({
         { name: 'theme-color', media: '(prefers-color-scheme: dark)', content: '#222222' },
       ],
       script: [
-        { async: true, src: 'https://o.alicdn.com/captcha-frontend/aliyunCaptcha/AliyunCaptcha.js' },
+        // { async: true, src: 'https://o.alicdn.com/captcha-frontend/aliyunCaptcha/AliyunCaptcha.js' },
         // { async: true, src: 'https://lf1-cdn-tos.bytegoofy.com/goofy/lark/op/h5-js-sdk-1.5.30.js' },
         // { async: true, src: 'https://sf1-scmcdn-cn.feishucdn.com/obj/feishu-static/op/fe/devtools_frontend/remote-debug-0.0.1-alpha.6.js' },
         // { async: true, src: 'https://unpkg.com/vconsole/dist/vconsole.min.js' },
