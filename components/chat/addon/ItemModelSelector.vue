@@ -90,7 +90,7 @@ async function handleRetry(model?: any) {
     @mouseenter="hoverMode = hover = true" @mouseleave="hover = false"
   >
     <i i-carbon:renew op-50 />
-    <span v-if="curModel" class="model-name">
+    <span v-if="curModel" class="model-name transition-cubic">
       {{ curModel.name }}
     </span>
     <i style="font-size: 10px;opacity: 0.5" i-carbon:chevron-down />
@@ -314,19 +314,19 @@ async function handleRetry(model?: any) {
   &.expand {
     .model-name {
       opacity: 0.5;
+      max-width: 100px;
+
+      transition: 0.5s;
     }
-    width: 54px;
 
     background-color: var(--el-bg-color-page);
   }
   .model-name {
-    position: absolute;
+    position: relative;
 
-    left: 50%;
+    max-width: 0;
 
     opacity: 0;
-    transition: 0.25s;
-    transform: translateX(-50%) translateX(2.5px);
   }
   position: relative;
   display: flex;
@@ -336,7 +336,7 @@ async function handleRetry(model?: any) {
   align-items: center;
   justify-content: space-between;
 
-  width: 40px;
+  width: max-content;
 
   cursor: pointer;
   border-radius: 8px;
