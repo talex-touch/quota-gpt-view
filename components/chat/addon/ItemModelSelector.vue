@@ -315,7 +315,7 @@ async function handleRetry(model?: any) {
   &.expand {
     .model-name {
       opacity: 0.5;
-      max-width: 100px;
+      max-width: 150px;
 
       transition: 0.5s;
     }
@@ -328,6 +328,8 @@ async function handleRetry(model?: any) {
     max-width: 0;
 
     opacity: 0;
+
+    font-size: 12px;
 
     overflow: hidden;
     text-overflow: ellipsis;
