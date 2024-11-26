@@ -144,6 +144,8 @@ function noneCard(block: IInnerItemMeta) {
 const targetModel = computed(() =>
   models.find(model => model.key === innerItem.value?.model),
 )
+
+const contentsLength = computed(() => (innerItem.value?.value || []).reduce((amo, item) => amo + (item?.data === 'suggest' ? 0 : (item?.value?.length || 0)), 0))
 </script>
 
 <template>
@@ -269,7 +271,7 @@ const targetModel = computed(() =>
         <span class="info">
           <span class="date">{{ timeAgo }}</span>
           &nbsp;
-          <span v-if="innerItem.value?.length > 30" class="length">{{ innerItem.value.length }} 字</span>
+          <span v-if="contentsLength > 30" class="length">{{ contentsLength }} 字</span>
         </span>
       </div>
     </div>
