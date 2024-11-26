@@ -25,7 +25,11 @@ function handleSelect($event: IChatConversation, item: IChatConversation) {
 
 <template>
   <div class="HistorySection">
-    <p>{{ title }}</p>
+    <p flex items-center justify-between>
+      <span>{{ title }}</span>
+
+      <span v-if="history?.length" class="record transition-cubic" text-sm font-normal>({{ history?.length }}条)</span>
+    </p>
 
     <div class="History-ContentHolder">
       <HistoryItem
@@ -43,7 +47,15 @@ function handleSelect($event: IChatConversation, item: IChatConversation) {
 }
 
 .HistorySection {
+  &:hover .record {
+    opacity: 0.5;
+  }
+
   p {
+    .record {
+      opacity: 0;
+    }
+
     z-index: 1;
     position: sticky;
 
