@@ -134,7 +134,7 @@ export class HistoryManager implements IHistoryManager {
 
       const res = await $endApi.v1.aigc.uploadHistory(uploadQuery)
 
-      if (!responseMessage(res, { success: '', triggerOnDataNull: true }))
+      if (res.message !== 'success')
         return uploadHandler.onHistoryUploadFailed(new Error(res.message || 'Upload failed'))
 
       uploadHandler.onHistoryUploadSuccess()
