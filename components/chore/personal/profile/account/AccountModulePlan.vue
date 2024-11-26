@@ -98,7 +98,7 @@ const planProgress = computed(() => {
 
               <div class="card-footer">
                 <div v-if="item.select()" class="card-progress">
-                  <div class="card-progress-inner" :style="`--p: ${planProgress?.progress}%`" />
+                  <div class="card-progress-inner" :style="`--p: ${100 - (planProgress?.progress || 0)}%`" />
                   <span class="card-progress-text">订阅时间至 {{ planProgress?.text }}</span>
                 </div>
                 <div v-else-if="index">
