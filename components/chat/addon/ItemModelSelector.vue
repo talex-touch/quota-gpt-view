@@ -22,16 +22,16 @@ const model = useVModel(props, 'modelValue', emits)
 const modelInfo = reactive([
   {
     icon: 'i-carbon:flash-filled',
-    name: '4',
-    label: 'GPT-4-mini',
+    name: '标准',
+    label: '标准模型',
     value: 'this-normal',
     model: QuotaModel.QUOTA_THIS_NORMAL,
     desc: '快到极致，迅猛如电',
   },
   {
     icon: 'i-carbon:circle-filled',
-    name: '4o',
-    label: 'GPT-4o',
+    name: '强化',
+    label: '强化模型',
     value: 'this-normal-turbo',
     desc: '复杂任务的好手，更应手',
     model: QuotaModel.QUOTA_THIS_NORMAL_TURBO,
@@ -39,8 +39,8 @@ const modelInfo = reactive([
   },
   {
     icon: 'i-carbon:watsonx-ai',
-    name: '5o',
-    label: 'GPT-5o',
+    name: '高级',
+    label: '高级模型',
     value: 'this-normal-ultimate',
     desc: '不只是模态能力，来试试',
     model: QuotaModel.QUOTA_THIS_NORMAL_ULTRA,
