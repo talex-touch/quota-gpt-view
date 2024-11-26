@@ -113,7 +113,7 @@ export class HistoryManager implements IHistoryManager {
 
     async function _innerUpload() {
       if (!history.id?.length)
-        throw new Error('history id is empty')
+        return uploadHandler.onHistoryUploadFailed(new Error('history id is empty'))
 
       const uploadTime = new Date()
 
@@ -134,22 +134,15 @@ export class HistoryManager implements IHistoryManager {
 
       const res = await $endApi.v1.aigc.uploadHistory(uploadQuery)
 
-      if (res.code !== 200)
-        throw new Error(res.message || 'Upload failed')
+      if (!responseMessage(res, { success: '', triggerOnDataNull: true }))
+        return uploadHandler.onHistoryUploadFailed(new Error(res.message || 'Upload failed'))
 
       uploadHandler.onHistoryUploadSuccess()
 
       return true
     }
 
-    try {
-      return _innerUpload()
-    }
-    catch (e: any) {
-      uploadHandler.onHistoryUploadFailed(e instanceof Error ? e : new Error(e))
-    }
-
-    return false
+    return _innerUpload()
   }
 
   isLoading() {

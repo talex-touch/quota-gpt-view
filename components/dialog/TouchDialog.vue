@@ -3,7 +3,7 @@ import { ZINDEX_INJECTION_KEY, useZIndex } from 'element-plus'
 
 const props = defineProps<{
   modelValue: boolean
-  loading: boolean
+  loading?: boolean
   header?: boolean
   footer?: boolean
 }>()

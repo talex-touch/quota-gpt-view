@@ -170,7 +170,7 @@ async function handleShareMenu(share: any) {
 
   const res = await $endApi.v1.aigc.getConversation(content.id)
 
-  if (responseMessage(res, { success: '' })) {
+  if (responseMessage(res, { success: '', triggerOnDataNull: false })) {
     dialogOptions.data = { ...res.data, id: res.data.chat_id, lastUpdate: new Date(res.data.updatedAt).getTime() }
 
     sleep(200).then(() => shareRef.value?.openShareDialog())

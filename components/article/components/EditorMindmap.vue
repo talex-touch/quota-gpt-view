@@ -11,9 +11,11 @@ const { scripts, styles } = transformer.getAssets()
 loadCSS(styles)
 loadJS(scripts)
 
-let mm
+let mm, mmF
 const loading = ref(false)
 const svgRef = ref()
+const fullscreenSvg = ref()
+
 function update() {
   const node = props.node
 
@@ -52,12 +54,33 @@ async function download() {
 
   loading.value = false
 }
+
+const fullscreen = ref(false)
+
+function toFullscreen() {
+  fullscreen.value = true
+
+  if (!mmF)
+    mmF = Markmap.create(fullscreenSvg.value)
+
+  const node = props.node
+
+  nextTick(() => {
+    const { root } = transformer.transform(node.textContent)
+    mmF.setData(root)
+    mmF.fit()
+
+    mmF.zoom(0)
+  })
+}
 </script>
 
 <template>
   <div v-loader="loading" class="EditorMindMap">
     <div class="EditorMindMap-Inner">
-      <svg ref="svgRef" class="EditorMindMap-Inner" />
+      <svg ref="svgRef" class="EditorMindMap-Inner">
+        <!-- Placeholder -->
+      </svg>
 
       <div class="EditorMindMap-TextWaterMark">
         ThisAI
@@ -69,13 +92,29 @@ async function download() {
     </div>
 
     <div class="EditorMindMap-Toolbar transition-cubic fake-background">
+      <!-- TODO: 代码编辑 -->
+      <div i-carbon:fit-to-screen @click="toFullscreen" />
       <div i-carbon:download @click="download" />
       <div i-carbon:reset @click="mm.fit()" />
     </div>
+
+    <DialogTouchDialog v-model="fullscreen">
+      <template #Title>
+        思维导图
+      </template>
+      <svg ref="fullscreenSvg" class="EditorMindMap-FullInner">
+        <!-- Placeholder -->
+      </svg>
+    </DialogTouchDialog>
   </div>
 </template>
 
 <style lang="scss">
+.EditorMindMap-FullInner {
+  width: 60vw;
+  height: 60vh;
+}
+
 .EditorMindMap-TextWaterMark {
   z-index: 0;
   position: absolute;

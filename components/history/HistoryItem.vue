@@ -133,7 +133,7 @@ async function handleSelect(e?: Event) {
 
   const res = await $endApi.v1.aigc.getConversation(props.modelValue.id)
 
-  if (responseMessage(res, { success: '' }))
+  if (responseMessage(res, { success: '', triggerOnDataNull: true }))
     emits('click', decodeObject(res.data.value))
 
   loading.value = false

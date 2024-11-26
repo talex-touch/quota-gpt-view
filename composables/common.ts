@@ -119,8 +119,9 @@ export function randomStr(len: number = 16) {
 
 export function responseMessage(res: IStandardResponse, options = {
   success: '操作成功',
+  triggerOnDataNull: false,
 }) {
-  if (res.code === 200) {
+  if (res.code === 200 && (!options.triggerOnDataNull || res.data)) {
     if (options.success) {
       ElMessage({
         message: options.success,

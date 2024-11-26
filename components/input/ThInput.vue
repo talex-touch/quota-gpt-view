@@ -41,7 +41,7 @@ const fileUploaded = computed(() => input.value.files.filter(item => !item.extra
 const inputHistories = useLocalStorage<string[]>('inputHistories', [])
 const inputHistoryIndex = ref(inputHistories.value.length - 1)
 const showSend = computed(() => input.value.text?.length || input.value.files?.length)
-const canSend = computed(() => fileUploaded.value && showSend.value && (props.status === IChatItemStatus.AVAILABLE || props.status === IChatItemStatus.CANCELLED))
+const canSend = computed(() => fileUploaded.value && showSend.value && (props.status === IChatItemStatus.AVAILABLE || props.status === IChatItemStatus.CANCELLED || props.status === IChatItemStatus.ERROR))
 
 function handleSend(event: Event) {
   if (!canSend.value)

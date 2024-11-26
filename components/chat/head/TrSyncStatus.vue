@@ -31,7 +31,7 @@ const modified = computed(() => props.status === C.PersistStatus.MODIFIED)
       已同步
     </template>
     <template v-else-if="failed">
-      <i i-carbon:checkmark block />
+      <i i-carbon:close block />
       同步失败
     </template>
     <template v-else>

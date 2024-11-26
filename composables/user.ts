@@ -96,6 +96,7 @@ async function _saveUserConfig() {
 
   return responseMessage(res, {
     success: '',
+    triggerOnDataNull: false,
   })
 }
 
@@ -155,10 +156,11 @@ export async function refreshUserDummy() {
 }
 
 export async function refreshUserSubscription() {
+  const beforeHas = !!userStore.value.subscription
   userStore.value.subscription = undefined
 
   const { data } = await getUserSubscription()
-  if (!data) {
+  if (beforeHas && !data) {
     ElNotification({
       title: '订阅已过期',
       message: '您的订阅已过期，相关权益已自动取消。',
