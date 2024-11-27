@@ -25,37 +25,40 @@ const progress = computed(() => {
 
   const duration = (now.value.getTime() - start)
 
-  if (duration <= 1000)
+  if (duration <= 100)
     return 5
 
-  if (duration <= 3000)
+  if (duration <= 500)
     return 10
 
-  if (duration <= 5000)
+  if (duration <= 1200)
     return 30
 
-  if (duration <= 7000)
+  if (duration <= 2000)
     return 35
 
-  if (duration <= 8000)
+  if (duration <= 3000)
     return 40
 
-  if (duration <= 8500)
+  if (duration <= 4500)
     return 50
 
-  if (duration <= 10000)
+  if (duration <= 5800)
     return 60
 
-  if (duration <= 12500)
+  if (duration <= 6500)
     return 75
 
-  if (duration <= 14000)
+  if (duration <= 7000)
     return 80
 
-  if (duration <= 18000)
+  if (duration <= 8500)
     return 85
 
-  return 90/* Math.min(Math.max(Math.round(start / duration * 90), 10), 90) */
+  if (duration <= 12000)
+    return 90
+
+  return 95/* Math.min(Math.max(Math.round(start / duration * 90), 10), 90) */
 })
 
 function handleViewImage(src: string) {
@@ -370,8 +373,10 @@ watchEffect(loadImage)
     left: 0;
 
     width: max-content;
-    min-width: 20rem;
+    min-width: 10rem;
+    max-width: 85vw;
     height: 20rem;
+    max-height: 80vw;
 
     cursor: pointer;
 
